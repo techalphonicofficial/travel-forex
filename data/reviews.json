@@ -1,0 +1,62 @@
+[
+  {
+    "id": "1",
+    "name": "Sarah Mitchell",
+    "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=75",
+    "rating": 5,
+    "tour": "Bali Paradise Escape",
+    "date": "December 2024",
+    "review": "Absolutely magical! The whole trip was perfectly organized. Our guide was knowledgeable and the accommodations were stunning. Would 100% book again!",
+    "location": "New York, USA"
+  },
+  {
+    "id": "2",
+    "name": "James Thompson",
+    "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=75",
+    "rating": 5,
+    "tour": "Swiss Alps Adventure",
+    "date": "January 2025",
+    "review": "The Swiss Alps exceeded all expectations. Paragliding over Interlaken was the highlight of my life. Everything from logistics to hotels was top-notch.",
+    "location": "London, UK"
+  },
+  {
+    "id": "3",
+    "name": "Priya Sharma",
+    "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=75",
+    "rating": 5,
+    "tour": "Rajasthan Royal Tour",
+    "date": "November 2024",
+    "review": "A truly royal experience! The heritage hotels and the camel safari were unforgettable. Our guide shared incredible stories about Rajasthan's history.",
+    "location": "Mumbai, India"
+  },
+  {
+    "id": "4",
+    "name": "Michael Chen",
+    "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=75",
+    "rating": 4,
+    "tour": "Japan Cherry Blossom Trail",
+    "date": "March 2025",
+    "review": "Japan in cherry blossom season is something everyone should experience. The itinerary was well-paced with amazing moments every single day.",
+    "location": "San Francisco, USA"
+  },
+  {
+    "id": "5",
+    "name": "Emma Wilson",
+    "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=75",
+    "rating": 5,
+    "tour": "Maldives Luxury Escape",
+    "date": "February 2025",
+    "review": "Pure paradise! The overwater villa was breathtaking. Waking up to turquoise water every morning is a dream come true. Perfect honeymoon destination.",
+    "location": "Sydney, Australia"
+  },
+  {
+    "id": "6",
+    "name": "David Martinez",
+    "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=75",
+    "rating": 5,
+    "tour": "Serengeti Safari Adventure",
+    "date": "August 2024",
+    "review": "Witnessing the Great Migration was life-changing. The balloon safari at sunrise is something I'll never forget. The guides' wildlife knowledge was incredible.",
+    "location": "Madrid, Spain"
+  }
+]

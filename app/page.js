@@ -1,66 +1,65 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import HomeHero from '@/components/HomeHero';
+import RecommendedPackages from '@/components/FeaturedToursRow';
+import WhyChooseSection from '@/components/WhyChooseSection';
+import PopularDestinationRows from '@/components/PopularDestinationRows';
+import GramSection from '@/components/GramSection';
+import ExperienceSection from '@/components/ExperienceSection';
+import AppBanner from '@/components/AppBanner';
+import TrustSection from '@/components/TrustSection';
+import NewsletterForm from '@/components/NewsletterForm';
 
-export default function Home() {
+export const metadata = {
+  title: 'WanderLust — Create Your Sooper Hit Holiday!',
+  description:
+    'Fully personalized international holidays crafted by experts. Book Bali, Maldives, Europe, Japan & 120+ destinations. 50K+ happy travelers. Best price guarantee.',
+  keywords: 'travel packages, holiday packages, international tours, customized holidays, Bali, Maldives, Europe tours',
+};
+
+export default function HomePage() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <>
+      {/* 1. HERO — dark bg image, traveler type, search */}
+      <HomeHero />
+
+      {/* 2. RECOMMENDED PACKAGES — horizontal scroll cards */}
+      <RecommendedPackages />
+
+      {/* 3. WHY CHOOSE — stats + features + image collage */}
+      <WhyChooseSection />
+
+      {/* 4. POPULAR DESTINATIONS — 2 horizontal scroll rows */}
+      <PopularDestinationRows />
+
+      {/* 5. LOVE FROM THE GRAM — dark, Instagram photo strip */}
+      <GramSection />
+
+      {/* 6. PLAN ADVENTURES + POPULAR HAND-PICKED */}
+      <ExperienceSection />
+
+      {/* 7. APP BANNER — dark green */}
+      {/* <AppBanner /> */}
+
+      {/* 8. TRUST LOGOS + AWARDS */}
+      <TrustSection />
+
+      {/* 9. NEWSLETTER */}
+      <section style={{ background: '#026eb5', padding: '48px 0' }}>
+        <div className="container" style={{ textAlign: 'center', maxWidth: 600 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: 8 }}>
+            STAY IN THE LOOP
+          </p>
+          <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: 26, color: 'white', marginBottom: 10, lineHeight: 1.2 }}>
+            Get Exclusive Deals & Travel Inspiration
+          </h2>
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 24 }}>
+            Early-bird discounts, curated guides & weekly travel ideas.
+          </p>
+          <NewsletterForm />
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 10 }}>
+            No spam. Unsubscribe anytime.
           </p>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </section>
+    </>
   );
 }
