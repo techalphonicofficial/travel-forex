@@ -32,7 +32,7 @@ export const gramReels = [
     src: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=700&q=90',
     user: '@emma_travels',
     likes: '7.1K',
-    caption: 'Best trip ever with WanderLust \uD83D\uDC9A',
+    caption: 'Best trip ever with ITS TRAVELS AND TOURS \uD83D\uDC9A',
     location: 'Bali, Indonesia',
     title: "Emma's Bali Escape",
     description:
@@ -50,7 +50,7 @@ export const gramReels = [
     location: 'Kyoto, Japan',
     title: 'Kyoto Sakura Season Special',
     description:
-      'Spring in Kyoto is nothing short of magical — thousands of cherry blossoms painting the city pink, geisha districts coming alive, and ancient temples adorned with flowers. A bucket-list experience that WanderLust made effortless.',
+      'Spring in Kyoto is nothing short of magical — thousands of cherry blossoms painting the city pink, geisha districts coming alive, and ancient temples adorned with flowers. A bucket-list experience that ITS TRAVELS AND TOURS made effortless.',
     tag: 'Japan',
     tagColor: '#ef4444',
     tour: '/tours?search=Japan',
@@ -78,7 +78,7 @@ export const gramReels = [
     location: 'North Male Atoll, Maldives',
     title: 'Maldives Overwater Luxury',
     description:
-      'Crystal-clear turquoise lagoons, private overwater villas, world-class snorkeling, and candlelit dinners on the beach — the Maldives is the ultimate honeymoon destination. WanderLust turned this dream into a flawless reality.',
+      'Crystal-clear turquoise lagoons, private overwater villas, world-class snorkeling, and candlelit dinners on the beach — the Maldives is the ultimate honeymoon destination. ITS TRAVELS AND TOURS turned this dream into a flawless reality.',
     tag: 'Maldives',
     tagColor: '#0ea5e9',
     tour: '/tours?search=Maldives',

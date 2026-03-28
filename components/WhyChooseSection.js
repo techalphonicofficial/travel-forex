@@ -49,7 +49,7 @@ export default function WhyChooseSection() {
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: '#026eb5', margin: '0 0 8px' }}>OUR TRACK RECORD</p>
             <h2 className="section-title" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: 28, color: '#111827', lineHeight: 1.2, margin: '0 0 28px' }}>
               Why Choose<br />
-              <span style={{ color: '#026eb5' }}>WanderLust?</span>
+              <span style={{ color: '#026eb5' }}>ITS TRAVELS AND TOURS?</span>
             </h2>
 
             {/* 3 big stats */}

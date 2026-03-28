@@ -226,7 +226,7 @@ export function BottomReviews({ destination }) {
                 <div style={{ color: '#fbbf24', fontSize: 12 }}>★★★★★</div>
               </div>
               <p style={{ margin: 0, fontSize: 13, color: '#4b5563', lineHeight: 1.5 }}>
-                "The entire {destination} trip was orchestrated perfectly by the WanderLust team. From airport transfers to the stunning resort stay and daily activities, everything was seamless. Highly recommend their app for real-time concierge support!"
+                "The entire {destination} trip was orchestrated perfectly by the ITS TRAVELS AND TOURS team. From airport transfers to the stunning resort stay and daily activities, everything was seamless. Highly recommend their app for real-time concierge support!"
               </p>
             </div>
           ))}

@@ -11,7 +11,7 @@ export default function TermsOfService() {
             Terms of Service
           </h1>
           <p style={{ color: '#c4b5fd', fontSize: 18, maxWidth: 800, margin: '0 auto', lineHeight: 1.6 }}>
-            The legal agreements and operational framework governing your relationship with WanderLust.
+            The legal agreements and operational framework governing your relationship with ITS TRAVELS AND TOURS.
           </p>
         </div>
       </div>
@@ -26,7 +26,7 @@ export default function TermsOfService() {
 
         <section style={{ marginBottom: 40, color: '#4b5563', lineHeight: 1.8 }}>
           <h2 style={{ fontSize: 24, fontWeight: 700, color: '#1f2937', marginBottom: 16 }}>2. Booking Operations and Third Parties</h2>
-          <p>Our company acts as an intermediary connecting clients with airlines, ground handlers, and lodging systems. As such, the specific responsibilities of the tour realization rest upon the localized vendors. You fully indemnify WanderLust against direct disruption resulting from third-party operational capacity issues.</p>
+          <p>Our company acts as an intermediary connecting clients with airlines, ground handlers, and lodging systems. As such, the specific responsibilities of the tour realization rest upon the localized vendors. You fully indemnify ITS TRAVELS AND TOURS against direct disruption resulting from third-party operational capacity issues.</p>
         </section>
 
         <section style={{ marginBottom: 40, color: '#4b5563', lineHeight: 1.8 }}>

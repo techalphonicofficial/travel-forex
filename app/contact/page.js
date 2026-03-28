@@ -151,9 +151,9 @@ export default function ContactPage() {
                 <div className="d-flex flex-column gap-4">
                   {/* Contact Info Cards */}
                   {[
-                    { icon: '📍', title: 'Office', info: '123 Travel Street, Wanderlust Tower, NY 10001, USA', action: null },
-                    { icon: '📞', title: 'Phone', info: '+1 (800) WANDER-1\nMon–Fri 9am–6pm EST', action: 'tel:+18009263371' },
-                    { icon: '📧', title: 'Email', info: 'hello@wanderlusttours.com\nWe reply within 24 hours', action: 'mailto:hello@wanderlusttours.com' },
+                    { icon: '📍', title: 'Office', info: '106, AGGARWAL BHAWAN 36, Nehru Place, New Delhi, South Delhi, Delhi, 110019', action: null },
+                    { icon: '📞', title: 'Phone', info: '9999457020\nMon–Fri 9am–6pm EST', action: 'tel:+9999457020' },
+                    { icon: '📧', title: 'Email', info: 'itstravels.tours@gmail.com\nWe reply within 24 hours', action: 'mailto:itstravels.tours@gmail.com' },
                     { icon: '💬', title: 'Live Chat', info: 'Available 24/7 for urgent travel assistance', action: '#' },
                   ].map(({ icon, title, info, action }) => (
                     <div

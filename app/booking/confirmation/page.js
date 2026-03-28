@@ -132,7 +132,7 @@ export default function ConfirmationPage() {
             <button
               className="btn-secondary d-flex align-items-center gap-2"
               onClick={() => {
-                const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=WanderLust+Tour+${bookingId}&details=Your+tour+booking+ref:+${bookingId}`;
+                const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=ITS TRAVELS AND TOURS+Tour+${bookingId}&details=Your+tour+booking+ref:+${bookingId}`;
                 window.open(url, '_blank');
               }}
             >

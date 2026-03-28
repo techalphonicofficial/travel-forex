@@ -841,7 +841,7 @@ export default function CustomizeFlow() {
             <div style={{ display: 'flex', gap: 12, flex: 1 }}>
               <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&q=80" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover' }} alt="User" />
               <div>
-                <p style={{ margin: 0, fontSize: 12, color: '#4b5563', lineHeight: 1.4 }}>"This is my honest review of my experience with WanderLust whose services my partner and I used to book our memorable New Zealand honeymoon..."</p>
+                <p style={{ margin: 0, fontSize: 12, color: '#4b5563', lineHeight: 1.4 }}>"This is my honest review of my experience with ITS TRAVELS AND TOURS whose services my partner and I used to book our memorable New Zealand honeymoon..."</p>
                 <p style={{ margin: '4px 0 0', fontSize: 11, fontWeight: 700, color: '#026eb5' }}>Tejas Kinger, New Zealand</p>
               </div>
             </div>

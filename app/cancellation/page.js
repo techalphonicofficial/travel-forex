@@ -35,7 +35,7 @@ export default function CancellationPolicy() {
 
         <section style={{ marginBottom: 40, color: '#4b5563', lineHeight: 1.8 }}>
           <h2 style={{ fontSize: 24, fontWeight: 700, color: '#1f2937', marginBottom: 16 }}>Force Majeure</h2>
-          <p>In cases of natural disasters, global pandemics, or extreme political unrest, standard cancellation policies are overridden, and WanderLust will attempt to issue 100% credits immediately usable towards any future booking.</p>
+          <p>In cases of natural disasters, global pandemics, or extreme political unrest, standard cancellation policies are overridden, and ITS TRAVELS AND TOURS will attempt to issue 100% credits immediately usable towards any future booking.</p>
         </section>
 
         <div style={{ background: '#ecfdf5', borderLeft: '4px solid #10b981', padding: 24, borderRadius: 8, marginTop: 40 }}>

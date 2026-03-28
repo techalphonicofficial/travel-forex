@@ -17,23 +17,23 @@ const poppins = Poppins({
 export const metadata = {
   metadataBase: new URL('https://wanderlust-tours.com'),
   title: {
-    default: 'WanderLust Tours — Premium Travel booking',
-    template: '%s | WanderLust Tours',
+    default: 'ITS TRAVELS AND TOURS — Premium Travel booking',
+    template: '%s | ITS TRAVELS AND TOURS',
   },
   description:
-    'Discover handcrafted travel experiences. Book luxury tours to the world\'s most breathtaking destinations with WanderLust Tours.',
+    'Discover handcrafted travel experiences. Book luxury tours to the world\'s most breathtaking destinations with ITS TRAVELS AND TOURS.',
   keywords: ['travel', 'tours', 'vacation', 'holiday packages', 'adventure travel', 'luxury travel'],
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: 'https://wanderlust-tours.com',
-    siteName: 'WanderLust Tours',
+    siteName: 'ITS TRAVELS AND TOURS',
     images: [
       {
         url: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200&q=75',
         width: 1200,
         height: 630,
-        alt: 'WanderLust Tours',
+        alt: 'ITS TRAVELS AND TOURS',
       },
     ],
   },

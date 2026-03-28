@@ -9,7 +9,7 @@ import TrustSection from '@/components/TrustSection';
 import NewsletterForm from '@/components/NewsletterForm';
 
 export const metadata = {
-  title: 'WanderLust — Create Your Sooper Hit Holiday!',
+  title: 'ITS TRAVELS AND TOURS — Create Your Sooper Hit Holiday!',
   description:
     'Fully personalized international holidays crafted by experts. Book Bali, Maldives, Europe, Japan & 120+ destinations. 50K+ happy travelers. Best price guarantee.',
   keywords: 'travel packages, holiday packages, international tours, customized holidays, Bali, Maldives, Europe tours',

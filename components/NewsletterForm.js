@@ -13,7 +13,7 @@ export default function NewsletterForm() {
     setLoading(true);
     await new Promise((r) => setTimeout(r, 800));
     setLoading(false);
-    toast.success('🎉 Subscribed! Welcome to the WanderLust community.');
+    toast.success('🎉 Subscribed! Welcome to the ITS TRAVELS AND TOURS community.');
     setEmail('');
   };
 

@@ -11,7 +11,7 @@ export default function PrivacyPolicy() {
             Privacy Policy
           </h1>
           <p style={{ color: '#a7f3d0', fontSize: 18, maxWidth: 800, margin: '0 auto', lineHeight: 1.6 }}>
-            Transparency and security are at the core of WanderLust. Learn how we handle and protect your personal data.
+            Transparency and security are at the core of ITS TRAVELS AND TOURS. Learn how we handle and protect your personal data.
           </p>
         </div>
       </div>

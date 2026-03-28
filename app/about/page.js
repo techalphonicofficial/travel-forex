@@ -4,7 +4,7 @@ import TeamCard from '@/components/TeamCard';
 
 export const metadata = {
   title: 'About Us',
-  description: 'Learn about WanderLust Tours — our story, team, and mission to create extraordinary travel experiences.',
+  description: 'Learn about ITS TRAVELS AND TOURS — our story, team, and mission to create extraordinary travel experiences.',
 };
 
 const team = [
@@ -15,7 +15,7 @@ const team = [
 ];
 
 const milestones = [
-  { year: '2015', title: 'Founded', desc: 'WanderLust was born from a shared passion for meaningful travel.' },
+  { year: '2015', title: 'Founded', desc: 'ITS TRAVELS AND TOURS was born from a shared passion for meaningful travel.' },
   { year: '2017', title: '10K Travelers', desc: 'Reached our first milestone with 10,000 happy adventurers.' },
   { year: '2019', title: 'Global Expansion', desc: 'Expanded to 50+ destinations across 6 continents.' },
   { year: '2022', title: 'Award-Winning', desc: 'Recognized as Best Luxury Tour Operator by Travel Weekly.' },
@@ -45,7 +45,7 @@ export default function AboutPage() {
             We Live &amp; Breathe Travel
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 18, maxWidth: 520, lineHeight: 1.7 }}>
-            WanderLust was born from a simple belief: travel should change you. We craft journeys that get under your skin.
+            ITS TRAVELS AND TOURS was born from a simple belief: travel should change you. We craft journeys that get under your skin.
           </p>
         </div>
       </section>

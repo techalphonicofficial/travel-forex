@@ -16,7 +16,7 @@ export default function RegisterPage() {
     setLoading(true);
     await new Promise((r) => setTimeout(r, 1200));
     setLoading(false);
-    toast.success('Account created! Welcome to WanderLust!');
+    toast.success('Account created! Welcome to ITS TRAVELS AND TOURS!');
     setTimeout(() => router.push('/dashboard'), 1500);
   };
 
@@ -60,7 +60,7 @@ export default function RegisterPage() {
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
             </svg>
           </div>
-          <span style={{ fontSize: 22, fontWeight: 800, color: '#111827', letterSpacing: -0.5 }}>WanderLust</span>
+          <span style={{ fontSize: 22, fontWeight: 800, color: '#111827', letterSpacing: -0.5 }}>ITS TRAVELS AND TOURS</span>
         </Link>
 
         <div style={{ width: '100%', maxWidth: 460 }}>
@@ -176,7 +176,7 @@ export default function RegisterPage() {
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, margin: '20px 0 24px' }}>
               <input type="checkbox" id="terms" required style={{ accentColor: '#026eb5', marginTop: 4, width: 16, height: 16, cursor: 'pointer' }} />
               <label htmlFor="terms" style={{ color: '#4b5563', fontSize: 13.5, cursor: 'pointer', lineHeight: 1.5 }}>
-                I agree to WanderLust's{' '}
+                I agree to ITS TRAVELS AND TOURS's{' '}
                 <Link href="#" style={{ color: '#026eb5', fontWeight: 600, textDecoration: 'none' }}>Terms of Service</Link>
                 {' '}and{' '}
                 <Link href="#" style={{ color: '#026eb5', fontWeight: 600, textDecoration: 'none' }}>Privacy Policy</Link>

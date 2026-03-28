@@ -234,7 +234,7 @@ function SideDrawer({ isOpen, onClose }) {
     { label: 'Contact us', href: '/contact' },
     { label: 'Blog', href: '/blog' },
     { label: 'About us', href: '/about' },
-    { label: 'Login', href: '/login' },
+    { label: 'Login', href: '/auth/login' },
     // { label: 'Careers', href: '/careers' },
     // { label: 'Choose Country', hasSub: true, subItems: ['USA', 'UK', 'Australia', 'UAE'] },
   ];
@@ -453,7 +453,7 @@ export default function Navbar() {
                   ? "https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp"
                   : "https://i.ibb.co/6cV4xWbm/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy.webp"
                 }
-                alt="WanderLust Logo"
+                alt="ITS TRAVELS AND TOURS Logo"
                 style={{ width: 80, height: 80, objectFit: 'contain' }}
               />
             </Link>
