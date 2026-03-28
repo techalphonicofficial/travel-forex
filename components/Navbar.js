@@ -385,7 +385,7 @@ export default function Navbar() {
   const [atHero, setAtHero] = useState(true);
   const pathname = usePathname();
 
-  const isHeroPage = pathname === '/';
+  const isHeroPage = pathname === '/' || '/packages' || '/tours?';
 
   useEffect(() => {
     const onScroll = () => {

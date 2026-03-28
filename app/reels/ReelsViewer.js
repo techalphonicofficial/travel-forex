@@ -177,7 +177,7 @@ export default function ReelsViewer() {
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <img src="https://pickyourtrail.com/static/images/logo/pyt-white.svg" alt="logo" style={{ height: 20 }} />
+                  <img src="https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp" alt="logo" style={{ width: 80, height: 80, objectFit: 'contain' }} />
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

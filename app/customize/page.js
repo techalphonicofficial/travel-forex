@@ -607,29 +607,222 @@ export default function CustomizeFlow() {
 
   return (
     <div style={{ background: '#fafafa', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes segPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(2,110,181,0.5); } 50% { box-shadow: 0 0 0 4px rgba(2,110,181,0); } }
+
+        /* ── DESKTOP header ── */
+        .cust-header {
+          background: #111827;
+          height: 100px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 24px;
+          position: sticky;
+          top: 0;
+          z-index: 999;
+          gap: 12px;
+        }
+        .cust-logo { width: 96px; height: 96px; object-fit: contain; flex-shrink: 0; }
+        .cust-breadcrumbs {
+          display: flex; align-items: center; justify-content: center; gap: 10px;
+          font-size: 13px; font-weight: 500;
+          overflow-x: auto; flex: 1;
+          scrollbar-width: none; -ms-overflow-style: none;
+          white-space: nowrap; padding: 4px 0;
+        }
+        .cust-breadcrumbs::-webkit-scrollbar { display: none; }
+        .cust-crumb-item { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .cust-close {
+          width: 28px; height: 28px; background: white; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          text-decoration: none; color: #111827; font-weight: 700; font-size: 14px; flex-shrink: 0;
+        }
+
+        /* ── MOBILE header – hidden on desktop ── */
+        .cust-mobile-header { display: none; }
+
+        @media (max-width: 767.98px) {
+          /* Hide desktop breadcrumb bar, show mobile header */
+          .cust-header { display: none; }
+          .cust-mobile-header {
+            display: flex;
+            flex-direction: column;
+            background: #0d1117;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+          }
+
+          /* Top row */
+          .cust-mob-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            gap: 10px;
+          }
+          .cust-mob-logo {
+            width: 44px; height: 44px; object-fit: contain; flex-shrink: 0;
+            border-radius: 8px;
+          }
+          .cust-mob-title {
+            flex: 1;
+            text-align: center;
+          }
+          .cust-mob-title-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #4b5563;
+            margin-bottom: 1px;
+          }
+          .cust-mob-title-step {
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            font-family: Poppins, sans-serif;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .cust-mob-close {
+            width: 30px; height: 30px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+            backdrop-filter: blur(4px);
+          }
+
+          /* Segmented progress track */
+          .cust-mob-progress {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            padding: 0 16px 10px;
+          }
+          .cust-seg {
+            flex: 1;
+            height: 3px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.1);
+            transition: background 0.35s ease, box-shadow 0.35s ease;
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+          }
+          .cust-seg.done {
+            background: rgba(2,110,181,0.55);
+            cursor: pointer;
+          }
+          .cust-seg.done:active { opacity: 0.7; }
+          .cust-seg.active {
+            background: #026eb5;
+            animation: segPulse 2s infinite;
+          }
+          /* Shimmer on active segment */
+          .cust-seg.active::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
+            animation: shimmer 1.8s infinite;
+          }
+          @keyframes shimmer {
+            from { transform: translateX(-100%); }
+            to   { transform: translateX(100%); }
+          }
+
+          /* Step counter badge */
+          .cust-mob-badge {
+            font-size: 10px;
+            font-weight: 700;
+            color: #026eb5;
+            background: rgba(2,110,181,0.12);
+            border: 1px solid rgba(2,110,181,0.3);
+            border-radius: 999px;
+            padding: 2px 8px;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+          }
+        }
+      `}</style>
 
       {subStep === 'login-modal' && renderLoginModal()}
       {subStep === 'edit-cities' && renderEditCitiesModal()}
 
-      {/* Dark Navbar */}
-      <header style={{ background: '#111827', height: 96, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 24px', position: 'sticky', top: 0, zIndex: 999 }}>
-        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-          <img src="https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp" alt="Logo" style={{ width: 84, height: 84, objectFit: 'contain' }} />
+      {/* ── DESKTOP Header ── */}
+      <header className="cust-header">
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+          <img
+            src="https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp"
+            alt="Logo"
+            className="cust-logo"
+          />
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13, fontWeight: 500 }}>
+        <div className="cust-breadcrumbs">
           {BREADCRUMBS.map((crumb, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ color: crumb.active ? '#026eb5' : (i < step ? 'white' : '#6b7280'), borderBottom: crumb.active ? '2px solid #026eb5' : 'none', paddingBottom: 4, cursor: i < step ? 'pointer' : 'default' }}
-                onClick={() => { if (i < step) { setStep(i); setSubStep(''); } }}>
+            <div key={i} className="cust-crumb-item">
+              <span
+                style={{
+                  color: crumb.active ? '#026eb5' : (i < step ? 'white' : '#6b7280'),
+                  borderBottom: crumb.active ? '2px solid #026eb5' : 'none',
+                  paddingBottom: 3,
+                  cursor: i < step ? 'pointer' : 'default',
+                  whiteSpace: 'nowrap',
+                }}
+                onClick={() => { if (i < step) { setStep(i); setSubStep(''); } }}
+              >
                 {crumb.label}
               </span>
-              {i < BREADCRUMBS.length - 1 && <span style={{ color: '#4b5563' }}>·</span>}
+              {i < BREADCRUMBS.length - 1 && <span style={{ color: '#4b5563', flexShrink: 0 }}>·</span>}
             </div>
           ))}
         </div>
-        <Link href="/" style={{ width: 28, height: 28, background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', color: '#111827', fontWeight: 700, fontSize: 14 }}>✕</Link>
+        <Link href="/" className="cust-close">✕</Link>
       </header>
+
+      {/* ── MOBILE Header – unique step-tracker design ── */}
+      <div className="cust-mobile-header">
+        {/* Top row: Logo + current step title + close */}
+        <div className="cust-mob-top">
+          <Link href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
+            <img
+              src="https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp"
+              alt="Logo"
+              className="cust-mob-logo"
+            />
+          </Link>
+
+          <div className="cust-mob-title">
+            <div className="cust-mob-title-label">Step {step + 1} of {BREADCRUMBS.length}</div>
+            <div className="cust-mob-title-step">{BREADCRUMBS[step]?.label}</div>
+          </div>
+
+          <Link href="/" className="cust-mob-close">✕</Link>
+        </div>
+
+        {/* Segmented progress bar */}
+        <div className="cust-mob-progress">
+          {BREADCRUMBS.map((_, i) => (
+            <div
+              key={i}
+              className={`cust-seg${i < step ? ' done' : ''}${i === step ? ' active' : ''}`}
+              onClick={() => { if (i < step) { setStep(i); setSubStep(''); } }}
+              title={BREADCRUMBS[i]?.label}
+            />
+          ))}
+          <span className="cust-mob-badge">{step + 1}/{BREADCRUMBS.length}</span>
+        </div>
+      </div>
 
       {/* Main Content Area */}
       <main style={{ flex: 1, padding: '24px', position: 'relative' }}>

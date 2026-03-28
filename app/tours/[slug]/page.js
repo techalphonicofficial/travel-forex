@@ -45,7 +45,7 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const entity = findEntity(slug);
   if (!entity) return { title: 'Tour Not Found' };
-  
+
   return {
     title: entity.title,
     description: entity.description || entity.title,
@@ -77,7 +77,7 @@ export default async function TourDetailPage({ params }) {
   return (
     <>
       {/* Breadcrumb */}
-      <div style={{ background: 'var(--color-bg-soft)', borderBottom: '1px solid var(--color-border)', marginTop: 72 }}>
+      {/* <div style={{ background: 'var(--color-bg-soft)', borderBottom: '1px solid var(--color-border)', marginTop: 140 }}>
         <div className="container py-3">
           <nav aria-label="breadcrumb">
             <ol className="breadcrumb mb-0" style={{ fontSize: 14 }}>
@@ -87,7 +87,7 @@ export default async function TourDetailPage({ params }) {
             </ol>
           </nav>
         </div>
-      </div>
+      </div> */}
 
       <TourDetailClient tour={entity} similarTours={similarEntities} />
     </>
