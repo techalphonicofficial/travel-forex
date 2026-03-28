@@ -45,7 +45,7 @@ export default function HomeHero() {
     const updateHeight = () => {
       const w = window.innerWidth;
       if (w <= 767) {         // Mobile
-        setHeroHeight('180vh');
+        setHeroHeight('140vh');
       } else if (w <= 1024) {  // Tablet
         setHeroHeight('100vh');
       } else {                // Desktop
