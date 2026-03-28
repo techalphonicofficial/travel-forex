@@ -126,7 +126,17 @@ export default function DashboardPage() {
   );
 
   return (
-    <div style={{ paddingTop: 100, paddingBottom: 80 }}>
+    <div style={{ paddingBottom: 80 }}>
+      {/* Blog Hero Container */}
+      <div style={{ background: '#111827', padding: '150px 24px 60px', textAlign: 'center', marginBottom: 50 }}>
+        <h1 style={{ fontFamily: 'Poppins, sans-serif', fontSize: 48, fontWeight: 900, color: 'white', margin: '0 0 16px' }}>
+          My Dashboard
+        </h1>
+        <p style={{ color: '#9ca3af', fontSize: 18, maxWidth: 600, margin: '0 auto', lineHeight: 1.6 }}>
+          Manage your bookings, wishlist, and profile.
+        </p>
+      </div>
+
       <div className="container">
         {/* Header */}
         <div className="mb-6 d-flex align-items-center gap-4 flex-wrap" style={{ marginBottom: 40 }}>
