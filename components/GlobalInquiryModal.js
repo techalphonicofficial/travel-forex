@@ -95,7 +95,7 @@ export default function GlobalInquiryModal() {
 
           <div style={{ position: 'relative', zIndex: 2 }}>
             <div className="mb-4 mx-auto w-100">
-              <img src="https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp" alt="Logo" style={{ width: '100%', maxWidth: '100px', height: 100, margin: 'auto', objectFit: 'contain' }} />
+              <img src="./logooo.png" alt="Logo" style={{ width: '100%', maxWidth: '100px', height: 100, margin: 'auto', objectFit: 'contain' }} />
             </div>
 
             <h4 style={{ color: 'white', fontWeight: 400, letterSpacing: '2px', marginBottom: '10px' }}>YOUR</h4>

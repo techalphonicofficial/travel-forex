@@ -66,7 +66,7 @@ export default function Footer() {
             <div className="col-lg-4">
               <div className="d-flex align-items-center gap-2 mb-4">
 
-                <img src="https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp" alt="Logo" style={{ width: 100, height: 100, objectFit: 'contain' }} />
+                <img src="./logooo.png" alt="Logo" style={{ width: 100, height: 100, objectFit: 'contain' }} />
               </div>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 15, lineHeight: 1.8, maxWidth: 320, marginBottom: 24 }}>
                 Crafting unforgettable travel experiences since 2015. We believe every journey should be as extraordinary as the destination.

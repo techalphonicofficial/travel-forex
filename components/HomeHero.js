@@ -8,19 +8,19 @@ import { useRouter } from 'next/navigation';
 */
 const VIDEO_SOURCES = [
   {
-    src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    src: 'https://res.cloudinary.com/demo/video/upload/q_auto,f_auto/elephants.mp4',
     poster: 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=85',
   },
   {
-    src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
+    src: 'https://res.cloudinary.com/demo/video/upload/q_auto,f_auto/sea_turtle.mp4',
     poster: 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=1920&q=85',
   },
   {
-    src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    src: 'https://media.w3.org/2010/05/sintel/trailer.mp4',
     poster: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=85',
   },
   {
-    src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    src: 'https://www.w3schools.com/html/mov_bbb.mp4',
     poster: 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=1920&q=85',
   },
 ];

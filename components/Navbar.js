@@ -66,10 +66,10 @@ function Tag({ label, color, bg }) {
       display: 'inline-block',
       background: bg,
       color: color,
-      fontSize: 9,
-      fontWeight: 800,
+      fontSize: 8,
+      fontWeight: 700,
       letterSpacing: 0.8,
-      padding: '2px 7px',
+      padding: '2px 4px',
       borderRadius: 4,
       marginLeft: 6,
       lineHeight: 1.6,
@@ -169,6 +169,7 @@ function MegaDropdown({ label, cols, isTransparent }) {
                     fontSize: 13.5,
                     transition: 'color 0.15s',
                     lineHeight: 1.5,
+                    whiteSpace: 'nowrap',
                   }}
                   onMouseEnter={e => { e.currentTarget.style.color = '#026eb5'; }}
                   onMouseLeave={e => { e.currentTarget.style.color = item.isExplore ? '#026eb5' : '#1f2937'; }}
@@ -188,56 +189,38 @@ function MegaDropdown({ label, cols, isTransparent }) {
 }
 
 /* ── Side Drawer ───────────────────────────────────────── */
-function SideDrawer({ isOpen, onClose }) {
+function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, onLogout }) {
   const [expanded, setExpanded] = useState(null);
 
   const toggleExpand = (label) => {
     setExpanded(expanded === label ? null : label);
   };
 
-  const navGroups = [
-    {
-      label: 'Family Theme Packages',
-      hasSub: true,
-      subItems: [
-        'International Family Packages', 'Thailand Family Packages', 'Europe Family Packages',
-        'Maldives Family Packages', 'Bali Family Packages', 'Dubai Family Packages',
-        'Vietnam Family Packages', 'Singapore Family Packages', 'Sri Lanka Family Packages',
-        'Turkey Family Packages', 'Japan Family Packages', 'Greece Family Packages'
-      ]
-    },
-    {
-      label: 'Honeymoon Theme Packages',
-      hasSub: true,
-      subItems: ['Bali Honeymoon', 'Maldives Honeymoon', 'Thailand Honeymoon', 'Europe Honeymoon']
-    },
-    {
-      label: 'Adventure Theme Packages',
-      hasSub: true,
-      subItems: ['Trekking in Nepal', 'Skydiving in Dubai', 'Scuba in Maldives']
-    },
-    { label: 'Exclusive Packages', hasSub: true, subItems: ['Luxury Cruise', 'Private Island Getaway'] },
-    { label: 'International Tourism', hasSub: true, subItems: ['Europe', 'Asia', 'Americas', 'Africa'] },
-    { label: 'Indian Tourism', hasSub: true, subItems: ['Kerala', 'Rajasthan', 'Leh Ladakh', 'Goa'] },
-    {
-      label: 'Visa',
-      hasSub: true,
-      subItems: [
-        { label: 'Thailand Visa', href: '/visa/thailand' },
-        { label: 'Dubai Visa', href: '/visa/thailand' },
-        { label: 'Schengen Visa', href: '/visa/thailand' },
-        { label: 'UK Visa', href: '/visa/thailand' }
-      ]
-    },
+  const navGroup = [
     { label: 'Testimonial', href: '/testimonials' },
     { label: 'FAQ', href: '/contact#faq' },
     { label: 'Contact us', href: '/contact' },
     { label: 'Blog', href: '/blog' },
     { label: 'About us', href: '/about' },
-    { label: 'Login', href: '/auth/login' },
+    ...(isLoggedIn
+      ? [{ label: 'My Profile', href: '/profile' }]
+      : [{ label: 'Login', href: '/auth/login' }]),
+    // Previous static login link kept for reference:
+    // { label: 'Login', href: '/auth/login' },
     // { label: 'Careers', href: '/careers' },
     // { label: 'Choose Country', hasSub: true, subItems: ['USA', 'UK', 'Australia', 'UAE'] },
   ];
+
+  const dynamicGroups = (allCategories || []).map(cat => ({
+    label: cat.name,
+    hasSub: (cat.destinations && cat.destinations.length > 0),
+    subItems: (cat.destinations || []).map(dest => ({
+      label: dest.name,
+      href: `/package/${dest.slug}`
+    }))
+  }));
+
+  const navGroups = [...dynamicGroups, ...navGroup];
 
   return (
     <>
@@ -266,7 +249,9 @@ function SideDrawer({ isOpen, onClose }) {
       >
         {/* Header */}
         <div style={{ padding: '24px', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#111827' }}>Hello, Guest</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#111827' }}>
+            Hello, {isLoggedIn ? currentUser?.name?.split(' ')[0] || 'Traveler' : 'Guest'}
+          </h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 5, color: '#6b7280' }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
               <path d="M18 6L6 18M6 6l12 12" />
@@ -276,7 +261,7 @@ function SideDrawer({ isOpen, onClose }) {
 
         {/* Scrollable Content */}
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          {navGroups.map((group, idx) => {
+          {navGroups?.map((group, idx) => {
             const isExpanded = expanded === group.label;
             const hasHref = !!group.href;
 
@@ -362,7 +347,7 @@ function SideDrawer({ isOpen, onClose }) {
 
         {/* Footer */}
         <div style={{ padding: '24px', background: '#f9fafb', borderTop: '1px solid #f0f0f0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
             <div style={{ display: 'flex', gap: 12 }}>
               {[1, 2, 3, 4].map(i => (
                 <div key={i} style={{ width: 32, height: 32, borderRadius: '50%', background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>
@@ -370,7 +355,27 @@ function SideDrawer({ isOpen, onClose }) {
                 </div>
               ))}
             </div>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>+91 8031274154</span>
+            {isLoggedIn ? (
+              <button
+                type="button"
+                onClick={() => {
+                  onLogout();
+                  onClose();
+                }}
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: '#dc2626',
+                  background: 'transparent',
+                  border: 'none',
+                  padding: 0,
+                }}
+              >
+                Sign out
+              </button>
+            ) : (
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>+91 8031274154</span>
+            )}
           </div>
         </div>
       </div>
@@ -379,13 +384,96 @@ function SideDrawer({ isOpen, onClose }) {
 }
 
 /* ── Main Navbar ──────────────────────────────────────── */
+import {
+  AUTH_CHANGED_EVENT,
+  clearAuthSession,
+  getCategories,
+  getDestinationsByCategory,
+  getStoredAuth,
+  getStoredToken,
+} from '@/utils/api';
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [atHero, setAtHero] = useState(true);
+  const [categories, setCategories] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
 
-  const isHeroPage = pathname === '/' || '/packages' || '/tours?';
+  const isHeroPage = pathname === '/' || pathname === '/packages' || pathname.startsWith('/package') || pathname.startsWith('/tours') || pathname.startsWith('/about') || pathname.startsWith('/blog') || pathname.startsWith('/contact');
+
+  useEffect(() => {
+    const fetchNavbarCategoriesAndDests = async () => {
+      const allCats = await getCategories();
+
+      // Helper to fetch destinations for a list of categories
+      const enrichCategories = async (cats) => {
+        return await Promise.all(
+          cats.map(async (cat) => {
+            const apiDests = await getDestinationsByCategory(cat.id);
+            let mappedItems = apiDests.map(item => {
+              const tagStr = item.type ? item.type.split(',')[0].trim().toUpperCase() : null;
+              return {
+                name: item.name.charAt(0).toUpperCase() + item.name.slice(1),
+                href: `/package/${item.slug}`,
+                tag: tagStr,
+                tagClr: tagStr === 'BEACH' ? '#ef4444' : '#026eb5',
+                tagBg: tagStr === 'BEACH' ? '#fef2f2' : '#e0f2fe'
+              };
+            });
+
+            if (mappedItems.length > 0) {
+              mappedItems.push({
+                name: `Explore All →`,
+                href: `/packages`,
+                isExplore: true
+              });
+            }
+
+            // Distribute into 3 columns automatically
+            const columnCount = 3;
+            const itemsPerCol = Math.ceil(mappedItems.length / columnCount) || 1;
+            const cols = [];
+            for (let i = 0; i < mappedItems.length; i += itemsPerCol) {
+              cols.push(mappedItems.slice(i, i + itemsPerCol));
+            }
+            return { ...cat, destinations: apiDests, cols };
+          })
+        );
+      };
+
+      // Filter for Menu (Desktop)
+      const menuCatsRaw = allCats.filter(cat => cat.show_in_menu === true);
+      const menuCats = await enrichCategories(menuCatsRaw);
+      setCategories(menuCats);
+
+      // Filter for Sidebar (Mobile) - Include both menu and sidebar flagged categories
+      const sidebarCatsRaw = allCats.filter(cat => cat.show_in_sidebar == true || cat.show_in_menu == true);
+      const sidebarCats = await enrichCategories(sidebarCatsRaw);
+      setAllCategories(sidebarCats);
+    };
+    fetchNavbarCategoriesAndDests();
+  }, []);
+
+  useEffect(() => {
+    const syncAuthState = () => {
+      const token = getStoredToken();
+      setIsLoggedIn(Boolean(token));
+      setCurrentUser(getStoredAuth());
+    };
+
+    syncAuthState();
+    window.addEventListener('storage', syncAuthState);
+    window.addEventListener(AUTH_CHANGED_EVENT, syncAuthState);
+
+    return () => {
+      window.removeEventListener('storage', syncAuthState);
+      window.removeEventListener(AUTH_CHANGED_EVENT, syncAuthState);
+    };
+  }, [pathname]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -397,7 +485,10 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => { setDrawerOpen(false); }, [pathname]);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setDrawerOpen(false));
+    return () => cancelAnimationFrame(frame);
+  }, [pathname]);
 
   if (pathname?.startsWith('/auth')) {
     return null;
@@ -448,13 +539,21 @@ export default function Navbar() {
 
             {/* Logo */}
             <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-              <img
+              {/* <img
                 src={isTransparent
                   ? "https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp"
                   : "https://i.ibb.co/6cV4xWbm/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy.webp"
                 }
                 alt="ITS TRAVELS AND TOURS Logo"
                 style={{ width: 80, height: 80, objectFit: 'contain' }}
+              /> */}
+              <img
+                src={isTransparent
+                  ? "/logooo.png"
+                  : "/logooo.png"
+                }
+                alt="ITS TRAVELS AND TOURS Logo"
+                style={{ width: 142, height: 54, objectFit: 'contain' }}
               />
             </Link>
 
@@ -466,31 +565,66 @@ export default function Navbar() {
             }}
               className="d-none d-lg-flex"
             >
-              <MegaDropdown label="Explore Destinations" cols={destinationCols} isTransparent={isTransparent} />
-              <MegaDropdown label="Holiday Tour Packages" cols={packageCols} isTransparent={isTransparent} />
+              {categories.length > 0 ? (
+                categories.map(cat => (
+                  <MegaDropdown
+                    key={cat.id}
+                    label={cat.name}
+                    cols={cat.cols && cat.cols.length > 0 ? cat.cols : []}
+                    isTransparent={isTransparent}
+                  />
+                ))
+              ) : (
+                <>
+                  <MegaDropdown label="Explore Destinations" cols={destinationCols} isTransparent={isTransparent} />
+                  <MegaDropdown label="Holiday Tour Packages" cols={packageCols} isTransparent={isTransparent} />
+                </>
+              )}
             </ul>
 
             {/* Right side controls */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
 
-              {/* Login Button - Hidden on mobile */}
-              <Link
-                href="/auth/login"
-                className="d-none d-lg-inline-flex"
-                style={{
-                  padding: '8px 22px',
-                  borderRadius: 8,
-                  border: isTransparent ? '1.5px solid rgba(255,255,255,0.6)' : '1.5px solid #d1d5db',
-                  color: isTransparent ? 'white' : '#374151',
-                  fontWeight: 600, fontSize: 13,
-                  textDecoration: 'none',
-                  background: isTransparent ? 'rgba(255,255,255,0.1)' : 'white',
-                  backdropFilter: 'blur(6px)',
-                  transition: 'all 0.2s',
-                }}
-              >
-                Login
-              </Link>
+              {/* Previous static login button kept for reference:
+              <Link href="/auth/login" className="d-none d-lg-inline-flex">Login</Link>
+              */}
+              {isLoggedIn ? (
+                <Link
+                  href="/profile"
+                  className="d-none d-lg-inline-flex"
+                  style={{
+                    padding: '8px 18px',
+                    borderRadius: 8,
+                    border: isTransparent ? '1.5px solid rgba(255,255,255,0.6)' : '1.5px solid #d1d5db',
+                    color: isTransparent ? 'white' : '#374151',
+                    fontWeight: 600, fontSize: 13,
+                    textDecoration: 'none',
+                    background: isTransparent ? 'rgba(255,255,255,0.1)' : 'white',
+                    backdropFilter: 'blur(6px)',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  My Profile
+                </Link>
+              ) : (
+                <Link
+                  href="/auth/login"
+                  className="d-none d-lg-inline-flex"
+                  style={{
+                    padding: '8px 22px',
+                    borderRadius: 8,
+                    border: isTransparent ? '1.5px solid rgba(255,255,255,0.6)' : '1.5px solid #d1d5db',
+                    color: isTransparent ? 'white' : '#374151',
+                    fontWeight: 600, fontSize: 13,
+                    textDecoration: 'none',
+                    background: isTransparent ? 'rgba(255,255,255,0.1)' : 'white',
+                    backdropFilter: 'blur(6px)',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  Login
+                </Link>
+              )}
 
               {/* Hamburger Button / Drawer Toggle */}
               <button
@@ -514,7 +648,14 @@ export default function Navbar() {
       </header>
 
       {/* Sidebar Drawer Component */}
-      <SideDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <SideDrawer
+        allCategories={allCategories}
+        currentUser={currentUser}
+        isLoggedIn={isLoggedIn}
+        isOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onLogout={clearAuthSession}
+      />
     </>
   );
 }

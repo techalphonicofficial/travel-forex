@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { registerCustomer } from '@/utils/api';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -14,10 +15,18 @@ export default function RegisterPage() {
 
   const onSubmit = async (data) => {
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setLoading(false);
-    toast.success('Account created! Welcome to ITS TRAVELS AND TOURS!');
-    setTimeout(() => router.push('/dashboard'), 1500);
+    try {
+      await registerCustomer(data);
+      toast.success('Account created! Welcome to ITS TRAVELS AND TOURS!');
+      // Previous redirect kept for reference:
+      // setTimeout(() => router.push('/dashboard'), 1000);
+      setTimeout(() => router.push('/profile'), 1000);
+    } catch (error) {
+      const message = error.response?.data?.message || 'Registration failed. Please try again.';
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -133,6 +142,28 @@ export default function RegisterPage() {
             </div>
 
             <div style={{ marginBottom: 20 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>Phone</label>
+              <input
+                type="tel"
+                placeholder="Enter your phone number"
+                style={{
+                  width: '100%', padding: '14px 16px', borderRadius: 12,
+                  border: '1px solid #d1d5db', background: '#f9fafb',
+                  fontSize: 15, color: '#111827', outline: 'none',
+                  borderColor: errors.phone ? '#ef4444' : undefined,
+                  transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                }}
+                onFocus={e => { e.currentTarget.style.borderColor = '#026eb5'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.1)'; e.currentTarget.style.background = '#ffffff' }}
+                onBlur={e => { e.currentTarget.style.borderColor = errors.phone ? '#ef4444' : '#d1d5db'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; e.currentTarget.style.background = '#f9fafb' }}
+                {...register('phone', {
+                  required: 'Phone is required',
+                  pattern: { value: /^[0-9+\-\s()]{7,20}$/, message: 'Invalid phone number' },
+                })}
+              />
+              {errors.phone && <span style={{ color: '#ef4444', fontSize: 12, marginTop: 4, display: 'block' }}>{errors.phone.message}</span>}
+            </div>
+
+            <div style={{ marginBottom: 20 }}>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>Password</label>
               <input
                 type="password"
@@ -176,7 +207,7 @@ export default function RegisterPage() {
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, margin: '20px 0 24px' }}>
               <input type="checkbox" id="terms" required style={{ accentColor: '#026eb5', marginTop: 4, width: 16, height: 16, cursor: 'pointer' }} />
               <label htmlFor="terms" style={{ color: '#4b5563', fontSize: 13.5, cursor: 'pointer', lineHeight: 1.5 }}>
-                I agree to ITS TRAVELS AND TOURS's{' '}
+                I agree to ITS TRAVELS AND TOURS&apos;s{' '}
                 <Link href="#" style={{ color: '#026eb5', fontWeight: 600, textDecoration: 'none' }}>Terms of Service</Link>
                 {' '}and{' '}
                 <Link href="#" style={{ color: '#026eb5', fontWeight: 600, textDecoration: 'none' }}>Privacy Policy</Link>

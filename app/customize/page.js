@@ -572,7 +572,7 @@ export default function CustomizeFlow() {
 
           <div style={{ position: 'relative', zIndex: 2 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 40 }}>
-              <img src="https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp" alt="Logo" style={{ width: 80, height: 80, objectFit: 'contain' }} />
+              <img src="./logooo.png" alt="Logo" style={{ width: 80, height: 80, objectFit: 'contain' }} />
             </div>
             <h3 style={{ color: 'white', fontSize: 22, fontWeight: 500, margin: '0 0 10px', letterSpacing: 1 }}>YOUR</h3>
             <h2 style={{ color: '#fef08a', fontSize: 36, fontWeight: 900, margin: '0 0 16px', lineHeight: 1.1, textShadow: '0 4px 12px rgba(0,0,0,0.3)', fontFamily: 'Poppins, sans-serif' }}>
@@ -763,7 +763,7 @@ export default function CustomizeFlow() {
       <header className="cust-header">
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
           <img
-            src="https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp"
+            src="/logooo.png"
             alt="Logo"
             className="cust-logo"
           />

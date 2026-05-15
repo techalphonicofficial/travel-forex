@@ -11,36 +11,37 @@ import { PytExclusive, TrustBanner, BrandsRow, CategoryBlocks, BottomReviews } f
 const SCENES = [
   {
     label: 'Bali Temple',
-    video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    video: 'https://res.cloudinary.com/demo/video/upload/q_auto,f_auto/elephants.mp4',
     poster: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1920&q=85',
     dest: 'Bali',
   },
   {
     label: 'Maldives Reef',
-    video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    video: 'https://res.cloudinary.com/demo/video/upload/q_auto,f_auto/sea_turtle.mp4',
     poster: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=1920&q=85',
     dest: 'Maldives',
   },
   {
     label: 'Japan Sakura',
-    video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
+    video: 'https://media.w3.org/2010/05/sintel/trailer.mp4',
     poster: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1920&q=85',
     dest: 'Japan',
   },
   {
     label: 'Greece Sunset',
-    video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    video: 'https://www.w3schools.com/html/mov_bbb.mp4',
     poster: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=1920&q=85',
     dest: 'Greece',
   },
   {
     label: 'Dubai Skyline',
-    video: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    video: 'https://res.cloudinary.com/demo/video/upload/q_auto,f_auto/dog.mp4',
     poster: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1920&q=85',
     dest: 'Dubai',
   },
 ];
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_IMAGE_URL;
 /* ── Package card ─────────────────────────────────────── */
 function PackageCard({ pkg }) {
   const [hovered, setHovered] = useState(false);
@@ -172,10 +173,10 @@ function PackageCard({ pkg }) {
   );
 }
 
-/* ── Main packages page logic ───────────────────────────── */
-function PackagesContent() {
+/* ─────────── Main packages page logic ───────────── */
+function PackagesContent({ destParam, packages }) {
   const searchParams = useSearchParams();
-  const initialDest = searchParams?.get('dest') || 'All';
+  const initialDest = destParam || searchParams?.get('dest') || 'All';
   const initialType = searchParams?.get('type') || 'All';
   // Banner state
   const videoRef = useRef(null);
@@ -192,14 +193,16 @@ function PackagesContent() {
   const [visible, setVisible] = useState(true);
   const [sortBy, setSortBy] = useState('popular');
 
-  const scene = SCENES[sceneIdx];
+  const scene = packages?.gallery[sceneIdx];
 
   /* ── Video auto-advance ───────────────────────────────── */
   const handleEnded = useCallback(() => {
-    setSceneIdx(i => (i + 1) % SCENES.length);
+    if (!packages?.gallery?.length) return;
+    setSceneIdx(i => (i + 1) % packages.gallery.length);
     setProgress(0);
-  }, []);
+  }, [packages]);
 
+  /* Handle scene change (loading) */
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -207,7 +210,15 @@ function PackagesContent() {
     if (!paused) {
       v.play().catch(() => { });
     }
-  }, [sceneIdx, paused]);
+  }, [sceneIdx]);
+
+  /* Handle manual play/pause toggle */
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (paused) v.pause();
+    else v.play().catch(() => { });
+  }, [paused]);
 
   /* Progress bar from <video> timeupdate */
   useEffect(() => {
@@ -221,10 +232,7 @@ function PackagesContent() {
   }, [sceneIdx]);
 
   const togglePause = () => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (paused) { v.play().catch(() => { }); setPaused(false); }
-    else { v.pause(); setPaused(true); }
+    setPaused(prev => !prev);
   };
 
   const toggleMute = () => {
@@ -279,21 +287,25 @@ function PackagesContent() {
       }}>
 
         {/* Video */}
-        <video
-          ref={videoRef}
-          key={scene.video}
-          autoPlay muted={muted} playsInline
-          onEnded={handleEnded}
-          poster={scene.poster}
-          preload="auto"
-          style={{
-            position: 'absolute', inset: 0,
-            width: '100%', height: '100%',
-            objectFit: 'cover', zIndex: 0,
-          }}
-        >
-          <source src={scene.video} type="video/mp4" />
-        </video>
+        {scene ? (
+          <video
+            ref={videoRef}
+            key={scene.url}
+            autoPlay muted={muted} playsInline
+            onEnded={handleEnded}
+            poster={scene.poster_url ? (BASE_URL + scene.poster_url) : undefined}
+            preload="auto"
+            style={{
+              position: 'absolute', inset: 0,
+              width: '100%', height: '100%',
+              objectFit: 'cover', zIndex: 0,
+            }}
+          >
+            <source src={BASE_URL + scene.url} type={scene.media_type === 'video' ? 'video/mp4' : undefined} />
+          </video>
+        ) : (
+          <div style={{ position: 'absolute', inset: 0, background: '#111827' }} />
+        )}
 
         {/* Dark vignette overlay */}
         <div style={{
@@ -346,7 +358,7 @@ function PackagesContent() {
           position: 'absolute', top: 104, left: 0, right: 0, zIndex: 5,
           display: 'flex', gap: 4, padding: '0 20px',
         }}>
-          {SCENES.map((s, i) => (
+          {packages?.gallery.map((s, i) => (
             <div
               key={i}
               style={{
@@ -452,7 +464,7 @@ function PackagesContent() {
 
           {/* Scene tabs */}
           <div style={{ display: 'flex', alignItems: 'center', padding: '4px 16px 12px', gap: 4, overflowX: 'auto' }}>
-            {SCENES.map((s, i) => (
+            {(packages?.gallery || []).map((s, i) => (
               <button
                 key={i}
                 className="scene-tab"
@@ -666,10 +678,10 @@ function PackagesContent() {
   );
 }
 
-export default function PackagesClient() {
+export default function PackagesClient({ destParam, packages }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <PackagesContent />
+      <PackagesContent destParam={destParam} packages={packages} />
     </Suspense>
   );
 }
