@@ -55,14 +55,27 @@ const getLocationMeta = (location) => {
   return location?.country_name || 'City';
 };
 
-const getCategoryHref = ({ slug, label, destination }) => {
+const DEFAULT_CUSTOMIZE_ROOMS = [
+  {
+    id: 1,
+    adults: 2,
+    children: 0,
+    childAges: [],
+  },
+];
+
+const getCategoryHref = ({ label, destination }) => {
   const params = new URLSearchParams();
-  const category = slug || String(label || '').trim().toLowerCase();
+  const traveller = String(label || '').trim();
+  const selectedDestination = String(destination || '').trim();
 
-  if (category) params.set('category', category);
-  if (destination?.trim()) params.set('destination', destination.trim());
+  params.set('step', selectedDestination ? '1' : '0');
+  params.set('subStep', 'room-config');
+  if (selectedDestination) params.set('dest', selectedDestination);
+  if (traveller) params.set('traveller', traveller);
+  params.set('rooms', JSON.stringify(DEFAULT_CUSTOMIZE_ROOMS));
 
-  return `/packages?${params.toString()}`;
+  return `/customize?${params.toString()}`;
 };
 
 export default function HomeHero() {
@@ -873,7 +886,7 @@ export default function HomeHero() {
                 window.requestAnimationFrame(updateCategoryScrollState);
               }}
             >
-              {homeTravelerTypes.map(({ id, label, image, alt, slug }) => (
+              {homeTravelerTypes.map(({ id, label, image, alt }) => (
                 <button
                   key={id}
                   type="button"
@@ -883,7 +896,7 @@ export default function HomeHero() {
                   onMouseLeave={() => setActiveTraveler(null)}
                   onBlur={() => setActiveTraveler(null)}
                   onClick={() => {
-                    router.push(getCategoryHref({ slug, label, destination }));
+                    router.push(getCategoryHref({ label, destination }));
                   }}
                 >
                   <span className="traveller-visual">

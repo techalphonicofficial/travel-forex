@@ -160,6 +160,37 @@ export const getCategories = async () => {
 
 let destinationsCache = {};
 
+let allDestinationsCache = null;
+
+export const getDestinations = async (filters = {}) => {
+  const params = cleanParams(filters);
+  const cacheKey = JSON.stringify(params);
+
+  if (!cacheKey || cacheKey === '{}') {
+    if (allDestinationsCache) return allDestinationsCache;
+  }
+
+  try {
+    const response = typeof window === 'undefined'
+      ? await apiClient.get('/destinations', { params })
+      : await axios.get('/api/destinations', {
+        params: { ...params, _t: Date.now() },
+        validateStatus: () => true,
+      });
+
+    const data = normalizeApiData(response) || [];
+
+    if (!cacheKey || cacheKey === '{}') {
+      allDestinationsCache = data;
+    }
+
+    return data;
+  } catch (error) {
+    console.warn('Destinations unavailable:', error?.message || error);
+    return [];
+  }
+};
+
 export const getDestinationsByCategory = async (categoryId) => {
   if (destinationsCache[categoryId]) return destinationsCache[categoryId];
 
@@ -396,6 +427,50 @@ export const getForexRateByCode = async (code) => {
   } catch (error) {
     console.warn(`Forex rate unavailable for ${code}:`, error?.message || error);
     return { success: false, data: null, message: 'Unable to load forex rate.' };
+  }
+};
+
+export const convertForexRate = async ({ customerId, fromCurrency, toCurrency, amount } = {}) => {
+  if (!customerId) {
+    return { success: false, message: 'Please login before creating a forex request.' };
+  }
+
+  try {
+    const response = await axios.get('/api/forex-rates/convert', {
+      params: {
+        customer_id: customerId,
+        from_currency: fromCurrency,
+        to_currency: toCurrency,
+        amount,
+        _t: Date.now(),
+      },
+      headers: {
+        accept: '*/*',
+      },
+      validateStatus: () => true,
+    });
+
+    return response.data || { success: response.status >= 200 && response.status < 300, data: null };
+  } catch (error) {
+    console.warn('Forex conversion unavailable:', error?.message || error);
+    return { success: false, data: null, message: 'Unable to create forex conversion request.' };
+  }
+};
+
+export const getForexServiceCharge = async () => {
+  try {
+    const response = await axios.get('/api/crm/settings/forex-service-charge', {
+      params: { _t: Date.now() },
+      headers: {
+        accept: '*/*',
+      },
+      validateStatus: () => true,
+    });
+
+    return response.data || { success: response.status >= 200 && response.status < 300, data: null };
+  } catch (error) {
+    console.warn('Forex service charge unavailable:', error?.message || error);
+    return { success: false, data: null, message: 'Unable to load forex service charge.' };
   }
 };
 

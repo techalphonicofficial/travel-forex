@@ -34,7 +34,7 @@ const destinationCols = [
     {
       name: 'Explore 40+ Destinations',
       tag: null,
-      href: '/packages',
+      href: '/tours?destination',
       isExplore: true,
     },
   ],
@@ -181,6 +181,97 @@ const formatMoneyValue = (value, code) => {
   const amount = Number(value);
   if (!Number.isFinite(amount)) return '';
   return `${amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })} ${code}`;
+};
+
+const firstObjectFromPayload = (payload) => {
+  if (!payload) return null;
+  if (Array.isArray(payload)) return payload[0] || null;
+  if (Array.isArray(payload?.data)) return payload.data[0] || null;
+  if (Array.isArray(payload?.data?.rows)) return payload.data.rows[0] || null;
+  if (payload?.data && typeof payload.data === 'object') return payload.data;
+  if (payload && typeof payload === 'object') return payload;
+  return null;
+};
+
+const getCustomerId = (user) => (
+  user?.id ||
+  user?.customer_id ||
+  user?.customerId ||
+  user?.user_id ||
+  user?.user?.id ||
+  user?.customer?.id ||
+  null
+);
+
+const normalizeForexServiceCharge = (payload) => {
+  const item = firstObjectFromPayload(payload);
+  if (!item) return null;
+
+  const type = item.type || item.charge_type || item.chargeType || item.service_charge_type || item.serviceChargeType;
+  const value = numberFromForex(
+    item.value,
+    item.amount,
+    item.charge,
+    item.service_charge,
+    item.serviceCharge,
+    item.forex_service_charge,
+    item.forexServiceCharge
+  );
+
+  if (!type && !value) return null;
+
+  return {
+    type: String(type || 'fixed').toLowerCase(),
+    value,
+  };
+};
+
+const normalizeForexConversion = (payload, fallback = {}) => {
+  const item = firstObjectFromPayload(payload);
+  if (!item) return null;
+
+  const rate = numberFromForex(
+    item.rate,
+    item.conversion_rate,
+    item.conversionRate,
+    item.exchange_rate,
+    item.exchangeRate,
+    fallback.rate
+  );
+  const convertedAmount = numberFromForex(
+    item.converted_amount,
+    item.convertedAmount,
+    item.converted,
+    item.destination_amount,
+    item.destinationAmount,
+    fallback.convertedAmount
+  );
+  const serviceCharge = numberFromForex(
+    item.service_charge,
+    item.serviceCharge,
+    item.charge_amount,
+    item.chargeAmount,
+    item.fee,
+    fallback.serviceCharge
+  );
+  const totalAmount = numberFromForex(
+    item.total_amount,
+    item.totalAmount,
+    item.payable_amount,
+    item.payableAmount,
+    item.final_amount,
+    item.finalAmount,
+    serviceCharge && convertedAmount ? convertedAmount + serviceCharge : fallback.totalAmount
+  );
+
+  return {
+    ...item,
+    rate,
+    convertedAmount,
+    serviceCharge,
+    totalAmount,
+    requestId: item.id || item.request_id || item.requestId || item.forex_request_id || item.forexRequestId,
+  };
 };
 
 function CurrencyCombobox({ id, label, value, onChange, currencies = currencyOptions, loading = false }) {
@@ -618,10 +709,12 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
 import {
   AUTH_CHANGED_EVENT,
   clearAuthSession,
+  convertForexRate,
   getCategories,
   getDestinationsByCategory,
   getForexRateByCode,
   getForexRates,
+  getForexServiceCharge,
   getStoredAuth,
   getStoredToken,
 } from '@/utils/api';
@@ -651,6 +744,8 @@ export default function Navbar({ brand, companyInfo }) {
   const [forexRatesError, setForexRatesError] = useState('');
   const [forexLookupLoading, setForexLookupLoading] = useState(false);
   const [forexLookupRate, setForexLookupRate] = useState(null);
+  const [forexServiceCharge, setForexServiceCharge] = useState(null);
+  const [forexConversion, setForexConversion] = useState(null);
   const pathname = usePathname();
 
   const isHeroPage = pathname === '/' || pathname === '/packages' || pathname.startsWith('/package') || pathname.startsWith('/tours') || pathname.startsWith('/hotels') || pathname.startsWith('/about') || pathname.startsWith('/blog') || pathname.startsWith('/contact');
@@ -678,7 +773,7 @@ export default function Navbar({ brand, companyInfo }) {
             if (mappedItems.length > 0) {
               mappedItems.push({
                 name: `Explore All →`,
-                href: `/packages`,
+                href: `/tours?destination`,
                 isExplore: true
               });
             }
@@ -749,11 +844,15 @@ export default function Navbar({ brand, companyInfo }) {
       setForexRatesLoading(true);
       setForexRatesError('');
 
-      const result = await getForexRates();
+      const [result, chargeResult] = await Promise.all([
+        getForexRates(),
+        getForexServiceCharge(),
+      ]);
       if (!active) return;
 
       const rows = forexRowsFromPayload(result).map(normalizeForexRate).filter((rate) => rate.code);
       setForexRates(rows);
+      setForexServiceCharge(normalizeForexServiceCharge(chargeResult));
 
       if (!rows.length) {
         setForexRatesError(result?.message || 'Active forex rates are not available right now.');
@@ -806,21 +905,44 @@ export default function Navbar({ brand, companyInfo }) {
 
   const updateForexDraft = (key, value) => {
     setForexDraft((current) => ({ ...current, [key]: value }));
+    setForexConversion(null);
+    setForexInquiry('');
   };
 
   const generateForexInquiry = async (event) => {
     event.preventDefault();
+    const customerId = getCustomerId(currentUser);
+    const amountValue = Number(forexDraft.amount || 0);
+
+    if (!customerId) {
+      setForexRatesError('Please login before creating a forex conversion request.');
+      return;
+    }
+
+    if (!Number.isFinite(amountValue) || amountValue <= 0) {
+      setForexRatesError('Enter a valid conversion amount.');
+      return;
+    }
+
     setForexLookupLoading(true);
     setForexRatesError('');
+    setForexConversion(null);
 
-    const lookup = await getForexRateByCode(forexDraft.fromCurrency);
+    const [lookup, conversionResponse] = await Promise.all([
+      getForexRateByCode(forexDraft.fromCurrency),
+      convertForexRate({
+        customerId,
+        fromCurrency: forexDraft.fromCurrency,
+        toCurrency: forexDraft.toCurrency,
+        amount: amountValue,
+      }),
+    ]);
     const lookupRows = forexRowsFromPayload(lookup).map(normalizeForexRate).filter((rate) => rate.code);
     const nextLookupRate = lookupRows[0] || null;
     setForexLookupRate(nextLookupRate);
 
     const fromCurrency = forexOptions.find((currency) => currency.code === forexDraft.fromCurrency);
     const toCurrency = forexOptions.find((currency) => currency.code === forexDraft.toCurrency);
-    const amountValue = Number(forexDraft.amount || 0);
     const amount = amountValue.toLocaleString('en-IN');
     const lookupEstimate = findForexRateMatch(
       nextLookupRate ? [nextLookupRate, ...forexRates] : forexRates,
@@ -828,22 +950,34 @@ export default function Navbar({ brand, companyInfo }) {
       forexDraft.toCurrency
     );
     const convertedAmount = lookupEstimate && amountValue ? amountValue * lookupEstimate.rate : null;
+    const normalizedConversion = normalizeForexConversion(conversionResponse, {
+      rate: lookupEstimate?.rate,
+      convertedAmount,
+    });
     const contact = [
       forexDraft.customerName && `Name: ${forexDraft.customerName.trim()}`,
       forexDraft.phone && `Phone: ${forexDraft.phone.trim()}`,
       forexDraft.email && `Email: ${forexDraft.email.trim()}`,
     ].filter(Boolean).join(' | ');
 
+    if (conversionResponse?.success === false) {
+      setForexRatesError(conversionResponse?.message || 'Unable to create the forex conversion request.');
+    }
+
+    setForexConversion(normalizedConversion);
     setForexInquiry([
       `Forex inquiry to convert ${amount} ${fromCurrency?.code || forexDraft.fromCurrency} to ${toCurrency?.code || forexDraft.toCurrency}.`,
-      convertedAmount ? `Estimated value: ${formatMoneyValue(convertedAmount, toCurrency?.code || forexDraft.toCurrency)} at ${formatMoneyValue(lookupEstimate.rate, toCurrency?.code || forexDraft.toCurrency)} per ${fromCurrency?.code || forexDraft.fromCurrency}.` : 'Rate will be confirmed by the forex team.',
+      normalizedConversion?.convertedAmount ? `Converted value: ${formatMoneyValue(normalizedConversion.convertedAmount, toCurrency?.code || forexDraft.toCurrency)}.` : convertedAmount ? `Estimated value: ${formatMoneyValue(convertedAmount, toCurrency?.code || forexDraft.toCurrency)} at ${formatMoneyValue(lookupEstimate.rate, toCurrency?.code || forexDraft.toCurrency)} per ${fromCurrency?.code || forexDraft.fromCurrency}.` : 'Rate will be confirmed by the forex team.',
+      normalizedConversion?.serviceCharge ? `Service charge: ${formatMoneyValue(normalizedConversion.serviceCharge, toCurrency?.code || forexDraft.toCurrency)}.` : '',
+      normalizedConversion?.totalAmount ? `Total amount: ${formatMoneyValue(normalizedConversion.totalAmount, toCurrency?.code || forexDraft.toCurrency)}.` : '',
+      normalizedConversion?.requestId ? `Request ID: ${normalizedConversion.requestId}.` : '',
       `Purpose: ${forexDraft.purpose}.`,
       forexDraft.travelDate ? `Travel date: ${forexDraft.travelDate}.` : '',
       contact,
       forexDraft.notes.trim() ? `Notes: ${forexDraft.notes.trim()}` : '',
     ].filter(Boolean).join(' '));
 
-    if (!lookupRows.length && !lookupEstimate) {
+    if (!normalizedConversion && !lookupRows.length && !lookupEstimate) {
       setForexRatesError(lookup?.message || 'No active rate found for the selected currency pair.');
     }
 
@@ -856,6 +990,8 @@ export default function Navbar({ brand, companyInfo }) {
       fromCurrency: current.toCurrency,
       toCurrency: current.fromCurrency,
     }));
+    setForexConversion(null);
+    setForexInquiry('');
   };
 
   return (
@@ -1198,6 +1334,13 @@ export default function Navbar({ brand, companyInfo }) {
           font-weight: 900;
           text-align: right;
         }
+        .forex-charge-note {
+          grid-column: 1 / -1;
+          margin-top: -6px;
+          color: #475569;
+          font-size: 12px;
+          font-weight: 850;
+        }
         .forex-rate-error {
           grid-column: 1 / -1;
           margin: 0;
@@ -1237,6 +1380,30 @@ export default function Navbar({ brand, companyInfo }) {
           font-size: 13px;
           font-weight: 900;
         }
+        .forex-result-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 8px;
+          margin: 10px 0 12px;
+        }
+        .forex-result-grid span {
+          min-height: 62px;
+          padding: 10px;
+          border: 1px solid #bbf7d0;
+          border-radius: 8px;
+          background: #f7fee7;
+          color: #14532d;
+          font-size: 13px;
+          font-weight: 900;
+          overflow-wrap: anywhere;
+        }
+        .forex-result-grid b {
+          display: block;
+          margin-bottom: 4px;
+          color: #4d7c0f;
+          font-size: 11px;
+          text-transform: uppercase;
+        }
         .forex-modal-output p {
           margin: 0;
           color: #166534;
@@ -1264,6 +1431,9 @@ export default function Navbar({ brand, companyInfo }) {
           }
           .forex-rate-preview small {
             text-align: left;
+          }
+          .forex-result-grid {
+            grid-template-columns: 1fr;
           }
         }
       `}</style>
@@ -1468,29 +1638,48 @@ export default function Navbar({ brand, companyInfo }) {
                 </label>
                 <div className="forex-rate-preview" aria-live="polite">
                   <div>
-                    <strong>{forexLookupLoading || forexRatesLoading ? 'Checking active rates...' : 'Rate estimate'}</strong>
-                    {forexEstimate.match && forexEstimate.convertedAmount ? (
+                    <strong>{forexLookupLoading || forexRatesLoading ? 'Checking active rates...' : forexConversion ? 'Confirmed conversion' : 'Rate estimate'}</strong>
+                    {forexConversion?.convertedAmount ? (
+                      <span>
+                        {formatMoneyValue(Number(forexDraft.amount || 0), forexDraft.fromCurrency)} converts to {formatMoneyValue(forexConversion.convertedAmount, forexDraft.toCurrency)}.
+                      </span>
+                    ) : forexEstimate.match && forexEstimate.convertedAmount ? (
                       <span>
                         {formatMoneyValue(Number(forexDraft.amount || 0), forexDraft.fromCurrency)} is approximately {formatMoneyValue(forexEstimate.convertedAmount, forexDraft.toCurrency)}.
                       </span>
                     ) : (
-                      <span>Generate the inquiry to verify the latest active rate for this currency pair.</span>
+                      <span>{isLoggedIn ? 'Create the request to verify the latest active rate for this currency pair.' : 'Login to create a forex conversion request.'}</span>
                     )}
                   </div>
-                  {forexEstimate.match ? (
+                  {forexConversion?.rate ? (
+                    <small>1 {forexDraft.fromCurrency} = {formatMoneyValue(forexConversion.rate, forexDraft.toCurrency)}</small>
+                  ) : forexEstimate.match ? (
                     <small>1 {forexDraft.fromCurrency} = {formatMoneyValue(forexEstimate.match.rate, forexDraft.toCurrency)}</small>
                   ) : (
                     <small>Active API rates</small>
                   )}
                 </div>
+                {forexServiceCharge ? (
+                  <div className="forex-charge-note">
+                    Service charge: {forexServiceCharge.value ? `${forexServiceCharge.value}${forexServiceCharge.type.includes('percent') ? '%' : ` ${forexDraft.toCurrency}`}` : 'Configured in CRM'}
+                  </div>
+                ) : null}
                 {forexRatesError ? <p className="forex-rate-error">{forexRatesError}</p> : null}
               </div>
               <button type="submit" disabled={forexLookupLoading || forexRatesLoading}>
-                {forexLookupLoading ? 'Checking Rate...' : 'Generate Inquiry'}
+                {forexLookupLoading ? 'Creating Request...' : 'Create Forex Request'}
               </button>
               {forexInquiry ? (
                 <div className="forex-modal-output">
-                  <strong>Generated inquiry</strong>
+                  <strong>Forex request summary</strong>
+                  {forexConversion ? (
+                    <div className="forex-result-grid">
+                      {forexConversion.requestId ? <span><b>Request</b>{forexConversion.requestId}</span> : null}
+                      {forexConversion.convertedAmount ? <span><b>Converted</b>{formatMoneyValue(forexConversion.convertedAmount, forexDraft.toCurrency)}</span> : null}
+                      {forexConversion.serviceCharge ? <span><b>Service charge</b>{formatMoneyValue(forexConversion.serviceCharge, forexDraft.toCurrency)}</span> : null}
+                      {forexConversion.totalAmount ? <span><b>Total</b>{formatMoneyValue(forexConversion.totalAmount, forexDraft.toCurrency)}</span> : null}
+                    </div>
+                  ) : null}
                   <p>{forexInquiry}</p>
                 </div>
               ) : null}

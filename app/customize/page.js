@@ -3,19 +3,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import DestinationPicker from '@/components/DestinationPicker';
-import { customizeBooking, getCrowdLevelsBySlug, getHomeCategories, getMediaUrl, getRelatedDestinationsByCountry, getStoredAuth, searchAirports } from '@/utils/api';
+import { customizeBooking, getCrowdLevelsBySlug, getDestinations, getHomeCategories, getMediaUrl, getRelatedDestinationsByCountry, getStoredAuth, searchAirports } from '@/utils/api';
 import { getProjectConfig } from '@/utils/projectConfig';
-
-// Mock Data
-const DESTINATIONS = [
-  { name: 'Vietnam', subtitle: 'LAND OF ASCENDING DRAGON', img: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=400&q=80' },
-  { name: 'Bali', subtitle: 'CULTURAL PARADISE', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80' },
-  { name: 'Thailand', subtitle: 'THE KINGDOM OF', img: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=400&q=80' },
-  { name: 'Japan', subtitle: 'LAND OF RISING SUN', img: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400&q=80' },
-  { name: 'Maldives', subtitle: 'CREATE MEMORIES IN', img: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=400&q=80' },
-  { name: 'Australia', subtitle: 'LAND OF DOWN UNDER', img: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=400&q=80' },
-  { name: 'Singapore', subtitle: 'THE LION CITY', img: 'https://images.unsplash.com/photo-1525625299374-eb3405d52156?w=400&q=80' }
-];
 
 const TRAVELLERS = [
   { name: 'Couple', img: 'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?w=400&q=80' },
@@ -32,18 +21,6 @@ const getFallbackTravellerImage = (name) => {
 
 const DURATIONS = ['3-4 Days', '5-6 Days', '7-8 Days', '9-15 Days'];
 const AIRPORTS_PAGE_LIMIT = 20;
-
-// Complex Cities Data
-const REGION_CITIES = [
-  { name: 'Ubud', subtitle: 'The cultural homeland.', type: 'BUDGET', tags: ['MUST SEE', 'THEME PARKS'], img: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=400&q=80' },
-  { name: 'Nusa Dua', subtitle: 'Gateway to exquisite luxury.', type: 'BUDGET', tags: ['MUST SEE', 'THEME PARKS'], img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80' },
-  { name: 'Kuta', subtitle: 'Hotspot for surfers', type: 'BUDGET', tags: ['MUST SEE', 'THEME PARKS'], img: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&q=80' },
-  { name: 'Canggu', subtitle: 'Canggu', type: 'BUDGET', tags: ['MUST SEE', 'THEME PARKS'], img: 'https://images.unsplash.com/photo-1551183053-ec9180cbd78e?w=400&q=80' },
-  { name: 'Manggis', subtitle: 'Indonesia', type: 'BUDGET', tags: [], img: 'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?w=400&q=80' },
-  { name: 'Sanur', subtitle: 'Indonesia', type: 'BUDGET', tags: [], img: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=400&q=80' },
-  { name: 'Labuan Bajo', subtitle: 'Indonesia', type: 'BUDGET', tags: [], img: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=400&q=80' },
-  { name: 'Tulamben', subtitle: 'Indonesia', type: 'BUDGET', tags: [], img: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400&q=80' },
-];
 
 const INITIAL_CUSTOMIZE_DATA = {
   destination: '',
@@ -115,6 +92,9 @@ const parseJsonParam = (value, fallback) => {
   }
 };
 
+
+
+
 const getUrlStep = (value) => {
   const parsed = Number.parseInt(value, 10);
   return Number.isInteger(parsed) ? Math.min(Math.max(parsed, 0), 5) : 0;
@@ -164,6 +144,9 @@ const hasMoreAirportPages = (result, page, limit) => {
   return (result?.data || []).length >= limit;
 };
 
+
+
+
 const normalizeRelatedDestination = (destination) => ({
   id: destination.id || destination.slug || destination.name,
   name: destination.name || destination.title || 'Destination',
@@ -172,8 +155,20 @@ const normalizeRelatedDestination = (destination) => ({
   country: destination.country || '',
   state: destination.state || '',
   tags: Array.isArray(destination.tags) ? destination.tags : [],
-  img: getMediaUrl(destination.feature_image) || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80',
+  img: getMediaUrl(destination.feature_image),
   alt: destination.feature_image_alt || destination.name || destination.title || 'Destination',
+  raw: destination,
+});
+
+const normalizePickerDestination = (destination) => ({
+  id: destination.id || destination.slug || destination.name,
+  name: destination.name || destination.title || 'Destination',
+  subtitle: destination.title || destination.country || destination.state || destination.type || 'Explore holiday packages',
+  type: destination.type || '',
+  slug: destination.slug || createDestinationSlug(destination.name || destination.title),
+  categories: Array.isArray(destination.categories) ? destination.categories : [],
+  image: getMediaUrl(destination.feature_image || destination.image || destination.image_url || destination.thumbnail),
+  alt: destination.feature_image_alt || destination.alt_text || destination.name || destination.title || 'Destination',
   raw: destination,
 });
 
@@ -235,7 +230,10 @@ export default function CustomizeFlow() {
   const [subStep, setSubStep] = useState(''); // 'room-config', 'login-modal'
   const [calendarBaseDate, setCalendarBaseDate] = useState(() => getMonthStart());
   const [travellerOptions, setTravellerOptions] = useState(TRAVELLERS);
-  const [relatedCities, setRelatedCities] = useState(REGION_CITIES);
+  const [destinationOptions, setDestinationOptions] = useState([]);
+  const [destinationsLoading, setDestinationsLoading] = useState(true);
+  const [destinationsError, setDestinationsError] = useState('');
+  const [relatedCities, setRelatedCities] = useState([]);
   const [citiesLoading, setCitiesLoading] = useState(false);
   const [citiesError, setCitiesError] = useState('');
   const [departureSearch, setDepartureSearch] = useState('');
@@ -262,6 +260,25 @@ export default function CustomizeFlow() {
   useEffect(() => {
     let mounted = true;
 
+    const loadDestinations = async () => {
+      setDestinationsLoading(true);
+      setDestinationsError('');
+
+      const destinations = await getDestinations();
+      console.log('Destinations API response:', destinations);
+
+      if (!mounted) return;
+
+      if (destinations.length) {
+        setDestinationOptions(destinations.map(normalizePickerDestination));
+      } else {
+        setDestinationOptions([]);
+        setDestinationsError('No destinations are available right now.');
+      }
+
+      setDestinationsLoading(false);
+    };
+
     const loadTravellerOptions = async () => {
       const categories = await getHomeCategories();
       if (!mounted || !categories?.length) return;
@@ -281,6 +298,7 @@ export default function CustomizeFlow() {
       );
     };
 
+    loadDestinations();
     loadTravellerOptions();
 
     return () => {
@@ -332,6 +350,16 @@ export default function CustomizeFlow() {
   }, [data, step, subStep, urlReady]);
 
   useEffect(() => {
+    if (itinerarySubmitState !== 'success') return undefined;
+
+    const redirectTimer = window.setTimeout(() => {
+      router.push('/');
+    }, 3000);
+
+    return () => window.clearTimeout(redirectTimer);
+  }, [itinerarySubmitState, router]);
+
+  useEffect(() => {
     const destinationSlug = createDestinationSlug(data.destination);
 
     if (!destinationSlug) {
@@ -351,7 +379,7 @@ export default function CustomizeFlow() {
       if (destinations.length) {
         setRelatedCities(destinations.map(normalizeRelatedDestination));
       } else {
-        setRelatedCities(REGION_CITIES);
+        setRelatedCities([]);
         setCitiesError('Related destinations are not available right now.');
       }
 
@@ -459,7 +487,10 @@ export default function CustomizeFlow() {
     setData(d => {
       const updated = { ...d, destination: dest, cities: [] };
       if (updated.travelWith) {
-        if (updated.travelWith === 'Couple') {
+        if (subStep === 'room-config') {
+          setStep(1);
+          setSubStep('room-config');
+        } else if (updated.travelWith === 'Couple') {
           updated.rooms = [{ id: 1, adults: 2, children: 0, childAges: [] }];
           setStep(2);
         } else if (updated.travelWith === 'Solo') {
@@ -707,7 +738,12 @@ export default function CustomizeFlow() {
   ───────────────────────────────────────────────────────────────── */
   const renderDestination = () => (
     <div style={{ animation: 'fadeIn 0.3s' }}>
-      <DestinationPicker onPick={handleDestination} />
+      <DestinationPicker
+        destinations={destinationOptions}
+        error={destinationsError}
+        loading={destinationsLoading}
+        onPick={handleDestination}
+      />
     </div>
   );
 
@@ -1048,13 +1084,13 @@ export default function CustomizeFlow() {
   /* ─────────────────────────────────────────────────────────────────
      Step 6: Cities Grid 
   ───────────────────────────────────────────────────────────────── */
-  const activeCities = data.destination ? relatedCities : REGION_CITIES;
+  const activeCities = data.destination ? relatedCities : [];
 
   const getCityImage = (cityName) =>
-    activeCities.find(c => c.name === cityName)?.img || REGION_CITIES.find(c => c.name === cityName)?.img;
+    activeCities.find(c => c.name === cityName)?.img || '';
 
   const getCityByName = (cityName) =>
-    activeCities.find(c => c.name === cityName) || REGION_CITIES.find(c => c.name === cityName);
+    activeCities.find(c => c.name === cityName) || null;
 
   const renderCities = () => (
     <div style={{ maxWidth: 1100, margin: '40px auto', textAlign: 'center', animation: 'fadeIn 0.3s', paddingBottom: 100 }}>
@@ -1090,7 +1126,11 @@ export default function CustomizeFlow() {
                 cursor: 'pointer', transition: 'all 0.2s', position: 'relative'
               }}>
               <div style={{ height: 200, width: '100%', borderRadius: '110px 110px 0 0', overflow: 'hidden' }}>
-                <img src={c.img} alt={c.alt || c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {c.img ? (
+                  <img src={c.img} alt={c.alt || c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #e0f2fe 0%, #f8fafc 100%)' }} />
+                )}
                 {/* {selected && (
                   <div style={{ position: 'absolute', top: 16, right: 16, width: 28, height: 28, background: 'var(--color-primary)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>✓</div>
                 )} */}
@@ -1129,10 +1169,17 @@ export default function CustomizeFlow() {
                 {data.cities.slice(0, 3).map((cityName, idx) => {
                   const cityImg = getCityImage(cityName);
                   return (
-                    <img key={cityName} src={cityImg} style={{
-                      width: 32, height: 32, borderRadius: '50%', objectFit: 'cover',
-                      border: '2px solid #0a0a0a', marginLeft: idx > 0 ? -12 : 0, zIndex: 3 - idx
-                    }} alt="City" />
+                    cityImg ? (
+                      <img key={cityName} src={cityImg} style={{
+                        width: 32, height: 32, borderRadius: '50%', objectFit: 'cover',
+                        border: '2px solid #0a0a0a', marginLeft: idx > 0 ? -12 : 0, zIndex: 3 - idx
+                      }} alt="City" />
+                    ) : (
+                      <div key={cityName} style={{
+                        width: 32, height: 32, borderRadius: '50%', background: '#1f2937',
+                        border: '2px solid #0a0a0a', marginLeft: idx > 0 ? -12 : 0, zIndex: 3 - idx
+                      }} />
+                    )
                   );
                 })}
                 {data.cities.length > 3 && (
@@ -1194,7 +1241,11 @@ export default function CustomizeFlow() {
               return (
                 <div key={cityName} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 16, borderBottom: '1px solid #f3f4f6' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                    <img src={cityObj?.img} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} alt={cityName} />
+                    {cityObj?.img ? (
+                      <img src={cityObj.img} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} alt={cityName} />
+                    ) : (
+                      <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#e5e7eb', flexShrink: 0 }} />
+                    )}
                     <div>
                       <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#111827' }}>{cityName}, <span style={{ fontWeight: 400 }}>{cityObj?.country || 'Destination'}</span></p>
                       <p style={{ margin: 0, fontSize: 12, color: '#6b7280' }}>{cityObj?.subtitle}</p>

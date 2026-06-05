@@ -1,28 +1,82 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 
-const destinations = [
-  { name: 'Vietnam', subtitle: 'LAND OF ASCENDING DRAGON', image: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=500&q=80' },
-  { name: 'Bali', subtitle: 'CULTURAL PARADISE', image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=500&q=80' },
-  { name: 'Thailand', subtitle: 'THE KINGDOM OF', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=500&q=80' },
-  { name: 'Japan', subtitle: 'LAND OF RISING SUN', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500&q=80' },
-  { name: 'Maldives', subtitle: 'CREATE MEMORIES IN', image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=500&q=80' },
-  { name: 'Australia', subtitle: 'LAND OF DOWN UNDER', image: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=500&q=80' },
-  { name: 'Singapore', subtitle: 'THE LION CITY', image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=500&q=80' },
-  { name: 'New Zealand', subtitle: 'THE ADVENTURE CAPITAL', image: 'https://images.unsplash.com/photo-1469521669194-b785a2711eca?w=500&q=80' },
-];
+const skeletonCards = Array.from({ length: 6 }, (_, index) => index);
 
-export default function DestinationPicker({ onPick }) {
+export default function DestinationPicker({ onPick, destinations: apiDestinations = [], loading = false, error = '' }) {
   const scrollRef = useRef(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [search, setSearch] = useState('');
+  const [canScroll, setCanScroll] = useState({ prev: false, next: false });
+  const visibleDestinations = useMemo(() => {
+    const rows = Array.isArray(apiDestinations) ? apiDestinations : [];
+    const query = search.trim().toLowerCase();
 
-  const scrollBy = (dir) => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: dir * 400, behavior: 'smooth' });
+    if (!query) return rows;
+
+    return rows.filter((dest) => (
+      String(dest.name || '').toLowerCase().includes(query) ||
+      String(dest.subtitle || '').toLowerCase().includes(query) ||
+      String(dest.type || '').toLowerCase().includes(query) ||
+      String(dest.categories || '').toLowerCase().includes(query)
+    ));
+  }, [apiDestinations, search]);
+
+  const updateScrollState = useCallback(() => {
+    const row = scrollRef.current;
+    if (!row) return;
+
+    const maxLeft = Math.max(0, row.scrollWidth - row.clientWidth);
+    setCanScroll({
+      prev: row.scrollLeft > 4,
+      next: row.scrollLeft < maxLeft - 4,
+    });
+  }, []);
+
+  const scrollBy = (direction) => {
+    const row = scrollRef.current;
+    if (!row) return;
+
+    const maxLeft = Math.max(0, row.scrollWidth - row.clientWidth);
+    if (maxLeft <= 0) {
+      updateScrollState();
+      return;
     }
+
+    const card = row.querySelector('.destination-scroll-card');
+    const cardWidth = card ? card.getBoundingClientRect().width + 24 : 300;
+    const distance = Math.max(cardWidth * 2, row.clientWidth * 0.68);
+    const nextLeft = Math.max(0, Math.min(row.scrollLeft + (direction * distance), maxLeft));
+
+    row.scrollTo({ left: nextLeft, behavior: 'smooth' });
+    window.setTimeout(updateScrollState, 360);
   };
+
+  useEffect(() => {
+    const row = scrollRef.current;
+    if (!row) return undefined;
+
+    updateScrollState();
+    row.addEventListener('scroll', updateScrollState, { passive: true });
+    window.addEventListener('resize', updateScrollState);
+
+    return () => {
+      row.removeEventListener('scroll', updateScrollState);
+      window.removeEventListener('resize', updateScrollState);
+    };
+  }, [updateScrollState, visibleDestinations.length, loading, error]);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(updateScrollState);
+    const timer = window.setTimeout(updateScrollState, 250);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
+  }, [updateScrollState, visibleDestinations.length, search]);
 
   const renderCardContent = (dest, index) => {
     const isHovered = hoveredIndex === index;
@@ -42,17 +96,21 @@ export default function DestinationPicker({ onPick }) {
           transform: isHovered ? 'scale(1.05) translateY(-20px)' : 'scale(1) translateY(0)',
           zIndex: isHovered ? 10 : 1
         }}>
-          <img
-            src={dest.image}
-            alt={dest.name}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              transform: isHovered ? 'scale(1.1)' : 'scale(1)',
-              transition: 'transform 0.8s ease'
-            }}
-          />
+          {dest.image ? (
+            <img
+              src={dest.image}
+              alt={dest.name}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+                transition: 'transform 0.8s ease'
+              }}
+            />
+          ) : (
+            <div className="destination-image-missing" aria-hidden="true" />
+          )}
           {/* Heavy Bottom Overlay */}
           <div style={{
             position: 'absolute', inset: 0,
@@ -114,7 +172,9 @@ export default function DestinationPicker({ onPick }) {
       background: '#fff',
       position: 'relative',
       overflow: 'hidden',
-      width: '100%'
+      width: '100%',
+      maxWidth: '100vw',
+      minWidth: 0
     }}>
       {/* World Map Background Icon (Faint) */}
       <div style={{
@@ -136,7 +196,7 @@ export default function DestinationPicker({ onPick }) {
         <div className="container" style={{ maxWidth: '1400px', marginBottom: '40px' }}>
           <div className="text-center">
             <h2 style={{ fontSize: '32px', fontWeight: 800, color: '#111827', fontFamily: "'Poppins', sans-serif" }}>
-              What's <span style={{ color: 'var(--color-primary)', fontStyle: 'italic', fontWeight: 500 }}> your pick </span> for your next vacation
+              What&apos;s <span style={{ color: 'var(--color-primary)', fontStyle: 'italic', fontWeight: 500 }}> your pick </span> for your next vacation
             </h2>
 
             <div className="mx-auto mt-4" style={{ maxWidth: '620px', position: 'relative' }}>
@@ -148,6 +208,8 @@ export default function DestinationPicker({ onPick }) {
               <input
                 type="text"
                 placeholder="Pick your destination"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
                 style={{
                   width: '100%',
                   padding: '18px 24px 18px 60px',
@@ -169,24 +231,30 @@ export default function DestinationPicker({ onPick }) {
           {/* Controls - Floating (Kept within 1400px bounds if possible visually) */}
           <div className="container" style={{ maxWidth: '1400px', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', height: '100%', pointerEvents: 'none', zIndex: 20 }}>
             <button
+              type="button"
               onClick={() => scrollBy(-1)}
+              disabled={!canScroll.prev}
               style={{
                 position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)',
                 width: '44px', height: '44px', borderRadius: '50%', background: 'white',
-                border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.15)', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'auto'
+                border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.15)', cursor: canScroll.prev ? 'pointer' : 'not-allowed',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'auto',
+                opacity: canScroll.prev ? 1 : 0.38
               }}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
             </button>
 
             <button
+              type="button"
               onClick={() => scrollBy(1)}
+              disabled={!canScroll.next}
               style={{
                 position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)',
                 width: '44px', height: '44px', borderRadius: '50%', background: 'white',
-                border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.15)', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'auto'
+                border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.15)', cursor: canScroll.next ? 'pointer' : 'not-allowed',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'auto',
+                opacity: canScroll.next ? 1 : 0.38
               }}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -199,6 +267,10 @@ export default function DestinationPicker({ onPick }) {
               display: 'flex',
               gap: '24px',
               overflowX: 'auto',
+              overflowY: 'visible',
+              width: '100%',
+              maxWidth: '100vw',
+              minWidth: 0,
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
               padding: '60px 0 50px', // Increased top padding to 60px to prevent clipping
@@ -207,27 +279,51 @@ export default function DestinationPicker({ onPick }) {
               scrollBehavior: 'smooth',
             }}
             className="hide-scrollbar"
+            onWheel={(event) => {
+              if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+              event.preventDefault();
+              event.currentTarget.scrollLeft += event.deltaY;
+              window.requestAnimationFrame(updateScrollState);
+            }}
           >
             {/* Invisble spacers to center initial/final items if needed, or just let it flow */}
             <div style={{ flex: '0 0 calc((100vw - 1400px) / 2)', minWidth: 40 }} />
 
-            {destinations.map((dest, i) => (
-              <div key={i} style={{
+            {loading ? skeletonCards.map((item) => (
+              <div key={`destination-skeleton-${item}`} className="destination-scroll-card destination-skeleton-card">
+                <span className="destination-skeleton-arch" />
+                <span className="destination-skeleton-line is-short" />
+                <span className="destination-skeleton-line" />
+              </div>
+            )) : error ? (
+              <div style={{ padding: '40px 24px', color: '#b91c1c', fontWeight: 800 }}>
+                {error}
+              </div>
+            ) : visibleDestinations.length ? visibleDestinations.map((dest, i) => (
+              <div key={dest.id || dest.slug || dest.name || i} className="destination-scroll-card" style={{
                 flex: '0 0 auto',
                 width: '240px',
                 scrollSnapAlign: 'center'
               }}>
                 {onPick ? (
-                  <div onClick={() => onPick(dest.name)} style={{ cursor: 'pointer' }}>
+                  <button
+                    type="button"
+                    onClick={() => onPick(dest.name)}
+                    style={{ width: '100%', border: 0, background: 'transparent', padding: 0, cursor: 'pointer', textAlign: 'inherit' }}
+                  >
                     {renderCardContent(dest, i)}
-                  </div>
+                  </button>
                 ) : (
                   <Link href={`/tour?search=${dest.name}`} style={{ textDecoration: 'none' }}>
                     {renderCardContent(dest, i)}
                   </Link>
                 )}
               </div>
-            ))}
+            )) : (
+              <div style={{ padding: '40px 24px', color: '#6b7280', fontWeight: 800 }}>
+                No destinations found.
+              </div>
+            )}
 
             <div style={{ flex: '0 0 calc((100vw - 1400px) / 2)', minWidth: 40 }} />
           </div>
@@ -242,6 +338,52 @@ export default function DestinationPicker({ onPick }) {
         .hide-scrollbar {
           -ms-overflow-style: none;
           scrollbar-width: none;
+        }
+        .destination-image-missing {
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, #dbeafe 0%, #ecfeff 52%, #f8fafc 100%);
+        }
+        .destination-skeleton-card {
+          flex: 0 0 auto;
+          width: 240px;
+          scroll-snap-align: center;
+          padding-bottom: 40px;
+        }
+        .destination-skeleton-arch,
+        .destination-skeleton-line {
+          position: relative;
+          display: block;
+          overflow: hidden;
+          background: #e5e7eb;
+        }
+        .destination-skeleton-arch {
+          height: 300px;
+          border-radius: 150px 150px 10px 10px;
+          box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+        .destination-skeleton-line {
+          width: 74%;
+          height: 14px;
+          margin: 18px auto 0;
+          border-radius: 999px;
+        }
+        .destination-skeleton-line.is-short {
+          width: 46%;
+          height: 10px;
+          margin-top: 16px;
+        }
+        .destination-skeleton-arch::after,
+        .destination-skeleton-line::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          transform: translateX(-100%);
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,.72), transparent);
+          animation: destinationSkeleton 1.25s infinite;
+        }
+        @keyframes destinationSkeleton {
+          to { transform: translateX(100%); }
         }
         section :global(.container) {
           overflow: visible;
