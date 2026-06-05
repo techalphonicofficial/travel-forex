@@ -37,6 +37,41 @@
     "tags": ["beach", "culture", "adventure", "relax"]
   },
   {
+    "id": "11",
+    "slug": "vietnam-ho-chi-minh-hanoi",
+    "title": "Vietnam Ho Chi Minh And Hanoi Escape",
+    "location": "Ho Chi Minh, Vietnam",
+    "country": "Vietnam",
+    "type": "Cultural",
+    "duration": 5,
+    "groupSize": 14,
+    "rating": 4.7,
+    "reviews": 184,
+    "price": 899,
+    "originalPrice": 1099,
+    "image": "https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800&q=75",
+    "gallery": [
+      "https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1200&q=75",
+      "https://images.unsplash.com/photo-1509030450996-dd1a26dda07a?w=1200&q=75",
+      "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200&q=75",
+      "https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&q=75"
+    ],
+    "description": "Explore Vietnam's energetic cities, historic neighborhoods, street food, and layered culture across Ho Chi Minh City and Hanoi.",
+    "highlights": ["Ho Chi Minh City Tour", "Hanoi Old Quarter", "Street Food Walk", "Cu Chi Tunnels", "Local Markets"],
+    "included": ["Hotel Accommodation", "Daily Breakfast", "Airport Transfers", "Guided City Tours", "Selected Entrance Fees"],
+    "excluded": ["International Flights", "Visa Fees", "Travel Insurance", "Personal Expenses", "Optional Activities"],
+    "itinerary": [
+      { "day": 1, "title": "Arrival in Ho Chi Minh", "description": "Airport pickup, hotel check-in, and evening street food walk." },
+      { "day": 2, "title": "Ho Chi Minh City", "description": "Visit city landmarks, markets, and local neighborhoods." },
+      { "day": 3, "title": "Cu Chi Tunnels", "description": "Guided visit to the tunnel network and transfer to Hanoi." },
+      { "day": 4, "title": "Hanoi Old Quarter", "description": "Explore temples, lakefront streets, coffee culture, and night market." },
+      { "day": 5, "title": "Departure", "description": "Free time for shopping before airport transfer." }
+    ],
+    "featured": true,
+    "trending": true,
+    "tags": ["culture", "city", "food", "budget"]
+  },
+  {
     "id": "2",
     "slug": "swiss-alps-adventure",
     "title": "Swiss Alps Adventure",

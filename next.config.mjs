@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    project: process.env.project || process.env.NEXT_PUBLIC_PROJECT || process.env.PROJECT || 'Travel_Holiday',
+  },
   allowedDevOrigins: ['192.168.1.7', '192.168.29.220', '192.168.1.28'],
   images: {
     remotePatterns: [
@@ -10,6 +13,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'source.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sank-gutless-dripping.ngrok-free.dev',
       },
     ],
     qualities: [25, 50, 75, 100],

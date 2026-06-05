@@ -15,6 +15,11 @@ export default function TourDetailClient({ tour, similarTours }) {
   const [galleryModal, setGalleryModal] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [openDays, setOpenDays] = useState([0]);
+  const [reviewName, setReviewName] = useState('');
+  const [reviewText, setReviewText] = useState('');
+  const [reviewRating, setReviewRating] = useState(0);
+  const [submittedReviews, setSubmittedReviews] = useState([]);
+  const [reviewMessage, setReviewMessage] = useState('');
 
   const totalPrice = tour.price * travelers;
 
@@ -29,7 +34,32 @@ export default function TourDetailClient({ tour, similarTours }) {
     return reviewsPool.slice(0, (parseInt(tourId) % 3) + 2);
   };
 
-  const currentReviews = getReviews(tour.id);
+  const currentReviews = [...submittedReviews, ...getReviews(tour.id)];
+
+  const handleReviewSubmit = (event) => {
+    event.preventDefault();
+
+    if (!reviewRating || !reviewText.trim()) {
+      setReviewMessage('Please add a rating and write your review.');
+      return;
+    }
+
+    const trimmedName = reviewName.trim();
+    const newReview = {
+      id: `local-${Date.now()}`,
+      user: trimmedName || 'Guest Traveler',
+      rating: reviewRating,
+      date: 'Just now',
+      comment: reviewText.trim(),
+      avatar: (trimmedName || 'G').charAt(0).toUpperCase(),
+    };
+
+    setSubmittedReviews((prev) => [newReview, ...prev]);
+    setReviewName('');
+    setReviewText('');
+    setReviewRating(0);
+    setReviewMessage('Thanks! Your review has been added to this page.');
+  };
 
   const toggleDay = (day) => {
     setOpenDays((prev) =>
@@ -114,7 +144,7 @@ export default function TourDetailClient({ tour, similarTours }) {
               <div className="d-flex align-items-center gap-2 flex-wrap mb-3">
                 <span className="badge badge-primary" style={{ fontSize: 13 }}>{tour.type}</span>
                 {tour.trending && (
-                  <span className="badge" style={{ background: 'rgba(255,87,34,0.12)', color: '#ff5722', fontSize: 13 }}>
+                  <span className="badge" style={{ background: 'rgba(255,87,34,0.12)', color: 'var(--color-secondary)', fontSize: 13 }}>
                     🔥 Trending
                   </span>
                 )}
@@ -366,7 +396,7 @@ export default function TourDetailClient({ tour, similarTours }) {
                       <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
                         <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                       </svg>
-                      What's Included
+                      What&apos;s Included
                     </h3>
                     <ul className="list-unstyled d-flex flex-column gap-2">
                       {tour.included.map((item, i) => (
@@ -407,6 +437,131 @@ export default function TourDetailClient({ tour, similarTours }) {
               {/* Reviews Tab */}
               {activeTab === 'reviews' && (
                 <div>
+                  <form
+                    onSubmit={handleReviewSubmit}
+                    className="mb-4"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(0,123,255,0.08), rgba(255,255,255,0.96))',
+                      border: '1px solid color-mix(in srgb, var(--color-primary) 22%, var(--color-border))',
+                      borderRadius: 'var(--radius-xl)',
+                      boxShadow: 'var(--shadow-sm)',
+                      padding: 24,
+                    }}
+                  >
+                    <div className="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-4">
+                      <div>
+                        <div style={{ color: 'var(--color-primary)', fontSize: 13, fontWeight: 800, letterSpacing: 0, textTransform: 'uppercase', marginBottom: 6 }}>
+                          Share your experience
+                        </div>
+                        <h3 style={{ fontFamily: 'Poppins, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>
+                          Write a review
+                        </h3>
+                        <p style={{ color: 'var(--color-text-secondary)', fontSize: 14, margin: '8px 0 0', maxWidth: 560 }}>
+                          Tell future travelers what stood out about this tour.
+                        </p>
+                      </div>
+                      <div
+                        style={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: '50%',
+                          background: 'var(--color-primary)',
+                          color: 'white',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: '0 12px 24px rgba(0,123,255,0.18)',
+                        }}
+                        aria-hidden="true"
+                      >
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+                          <path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 8H7V9h10v2zm-4 3H7v-2h6v2zm4-6H7V6h10v2z" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    <div className="row g-3">
+                      <div className="col-md-6">
+                        <label className="form-label">Your name</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={reviewName}
+                          onChange={(event) => setReviewName(event.target.value)}
+                          placeholder="Enter your name"
+                        />
+                      </div>
+                      <div className="col-md-6">
+                        <label className="form-label">Your rating</label>
+                        <div
+                          className="d-flex align-items-center gap-2"
+                          style={{
+                            minHeight: 48,
+                            background: 'white',
+                            border: '1px solid var(--color-border)',
+                            borderRadius: 'var(--radius-md)',
+                            padding: '0 12px',
+                          }}
+                        >
+                          {[1, 2, 3, 4, 5].map((rating) => (
+                            <button
+                              key={rating}
+                              type="button"
+                              onClick={() => setReviewRating(rating)}
+                              aria-label={`Rate ${rating} out of 5`}
+                              style={{
+                                border: 'none',
+                                background: 'transparent',
+                                color: rating <= reviewRating ? '#ffb400' : 'var(--color-border)',
+                                fontSize: 24,
+                                lineHeight: 1,
+                                padding: '6px 2px',
+                                cursor: 'pointer',
+                                transition: 'transform 0.15s ease, color 0.15s ease',
+                                transform: rating === reviewRating ? 'scale(1.12)' : 'scale(1)',
+                              }}
+                            >
+                              ★
+                            </button>
+                          ))}
+                          <span style={{ marginLeft: 6, color: 'var(--color-text-muted)', fontSize: 13, fontWeight: 600 }}>
+                            {reviewRating ? `${reviewRating}/5` : 'Select rating'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="col-12">
+                        <label className="form-label">Your review</label>
+                        <textarea
+                          className="form-input"
+                          rows={5}
+                          value={reviewText}
+                          onChange={(event) => setReviewText(event.target.value)}
+                          placeholder="Write about hotels, itinerary, support, transfers, or anything that helped your trip..."
+                          style={{ resize: 'vertical', minHeight: 132 }}
+                        />
+                      </div>
+                    </div>
+
+                    {reviewMessage && (
+                      <div
+                        style={{
+                          marginTop: 14,
+                          color: reviewMessage.startsWith('Thanks') ? 'var(--color-accent)' : '#e53935',
+                          fontSize: 13,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {reviewMessage}
+                      </div>
+                    )}
+
+                    <div className="d-flex justify-content-end mt-4">
+                      <button type="submit" className="btn-primary btn-sm">
+                        Submit Review
+                      </button>
+                    </div>
+                  </form>
+
                   <div className="reviews-list d-flex flex-column gap-3">
                     {currentReviews.map((rev) => (
                       <div key={rev.id} className="p-4" style={{ background: 'var(--color-bg-soft)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
@@ -423,7 +578,7 @@ export default function TourDetailClient({ tour, similarTours }) {
                           <StarRating rating={rev.rating} size={12} />
                         </div>
                         <p style={{ fontSize: 14, color: 'var(--color-text-secondary)', lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>
-                          "{rev.comment}"
+                          {rev.comment}
                         </p>
                       </div>
                     ))}

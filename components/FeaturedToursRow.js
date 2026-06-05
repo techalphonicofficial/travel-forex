@@ -1,6 +1,9 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { getMediaUrl, getTripInquiries } from '@/utils/api';
+import { CardLink, CircleButton, FilterPill, SectionIntro, SoftBadge } from '@/components/ui/TravelPrimitives';
 
 /* ── Filter definitions ───────────────────────────────── */
 const BUDGET_FILTERS = [
@@ -10,6 +13,14 @@ const BUDGET_FILTERS = [
   { label: '₹1.5L to ₹2.5L', key: '150to250' },
   { label: 'Luxury', key: 'luxury' },
 ];
+
+const getBudgetLabel = (key, fallback) => ({
+  all: 'All Budgets',
+  under50: 'Under Rs 50K',
+  '50to150': 'Rs 50K to Rs 1.5L',
+  '150to250': 'Rs 1.5L to Rs 2.5L',
+  luxury: 'Luxury',
+}[key] || fallback);
 
 const DESTINATIONS = [
   'All Destinations',
@@ -295,12 +306,12 @@ const allBookings = [
     image: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=600&q=80',
     nights: 15, price: 680000, priceCategory: 'luxury',
     type: 'LUXURY', typeColor: '#f59e0b',
-    user: { name: 'Harish', city: 'Bangalore', avatar: 'H', avatarBg: '#026eb5', ago: '20hr ago' },
+    user: { name: 'Harish', city: 'Bangalore', avatar: 'H', avatarBg: 'var(--color-primary)', ago: '20hr ago' },
   },
 ];
 
 /* ── Custom Dropdown Component ────────────────────────── */
-function DestinationDropdown({ currentDest, onChange }) {
+function DestinationDropdown({ currentDest, onChange, destinations = DESTINATIONS }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -319,7 +330,7 @@ function DestinationDropdown({ currentDest, onChange }) {
         style={{
           display: 'flex', alignItems: 'center', gap: 8,
           padding: '7px 16px', borderRadius: 999,
-          border: open ? '1.5px solid #026eb5' : '1.5px solid #d1d5db',
+          border: open ? '1.5px solid var(--color-primary)' : '1.5px solid #d1d5db',
           background: 'white',
           color: '#374151', fontSize: 13, fontWeight: 500, cursor: 'pointer',
           whiteSpace: 'nowrap', transition: 'all 0.2s',
@@ -340,7 +351,7 @@ function DestinationDropdown({ currentDest, onChange }) {
           minWidth: 200, zIndex: 50, padding: '8px 0',
           animation: 'fadeSlideIn 0.2s ease',
         }}>
-          {DESTINATIONS.map((d, i) => {
+          {destinations.map((d, i) => {
             const isActive = d === currentDest;
             return (
               <button
@@ -353,7 +364,7 @@ function DestinationDropdown({ currentDest, onChange }) {
                   display: 'flex', alignItems: 'center', gap: 12,
                   width: '100%', padding: '10px 18px',
                   background: 'none', border: 'none',
-                  borderBottom: i < DESTINATIONS.length - 1 ? '1px solid #f3f4f6' : 'none',
+                  borderBottom: i < destinations.length - 1 ? '1px solid #f3f4f6' : 'none',
                   textAlign: 'left', cursor: 'pointer',
                   color: '#1f2937', fontSize: 13.5, fontWeight: isActive ? 600 : 400,
                   transition: 'background 0.15s',
@@ -380,8 +391,8 @@ function DestinationDropdown({ currentDest, onChange }) {
 }
 
 /* ── Filter logic ─────────────────────────────────────── */
-function filterBookings(budgetStr, destStr) {
-  let list = allBookings;
+function filterBookings(budgetStr, destStr, source = []) {
+  let list = source;
   if (budgetStr !== 'all') {
     list = list.filter(b => b.priceCategory === budgetStr);
   }
@@ -391,12 +402,80 @@ function filterBookings(budgetStr, destStr) {
   return list;
 }
 
+const getPriceCategory = (amount) => {
+  const price = Number(amount) || 0;
+  if (price >= 250000) return 'luxury';
+  if (price >= 150000) return '150to250';
+  if (price >= 50000) return '50to150';
+  return 'under50';
+};
+
+const getRelativeTime = (value) => {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return 'recently';
+
+  const diffMs = Date.now() - date.getTime();
+  const diffHours = Math.max(1, Math.floor(diffMs / (1000 * 60 * 60)));
+  if (diffHours < 24) return `${diffHours}hr ago`;
+
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays}d ago`;
+};
+
+const getTypeColor = (value) => {
+  const key = String(value || '').toLowerCase();
+  if (key.includes('luxury')) return '#f59e0b';
+  if (key.includes('family')) return '#6366f1';
+  if (key.includes('couple') || key.includes('honeymoon')) return '#f97316';
+  if (key.includes('adventure') || key.includes('trending')) return '#10b981';
+  return 'var(--color-primary)';
+};
+
+const normalizeInquiry = (item) => {
+  const cityNames = (item.cities || []).map((city) => city.name).filter(Boolean);
+  const galleryImage = item.destination_gallery?.find((image) => image.is_primary)?.url || item.destination_gallery?.[0]?.url;
+  const totalAmount = Number(item.total_amount || item.base_price || 0);
+  const nights = Number(String(item.duration || '').match(/\d+/)?.[0]) || Math.max(cityNames.length, 1);
+  const destination = item.destination || cityNames[0] || 'Custom Trip';
+  const travelType = item.travel_with || item.status || 'CUSTOM';
+  const city = item.departure_city?.split(',')?.[0]?.trim() || 'India';
+
+  return {
+    id: item.id,
+    slug: item.destination_slug,
+    isInquiry: true,
+    dest: destination,
+    title: `${item.duration || 'Custom'} ${destination} itinerary for ${item.total_travellers || 1} travellers`,
+    locations: cityNames.length ? cityNames.map((name) => titleCase(name)) : [destination],
+    image: getMediaUrl(galleryImage) || 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600&q=80',
+    nights,
+    price: totalAmount,
+    priceCategory: getPriceCategory(totalAmount),
+    type: String(travelType).toUpperCase(),
+    typeColor: getTypeColor(travelType),
+    user: {
+      name: item.customer_name?.split(' ')?.[0] || 'Traveler',
+      city,
+      avatar: (item.customer_name || 'T').charAt(0).toUpperCase(),
+      avatarBg: getTypeColor(travelType),
+      ago: getRelativeTime(item.created_at),
+    },
+  };
+};
+
+const titleCase = (value) =>
+  String(value || '')
+    .replace(/[-_]+/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
 /* ── Main component ───────────────────────────────────── */
 export default function RecommendedPackages() {
   const [activeBudget, setActiveBudget] = useState('all');
   const [activeDest, setActiveDest] = useState('All Destinations');
   const [visible, setVisible] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [liveBookings, setLiveBookings] = useState([]);
+  const [inquiriesLoading, setInquiriesLoading] = useState(true);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -406,7 +485,33 @@ export default function RecommendedPackages() {
     return () => window.removeEventListener('resize', checkSize);
   }, []);
 
-  const filtered = filterBookings(activeBudget, activeDest);
+  useEffect(() => {
+    let mounted = true;
+
+    const loadTripInquiries = async () => {
+      setInquiriesLoading(true);
+      const result = await getTripInquiries({ page: 1, limit: 20 });
+
+      if (!mounted) return;
+
+      const rows = Array.isArray(result?.rows) ? result.rows : [];
+      setLiveBookings(rows.map(normalizeInquiry));
+      setInquiriesLoading(false);
+    };
+
+    loadTripInquiries();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const bookingSource = liveBookings.length ? liveBookings : allBookings.slice(0, 0);
+  const destinationOptions = [
+    'All Destinations',
+    ...Array.from(new Set(bookingSource.map((booking) => booking.dest).filter(Boolean))).sort(),
+  ];
+  const filtered = filterBookings(activeBudget, activeDest, bookingSource);
 
   const handleBudgetSort = (key) => {
     if (key === activeBudget) return;
@@ -435,7 +540,7 @@ export default function RecommendedPackages() {
   };
 
   return (
-    <section style={{ background: '#fff', padding: '52px 0 60px' }}>
+    <section className="recent-bookings-section">
       <style>{`
         @keyframes fadeSlideIn {
           from { opacity: 0; transform: translateY(10px); }
@@ -443,9 +548,9 @@ export default function RecommendedPackages() {
         }
         .booking-cards-wrap {
           display: flex;
-          gap: 18px;
+          gap: 20px;
           overflow-x: auto;
-          padding-bottom: 8px;
+          padding: 4px 2px 12px;
           scrollbar-width: none;
           -ms-overflow-style: none;
           transition: opacity 0.18s ease;
@@ -455,8 +560,216 @@ export default function RecommendedPackages() {
         .booking-card-item {
           animation: fadeSlideIn 0.32s ease both;
         }
+        .recent-bookings-section {
+          background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+          padding: 64px 0 68px;
+          border-top: 1px solid rgba(226, 232, 240, .68);
+          border-bottom: 1px solid rgba(226, 232, 240, .68);
+        }
+        .recent-filters {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .recent-scroll-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .responsive-header-row {
+          display: none !important;
+        }
+        .recent-result-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin: -10px 0 18px;
+        }
+        .recent-result-row p {
+          margin: 0;
+          color: #667085;
+          font-size: 13px;
+          font-weight: 500;
+        }
+        .recent-result-row > span:last-child {
+          color: #667085 !important;
+          font-size: 13px !important;
+          font-weight: 500;
+        }
+        .booking-cards-wrap {
+          scroll-snap-type: x proximity;
+        }
+        .booking-cards-wrap::-webkit-scrollbar { display: none; }
+        .recent-empty-state {
+          flex: 1 0 100%;
+          min-height: 128px;
+          display: grid;
+          place-items: center;
+          border: 1px dashed #d1d5db;
+          border-radius: 12px;
+          color: #64748b;
+          background: #fff;
+          font-size: 13px;
+          font-weight: 700;
+        }
+        .recent-booking-card {
+          flex-shrink: 0;
+          width: 310px;
+          overflow: hidden;
+          border: 1px solid #e6ebf1;
+          border-radius: 12px;
+          background: #fff;
+          box-shadow: 0 10px 26px rgba(15, 23, 42, .07);
+          transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+          scroll-snap-align: start;
+        }
+        .recent-booking-card:hover {
+          transform: translateY(-4px);
+          border-color: color-mix(in srgb, var(--color-primary) 28%, #e6ebf1);
+          box-shadow: 0 18px 44px rgba(15, 23, 42, .12);
+        }
+        .recent-card-media {
+          position: relative;
+          height: 188px;
+          overflow: hidden;
+          background: var(--color-bg-soft);
+        }
+        .recent-card-media img {
+          object-fit: cover;
+          transition: transform .5s ease;
+        }
+        .recent-booking-card:hover .recent-card-media img {
+          transform: scale(1.06);
+        }
+        .recent-card-media::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(180deg, rgba(15, 23, 42, .02) 35%, rgba(15, 23, 42, .46) 100%);
+          pointer-events: none;
+        }
+        .recent-user-badge {
+          position: absolute;
+          left: 12px;
+          top: 12px;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          max-width: calc(100% - 24px);
+          padding: 5px 11px 5px 5px;
+          border: 1px solid rgba(255,255,255,.24);
+          border-radius: var(--radius-full);
+          background: rgba(15, 23, 42, .58);
+          color: #fff;
+          backdrop-filter: blur(10px);
+        }
+        .recent-user-avatar {
+          width: 26px;
+          height: 26px;
+          flex: 0 0 26px;
+          border-radius: 50%;
+          display: grid;
+          place-items: center;
+          color: #fff;
+          font-size: 11px;
+          font-weight: 800;
+        }
+        .recent-user-badge span {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: 11px;
+          font-weight: 600;
+        }
+        .recent-card-body { padding: 16px; }
+        .recent-card-title {
+          min-height: 40px;
+          margin: 0 0 8px;
+          color: #111827;
+          font-family: var(--font-poppins), Poppins, sans-serif;
+          font-size: 15px;
+          font-weight: 700;
+          line-height: 1.35;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .recent-card-location {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          margin: 0 0 12px;
+          color: #667085;
+          font-size: 12px;
+          line-height: 1.4;
+        }
+        .recent-card-location span {
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .recent-card-tags {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 14px;
+        }
+        .recent-card-type,
+        .recent-card-nights {
+          display: inline-flex;
+          align-items: center;
+          min-height: 24px;
+          border-radius: 7px;
+          padding: 3px 9px;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: .6px;
+          text-transform: uppercase;
+        }
+        .recent-card-nights {
+          background: #f3f6fa;
+          color: #475467;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0;
+          text-transform: none;
+        }
+        .recent-card-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          border-top: 1px solid #eef2f6;
+          padding-top: 13px;
+        }
+        .recent-card-price {
+          color: #111827;
+          font-family: var(--font-poppins), Poppins, sans-serif;
+          font-size: 19px;
+          font-weight: 800;
+          line-height: 1;
+        }
+        .recent-card-price-note {
+          margin-top: 4px;
+          color: #98a2b3;
+          font-size: 11px;
+          font-weight: 600;
+        }
 
         @media (max-width: 768px) {
+           .recent-bookings-section { padding: 52px 0 56px; }
+           .recent-filters { width: 100%; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 2px; scrollbar-width: none; }
+           .recent-filters::-webkit-scrollbar { display: none; }
+           .recent-scroll-actions { width: 100%; justify-content: flex-start; }
+           .recent-booking-card { width: calc(100vw - 36px); }
            .responsive-header-row {
              flex-direction: column;
              align-items: flex-start !important;
@@ -476,7 +789,42 @@ export default function RecommendedPackages() {
         }
       `}</style>
 
-      <div className='container' style={{ margin: '0 auto', padding: '0 8px' }}>
+      <div className="container">
+        <SectionIntro
+          eyebrow="Traveler activity"
+          title="Recently booked"
+          accent="itineraries"
+          subtitle="See what other travelers are planning right now, then open a route that feels close to your next holiday."
+          meta={(
+            <SoftBadge tone="live">
+              {liveBookings.length ? `${liveBookings.length}+ recent trip requests` : '143+ trips booked last week'}
+            </SoftBadge>
+          )}
+          actions={(
+            <>
+              <div className="recent-filters">
+                <DestinationDropdown currentDest={activeDest} onChange={handleDestChange} destinations={destinationOptions} />
+                {BUDGET_FILTERS.map((filter) => (
+                  <FilterPill
+                    key={filter.key}
+                    active={activeBudget === filter.key}
+                    onClick={() => handleBudgetSort(filter.key)}
+                  >
+                    {getBudgetLabel(filter.key, filter.label)}
+                  </FilterPill>
+                ))}
+              </div>
+              <div className="recent-scroll-actions">
+                <CircleButton label="Previous itineraries" onClick={() => scroll(-1)}>
+                  &lt;
+                </CircleButton>
+                <CircleButton label="Next itineraries" onClick={() => scroll(1)}>
+                  &gt;
+                </CircleButton>
+              </div>
+            </>
+          )}
+        />
 
         {/* ── Top row: left label + filters + arrows ── */}
         <div className="responsive-header-row" style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32, flexWrap: 'wrap' }}>
@@ -492,7 +840,7 @@ export default function RecommendedPackages() {
               letterSpacing: -0.5,
             }}>
               RECENTLY<br />BOOKED<br />
-              <span style={{ color: '#026eb5' }}>ITINERARIES</span>
+              <span style={{ color: 'var(--color-primary)' }}>ITINERARIES</span>
             </h2>
             <div style={{
               marginTop: 12, display: 'flex', alignItems: 'center', gap: 6,
@@ -500,25 +848,27 @@ export default function RecommendedPackages() {
               borderRadius: 999, padding: '5px 12px', width: 'fit-content',
             }}>
               <span style={{ color: '#ef4444', fontSize: 14 }}>❤️</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>143+ trips booked last week</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>
+                {liveBookings.length ? `${liveBookings.length}+ recent trip requests` : '143+ trips booked last week'}
+              </span>
             </div>
           </div>
 
           {/* Filter pills */}
           <div className="filters-container" style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, flexWrap: 'wrap' }}>
             {/* The Destination Dropdown */}
-            <DestinationDropdown currentDest={activeDest} onChange={handleDestChange} />
+            <DestinationDropdown currentDest={activeDest} onChange={handleDestChange} destinations={destinationOptions} />
 
-            {BUDGET_FILTERS.map((f) => (
+            {/* {BUDGET_FILTERS.map((f) => (
               <button
                 key={f.key}
                 onClick={() => handleBudgetSort(f.key)}
                 style={{
                   padding: '7px 16px',
                   borderRadius: 999,
-                  border: activeBudget === f.key ? '2px solid #026eb5' : '1.5px solid #d1d5db',
-                  background: activeBudget === f.key ? '#c5e5fb' : 'white',
-                  color: activeBudget === f.key ? '#026eb5' : '#374151',
+                  border: activeBudget === f.key ? '2px solid var(--color-primary)' : '1.5px solid #d1d5db',
+                  background: activeBudget === f.key ? 'var(--color-primary-light)' : 'white',
+                  color: activeBudget === f.key ? 'var(--color-primary)' : '#374151',
                   fontWeight: activeBudget === f.key ? 700 : 500,
                   fontSize: 13,
                   cursor: 'pointer',
@@ -528,7 +878,7 @@ export default function RecommendedPackages() {
               >
                 {f.label}
               </button>
-            ))}
+            ))} */}
           </div>
 
           {/* Prev / Next arrows */}
@@ -556,16 +906,20 @@ export default function RecommendedPackages() {
         </div>
 
         {/* ── Result count badge ── */}
-        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="recent-result-row">
           <span style={{
-            background: '#c5e5fb', border: '1px solid #7abfee',
-            color: '#026eb5', borderRadius: 999,
+            background: 'var(--color-primary-light)', border: '1px solid var(--brand-primary-border)',
+            color: 'var(--color-primary)', borderRadius: 999,
             padding: '3px 12px', fontSize: 12, fontWeight: 700,
           }}>
             {filtered.length} itineraries
           </span>
           <span style={{ color: '#9ca3af', fontSize: 12 }}>
-            {activeDest === 'All Destinations' && activeBudget === 'all' ? 'showing all popular trips' : `filtered results`}
+              {inquiriesLoading
+                ? 'loading latest trips'
+                : activeDest === 'All Destinations' && activeBudget === 'all'
+                  ? (liveBookings.length ? 'showing latest saved trips' : 'no live trips returned')
+                  : 'filtered results'}
           </span>
         </div>
 
@@ -575,13 +929,17 @@ export default function RecommendedPackages() {
           className={`booking-cards-wrap ${visible ? 'shown' : 'hidden'}`}
         >
           {filtered.map((pkg, idx) => (
-            <BookingCard
+            <BookingCardV2
               key={pkg.id}
               pkg={pkg}
               animDelay={idx * 40}
-              isMobile={isMobile}
             />
           ))}
+          {!inquiriesLoading && filtered.length === 0 && (
+            <div className="recent-empty-state">
+              Live trip inquiries will appear here once the API returns data.
+            </div>
+          )}
         </div>
 
       </div>
@@ -590,8 +948,69 @@ export default function RecommendedPackages() {
 }
 
 /* ── Single card ──────────────────────────────────────── */
+function BookingCardV2({ pkg, animDelay }) {
+  const searchTerm = pkg.locations?.[0]?.replace(/\s*\([^)]*\)/g, '').trim() || pkg.dest;
+  const priceLabel = Number(pkg.price) > 0 ? `Rs ${Number(pkg.price).toLocaleString('en-IN')}` : 'On request';
+  const href = pkg.isInquiry
+    ? `/itineraries/${encodeURIComponent(pkg.id)}`
+    : `/tour?search=${encodeURIComponent(searchTerm)}`;
+
+  return (
+    <article className="booking-card-item recent-booking-card" style={{ animationDelay: `${animDelay}ms` }}>
+      <div className="recent-card-media">
+        <Image
+          src={pkg.image}
+          alt={pkg.title}
+          fill
+          sizes="(max-width: 768px) calc(100vw - 36px), 310px"
+        />
+        <div className="recent-user-badge">
+          <div className="recent-user-avatar" style={{ background: pkg.user.avatarBg }}>
+            {pkg.user.avatar}
+          </div>
+          <span>{pkg.user.name} from {pkg.user.city} - {pkg.user.ago}</span>
+        </div>
+      </div>
+
+      <div className="recent-card-body">
+        <p className="recent-card-title">{pkg.title}</p>
+        <p className="recent-card-location">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11" aria-hidden="true">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+          </svg>
+          <span>{pkg.locations.join(' - ')}</span>
+        </p>
+
+        <div className="recent-card-tags">
+          <span
+            className="recent-card-type"
+            style={{
+              background: `${pkg.typeColor}18`,
+              border: `1px solid ${pkg.typeColor}40`,
+              color: pkg.typeColor,
+            }}
+          >
+            {pkg.type}
+          </span>
+          <span className="recent-card-nights">{pkg.nights} Nights</span>
+        </div>
+
+        <div className="recent-card-footer">
+          <div>
+            <div className="recent-card-price">{priceLabel}</div>
+            <div className="recent-card-price-note">{pkg.nights} nights / person</div>
+          </div>
+          <CardLink href={href}>View Details</CardLink>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function BookingCard({ pkg, animDelay, isMobile }) {
   const [hovered, setHovered] = useState(false);
+  const searchTerm = pkg.locations?.[0]?.replace(/\s*\([^)]*\)/g, '').trim() || pkg.dest;
+  const priceLabel = Number(pkg.price) > 0 ? `₹${Number(pkg.price).toLocaleString('en-IN')}` : 'On request';
 
   return (
     <div
@@ -613,9 +1032,11 @@ function BookingCard({ pkg, animDelay, isMobile }) {
     >
       {/* Image */}
       <div style={{ position: 'relative', height: 180, overflow: 'hidden' }}>
-        <img
+        <Image
           src={pkg.image}
           alt={pkg.title}
+          width={600}
+          height={360}
           style={{
             width: '100%', height: '100%', objectFit: 'cover',
             transform: hovered ? 'scale(1.06)' : 'scale(1)',
@@ -720,14 +1141,14 @@ function BookingCard({ pkg, animDelay, isMobile }) {
         }}>
           <div>
             <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: 18, color: '#111827', lineHeight: 1 }}>
-              ₹{pkg.price.toLocaleString('en-IN')}
+              {priceLabel}
             </div>
             <div style={{ fontSize: 10, color: '#9ca3af' }}>{pkg.nights} nights / person</div>
           </div>
           <Link
-            href={`/tours/${pkg.slug || pkg.id}`}
+            href={pkg.isInquiry ? `/itineraries/${encodeURIComponent(pkg.id)}` : `/tour?search=${encodeURIComponent(searchTerm)}`}
             style={{
-              background: '#026eb5', color: 'white',
+              background: 'var(--color-primary)', color: 'white',
               borderRadius: 8, padding: '9px 16px',
               fontWeight: 700, fontSize: 12,
               textDecoration: 'none',
@@ -735,7 +1156,7 @@ function BookingCard({ pkg, animDelay, isMobile }) {
               whiteSpace: 'nowrap',
             }}
             onMouseEnter={e => e.currentTarget.style.background = '#166534'}
-            onMouseLeave={e => e.currentTarget.style.background = '#026eb5'}
+            onMouseLeave={e => e.currentTarget.style.background = 'var(--color-primary)'}
           >
             View Details
           </Link>

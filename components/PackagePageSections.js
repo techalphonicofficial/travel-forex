@@ -351,8 +351,8 @@ function PytPackageGrid({ title, tabs, defaultActiveTab, packages, isFamily, des
           const isActive = idx === activeTab;
           return (
             <div key={idx} onClick={() => setActiveTab(idx)} style={{
-              padding: '6px 16px', borderRadius: 24, border: isActive ? '1px solid #026eb5' : '1px solid #e5e7eb',
-              background: isActive ? '#026eb5' : 'white', color: isActive ? 'white' : '#4b5563',
+              padding: '6px 16px', borderRadius: 24, border: isActive ? '1px solid var(--color-primary)' : '1px solid #e5e7eb',
+              background: isActive ? 'var(--color-primary)' : 'white', color: isActive ? 'white' : '#4b5563',
               fontSize: 14, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s', userSelect: 'none'
             }}>
               {tab}

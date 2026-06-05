@@ -1,34 +1,36 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { getDestinationHref } from '@/utils/destinationLinks';
 
 /* ── Mega-menu data ───────────────────────────────────── */
 const destinationCols = [
   [
-    { name: 'Bali', tag: 'TRENDING', tagClr: '#ef4444', tagBg: '#fef2f2', href: '/packages?dest=Bali' },
-    { name: 'Maldives', tag: 'HONEYMOON', tagClr: '#ec4899', tagBg: '#fdf2f8', href: '/packages?dest=Maldives' },
-    { name: 'Thailand', tag: 'BUDGET', tagClr: '#f59e0b', tagBg: '#fffbeb', href: '/packages?dest=Thailand' },
-    { name: 'Dubai', tag: null, href: '/packages?dest=Dubai' },
-    { name: 'Switzerland', tag: null, href: '/packages?dest=Switzerland' },
-    { name: 'Vietnam', tag: null, href: '/packages?dest=Vietnam' },
-    { name: 'Abu Dhabi', tag: 'POPULAR', tagClr: '#8b5cf6', tagBg: '#f5f3ff', href: '/packages?dest=AbuDhabi' },
+    { name: 'Bali', tag: 'TRENDING', tagClr: '#ef4444', tagBg: '#fef2f2', href: '/tour?search=Bali' },
+    { name: 'Maldives', tag: 'HONEYMOON', tagClr: '#ec4899', tagBg: '#fdf2f8', href: '/tour?search=Maldives' },
+    { name: 'Thailand', tag: 'BUDGET', tagClr: '#f59e0b', tagBg: '#fffbeb', href: '/tour?search=Thailand' },
+    { name: 'Dubai', tag: null, href: '/tour?search=Dubai' },
+    { name: 'Switzerland', tag: null, href: '/tour?search=Switzerland' },
+    { name: 'Vietnam', tag: null, href: '/tour?search=Vietnam' },
+    { name: 'Abu Dhabi', tag: 'POPULAR', tagClr: '#8b5cf6', tagBg: '#f5f3ff', href: '/tour?search=Abu%20Dhabi' },
   ],
   [
-    { name: 'France', tag: null, href: '/packages?dest=France' },
-    { name: 'Singapore', tag: null, href: '/packages?dest=Singapore' },
-    { name: 'Australia', tag: null, href: '/packages?dest=Australia' },
-    { name: 'Spain', tag: null, href: '/packages?dest=Spain' },
-    { name: 'South Africa', tag: null, href: '/packages?dest=SouthAfrica' },
-    { name: 'Sri Lanka', tag: null, href: '/packages?dest=SriLanka' },
-    { name: 'New Zealand', tag: null, href: '/packages?dest=NewZealand' },
+    { name: 'France', tag: null, href: '/tour?search=France' },
+    { name: 'Singapore', tag: null, href: '/tour?search=Singapore' },
+    { name: 'Australia', tag: null, href: '/tour?search=Australia' },
+    { name: 'Spain', tag: null, href: '/tour?search=Spain' },
+    { name: 'South Africa', tag: null, href: '/tour?search=South%20Africa' },
+    { name: 'Sri Lanka', tag: null, href: '/tour?search=Sri%20Lanka' },
+    { name: 'New Zealand', tag: null, href: '/tour?search=New%20Zealand' },
   ],
   [
-    { name: 'Mauritius', tag: null, href: '/packages?dest=Mauritius' },
-    { name: 'Greece', tag: null, href: '/packages?dest=Greece' },
-    { name: 'Japan', tag: null, href: '/packages?dest=Japan' },
-    { name: 'Malaysia', tag: null, href: '/packages?dest=Malaysia' },
+    { name: 'Mauritius', tag: null, href: '/tour?search=Mauritius' },
+    { name: 'Greece', tag: null, href: '/tour?search=Greece' },
+    { name: 'Japan', tag: null, href: '/tour?search=Japan' },
+    { name: 'Malaysia', tag: null, href: '/tour?search=Malaysia' },
     {
       name: 'Explore 40+ Destinations',
       tag: null,
@@ -58,6 +60,222 @@ const packageCols = [
     { name: 'View All Packages →', href: '/packages', isExplore: true },
   ],
 ];
+
+const HOTEL_HREF = '/hotels';
+
+const currencyOptions = [
+  { code: 'INR', name: 'Indian Rupee', country: 'India', symbol: 'Rs' },
+  { code: 'USD', name: 'US Dollar', country: 'United States', symbol: '$' },
+  { code: 'EUR', name: 'Euro', country: 'Europe', symbol: 'EUR' },
+  { code: 'GBP', name: 'British Pound', country: 'United Kingdom', symbol: 'GBP' },
+  { code: 'AED', name: 'UAE Dirham', country: 'United Arab Emirates', symbol: 'AED' },
+  { code: 'SGD', name: 'Singapore Dollar', country: 'Singapore', symbol: 'S$' },
+  { code: 'THB', name: 'Thai Baht', country: 'Thailand', symbol: 'THB' },
+  { code: 'MYR', name: 'Malaysian Ringgit', country: 'Malaysia', symbol: 'MYR' },
+  { code: 'AUD', name: 'Australian Dollar', country: 'Australia', symbol: 'A$' },
+  { code: 'CAD', name: 'Canadian Dollar', country: 'Canada', symbol: 'C$' },
+  { code: 'JPY', name: 'Japanese Yen', country: 'Japan', symbol: 'JPY' },
+  { code: 'CHF', name: 'Swiss Franc', country: 'Switzerland', symbol: 'CHF' },
+  { code: 'NZD', name: 'New Zealand Dollar', country: 'New Zealand', symbol: 'NZ$' },
+  { code: 'HKD', name: 'Hong Kong Dollar', country: 'Hong Kong', symbol: 'HK$' },
+  { code: 'IDR', name: 'Indonesian Rupiah', country: 'Indonesia', symbol: 'IDR' },
+  { code: 'VND', name: 'Vietnamese Dong', country: 'Vietnam', symbol: 'VND' },
+  { code: 'LKR', name: 'Sri Lankan Rupee', country: 'Sri Lanka', symbol: 'LKR' },
+  { code: 'MVR', name: 'Maldivian Rufiyaa', country: 'Maldives', symbol: 'MVR' },
+  { code: 'SAR', name: 'Saudi Riyal', country: 'Saudi Arabia', symbol: 'SAR' },
+  { code: 'QAR', name: 'Qatari Riyal', country: 'Qatar', symbol: 'QAR' },
+];
+
+const emptyForexInquiry = {
+  fromCurrency: 'INR',
+  toCurrency: 'USD',
+  amount: '',
+  purpose: 'Travel',
+  travelDate: '',
+  customerName: '',
+  phone: '',
+  email: '',
+  notes: '',
+};
+
+const forexRowsFromPayload = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.data?.data)) return payload.data.data;
+  if (Array.isArray(payload?.data?.rows)) return payload.data.rows;
+  if (Array.isArray(payload?.rows)) return payload.rows;
+  if (payload?.data && typeof payload.data === 'object') return [payload.data];
+  if (payload && typeof payload === 'object' && (payload.code || payload.currency_code || payload.base_code || payload.rate)) return [payload];
+  return [];
+};
+
+const numberFromForex = (...values) => {
+  for (const value of values) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed) && parsed > 0) return parsed;
+  }
+  return null;
+};
+
+const normalizeForexRate = (item = {}, index = 0) => {
+  const rawCode = item.code || item.currency_code || item.currencyCode || item.from_code || item.fromCurrency || item.currency;
+  const rawBaseCode = item.base_code || item.baseCode || item.to_code || item.toCurrency || item.quote_code || item.quoteCode;
+  const code = String(rawCode || '').trim().toUpperCase();
+  const baseCode = String(rawBaseCode || '').trim().toUpperCase();
+  const country = String(item.country?.name || item.country_name || item.country || item.countryName || '').trim();
+  const name = String(item.currency_name || item.currencyName || item.name || item.label || `${code || baseCode} currency`).trim();
+  const rate = numberFromForex(
+    item.rate,
+    item.conversion_rate,
+    item.conversionRate,
+    item.exchange_rate,
+    item.exchangeRate,
+    item.sell_rate,
+    item.sellRate,
+    item.value
+  );
+
+  return {
+    ...item,
+    code: code || baseCode || `FX${index}`,
+    baseCode,
+    country: country || 'Active forex rate',
+    name,
+    rate,
+    symbol: item.symbol || item.currency_symbol || item.currencySymbol || code || baseCode,
+  };
+};
+
+const buildForexOptions = (rows = []) => {
+  const seen = new Set();
+  const normalized = rows
+    .map(normalizeForexRate)
+    .filter((currency) => currency.code && !currency.code.startsWith('FX'));
+
+  const combined = [...normalized, ...currencyOptions];
+
+  return combined.filter((currency) => {
+    const key = currency.code;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
+const findForexRateMatch = (rates = [], fromCode, toCode) => {
+  const from = String(fromCode || '').toUpperCase();
+  const to = String(toCode || '').toUpperCase();
+
+  if (!from || !to || from === to) return null;
+
+  const direct = rates.find((rate) => rate.code === from && rate.baseCode === to && rate.rate);
+  if (direct) return { rate: direct.rate, source: direct, mode: 'direct' };
+
+  const reverse = rates.find((rate) => rate.code === to && rate.baseCode === from && rate.rate);
+  if (reverse) return { rate: 1 / reverse.rate, source: reverse, mode: 'reverse' };
+
+  return null;
+};
+
+const formatMoneyValue = (value, code) => {
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) return '';
+  return `${amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })} ${code}`;
+};
+
+function CurrencyCombobox({ id, label, value, onChange, currencies = currencyOptions, loading = false }) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const wrapRef = useRef(null);
+  const selected = currencies.find((currency) => currency.code === value) || null;
+  const filteredCurrencies = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return currencies;
+
+    return currencies.filter((currency) => (
+      String(currency.code || '').toLowerCase().includes(query) ||
+      String(currency.name || '').toLowerCase().includes(query) ||
+      String(currency.country || '').toLowerCase().includes(query) ||
+      String(currency.baseCode || '').toLowerCase().includes(query)
+    ));
+  }, [currencies, search]);
+
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      if (!wrapRef.current?.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, []);
+
+  const chooseCurrency = (currency) => {
+    onChange(currency.code);
+    setSearch('');
+    setOpen(false);
+  };
+
+  return (
+    <label className="forex-currency-field" ref={wrapRef}>
+      {label}
+      <div className={`forex-currency-combobox${open ? ' is-open' : ''}`}>
+        <div className="forex-currency-selected">
+          {selected ? (
+            <>
+              <strong>{selected.code}</strong>
+              <span>{selected.name}</span>
+              {selected.baseCode ? <em>{selected.baseCode}</em> : null}
+            </>
+          ) : (
+            <span>Select currency</span>
+          )}
+        </div>
+        <input
+          id={id}
+          type="text"
+          value={search}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          placeholder="Search code or country"
+          autoComplete="off"
+        />
+        <button type="button" aria-label={`Open ${label} currency list`} onClick={() => setOpen((current) => !current)}>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+            <path d="M7 10l5 5 5-5z" />
+          </svg>
+        </button>
+        {open ? (
+          <div className="forex-currency-menu">
+            {loading ? (
+              <div className="forex-currency-empty">Loading active rates...</div>
+            ) : filteredCurrencies.length ? filteredCurrencies.map((currency) => (
+              <button
+                key={`${currency.code}-${currency.baseCode || currency.country || 'currency'}`}
+                type="button"
+                className={currency.code === value ? 'active' : ''}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => chooseCurrency(currency)}
+              >
+                <span>
+                  <strong>{currency.code}</strong>
+                  <small>{currency.name}{currency.baseCode ? ` to ${currency.baseCode}` : ''}</small>
+                </span>
+                <em>{currency.country}</em>
+              </button>
+            )) : (
+              <div className="forex-currency-empty">No currency found</div>
+            )}
+          </div>
+        ) : null}
+      </div>
+    </label>
+  );
+}
 
 /* ── Tag badge component ──────────────────────────────── */
 function Tag({ label, color, bg }) {
@@ -107,7 +325,7 @@ function MegaDropdown({ label, cols, isTransparent }) {
           transition: 'color 0.2s',
           whiteSpace: 'nowrap',
         }}
-        onMouseEnter={e => { if (!isTransparent) e.currentTarget.style.color = '#026eb5'; }}
+        onMouseEnter={e => { if (!isTransparent) e.currentTarget.style.color = 'var(--color-primary)'; }}
         onMouseLeave={e => { if (!isTransparent) e.currentTarget.style.color = '#374151'; }}
       >
         {label}
@@ -164,15 +382,15 @@ function MegaDropdown({ label, cols, isTransparent }) {
                     padding: '8px 0',
                     borderBottom: '1px solid #f9fafb',
                     textDecoration: 'none',
-                    color: item.isExplore ? '#026eb5' : '#1f2937',
+                    color: item.isExplore ? 'var(--color-primary)' : '#1f2937',
                     fontWeight: item.isExplore ? 700 : 500,
                     fontSize: 13.5,
                     transition: 'color 0.15s',
                     lineHeight: 1.5,
                     whiteSpace: 'nowrap',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.color = '#026eb5'; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = item.isExplore ? '#026eb5' : '#1f2937'; }}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-primary)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = item.isExplore ? 'var(--color-primary)' : '#1f2937'; }}
                 >
                   {item.name}
                   {item.tag && (
@@ -189,7 +407,7 @@ function MegaDropdown({ label, cols, isTransparent }) {
 }
 
 /* ── Side Drawer ───────────────────────────────────────── */
-function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, onLogout }) {
+function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, onLogout, onForexOpen }) {
   const [expanded, setExpanded] = useState(null);
 
   const toggleExpand = (label) => {
@@ -197,6 +415,8 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
   };
 
   const navGroup = [
+    { label: 'Hotel', href: HOTEL_HREF },
+    { label: 'Forex', action: onForexOpen },
     { label: 'Testimonial', href: '/testimonials' },
     { label: 'FAQ', href: '/contact#faq' },
     { label: 'Contact us', href: '/contact' },
@@ -216,7 +436,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
     hasSub: (cat.destinations && cat.destinations.length > 0),
     subItems: (cat.destinations || []).map(dest => ({
       label: dest.name,
-      href: `/package/${dest.slug}`
+      href: getDestinationHref(dest)
     }))
   }));
 
@@ -264,10 +484,17 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
           {navGroups?.map((group, idx) => {
             const isExpanded = expanded === group.label;
             const hasHref = !!group.href;
+            const hasAction = typeof group.action === 'function';
 
             const ItemTrigger = (
               <div
-                onClick={() => group.hasSub ? toggleExpand(group.label) : null}
+                onClick={() => {
+                  if (group.hasSub) toggleExpand(group.label);
+                  if (hasAction) {
+                    group.action();
+                    onClose();
+                  }
+                }}
                 style={{
                   padding: '16px 24px',
                   display: 'flex',
@@ -304,6 +531,10 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                   <Link href={group.href} style={{ textDecoration: 'none' }} onClick={onClose}>
                     {ItemTrigger}
                   </Link>
+                ) : hasAction ? (
+                  <button type="button" style={{ width: '100%', border: 0, background: 'transparent', padding: 0, textAlign: 'left' }}>
+                    {ItemTrigger}
+                  </button>
                 ) : ItemTrigger}
 
                 {/* Expanded Sub-items */}
@@ -389,11 +620,22 @@ import {
   clearAuthSession,
   getCategories,
   getDestinationsByCategory,
+  getForexRateByCode,
+  getForexRates,
   getStoredAuth,
   getStoredToken,
 } from '@/utils/api';
 
-export default function Navbar() {
+const getLogoUrl = (logo) => {
+  if (!logo) return '';
+  if (/^(https?:|data:|blob:)/i.test(logo)) return logo;
+  if (!String(logo).startsWith('/uploads')) return logo;
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'https://sank-gutless-dripping.ngrok-free.dev/';
+  return `${baseUrl.replace(/\/$/, '')}/${String(logo).replace(/^\//, '')}`;
+};
+
+export default function Navbar({ brand, companyInfo }) {
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [atHero, setAtHero] = useState(true);
@@ -401,9 +643,17 @@ export default function Navbar() {
   const [allCategories, setAllCategories] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [forexOpen, setForexOpen] = useState(false);
+  const [forexDraft, setForexDraft] = useState(emptyForexInquiry);
+  const [forexInquiry, setForexInquiry] = useState('');
+  const [forexRates, setForexRates] = useState([]);
+  const [forexRatesLoading, setForexRatesLoading] = useState(false);
+  const [forexRatesError, setForexRatesError] = useState('');
+  const [forexLookupLoading, setForexLookupLoading] = useState(false);
+  const [forexLookupRate, setForexLookupRate] = useState(null);
   const pathname = usePathname();
 
-  const isHeroPage = pathname === '/' || pathname === '/packages' || pathname.startsWith('/package') || pathname.startsWith('/tours') || pathname.startsWith('/about') || pathname.startsWith('/blog') || pathname.startsWith('/contact');
+  const isHeroPage = pathname === '/' || pathname === '/packages' || pathname.startsWith('/package') || pathname.startsWith('/tours') || pathname.startsWith('/hotels') || pathname.startsWith('/about') || pathname.startsWith('/blog') || pathname.startsWith('/contact');
 
   useEffect(() => {
     const fetchNavbarCategoriesAndDests = async () => {
@@ -418,9 +668,9 @@ export default function Navbar() {
               const tagStr = item.type ? item.type.split(',')[0].trim().toUpperCase() : null;
               return {
                 name: item.name.charAt(0).toUpperCase() + item.name.slice(1),
-                href: `/package/${item.slug}`,
+                href: getDestinationHref(item),
                 tag: tagStr,
-                tagClr: tagStr === 'BEACH' ? '#ef4444' : '#026eb5',
+                tagClr: tagStr === 'BEACH' ? '#ef4444' : 'var(--color-primary)',
                 tagBg: tagStr === 'BEACH' ? '#fef2f2' : '#e0f2fe'
               };
             });
@@ -490,12 +740,123 @@ export default function Navbar() {
     return () => cancelAnimationFrame(frame);
   }, [pathname]);
 
-  if (pathname?.startsWith('/auth')) {
+  useEffect(() => {
+    if (!forexOpen) return undefined;
+
+    let active = true;
+
+    const loadForexRates = async () => {
+      setForexRatesLoading(true);
+      setForexRatesError('');
+
+      const result = await getForexRates();
+      if (!active) return;
+
+      const rows = forexRowsFromPayload(result).map(normalizeForexRate).filter((rate) => rate.code);
+      setForexRates(rows);
+
+      if (!rows.length) {
+        setForexRatesError(result?.message || 'Active forex rates are not available right now.');
+      }
+
+      setForexRatesLoading(false);
+    };
+
+    loadForexRates();
+
+    return () => {
+      active = false;
+    };
+  }, [forexOpen]);
+
+  const forexOptions = useMemo(() => buildForexOptions(forexRates), [forexRates]);
+  const forexEstimate = useMemo(() => {
+    const rows = forexLookupRate ? [forexLookupRate, ...forexRates] : forexRates;
+    const match = findForexRateMatch(rows, forexDraft.fromCurrency, forexDraft.toCurrency);
+    const amount = Number(forexDraft.amount || 0);
+
+    if (!match || !amount) return { match, convertedAmount: null };
+
+    return {
+      match,
+      convertedAmount: amount * match.rate,
+    };
+  }, [forexDraft.amount, forexDraft.fromCurrency, forexDraft.toCurrency, forexLookupRate, forexRates]);
+
+  if (pathname?.startsWith('/auth') || pathname === '/customize') {
     return null;
   }
 
+  const brandLogo = getLogoUrl(companyInfo?.company_logo_url) || brand?.logo || '/logooo.png';
+  const brandName = brand?.legalName || 'ITS TRAVELS AND TOURS';
   const isTransparent = isHeroPage && atHero && !scrolled && !drawerOpen;
   const linkColor = isTransparent ? 'rgba(255,255,255,0.92)' : '#374151';
+  const navButtonStyle = {
+    padding: '8px 18px',
+    borderRadius: 8,
+    border: isTransparent ? '1.5px solid rgba(255,255,255,0.6)' : '1.5px solid #d1d5db',
+    color: isTransparent ? 'white' : '#374151',
+    fontWeight: 600,
+    fontSize: 13,
+    textDecoration: 'none',
+    background: isTransparent ? 'rgba(255,255,255,0.1)' : 'white',
+    backdropFilter: 'blur(6px)',
+    transition: 'all 0.2s',
+  };
+
+  const updateForexDraft = (key, value) => {
+    setForexDraft((current) => ({ ...current, [key]: value }));
+  };
+
+  const generateForexInquiry = async (event) => {
+    event.preventDefault();
+    setForexLookupLoading(true);
+    setForexRatesError('');
+
+    const lookup = await getForexRateByCode(forexDraft.fromCurrency);
+    const lookupRows = forexRowsFromPayload(lookup).map(normalizeForexRate).filter((rate) => rate.code);
+    const nextLookupRate = lookupRows[0] || null;
+    setForexLookupRate(nextLookupRate);
+
+    const fromCurrency = forexOptions.find((currency) => currency.code === forexDraft.fromCurrency);
+    const toCurrency = forexOptions.find((currency) => currency.code === forexDraft.toCurrency);
+    const amountValue = Number(forexDraft.amount || 0);
+    const amount = amountValue.toLocaleString('en-IN');
+    const lookupEstimate = findForexRateMatch(
+      nextLookupRate ? [nextLookupRate, ...forexRates] : forexRates,
+      forexDraft.fromCurrency,
+      forexDraft.toCurrency
+    );
+    const convertedAmount = lookupEstimate && amountValue ? amountValue * lookupEstimate.rate : null;
+    const contact = [
+      forexDraft.customerName && `Name: ${forexDraft.customerName.trim()}`,
+      forexDraft.phone && `Phone: ${forexDraft.phone.trim()}`,
+      forexDraft.email && `Email: ${forexDraft.email.trim()}`,
+    ].filter(Boolean).join(' | ');
+
+    setForexInquiry([
+      `Forex inquiry to convert ${amount} ${fromCurrency?.code || forexDraft.fromCurrency} to ${toCurrency?.code || forexDraft.toCurrency}.`,
+      convertedAmount ? `Estimated value: ${formatMoneyValue(convertedAmount, toCurrency?.code || forexDraft.toCurrency)} at ${formatMoneyValue(lookupEstimate.rate, toCurrency?.code || forexDraft.toCurrency)} per ${fromCurrency?.code || forexDraft.fromCurrency}.` : 'Rate will be confirmed by the forex team.',
+      `Purpose: ${forexDraft.purpose}.`,
+      forexDraft.travelDate ? `Travel date: ${forexDraft.travelDate}.` : '',
+      contact,
+      forexDraft.notes.trim() ? `Notes: ${forexDraft.notes.trim()}` : '',
+    ].filter(Boolean).join(' '));
+
+    if (!lookupRows.length && !lookupEstimate) {
+      setForexRatesError(lookup?.message || 'No active rate found for the selected currency pair.');
+    }
+
+    setForexLookupLoading(false);
+  };
+
+  const swapForexCurrencies = () => {
+    setForexDraft((current) => ({
+      ...current,
+      fromCurrency: current.toCurrency,
+      toCurrency: current.fromCurrency,
+    }));
+  };
 
   return (
     <>
@@ -518,12 +879,393 @@ export default function Navbar() {
           position: absolute;
           bottom: 0; left: 0;
           width: 0; height: 2px;
-          background: #026eb5;
+          background: var(--color-primary);
           border-radius: 999px;
           transition: width 0.25s;
         }
         .nav-plain-link:hover::after,
         .nav-plain-link.active::after { width: 100%; }
+        .forex-modal-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 2200;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          background: rgba(15, 23, 42, 0.58);
+          backdrop-filter: blur(5px);
+        }
+        .forex-modal {
+          width: min(100%, 720px);
+          max-height: min(86vh, 760px);
+          overflow: auto;
+          border-radius: 8px;
+          background: #fff;
+          box-shadow: 0 28px 70px rgba(0,0,0,0.28);
+        }
+        .forex-modal-head {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 18px;
+          padding: 22px 24px;
+          background: linear-gradient(135deg, #083d5b, #108173);
+          color: #fff;
+        }
+        .forex-modal-head span {
+          display: block;
+          margin-bottom: 6px;
+          color: #c9fff2;
+          font-size: 11px;
+          font-weight: 900;
+          letter-spacing: .8px;
+          text-transform: uppercase;
+        }
+        .forex-modal-head h2 {
+          margin: 0 0 6px;
+          font-family: Poppins, sans-serif;
+          font-size: 24px;
+          font-weight: 900;
+        }
+        .forex-modal-head p {
+          margin: 0;
+          color: rgba(255,255,255,.8);
+          font-size: 14px;
+          line-height: 1.5;
+        }
+        .forex-modal-close {
+          width: 36px;
+          height: 36px;
+          border: 1px solid rgba(255,255,255,.35);
+          border-radius: 50%;
+          background: rgba(255,255,255,.12);
+          color: #fff;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          flex: 0 0 auto;
+        }
+        .forex-modal-form {
+          display: grid;
+          gap: 16px;
+          padding: 20px 22px 22px;
+        }
+        .forex-modal-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 14px;
+        }
+        .forex-modal-grid label {
+          display: grid;
+          gap: 7px;
+          color: #334155;
+          font-size: 12px;
+          font-weight: 900;
+        }
+        .forex-conversion-row {
+          grid-column: 1 / -1;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr);
+          gap: 10px;
+          align-items: end;
+        }
+        .forex-currency-field {
+          min-width: 0;
+        }
+        .forex-currency-combobox {
+          position: relative;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 42px;
+          grid-template-areas:
+            "selected toggle"
+            "search toggle";
+          min-height: 64px;
+          border: 1px solid #d8dee8;
+          border-radius: 8px;
+          background: #fff;
+          transition: border-color .18s ease, box-shadow .18s ease;
+        }
+        .forex-currency-combobox.is-open {
+          border-color: var(--color-primary);
+          box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 14%, transparent);
+        }
+        .forex-currency-selected {
+          grid-area: selected;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          min-width: 0;
+          padding: 9px 12px 0;
+        }
+        .forex-currency-selected strong {
+          color: #0f172a;
+          font-size: 15px;
+          font-weight: 900;
+          letter-spacing: .3px;
+        }
+        .forex-currency-selected span {
+          min-width: 0;
+          color: #64748b;
+          font-size: 12px;
+          font-weight: 800;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .forex-currency-selected em {
+          flex: 0 0 auto;
+          padding: 2px 6px;
+          border-radius: 999px;
+          background: #ecfeff;
+          color: #0369a1;
+          font-size: 10px;
+          font-style: normal;
+          font-weight: 900;
+        }
+        .forex-currency-combobox input {
+          grid-area: search;
+          min-height: 28px;
+          border: 0;
+          border-radius: 0;
+          padding: 0 12px 8px;
+          color: #111827;
+          font-size: 13px;
+          font-weight: 700;
+          outline: none;
+        }
+        .forex-currency-combobox > button {
+          grid-area: toggle;
+          border: 0;
+          border-left: 1px solid #edf1f5;
+          border-radius: 0 8px 8px 0;
+          background: #f8fafc;
+          color: #334155;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+        .forex-currency-combobox.is-open > button svg {
+          transform: rotate(180deg);
+        }
+        .forex-currency-menu {
+          position: absolute;
+          top: calc(100% + 8px);
+          left: 0;
+          right: 0;
+          z-index: 30;
+          max-height: 248px;
+          overflow-y: auto;
+          border: 1px solid #dbe5ef;
+          border-radius: 8px;
+          background: #fff;
+          box-shadow: 0 18px 42px rgba(15,23,42,.18);
+          padding: 6px;
+        }
+        .forex-currency-menu button {
+          width: 100%;
+          border: 0;
+          border-radius: 7px;
+          background: transparent;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 10px;
+          text-align: left;
+          cursor: pointer;
+        }
+        .forex-currency-menu button:hover,
+        .forex-currency-menu button.active {
+          background: #eff6ff;
+        }
+        .forex-currency-menu button span {
+          display: grid;
+          gap: 2px;
+          min-width: 0;
+        }
+        .forex-currency-menu button strong {
+          color: #0f172a;
+          font-size: 13px;
+          font-weight: 900;
+        }
+        .forex-currency-menu button small {
+          color: #64748b;
+          font-size: 12px;
+          font-weight: 700;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .forex-currency-menu button em {
+          flex: 0 0 auto;
+          max-width: 120px;
+          color: #0369a1;
+          font-size: 11px;
+          font-style: normal;
+          font-weight: 900;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .forex-currency-empty {
+          padding: 14px 12px;
+          color: #64748b;
+          font-size: 13px;
+          font-weight: 800;
+          text-align: center;
+        }
+        .forex-swap-button {
+          width: 42px;
+          height: 42px;
+          margin-bottom: 11px;
+          border: 1px solid #cfd9e6;
+          border-radius: 50%;
+          background: #fff;
+          color: var(--color-primary);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: transform .18s ease, background .18s ease, color .18s ease;
+        }
+        .forex-swap-button:hover {
+          background: var(--color-primary);
+          color: #fff;
+          transform: rotate(180deg);
+        }
+        .forex-modal-grid input,
+        .forex-modal-grid select,
+        .forex-modal-grid textarea {
+          width: 100%;
+          border: 1px solid #d8dee8;
+          border-radius: 8px;
+          background: #fff;
+          color: #111827;
+          font: inherit;
+          font-size: 14px;
+          outline: none;
+        }
+        .forex-modal-grid input,
+        .forex-modal-grid select {
+          min-height: 44px;
+          padding: 0 12px;
+        }
+        .forex-modal-grid textarea {
+          min-height: 92px;
+          padding: 12px;
+          resize: vertical;
+        }
+        .forex-modal-grid .forex-currency-combobox input {
+          min-height: 28px;
+          border: 0;
+          border-radius: 0;
+          padding: 0 12px 8px;
+        }
+        .forex-modal-notes { grid-column: 1 / -1; }
+        .forex-rate-preview {
+          grid-column: 1 / -1;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 14px;
+          padding: 14px 16px;
+          border: 1px solid #bae6fd;
+          border-radius: 8px;
+          background: #f0f9ff;
+          color: #0f172a;
+        }
+        .forex-rate-preview strong {
+          display: block;
+          color: #075985;
+          font-size: 13px;
+          font-weight: 950;
+        }
+        .forex-rate-preview span {
+          display: block;
+          margin-top: 3px;
+          color: #334155;
+          font-size: 13px;
+          font-weight: 800;
+          line-height: 1.45;
+        }
+        .forex-rate-preview small {
+          flex: 0 0 auto;
+          color: #0369a1;
+          font-size: 12px;
+          font-weight: 900;
+          text-align: right;
+        }
+        .forex-rate-error {
+          grid-column: 1 / -1;
+          margin: 0;
+          padding: 11px 13px;
+          border: 1px solid #fed7aa;
+          border-radius: 8px;
+          background: #fff7ed;
+          color: #9a3412;
+          font-size: 13px;
+          font-weight: 850;
+        }
+        .forex-modal-form > button {
+          justify-self: start;
+          min-height: 44px;
+          padding: 0 18px;
+          border: 0;
+          border-radius: 8px;
+          background: var(--color-primary);
+          color: #fff;
+          font-weight: 900;
+          cursor: pointer;
+        }
+        .forex-modal-form > button:disabled {
+          cursor: wait;
+          opacity: .72;
+        }
+        .forex-modal-output {
+          padding: 15px 16px;
+          border: 1px solid #bfe7d9;
+          border-radius: 8px;
+          background: #effdf7;
+          color: #14532d;
+        }
+        .forex-modal-output strong {
+          display: block;
+          margin-bottom: 5px;
+          font-size: 13px;
+          font-weight: 900;
+        }
+        .forex-modal-output p {
+          margin: 0;
+          color: #166534;
+          font-size: 14px;
+          line-height: 1.55;
+        }
+        @media (max-width: 640px) {
+          .forex-modal-grid { grid-template-columns: 1fr; }
+          .forex-conversion-row {
+            grid-template-columns: 1fr;
+          }
+          .forex-swap-button {
+            justify-self: center;
+            margin: 0;
+            transform: rotate(90deg);
+          }
+          .forex-swap-button:hover {
+            transform: rotate(270deg);
+          }
+          .forex-modal-head { padding: 20px; }
+          .forex-modal-form { padding: 18px; }
+          .forex-rate-preview {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+          .forex-rate-preview small {
+            text-align: left;
+          }
+        }
       `}</style>
 
       <header
@@ -547,13 +1289,13 @@ export default function Navbar() {
                 alt="ITS TRAVELS AND TOURS Logo"
                 style={{ width: 80, height: 80, objectFit: 'contain' }}
               /> */}
-              <img
-                src={isTransparent
-                  ? "/logooo.png"
-                  : "/logooo.png"
-                }
-                alt="ITS TRAVELS AND TOURS Logo"
+              <Image
+                src={brandLogo}
+                alt={`${brandName} Logo`}
+                width={142}
+                height={54}
                 style={{ width: 142, height: 54, objectFit: 'contain' }}
+                priority
               />
             </Link>
 
@@ -588,21 +1330,31 @@ export default function Navbar() {
               {/* Previous static login button kept for reference:
               <Link href="/auth/login" className="d-none d-lg-inline-flex">Login</Link>
               */}
+              <Link
+                href={HOTEL_HREF}
+                className="d-none d-lg-inline-flex"
+                style={navButtonStyle}
+              >
+                Hotels
+              </Link>
+              <button
+                type="button"
+                className="d-none d-lg-inline-flex"
+                onClick={() => setForexOpen(true)}
+                style={{
+                  ...navButtonStyle,
+                  cursor: 'pointer',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                Forex
+              </button>
               {isLoggedIn ? (
                 <Link
                   href="/profile"
                   className="d-none d-lg-inline-flex"
-                  style={{
-                    padding: '8px 18px',
-                    borderRadius: 8,
-                    border: isTransparent ? '1.5px solid rgba(255,255,255,0.6)' : '1.5px solid #d1d5db',
-                    color: isTransparent ? 'white' : '#374151',
-                    fontWeight: 600, fontSize: 13,
-                    textDecoration: 'none',
-                    background: isTransparent ? 'rgba(255,255,255,0.1)' : 'white',
-                    backdropFilter: 'blur(6px)',
-                    transition: 'all 0.2s',
-                  }}
+                  style={navButtonStyle}
                 >
                   My Profile
                 </Link>
@@ -611,15 +1363,8 @@ export default function Navbar() {
                   href="/auth/login"
                   className="d-none d-lg-inline-flex"
                   style={{
+                    ...navButtonStyle,
                     padding: '8px 22px',
-                    borderRadius: 8,
-                    border: isTransparent ? '1.5px solid rgba(255,255,255,0.6)' : '1.5px solid #d1d5db',
-                    color: isTransparent ? 'white' : '#374151',
-                    fontWeight: 600, fontSize: 13,
-                    textDecoration: 'none',
-                    background: isTransparent ? 'rgba(255,255,255,0.1)' : 'white',
-                    backdropFilter: 'blur(6px)',
-                    transition: 'all 0.2s',
                   }}
                 >
                   Login
@@ -647,6 +1392,113 @@ export default function Navbar() {
         </div>
       </header>
 
+      {forexOpen ? (
+        <div className="forex-modal-backdrop" role="presentation" onMouseDown={() => setForexOpen(false)}>
+          <section className="forex-modal" role="dialog" aria-modal="true" aria-labelledby="forex-modal-title" onMouseDown={(event) => event.stopPropagation()}>
+            <div className="forex-modal-head">
+              <div>
+                <span>Forex request</span>
+                <h2 id="forex-modal-title">Generate currency inquiry</h2>
+                <p>Select currencies to check active forex rates and prepare an inquiry for confirmation.</p>
+              </div>
+              <button type="button" className="forex-modal-close" aria-label="Close Forex inquiry" onClick={() => setForexOpen(false)}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form className="forex-modal-form" onSubmit={generateForexInquiry}>
+              <div className="forex-modal-grid">
+                <div className="forex-conversion-row">
+                  <CurrencyCombobox
+                    id="forex-from-currency"
+                    label="Converting from"
+                    value={forexDraft.fromCurrency}
+                    onChange={(value) => updateForexDraft('fromCurrency', value)}
+                    currencies={forexOptions}
+                    loading={forexRatesLoading}
+                  />
+                  <button type="button" className="forex-swap-button" aria-label="Swap currencies" onClick={swapForexCurrencies}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M7 7h11l-3-3" />
+                      <path d="M17 17H6l3 3" />
+                    </svg>
+                  </button>
+                  <CurrencyCombobox
+                    id="forex-to-currency"
+                    label="Converting to"
+                    value={forexDraft.toCurrency}
+                    onChange={(value) => updateForexDraft('toCurrency', value)}
+                    currencies={forexOptions}
+                    loading={forexRatesLoading}
+                  />
+                </div>
+                <label>
+                  Amount
+                  <input type="number" min="1" value={forexDraft.amount} onChange={(event) => updateForexDraft('amount', event.target.value)} placeholder="1000" required />
+                </label>
+                <label>
+                  Purpose
+                  <select value={forexDraft.purpose} onChange={(event) => updateForexDraft('purpose', event.target.value)}>
+                    <option>Travel</option>
+                    <option>Business</option>
+                    <option>Education</option>
+                    <option>Medical</option>
+                  </select>
+                </label>
+                <label>
+                  Date
+                  <input type="date" value={forexDraft.travelDate} onChange={(event) => updateForexDraft('travelDate', event.target.value)} />
+                </label>
+                <label>
+                  Customer name
+                  <input value={forexDraft.customerName} onChange={(event) => updateForexDraft('customerName', event.target.value)} placeholder="Full name" />
+                </label>
+                <label>
+                  Phone
+                  <input value={forexDraft.phone} onChange={(event) => updateForexDraft('phone', event.target.value)} placeholder="+91 98765 43210" />
+                </label>
+                <label>
+                  Email
+                  <input type="email" value={forexDraft.email} onChange={(event) => updateForexDraft('email', event.target.value)} placeholder="name@example.com" />
+                </label>
+                <label className="forex-modal-notes">
+                  Notes
+                  <textarea value={forexDraft.notes} onChange={(event) => updateForexDraft('notes', event.target.value)} placeholder="Pickup city, delivery preference, or document details" rows="3" />
+                </label>
+                <div className="forex-rate-preview" aria-live="polite">
+                  <div>
+                    <strong>{forexLookupLoading || forexRatesLoading ? 'Checking active rates...' : 'Rate estimate'}</strong>
+                    {forexEstimate.match && forexEstimate.convertedAmount ? (
+                      <span>
+                        {formatMoneyValue(Number(forexDraft.amount || 0), forexDraft.fromCurrency)} is approximately {formatMoneyValue(forexEstimate.convertedAmount, forexDraft.toCurrency)}.
+                      </span>
+                    ) : (
+                      <span>Generate the inquiry to verify the latest active rate for this currency pair.</span>
+                    )}
+                  </div>
+                  {forexEstimate.match ? (
+                    <small>1 {forexDraft.fromCurrency} = {formatMoneyValue(forexEstimate.match.rate, forexDraft.toCurrency)}</small>
+                  ) : (
+                    <small>Active API rates</small>
+                  )}
+                </div>
+                {forexRatesError ? <p className="forex-rate-error">{forexRatesError}</p> : null}
+              </div>
+              <button type="submit" disabled={forexLookupLoading || forexRatesLoading}>
+                {forexLookupLoading ? 'Checking Rate...' : 'Generate Inquiry'}
+              </button>
+              {forexInquiry ? (
+                <div className="forex-modal-output">
+                  <strong>Generated inquiry</strong>
+                  <p>{forexInquiry}</p>
+                </div>
+              ) : null}
+            </form>
+          </section>
+        </div>
+      ) : null}
+
       {/* Sidebar Drawer Component */}
       <SideDrawer
         allCategories={allCategories}
@@ -654,6 +1506,7 @@ export default function Navbar() {
         isLoggedIn={isLoggedIn}
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
+        onForexOpen={() => setForexOpen(true)}
         onLogout={clearAuthSession}
       />
     </>

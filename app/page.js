@@ -3,10 +3,12 @@ import RecommendedPackages from '@/components/FeaturedToursRow';
 import WhyChooseSection from '@/components/WhyChooseSection';
 import PopularDestinationRows from '@/components/PopularDestinationRows';
 import GramSection from '@/components/GramSection';
-import ExperienceSection from '@/components/ExperienceSection';
 import AppBanner from '@/components/AppBanner';
 import TrustSection from '@/components/TrustSection';
 import NewsletterForm from '@/components/NewsletterForm';
+import { getHomePage } from '@/utils/api';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'ITS TRAVELS AND TOURS — Create Your Sooper Hit Holiday!',
@@ -15,7 +17,12 @@ export const metadata = {
   keywords: 'travel packages, holiday packages, international tours, customized holidays, Bali, Maldives, Europe tours',
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const homePage = await getHomePage();
+  const trustSection = homePage?.details?.find(
+    (detail) => detail?.section === 'gallery' && detail?.key === 'our_trusted_partner'
+  );
+
   return (
     <>
       {/* 1. HERO — dark bg image, traveler type, search */}
@@ -34,16 +41,14 @@ export default function HomePage() {
       <GramSection />
 
       {/* 6. PLAN ADVENTURES + POPULAR HAND-PICKED */}
-      <ExperienceSection />
-
       {/* 7. APP BANNER — dark green */}
       {/* <AppBanner /> */}
 
       {/* 8. TRUST LOGOS + AWARDS */}
-      <TrustSection />
+      <TrustSection section={trustSection} />
 
       {/* 9. NEWSLETTER */}
-      <section style={{ background: '#026eb5', padding: '48px 0' }}>
+      <section style={{ background: 'var(--color-primary)', padding: '48px 0' }}>
         <div className="container" style={{ textAlign: 'center', maxWidth: 600 }}>
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: 8 }}>
             STAY IN THE LOOP

@@ -94,7 +94,7 @@ export default function ConfirmationPage() {
           </div>
 
           {/* Info cards */}
-          <div className="row g-3 mb-5 text-start">
+          {/* <div className="row g-3 mb-5 text-start">
             {[
               { icon: '📧', title: 'Email Confirmation', desc: 'Sent to your registered email' },
               { icon: '📱', title: 'SMS Notification', desc: 'Details sent to your phone' },
@@ -116,7 +116,7 @@ export default function ConfirmationPage() {
                 </div>
               </div>
             ))}
-          </div>
+          </div> */}
 
           {/* Action Buttons */}
           <div className="d-flex gap-3 justify-content-center flex-wrap">

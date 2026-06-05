@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, Suspense } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { packageData, DEST_FILTERS, PRICE_FILTERS } from '@/data/packages';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { DEST_FILTERS, PRICE_FILTERS } from '@/data/packages';
 import RecommendedPackages from '@/components/FeaturedToursRow';
 import { PytExclusive, TrustBanner, BrandsRow, CategoryBlocks, BottomReviews } from '@/components/PackagePageSections';
+import { useWishlist } from '@/components/WishlistProvider';
+import { getMediaUrl, getPackages } from '@/utils/api';
 
 /* ── Video clips per "scene" ──────────────────────────── */
 const SCENES = [
@@ -42,18 +45,117 @@ const SCENES = [
 ];
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_IMAGE_URL;
+const FALLBACK_PACKAGE_IMAGE = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80';
+const ADVANCED_FILTER_KEYS = ['minPrice', 'maxPrice', 'duration', 'startDate', 'endDate', 'city', 'country', 'continent', 'destination', 'category'];
+const PRICE_FILTER_QUERY = {
+  under50: { minPrice: 1, maxPrice: 49999 },
+  '50to150': { minPrice: 50000, maxPrice: 149999 },
+  '150to250': { minPrice: 150000, maxPrice: 249999 },
+  luxury: { minPrice: 250000 },
+};
+
+const getPriceCategory = (price) => {
+  if (price < 50000) return 'under50';
+  if (price < 150000) return '50to150';
+  if (price < 250000) return '150to250';
+  return 'luxury';
+};
+
+const toSlug = (value) => String(value || '')
+  .trim()
+  .toLowerCase()
+  .replace(/&/g, 'and')
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '');
+
+const normalizeApiPackage = (pkg) => {
+  const destinationItems = pkg.destinations || [];
+  const firstDestinationItem = destinationItems[0];
+  const firstDestination = firstDestinationItem?.destination;
+  const firstMapping = firstDestination?.mappings?.[0];
+  const destinationName = firstDestination?.name || 'Worldwide';
+  const nights = destinationItems.reduce((total, item) => total + (Number(item.nights) || 0), 0) || Math.max((Number(pkg.duration_days) || 1) - 1, 1);
+  const locations = destinationItems.length
+    ? destinationItems.map((item) => {
+      const name = item.destination?.name || destinationName;
+      return `${name}${item.nights ? ` (${item.nights}N)` : ''}`;
+    })
+    : [destinationName];
+  const price = Number(pkg.price) || 0;
+  const image = getMediaUrl(pkg.main_image) || getMediaUrl(firstDestination?.feature_image) || FALLBACK_PACKAGE_IMAGE;
+
+  return {
+    id: pkg.id,
+    slug: pkg.slug || String(pkg.id),
+    destination: destinationName,
+    destinationSlug: firstDestination?.slug || destinationName,
+    city: firstMapping?.city?.name || destinationName,
+    country: firstMapping?.city?.country?.name || '',
+    continent: firstMapping?.city?.country?.continent?.name || '',
+    title: pkg.name,
+    locations,
+    image,
+    nights,
+    durationDays: Number(pkg.duration_days) || nights + 1,
+    price,
+    priceCategory: getPriceCategory(price),
+    type: firstDestination?.type?.toUpperCase() || 'PACKAGE',
+    typeColor: firstDestination?.type === 'domestic' ? '#10b981' : '#6366f1',
+    rating: 4.6,
+    reviews: 0,
+    description: pkg.description,
+  };
+};
+
+const buildPackageQuery = ({ destFilter, priceFilter, typeFilter, advancedFilters }) => {
+  const query = {};
+
+  ADVANCED_FILTER_KEYS.forEach((key) => {
+    const value = advancedFilters?.[key];
+    if (value) query[key] = value;
+  });
+
+  if (destFilter && destFilter !== 'All') query.destination = toSlug(destFilter);
+  if (priceFilter && priceFilter !== 'all') {
+    Object.assign(query, PRICE_FILTER_QUERY[priceFilter]);
+  }
+  if (typeFilter && typeFilter !== 'All') query.category = typeFilter;
+
+  return query;
+};
+
+const getInitialAdvancedFilters = (searchParams) => {
+  return ADVANCED_FILTER_KEYS.reduce((filters, key) => {
+    filters[key] = searchParams?.get(key) || '';
+    return filters;
+  }, {});
+};
 /* ── Package card ─────────────────────────────────────── */
 function PackageCard({ pkg }) {
   const [hovered, setHovered] = useState(false);
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const packageHref = `/tours?destination=${encodeURIComponent(pkg.destination)}`;
+  const wishlistItem = {
+    id: pkg.slug || pkg.id || pkg.title,
+    type: 'package',
+    title: pkg.title,
+    location: Array.isArray(pkg.locations) ? pkg.locations.join(' - ') : pkg.destination,
+    image: pkg.image,
+    price: pkg.price,
+    href: packageHref,
+    slug: pkg.slug,
+    duration: pkg.nights ? `${pkg.nights}N` : '',
+    badge: pkg.type,
+  };
+  const wishlisted = isWishlisted(wishlistItem);
   const stars = Math.round(pkg.rating);
 
   return (
-    <Link
-      href={`/tours/${pkg.slug}`}
+    <article
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        display: 'block', textDecoration: 'none',
+        display: 'block',
         background: 'white', borderRadius: 18,
         overflow: 'hidden',
         border: '1px solid #e5e7eb',
@@ -64,10 +166,13 @@ function PackageCard({ pkg }) {
     >
       {/* Image */}
       <div style={{ position: 'relative', height: 200, overflow: 'hidden' }}>
-        <img
-          src={pkg.image} alt={pkg.title}
+        <Image
+          src={pkg.image}
+          alt={pkg.title}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           style={{
-            width: '100%', height: '100%', objectFit: 'cover', display: 'block',
+            objectFit: 'cover',
             transform: hovered ? 'scale(1.07)' : 'scale(1)',
             transition: 'transform 0.45s ease',
           }}
@@ -91,7 +196,7 @@ function PackageCard({ pkg }) {
         {/* Destination tag */}
         <div style={{
           position: 'absolute', top: 12, left: 12,
-          background: '#fea309d9', backdropFilter: 'blur(6px)',
+          background: 'color-mix(in srgb, var(--color-secondary) 85%, transparent)', backdropFilter: 'blur(6px)',
           color: 'white', borderRadius: 999,
           padding: '4px 12px', fontSize: 10, fontWeight: 800,
           border: '1px solid rgba(255,255,255,0.2)',
@@ -99,6 +204,22 @@ function PackageCard({ pkg }) {
         }}>
           {pkg.destination}
         </div>
+        <button
+          type="button"
+          className="tour-card-wishlist"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            toggleWishlist(wishlistItem);
+          }}
+          aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          aria-pressed={wishlisted}
+          style={{ top: 52, right: 12, color: 'white', background: wishlisted ? 'rgba(255,87,34,0.9)' : 'rgba(255,255,255,0.22)' }}
+        >
+          <svg viewBox="0 0 24 24" fill={wishlisted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" width="16" height="16">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+        </button>
       </div>
 
       {/* Body */}
@@ -158,26 +279,28 @@ function PackageCard({ pkg }) {
             </div>
             <div style={{ fontSize: 10, color: '#9ca3af' }}>{pkg.nights} nights / person</div>
           </div>
-          <div style={{
-            background: '#026eb5', color: 'white',
+          <Link href={packageHref} style={{
+            background: 'var(--color-primary)', color: 'white',
             borderRadius: 10, padding: '10px 18px',
             fontWeight: 700, fontSize: 12,
             whiteSpace: 'nowrap',
             boxShadow: '0 2px 10px rgba(20,83,45,0.3)',
+            textDecoration: 'none',
           }}>
             View Details
-          </div>
+          </Link>
         </div>
       </div>
-    </Link>
+    </article>
   );
 }
 
 /* ─────────── Main packages page logic ───────────── */
-function PackagesContent({ destParam, packages }) {
+function PackagesContent({ destParam, packages, basePath = '/packages' }) {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const initialDest = destParam || searchParams?.get('dest') || 'All';
-  const initialType = searchParams?.get('type') || 'All';
+  const initialDest = destParam || searchParams?.get('destination') || searchParams?.get('dest') || searchParams?.get('search') || 'All';
+  const initialType = searchParams?.get('category') || searchParams?.get('type') || 'All';
   // Banner state
   const videoRef = useRef(null);
   const [sceneIdx, setSceneIdx] = useState(0);
@@ -187,20 +310,27 @@ function PackagesContent({ destParam, packages }) {
   const progressInterval = useRef(null);
 
   // Filter state
-  const [destFilter, setDestFilter] = useState(DEST_FILTERS.includes(initialDest) ? initialDest : 'All');
-  const [priceFilter, setPriceFilter] = useState('all');
+  const [destFilter, setDestFilter] = useState(initialDest || 'All');
+  const [priceFilter, setPriceFilter] = useState(searchParams?.get('price') || 'all');
   const [typeFilter, setTypeFilter] = useState(initialType);
   const [visible, setVisible] = useState(true);
   const [sortBy, setSortBy] = useState('popular');
+  const [advancedFilters, setAdvancedFilters] = useState(() => getInitialAdvancedFilters(searchParams));
+  const [apiPackages, setApiPackages] = useState([]);
+  const [apiLoading, setApiLoading] = useState(true);
+  const [apiError, setApiError] = useState('');
 
-  const scene = packages?.gallery[sceneIdx];
+  const heroScenes = packages?.gallery?.length ? packages.gallery : SCENES;
+  const scene = heroScenes[sceneIdx % heroScenes.length];
+  const sceneVideoSrc = scene?.url ? getMediaUrl(scene.url) : scene?.video;
+  const scenePosterSrc = scene?.poster_url ? getMediaUrl(scene.poster_url) : scene?.poster;
+  const sceneLabel = scene?.dest || scene?.label || 'Holiday';
 
   /* ── Video auto-advance ───────────────────────────────── */
   const handleEnded = useCallback(() => {
-    if (!packages?.gallery?.length) return;
-    setSceneIdx(i => (i + 1) % packages.gallery.length);
+    setSceneIdx(i => (i + 1) % heroScenes.length);
     setProgress(0);
-  }, [packages]);
+  }, [heroScenes.length]);
 
   /* Handle scene change (loading) */
   useEffect(() => {
@@ -210,7 +340,7 @@ function PackagesContent({ destParam, packages }) {
     if (!paused) {
       v.play().catch(() => { });
     }
-  }, [sceneIdx]);
+  }, [paused, sceneIdx]);
 
   /* Handle manual play/pause toggle */
   useEffect(() => {
@@ -258,13 +388,58 @@ function PackagesContent({ destParam, packages }) {
     }, 180);
   };
 
-  let filtered = packageData;
-  if (destFilter !== 'All') filtered = filtered.filter(p => p.destination === destFilter);
-  if (priceFilter !== 'all') filtered = filtered.filter(p => p.priceCategory === priceFilter);
-  if (typeFilter !== 'All') filtered = filtered.filter(p => p.type === typeFilter);
+  const updateAdvancedFilter = (key, value) => {
+    setAdvancedFilters((filters) => ({ ...filters, [key]: value }));
+  };
+
+  const clearAllFilters = () => {
+    applyFilter('All', 'all', 'All');
+    setAdvancedFilters(getInitialAdvancedFilters());
+  };
+
+  const activePackageQuery = useMemo(
+    () => buildPackageQuery({ destFilter, priceFilter, typeFilter, advancedFilters }),
+    [destFilter, priceFilter, typeFilter, advancedFilters]
+  );
+
+  useEffect(() => {
+    const params = new URLSearchParams(activePackageQuery);
+    const queryString = params.toString();
+    router.replace(queryString ? `${basePath}?${queryString}` : basePath, { scroll: false });
+  }, [router, activePackageQuery, basePath]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadPackages = async () => {
+      setApiLoading(true);
+      setApiError('');
+      const data = await getPackages(activePackageQuery);
+
+      if (!mounted) return;
+
+      setApiPackages(data.map(normalizeApiPackage));
+      if (!data.length) {
+        setApiError('No API packages returned for the current filters.');
+      }
+      setApiLoading(false);
+    };
+
+    loadPackages();
+
+    return () => {
+      mounted = false;
+    };
+  }, [activePackageQuery]);
+
+  const apiDestinationFilters = Array.from(new Set(apiPackages.map((pkg) => pkg.destination).filter(Boolean)));
+  const destinationFilters = Array.from(new Set([...DEST_FILTERS, ...apiDestinationFilters]));
+  let filtered = apiPackages;
   if (sortBy === 'price-asc') filtered = [...filtered].sort((a, b) => a.price - b.price);
   if (sortBy === 'price-desc') filtered = [...filtered].sort((a, b) => b.price - a.price);
   if (sortBy === 'rating') filtered = [...filtered].sort((a, b) => b.rating - a.rating);
+  const activeQueryEntries = Object.entries(activePackageQuery);
+  const activeQueryString = new URLSearchParams(activePackageQuery).toString();
 
   return (
     <>
@@ -273,7 +448,21 @@ function PackagesContent({ destParam, packages }) {
         .pkg-card-grid { animation: fadeUp 0.32s ease; }
         .scene-tab:hover { background: rgba(255,255,255,0.18) !important; }
         .ctrl-btn:hover { background: rgba(255,255,255,0.22) !important; }
-        .filter-chip:hover { border-color: #026eb5 !important; }
+        .filter-chip:hover { border-color: var(--color-primary) !important; }
+        .api-filter-input {
+          border: 1.5px solid #d1d5db;
+          border-radius: 10px;
+          padding: 8px 10px;
+          font-size: 13px;
+          color: #374151;
+          outline: none;
+          min-width: 126px;
+          background: white;
+        }
+        .api-filter-input:focus {
+          border-color: var(--color-primary);
+          box-shadow: 0 0 0 3px var(--color-primary-light);
+        }
       `}</style>
 
       {/* ══════════════════════════════════════════════════════
@@ -287,13 +476,13 @@ function PackagesContent({ destParam, packages }) {
       }}>
 
         {/* Video */}
-        {scene ? (
+        {sceneVideoSrc ? (
           <video
             ref={videoRef}
-            key={scene.url}
+            key={sceneVideoSrc}
             autoPlay muted={muted} playsInline
             onEnded={handleEnded}
-            poster={scene.poster_url ? (BASE_URL + scene.poster_url) : undefined}
+            poster={scenePosterSrc}
             preload="auto"
             style={{
               position: 'absolute', inset: 0,
@@ -301,7 +490,7 @@ function PackagesContent({ destParam, packages }) {
               objectFit: 'cover', zIndex: 0,
             }}
           >
-            <source src={BASE_URL + scene.url} type={scene.media_type === 'video' ? 'video/mp4' : undefined} />
+            <source src={sceneVideoSrc} type={scene.media_type === 'video' || scene.video ? 'video/mp4' : undefined} />
           </video>
         ) : (
           <div style={{ position: 'absolute', inset: 0, background: '#111827' }} />
@@ -349,7 +538,7 @@ function PackagesContent({ destParam, packages }) {
             margin: '14px 0 0', fontWeight: 500,
             textShadow: '0 2px 10px rgba(0,0,0,0.5)',
           }}>
-            {filtered.length > 0 ? `${packageData.length} curated packages across ${DEST_FILTERS.length - 1} destinations` : ''}
+            {apiLoading ? 'Loading live packages...' : `${filtered.length} curated packages from our live inventory`}
           </p>
         </div>
 
@@ -358,7 +547,7 @@ function PackagesContent({ destParam, packages }) {
           position: 'absolute', top: 104, left: 0, right: 0, zIndex: 5,
           display: 'flex', gap: 4, padding: '0 20px',
         }}>
-          {packages?.gallery.map((s, i) => (
+          {heroScenes.map((s, i) => (
             <div
               key={i}
               style={{
@@ -451,7 +640,7 @@ function PackagesContent({ destParam, packages }) {
               <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>›</span>
               <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>Packages</span>
               <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>›</span>
-              <span style={{ color: 'white', fontSize: 11, fontWeight: 700 }}>{scene.dest} Packages</span>
+              <span style={{ color: 'white', fontSize: 11, fontWeight: 700 }}>{sceneLabel} Packages</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <svg viewBox="0 0 48 48" width="13" height="13">
@@ -460,11 +649,12 @@ function PackagesContent({ destParam, packages }) {
               <span style={{ color: '#fbbf24', fontSize: 11, fontWeight: 700 }}>★ 4.6</span>
               <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 10 }}>8,250 reviews</span>
             </div>
+
           </div>
 
           {/* Scene tabs */}
           <div style={{ display: 'flex', alignItems: 'center', padding: '4px 16px 12px', gap: 4, overflowX: 'auto' }}>
-            {(packages?.gallery || []).map((s, i) => (
+            {heroScenes.map((s, i) => (
               <button
                 key={i}
                 className="scene-tab"
@@ -529,15 +719,15 @@ function PackagesContent({ destParam, packages }) {
                 Destination
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {DEST_FILTERS.map(d => (
+                {destinationFilters.map(d => (
                   <button
                     key={d}
                     className="filter-chip"
                     onClick={() => applyFilter(d, priceFilter, typeFilter)}
                     style={{
                       padding: '6px 16px', borderRadius: 999,
-                      border: destFilter === d ? '2px solid #026eb5' : '1.5px solid #d1d5db',
-                      background: destFilter === d ? '#026eb5' : 'white',
+                      border: destFilter === d ? '2px solid var(--color-primary)' : '1.5px solid #d1d5db',
+                      background: destFilter === d ? 'var(--color-primary)' : 'white',
                       color: destFilter === d ? 'white' : '#374151',
                       fontWeight: destFilter === d ? 700 : 500,
                       fontSize: 13, cursor: 'pointer', transition: 'all 0.18s',
@@ -564,9 +754,9 @@ function PackagesContent({ destParam, packages }) {
                       onClick={() => applyFilter(destFilter, f.key, typeFilter)}
                       style={{
                         padding: '6px 16px', borderRadius: 999,
-                        border: priceFilter === f.key ? '2px solid #026eb5' : '1.5px solid #d1d5db',
-                        background: priceFilter === f.key ? '#c5e5fb' : 'white',
-                        color: priceFilter === f.key ? '#026eb5' : '#374151',
+                        border: priceFilter === f.key ? '2px solid var(--color-primary)' : '1.5px solid #d1d5db',
+                        background: priceFilter === f.key ? 'var(--color-primary-light)' : 'white',
+                        color: priceFilter === f.key ? 'var(--color-primary)' : '#374151',
                         fontWeight: priceFilter === f.key ? 700 : 500,
                         fontSize: 13, cursor: 'pointer', transition: 'all 0.18s',
                         whiteSpace: 'nowrap',
@@ -595,20 +785,94 @@ function PackagesContent({ destParam, packages }) {
                 <option value="rating">Highest Rated</option>
               </select>
             </div>
+
+            <div style={{
+              marginTop: 20,
+              borderTop: '1px solid #e5e7eb',
+              paddingTop: 18,
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
+                flexWrap: 'wrap',
+                marginBottom: 12,
+              }}>
+                <div>
+                  <p style={{ fontSize: 11, fontWeight: 800, color: 'var(--color-primary)', letterSpacing: 1.5, textTransform: 'uppercase', margin: 0 }}>
+                    API Package Filters
+                  </p>
+                  <p style={{ fontSize: 12, color: '#8a94a6', margin: '3px 0 0' }}>
+                    Matches backend query keys like destination, country, maxPrice, and duration.
+                  </p>
+                </div>
+                {activeQueryString && (
+                  <code style={{
+                    background: 'var(--color-primary-light)',
+                    color: 'var(--color-primary)',
+                    border: '1px solid var(--brand-primary-border)',
+                    borderRadius: 8,
+                    padding: '7px 10px',
+                    fontSize: 12,
+                    maxWidth: '100%',
+                    overflowX: 'auto',
+                  }}>
+                    ?{activeQueryString}
+                  </code>
+                )}
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10 }}>
+                <input className="api-filter-input" type="number" min="0" placeholder="minPrice" value={advancedFilters.minPrice} onChange={e => updateAdvancedFilter('minPrice', e.target.value)} />
+                <input className="api-filter-input" type="number" min="0" placeholder="maxPrice" value={advancedFilters.maxPrice} onChange={e => updateAdvancedFilter('maxPrice', e.target.value)} />
+                <input className="api-filter-input" type="number" min="1" placeholder="duration" value={advancedFilters.duration} onChange={e => updateAdvancedFilter('duration', e.target.value)} />
+                <input className="api-filter-input" type="date" aria-label="startDate" value={advancedFilters.startDate} onChange={e => updateAdvancedFilter('startDate', e.target.value)} />
+                <input className="api-filter-input" type="date" aria-label="endDate" value={advancedFilters.endDate} onChange={e => updateAdvancedFilter('endDate', e.target.value)} />
+                <input className="api-filter-input" placeholder="city" value={advancedFilters.city} onChange={e => updateAdvancedFilter('city', e.target.value)} />
+                <input className="api-filter-input" placeholder="country" value={advancedFilters.country} onChange={e => updateAdvancedFilter('country', e.target.value)} />
+                <input className="api-filter-input" placeholder="continent" value={advancedFilters.continent} onChange={e => updateAdvancedFilter('continent', e.target.value)} />
+                <input className="api-filter-input" placeholder="destination" value={advancedFilters.destination} onChange={e => updateAdvancedFilter('destination', e.target.value)} />
+                <input className="api-filter-input" placeholder="category" value={advancedFilters.category} onChange={e => updateAdvancedFilter('category', e.target.value)} />
+              </div>
+
+              {activeQueryEntries.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
+                  {activeQueryEntries.map(([key, value]) => (
+                    <span key={key} style={{
+                      background: '#f8fafc',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: 999,
+                      padding: '5px 10px',
+                      color: '#374151',
+                      fontSize: 12,
+                      fontWeight: 700,
+                    }}>
+                      {key}: {value}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* ── Result count ── */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
             <span style={{
-              background: '#c5e5fb', border: '1px solid #7abfee',
-              color: '#026eb5', borderRadius: 999,
+              background: 'var(--color-primary-light)', border: '1px solid var(--brand-primary-border)',
+              color: 'var(--color-primary)', borderRadius: 999,
               padding: '4px 14px', fontSize: 13, fontWeight: 700,
             }}>
-              {filtered.length} packages found
+              {apiLoading ? 'Loading packages...' : `${filtered.length} packages found`}
             </span>
-            {(destFilter !== 'All' || priceFilter !== 'all' || typeFilter !== 'All') && (
+            {apiError && !apiLoading && (
+              <span style={{ color: '#9ca3af', fontSize: 12 }}>
+                {apiError}
+              </span>
+            )}
+            {(destFilter !== 'All' || priceFilter !== 'all' || typeFilter !== 'All' || Object.values(advancedFilters).some(Boolean)) && (
               <button
-                onClick={() => applyFilter('All', 'all', 'All')}
+                onClick={clearAllFilters}
                 style={{
                   background: 'none', border: 'none', color: '#6b7280',
                   fontSize: 12, cursor: 'pointer', fontWeight: 600,
@@ -621,7 +885,17 @@ function PackagesContent({ destParam, packages }) {
           </div>
 
           {/* ── Package grid ── */}
-          {filtered.length > 0 ? (
+          {apiLoading ? (
+            <div style={{
+              textAlign: 'center', padding: '48px 24px',
+              background: 'white', borderRadius: 18,
+              border: '1px solid #e5e7eb',
+              color: '#6b7280',
+              fontWeight: 600,
+            }}>
+              Loading packages...
+            </div>
+          ) : filtered.length > 0 ? (
             <div
               className="pkg-card-grid"
               key={`${destFilter}-${priceFilter}-${typeFilter}-${sortBy}`}
@@ -651,9 +925,9 @@ function PackagesContent({ destParam, packages }) {
                 Try adjusting your destination or budget filter
               </p>
               <button
-                onClick={() => applyFilter('All', 'all', 'All')}
+                onClick={clearAllFilters}
                 style={{
-                  background: '#026eb5', color: 'white', border: 'none',
+                  background: 'var(--color-primary)', color: 'white', border: 'none',
                   borderRadius: 10, padding: '12px 28px',
                   fontWeight: 700, fontSize: 14, cursor: 'pointer',
                 }}
@@ -678,10 +952,10 @@ function PackagesContent({ destParam, packages }) {
   );
 }
 
-export default function PackagesClient({ destParam, packages }) {
+export default function PackagesClient({ destParam, packages, basePath = '/packages' }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <PackagesContent destParam={destParam} packages={packages} />
+      <PackagesContent destParam={destParam} packages={packages} basePath={basePath} />
     </Suspense>
   );
 }

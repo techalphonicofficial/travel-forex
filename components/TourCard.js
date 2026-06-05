@@ -2,11 +2,47 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
 import StarRating from './StarRating';
+import { useWishlist } from './WishlistProvider';
+
+const formatPriceNumber = (value) => Number(value || 0).toLocaleString('en-IN');
+
+const getTourViewHref = (tour) => {
+  const destination = tour.location || tour.country || tour.slug || 'paris';
+  const queryValue = String(destination)
+    .split(',')[0]
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  const params = new URLSearchParams({
+    destination: queryValue || 'paris',
+    view: 'itinerary',
+  });
+
+  if (tour.slug) {
+    params.set('package', tour.slug);
+  }
+
+  return `/tours?${params.toString()}`;
+};
 
 export default function TourCard({ tour, className = '' }) {
-  const [wishlisted, setWishlisted] = useState(false);
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const wishlistItem = {
+    id: tour.slug || tour.id || tour.title,
+    type: 'tour',
+    title: tour.title,
+    location: tour.location,
+    image: tour.image,
+    price: tour.price,
+    href: getTourViewHref(tour),
+    slug: tour.slug,
+    duration: tour.duration ? `${tour.duration}D` : '',
+    badge: tour.type,
+  };
+  const wishlisted = isWishlisted(wishlistItem);
   const discount = tour.originalPrice
     ? Math.round(((tour.originalPrice - tour.price) / tour.originalPrice) * 100)
     : 0;
@@ -49,10 +85,11 @@ export default function TourCard({ tour, className = '' }) {
           className="tour-card-wishlist"
           onClick={(e) => {
             e.preventDefault();
-            setWishlisted(!wishlisted);
+            toggleWishlist(wishlistItem);
           }}
           aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-          style={{ color: wishlisted ? 'white' : 'white', background: wishlisted ? 'rgba(255,87,34,0.9)' : 'rgba(255,255,255,0.2)' }}
+          aria-pressed={wishlisted}
+          style={{ color: 'white', background: wishlisted ? 'rgba(255,87,34,0.9)' : 'rgba(255,255,255,0.2)' }}
         >
           <svg viewBox="0 0 24 24" fill={wishlisted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" width="16" height="16">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -63,7 +100,7 @@ export default function TourCard({ tour, className = '' }) {
         <div className="tour-card-price-tag">
           <div style={{ fontSize: 11, color: 'var(--color-text-muted)', fontWeight: 600 }}>From</div>
           <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-primary)', fontFamily: 'Poppins, sans-serif', lineHeight: 1.1 }}>
-            ${tour.price.toLocaleString()}
+            Rs {formatPriceNumber(tour.price)}
           </div>
         </div>
       </div>
@@ -105,12 +142,12 @@ export default function TourCard({ tour, className = '' }) {
           <div>
             {tour.originalPrice && (
               <div style={{ fontSize: 13, color: 'var(--color-text-muted)', textDecoration: 'line-through' }}>
-                ${tour.originalPrice.toLocaleString()}
+                Rs {formatPriceNumber(tour.originalPrice)}
               </div>
             )}
             <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>per person</div>
           </div>
-          <Link href={`/tours/${tour.slug}`} className="btn-primary btn-sm">
+          <Link href={getTourViewHref(tour)} className="btn-primary btn-sm">
             View Tour
           </Link>
         </div>

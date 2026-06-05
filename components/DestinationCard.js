@@ -2,10 +2,11 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { getDestinationHref } from '@/utils/destinationLinks';
 
 export default function DestinationCard({ destination, className = '' }) {
   return (
-    <Link href={`/tours?destination=${destination.slug}`} className={`destination-card ${className}`}>
+    <Link href={getDestinationHref(destination)} className={`destination-card ${className}`}>
       <Image
         src={destination.image}
         alt={destination.name}

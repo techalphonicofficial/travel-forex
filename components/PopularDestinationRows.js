@@ -1,119 +1,39 @@
 'use client';
-import { useRef, useState } from 'react';
+
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { getHomeDestinations, getMediaUrl } from '@/utils/api';
+import { getDestinationHref } from '@/utils/destinationLinks';
 
-const destinationRows = [
-  {
-    id: 'trending',
-    title: 'TRENDING DESTINATIONS',
-    items: [
-      {
-        name: 'Vietnam',
-        subtitle: 'Land of Ascending Dragon',
-        image: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=500&q=80',
-      },
-      {
-        name: 'Bali',
-        subtitle: 'Cultural Paradise',
-        image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=500&q=80',
-      },
-      {
-        name: 'Thailand',
-        subtitle: 'The Kingdom Of',
-        image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=500&q=80',
-      },
-      {
-        name: 'Japan',
-        subtitle: 'Land of Rising Sun',
-        image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500&q=80',
-      },
-      {
-        name: 'Singapore',
-        subtitle: 'The Lion City',
-        image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=500&q=80',
-      },
-      {
-        name: 'Dubai',
-        subtitle: 'City of Gold',
-        image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=500&q=80',
-      },
-      {
-        name: 'Switzerland',
-        subtitle: 'Land of Alps',
-        image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=500&q=80',
-      },
-      {
-        name: 'Japan',
-        subtitle: 'Land of Rising Sun',
-        image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500&q=80',
-      },
-      {
-        name: 'Singapore',
-        subtitle: 'The Lion City',
-        image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=500&q=80',
-      },
-      {
-        name: 'Dubai',
-        subtitle: 'City of Gold',
-        image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=500&q=80',
-      },
-      {
-        name: 'Switzerland',
-        subtitle: 'Land of Alps',
-        image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=500&q=80',
-      },
-
-    ],
-  },
-  {
-    id: 'visafree',
-    title: 'VISA FREE DESTINATIONS',
-    items: [
-      {
-        name: 'Maldives',
-        subtitle: 'Create Memories In',
-        image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=500&q=80',
-      },
-      {
-        name: 'Seychelles',
-        subtitle: 'The Charming Islands',
-        image: 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=500&q=80',
-      },
-      {
-        name: 'Malaysia',
-        subtitle: 'The Hidden Gem of Asia',
-        image: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=500&q=80',
-      },
-      {
-        name: 'Thailand',
-        subtitle: 'The Kingdom Of',
-        image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=500&q=80',
-      },
-      {
-        name: 'Mauritius',
-        subtitle: 'The Incredible Island',
-        image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&q=80',
-      },
-      {
-        name: 'Indonesia',
-        subtitle: 'Archipelago of Wonders',
-        image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=80',
-      },
-      {
-        name: 'Nepal',
-        subtitle: 'Roof of the World',
-        image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=500&q=80',
-      },
-    ],
-  },
+const fallbackImages = [
+  'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=500&q=80',
+  'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=500&q=80',
+  'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500&q=80',
+  'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=500&q=80',
 ];
+
+const getDestinationSubtitle = (destination) => {
+  if (destination.title) return destination.title;
+  const city = destination.mappings?.[0]?.city;
+  const country = city?.country?.name;
+  if (city?.name && country) return `${city.name}, ${country}`;
+  return destination.type || 'Explore more';
+};
+
+const mapDestination = (destination, index) => ({
+  name: destination.name,
+  subtitle: getDestinationSubtitle(destination),
+  image: getMediaUrl(destination.feature_image) || fallbackImages[index % fallbackImages.length],
+  alt: destination.feature_image_alt || destination.name,
+  href: getDestinationHref(destination),
+});
 
 function DestinationCard({ item }) {
   const [hovered, setHovered] = useState(false);
 
   return (
     <Link
-      href={`/tours?search=${item.name}`}
+      href={item.href || getDestinationHref(item)}
       style={{ flexShrink: 0, width: 200, textDecoration: 'none', display: 'block' }}
     >
       <div
@@ -127,14 +47,12 @@ function DestinationCard({ item }) {
           position: 'relative',
           cursor: 'pointer',
           transform: hovered ? 'translateY(-5px)' : 'none',
-          // boxShadow: hovered ? '0 16px 40px rgba(0,0,0,0.28)' : '0 4px 16px rgba(0,0,0,0.16)',
           transition: 'all 0.35s ease',
         }}
       >
-        {/* Background image */}
         <img
           src={item.image}
-          alt={item.name}
+          alt={item.alt || item.name}
           style={{
             width: '100%', height: '100%', objectFit: 'cover', display: 'block',
             transform: hovered ? 'scale(1.08)' : 'scale(1)',
@@ -143,13 +61,11 @@ function DestinationCard({ item }) {
           loading="lazy"
         />
 
-        {/* Dark gradient overlay */}
         <div style={{
           position: 'absolute', inset: 0,
           background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.72) 100%)',
         }} />
 
-        {/* Text — bottom left */}
         <div style={{
           position: 'absolute', bottom: 14, left: 12, right: 12,
         }}>
@@ -166,13 +82,12 @@ function DestinationCard({ item }) {
           </p>
           <p style={{
             color: 'white',
-            fontSize: item.name.length > 8 ? 20 : 24,
+            fontSize: item.name.length > 12 ? 18 : item.name.length > 8 ? 20 : 24,
             fontWeight: 800,
             fontFamily: 'Poppins, sans-serif',
             margin: 0,
             lineHeight: 1.1,
             textShadow: '0 2px 8px rgba(0,0,0,0.4)',
-            letterSpacing: item.name === 'Bali' ? 2 : 0,
           }}>
             {item.name}
           </p>
@@ -184,6 +99,44 @@ function DestinationCard({ item }) {
 
 export default function PopularDestinationRows() {
   const scrollRefs = useRef({});
+  const [rows, setRows] = useState([
+    { id: 'trending', title: 'TRENDING DESTINATIONS', items: [] },
+    { id: 'visafree', title: 'VISA FREE DESTINATIONS', items: [] },
+  ]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadDestinations = async () => {
+      const [trending, visaFree] = await Promise.all([
+        getHomeDestinations('trending'),
+        getHomeDestinations('visa-free'),
+      ]);
+
+      if (!mounted) return;
+
+      setRows([
+        {
+          id: 'trending',
+          title: 'TRENDING DESTINATIONS',
+          items: trending?.length ? trending.map(mapDestination) : [],
+        },
+        {
+          id: 'visafree',
+          title: 'VISA FREE DESTINATIONS',
+          items: visaFree?.length ? visaFree.map(mapDestination) : [],
+        },
+      ]);
+      setLoading(false);
+    };
+
+    loadDestinations();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const scroll = (rowId, dir) => {
     const el = scrollRefs.current[rowId];
@@ -192,11 +145,9 @@ export default function PopularDestinationRows() {
 
   return (
     <section style={{ background: '#fff', padding: '52px 0 64px' }}>
-      <div className='container' style={{ margin: '0 auto', padding: '0 24px' }}>
-        {destinationRows.map((row) => (
+      <div className="container" style={{ margin: '0 auto', padding: '0 24px' }}>
+        {rows.map((row) => (
           <div key={row.id} style={{ marginBottom: 52 }}>
-
-            {/* Row header */}
             <div style={{
               display: 'flex', alignItems: 'center',
               justifyContent: 'space-between',
@@ -214,7 +165,6 @@ export default function PopularDestinationRows() {
                 {row.title}
               </h2>
 
-              {/* Arrows */}
               <div style={{ display: 'flex', gap: 8 }}>
                 {['‹', '›'].map((arrow, i) => (
                   <button
@@ -242,7 +192,6 @@ export default function PopularDestinationRows() {
               </div>
             </div>
 
-            {/* Cards scroll */}
             <div
               ref={el => { scrollRefs.current[row.id] = el; }}
               style={{
@@ -256,8 +205,23 @@ export default function PopularDestinationRows() {
               }}
             >
               {row.items.map((item, index) => (
-                <DestinationCard key={item.name + index} item={item} />
+                <DestinationCard key={`${row.id}-${item.name}-${index}`} item={item} />
               ))}
+              {!loading && row.items.length === 0 && (
+                <div style={{
+                  flex: '1 0 100%',
+                  minHeight: 120,
+                  display: 'grid',
+                  placeItems: 'center',
+                  border: '1px dashed #d1d5db',
+                  borderRadius: 12,
+                  color: '#64748b',
+                  fontSize: 13,
+                  fontWeight: 700,
+                }}>
+                  No live destinations returned.
+                </div>
+              )}
             </div>
           </div>
         ))}

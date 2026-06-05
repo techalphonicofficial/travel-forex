@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 
-export default function GlobalInquiryModal() {
+export default function GlobalInquiryModal({ brand }) {
   const [isOpen, setIsOpen] = useState(false);
+  const brandLogo = brand?.logo || '/logooo.png';
+  const brandName = brand?.legalName || 'ITS TRAVELS AND TOURS';
 
   useEffect(() => {
     // Check if the modal was already closed in this session
@@ -73,7 +75,7 @@ export default function GlobalInquiryModal() {
         <div
           style={{
             flex: '0 0 42%',
-            background: '#026eb5',
+            background: 'var(--color-primary)',
             position: 'relative',
             display: 'flex',
             flexDirection: 'column',
@@ -88,14 +90,14 @@ export default function GlobalInquiryModal() {
           {/* Sunburst Pattern */}
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'conic-gradient(from 0deg at 50% 50%, #026eb51a 0deg, transparent 20deg, #026eb51a 40deg)',
+            background: 'conic-gradient(from 0deg at 50% 50%, color-mix(in srgb, var(--color-primary) 10%, transparent) 0deg, transparent 20deg, color-mix(in srgb, var(--color-primary) 10%, transparent) 40deg)',
             opacity: 0.4,
             animation: 'rotatePulse 20s linear infinite'
           }} />
 
           <div style={{ position: 'relative', zIndex: 2 }}>
             <div className="mb-4 mx-auto w-100">
-              <img src="./logooo.png" alt="Logo" style={{ width: '100%', maxWidth: '100px', height: 100, margin: 'auto', objectFit: 'contain' }} />
+              <img src={brandLogo} alt={`${brandName} Logo`} style={{ width: '100%', maxWidth: '100px', height: 100, margin: 'auto', objectFit: 'contain' }} />
             </div>
 
             <h4 style={{ color: 'white', fontWeight: 400, letterSpacing: '2px', marginBottom: '10px' }}>YOUR</h4>
@@ -166,13 +168,13 @@ export default function GlobalInquiryModal() {
               type="submit"
               className="btn py-3 mt-2"
               style={{
-                background: '#026eb5',
+                background: 'var(--color-primary)',
                 color: 'white',
                 fontWeight: 750,
                 borderRadius: '14px',
                 fontSize: '16px',
                 border: 'none',
-                boxShadow: '0 15px 30px -5px #026eb54d',
+                boxShadow: '0 15px 30px -5px color-mix(in srgb, var(--color-primary) 30%, transparent)',
                 transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
               }}
               onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}

@@ -93,7 +93,7 @@ export default function RegisterPage() {
                     borderColor: errors.firstName ? '#ef4444' : undefined,
                     transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                   }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#026eb5'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.1)'; e.currentTarget.style.background = '#ffffff' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.1)'; e.currentTarget.style.background = '#ffffff' }}
                   onBlur={e => { e.currentTarget.style.borderColor = errors.firstName ? '#ef4444' : '#d1d5db'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; e.currentTarget.style.background = '#f9fafb' }}
                   {...register('firstName', { required: 'Required' })}
                 />
@@ -111,7 +111,7 @@ export default function RegisterPage() {
                     borderColor: errors.lastName ? '#ef4444' : undefined,
                     transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                   }}
-                  onFocus={e => { e.currentTarget.style.borderColor = '#026eb5'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.1)'; e.currentTarget.style.background = '#ffffff' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.1)'; e.currentTarget.style.background = '#ffffff' }}
                   onBlur={e => { e.currentTarget.style.borderColor = errors.lastName ? '#ef4444' : '#d1d5db'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; e.currentTarget.style.background = '#f9fafb' }}
                   {...register('lastName', { required: 'Required' })}
                 />
@@ -131,7 +131,7 @@ export default function RegisterPage() {
                   borderColor: errors.email ? '#ef4444' : undefined,
                   transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                 }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#026eb5'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.1)'; e.currentTarget.style.background = '#ffffff' }}
+                onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.1)'; e.currentTarget.style.background = '#ffffff' }}
                 onBlur={e => { e.currentTarget.style.borderColor = errors.email ? '#ef4444' : '#d1d5db'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; e.currentTarget.style.background = '#f9fafb' }}
                 {...register('email', {
                   required: 'Email is required',
@@ -153,7 +153,7 @@ export default function RegisterPage() {
                   borderColor: errors.phone ? '#ef4444' : undefined,
                   transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                 }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#026eb5'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.1)'; e.currentTarget.style.background = '#ffffff' }}
+                onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.1)'; e.currentTarget.style.background = '#ffffff' }}
                 onBlur={e => { e.currentTarget.style.borderColor = errors.phone ? '#ef4444' : '#d1d5db'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; e.currentTarget.style.background = '#f9fafb' }}
                 {...register('phone', {
                   required: 'Phone is required',
@@ -175,7 +175,7 @@ export default function RegisterPage() {
                   borderColor: errors.password ? '#ef4444' : undefined,
                   transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                 }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#026eb5'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.1)'; e.currentTarget.style.background = '#ffffff' }}
+                onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.1)'; e.currentTarget.style.background = '#ffffff' }}
                 onBlur={e => { e.currentTarget.style.borderColor = errors.password ? '#ef4444' : '#d1d5db'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; e.currentTarget.style.background = '#f9fafb' }}
                 {...register('password', { required: 'Password is required', minLength: { value: 8, message: 'Must be at least 8 characters' } })}
               />
@@ -194,7 +194,7 @@ export default function RegisterPage() {
                   borderColor: errors.confirmPassword ? '#ef4444' : undefined,
                   transition: 'all 0.2s', boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                 }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#026eb5'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.1)'; e.currentTarget.style.background = '#ffffff' }}
+                onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.1)'; e.currentTarget.style.background = '#ffffff' }}
                 onBlur={e => { e.currentTarget.style.borderColor = errors.confirmPassword ? '#ef4444' : '#d1d5db'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; e.currentTarget.style.background = '#f9fafb' }}
                 {...register('confirmPassword', {
                   required: 'Please confirm password',
@@ -205,12 +205,12 @@ export default function RegisterPage() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, margin: '20px 0 24px' }}>
-              <input type="checkbox" id="terms" required style={{ accentColor: '#026eb5', marginTop: 4, width: 16, height: 16, cursor: 'pointer' }} />
+              <input type="checkbox" id="terms" required style={{ accentColor: 'var(--color-primary)', marginTop: 4, width: 16, height: 16, cursor: 'pointer' }} />
               <label htmlFor="terms" style={{ color: '#4b5563', fontSize: 13.5, cursor: 'pointer', lineHeight: 1.5 }}>
                 I agree to ITS TRAVELS AND TOURS&apos;s{' '}
-                <Link href="#" style={{ color: '#026eb5', fontWeight: 600, textDecoration: 'none' }}>Terms of Service</Link>
+                <Link href="#" style={{ color: 'var(--color-primary)', fontWeight: 600, textDecoration: 'none' }}>Terms of Service</Link>
                 {' '}and{' '}
-                <Link href="#" style={{ color: '#026eb5', fontWeight: 600, textDecoration: 'none' }}>Privacy Policy</Link>
+                <Link href="#" style={{ color: 'var(--color-primary)', fontWeight: 600, textDecoration: 'none' }}>Privacy Policy</Link>
               </label>
             </div>
 
@@ -218,15 +218,15 @@ export default function RegisterPage() {
               type="submit"
               disabled={loading}
               style={{
-                width: '100%', padding: '16px', background: '#026eb5', color: 'white',
+                width: '100%', padding: '16px', background: 'var(--color-primary)', color: 'white',
                 border: 'none', borderRadius: 999, fontSize: 16, fontWeight: 600,
                 cursor: loading ? 'not-allowed' : 'pointer',
                 display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 10,
                 transition: 'all 0.2s',
                 boxShadow: '0 4px 14px rgba(16,185,129,0.3)',
               }}
-              onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px #026eb54d'; e.currentTarget.style.background = '#026eb5'; } }}
-              onMouseLeave={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px #026eb54d'; e.currentTarget.style.background = '#026eb5'; } }}
+              onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px color-mix(in srgb, var(--color-primary) 30%, transparent)'; e.currentTarget.style.background = 'var(--color-primary)'; } }}
+              onMouseLeave={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px color-mix(in srgb, var(--color-primary) 30%, transparent)'; e.currentTarget.style.background = 'var(--color-primary)'; } }}
             >
               {loading ? (
                 <>
@@ -238,7 +238,7 @@ export default function RegisterPage() {
           </form>
 
           <p style={{ textAlign: 'center', marginTop: 32, fontSize: 14, color: '#6b7280' }}>
-            Already have an account? <Link href="/auth/login" style={{ fontWeight: 600, color: '#026eb5', textDecoration: 'none' }}>Sign in</Link>
+            Already have an account? <Link href="/auth/login" style={{ fontWeight: 600, color: 'var(--color-primary)', textDecoration: 'none' }}>Sign in</Link>
           </p>
 
         </div>

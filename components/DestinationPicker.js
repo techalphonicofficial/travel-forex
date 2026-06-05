@@ -136,7 +136,7 @@ export default function DestinationPicker({ onPick }) {
         <div className="container" style={{ maxWidth: '1400px', marginBottom: '40px' }}>
           <div className="text-center">
             <h2 style={{ fontSize: '32px', fontWeight: 800, color: '#111827', fontFamily: "'Poppins', sans-serif" }}>
-              What's <span style={{ color: '#026eb5', fontStyle: 'italic', fontWeight: 500 }}> your pick </span> for your next vacation
+              What's <span style={{ color: 'var(--color-primary)', fontStyle: 'italic', fontWeight: 500 }}> your pick </span> for your next vacation
             </h2>
 
             <div className="mx-auto mt-4" style={{ maxWidth: '620px', position: 'relative' }}>
@@ -222,7 +222,7 @@ export default function DestinationPicker({ onPick }) {
                     {renderCardContent(dest, i)}
                   </div>
                 ) : (
-                  <Link href={`/tours?search=${dest.name}`} style={{ textDecoration: 'none' }}>
+                  <Link href={`/tour?search=${dest.name}`} style={{ textDecoration: 'none' }}>
                     {renderCardContent(dest, i)}
                   </Link>
                 )}

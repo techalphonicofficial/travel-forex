@@ -16,7 +16,7 @@ export default function AppBanner() {
 
           {/* LEFT: text */}
           <div>
-            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: '#fdce2e', margin: '0 0 10px' }}>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'var(--color-secondary)', margin: '0 0 10px' }}>
               📱 MOBILE APP
             </p>
             <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 900, fontSize: 34, color: 'white', lineHeight: 1.15, margin: '0 0 14px' }}>
@@ -50,9 +50,9 @@ export default function AppBanner() {
               />
               <button
                 type="submit"
-                style={{ background: '#fdce2e', color: '#0d2f1e', border: 'none', borderRadius: 999, padding: '12px 22px', fontWeight: 800, fontSize: 14, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                style={{ background: 'var(--color-secondary)', color: '#0d2f1e', border: 'none', borderRadius: 999, padding: '12px 22px', fontWeight: 800, fontSize: 14, cursor: 'pointer', whiteSpace: 'nowrap' }}
                 onMouseEnter={e => e.currentTarget.style.background = '#4ade80'}
-                onMouseLeave={e => e.currentTarget.style.background = '#fdce2e'}
+                onMouseLeave={e => e.currentTarget.style.background = 'var(--color-secondary)'}
               >
                 Get App Link
               </button>
@@ -79,7 +79,7 @@ export default function AppBanner() {
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <div style={{ width: 260, height: 500, background: '#111827', borderRadius: 38, border: '6px solid rgba(255,255,255,0.08)', overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.6)', position: 'relative' }}>
               {/* Top notch */}
-              <div style={{ background: '#026eb5', height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ background: 'var(--color-primary)', height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ width: 70, height: 18, background: '#111827', borderRadius: 999 }} />
               </div>
               {/* Hero image */}
@@ -89,9 +89,9 @@ export default function AppBanner() {
                 <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: 13, color: '#111827', marginBottom: 3 }}>Bali Paradise Escape</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                   <span style={{ fontSize: 11, color: '#6b7280' }}>7 Days · 4★ Hotels</span>
-                  <span style={{ fontWeight: 800, fontSize: 14, color: '#026eb5' }}>₹1,51,920</span>
+                  <span style={{ fontWeight: 800, fontSize: 14, color: 'var(--color-primary)' }}>₹1,51,920</span>
                 </div>
-                <div style={{ background: '#026eb5', borderRadius: 8, padding: '8px', textAlign: 'center', color: 'white', fontWeight: 700, fontSize: 12, marginBottom: 12 }}>Enquire Now</div>
+                <div style={{ background: 'var(--color-primary)', borderRadius: 8, padding: '8px', textAlign: 'center', color: 'white', fontWeight: 700, fontSize: 12, marginBottom: 12 }}>Enquire Now</div>
                 {/* Bottom nav */}
                 <div style={{ display: 'flex', justifyContent: 'space-around', paddingTop: 6, borderTop: '1px solid #f3f4f6' }}>
                   {['🏠', '🔍', '❤️', '👤'].map((ic, i) => (
@@ -103,7 +103,7 @@ export default function AppBanner() {
 
             {/* Floating badges */}
             <div style={{ position: 'absolute', top: 30, right: -28, background: 'white', borderRadius: 14, padding: '10px 14px', boxShadow: '0 8px 24px rgba(0,0,0,0.25)', textAlign: 'center' }}>
-              <div style={{ fontWeight: 800, fontSize: 18, color: '#026eb5' }}>25%</div>
+              <div style={{ fontWeight: 800, fontSize: 18, color: 'var(--color-primary)' }}>25%</div>
               <div style={{ fontSize: 10, color: '#6b7280', fontWeight: 600 }}>APP DEAL</div>
             </div>
             <div style={{ position: 'absolute', bottom: 60, left: -28, background: 'white', borderRadius: 14, padding: '10px 12px', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', gap: 8 }}>

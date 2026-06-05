@@ -1,17 +1,49 @@
 /* GramSection Redesign */
 'use client';
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { gramReels } from '@/data/gramReels';
+import { getReviews, getMediaUrl } from '@/utils/api';
+
+const FALLBACK_VIDEO_SOURCES = [
+  'https://res.cloudinary.com/demo/video/upload/q_auto,f_auto/elephants.mp4',
+  'https://res.cloudinary.com/demo/video/upload/q_auto,f_auto/sea_turtle.mp4',
+  'https://media.w3.org/2010/05/sintel/trailer.mp4',
+  'https://www.w3schools.com/html/mov_bbb.mp4',
+];
+
+const getVideoType = (src) => {
+  if (!src) return undefined;
+  return src.toLowerCase().endsWith('.webm') ? 'video/webm' : 'video/mp4';
+};
+
+const getReviewVideoUrl = (review) => {
+  const mediaUrl = review.media_url || review.mediaUrl || review.media?.url;
+  const mediaType = review.media_type || review.mediaType || review.media?.type || '';
+  const looksLikeVideo = /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(String(mediaUrl || ''));
+  const directVideo =
+    review.video ||
+    review.video_url ||
+    review.videoUrl ||
+    review.reel ||
+    review.reel_url ||
+    review.media_video;
+
+  const video = directVideo || (/video/i.test(mediaType) || looksLikeVideo ? mediaUrl : '');
+  return video ? getMediaUrl(video) : '';
+};
 
 function GramCard({ photo, index }) {
   const [hovered, setHovered] = useState(false);
+  const videoSrc = photo.videoSrc || FALLBACK_VIDEO_SOURCES[index % FALLBACK_VIDEO_SOURCES.length];
+  const posterSrc = photo.posterSrc || photo.src;
 
   return (
     <Link
       href={`/reels?idx=${index}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      aria-label={`Play ${photo.title || photo.user || 'travel reel'}`}
       style={{
         flexShrink: 0,
         width: 220,
@@ -34,24 +66,48 @@ function GramCard({ photo, index }) {
         boxShadow: hovered ? '0 10px 30px rgba(255,255,255,0.05)' : 'none',
         transition: 'box-shadow 0.3s ease'
       }}>
-        <img
-          src={photo.src}
-          alt={photo.user}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            transform: hovered ? 'scale(1.05)' : 'scale(1)',
-            transition: 'transform 0.5s ease',
-          }}
-          loading="lazy"
-        />
+        {videoSrc ? (
+            <video
+              key={`${videoSrc}-preview`}
+              muted
+              loop
+              autoPlay
+              playsInline
+              preload="metadata"
+              poster={posterSrc}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                transform: hovered ? 'scale(1.05)' : 'scale(1)',
+                transition: 'transform 0.5s ease',
+                background: '#000',
+              }}
+            >
+              <source src={videoSrc} type={getVideoType(videoSrc)} />
+            </video>
+        ) : (
+          <img
+            src={posterSrc}
+            alt={photo.user}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              transform: hovered ? 'scale(1.05)' : 'scale(1)',
+              transition: 'transform 0.5s ease',
+            }}
+            loading="lazy"
+          />
+        )}
         {/* Play Icon overlay on hover */}
         <div style={{
           position: 'absolute', inset: 0,
           background: 'rgba(0,0,0,0.3)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          opacity: hovered ? 1 : 0, transition: 'opacity 0.3s'
+          opacity: hovered ? 1 : 0,
+          pointerEvents: 'none',
+          transition: 'opacity 0.3s'
         }}>
           <div style={{
             width: 50, height: 50, borderRadius: '50%',
@@ -83,6 +139,45 @@ function GramCard({ photo, index }) {
 
 export default function GramSection() {
   const scrollRef = useRef(null);
+  const [reels, setReels] = useState(gramReels);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadReviews = async () => {
+      const reviews = await getReviews();
+
+      if (!mounted || !reviews.length) return;
+
+      setReels(reviews.map((review, index) => {
+        const fallback = gramReels[index % gramReels.length];
+        const packageName = review.package?.name || review.title || fallback.tag;
+
+        return {
+          ...fallback,
+          id: review.id ?? fallback.id,
+          src: fallback.src,
+          posterSrc: getMediaUrl(review.thumbnail || review.poster || review.image) || fallback.src,
+          userAvatar: getMediaUrl(review.user_avatar),
+          user: review.user_handle || review.user_name || fallback.user,
+          likes: review.likes_count ? String(review.likes_count) : fallback.likes,
+          caption: review.description || review.title || fallback.caption,
+          location: review.location || fallback.location,
+          title: review.title || packageName,
+          description: review.description || fallback.description,
+          videoSrc: getReviewVideoUrl(review) || fallback.videoSrc,
+          tag: packageName,
+          tour: review.package_id ? `/booking/${review.package_id}` : fallback.tour,
+        };
+      }));
+    };
+
+    loadReviews();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const scroll = (dir) => {
     if (!scrollRef.current) return;
@@ -173,9 +268,12 @@ export default function GramSection() {
               scrollSnapType: 'x mandatory'
             }}
           >
-            {gramReels.map((photo, i) => (
+            {reels.map((photo, i) => (
               <div key={i} style={{ scrollSnapAlign: 'start' }}>
-                <GramCard photo={photo} index={i} />
+                <GramCard
+                  photo={photo}
+                  index={i}
+                />
               </div>
             ))}
           </div>

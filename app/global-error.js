@@ -41,7 +41,7 @@ export default function GlobalError({ error, unstable_retry }) {
             >
               !
             </div>
-            <p style={{ margin: '0 0 8px', color: '#0052cc', fontSize: 12, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase' }}>
+            <p style={{ margin: '0 0 8px', color: 'var(--color-primary)', fontSize: 12, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase' }}>
               Application Error
             </p>
             <h1 style={{ fontSize: 38, lineHeight: 1.15, margin: '0 0 12px', fontWeight: 900 }}>
@@ -54,13 +54,13 @@ export default function GlobalError({ error, unstable_retry }) {
               <button
                 type="button"
                 onClick={() => unstable_retry()}
-                style={{ padding: '14px 28px', borderRadius: 12, background: '#0052cc', color: '#ffffff', border: 'none', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
+                style={{ padding: '14px 28px', borderRadius: 12, background: 'var(--color-primary)', color: '#ffffff', border: 'none', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}
               >
                 Try Again
               </button>
               <Link
                 href="/"
-                style={{ padding: '13px 28px', borderRadius: 12, background: 'transparent', color: '#0052cc', border: '2px solid #0052cc', fontSize: 15, fontWeight: 700, textDecoration: 'none' }}
+                style={{ padding: '13px 28px', borderRadius: 12, background: 'transparent', color: 'var(--color-primary)', border: '2px solid var(--color-primary)', fontSize: 15, fontWeight: 700, textDecoration: 'none' }}
               >
                 Go Home
               </Link>

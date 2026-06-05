@@ -52,13 +52,13 @@ export default function DestinationPills() {
           <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: 20, color: 'var(--color-text-primary)', margin: 0 }}>
             Explore Popular Destinations
           </h2>
-          <Link href="/tours" style={{ fontSize: 13, color: '#026eb5', fontWeight: 600, textDecoration: 'underline' }}>View all</Link>
+          <Link href="/tours" style={{ fontSize: 13, color: 'var(--color-primary)', fontWeight: 600, textDecoration: 'underline' }}>View all</Link>
         </div>
         <div style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'none' }}>
           {destinations.map((dest) => (
             <Link
               key={dest.name}
-              href={`/tours?search=${dest.name}`}
+              href={`/tour?search=${dest.name}`}
               style={{
                 flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center',
                 gap: 8, textDecoration: 'none', cursor: 'pointer',
@@ -67,7 +67,7 @@ export default function DestinationPills() {
               <div style={{
                 width: 88, height: 88, borderRadius: '50%', overflow: 'hidden',
                 border: '3px solid transparent',
-                background: 'linear-gradient(white, white) padding-box, linear-gradient(135deg, #026eb5, #fdce2e) border-box',
+                background: 'linear-gradient(white, white) padding-box, linear-gradient(135deg, var(--color-primary), var(--color-secondary)) border-box',
                 boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
                 transition: 'all 0.25s',
               }}

@@ -104,7 +104,7 @@ export default function VisaPage() {
                   'A duly filled and signed visa application form.'
                 ].map((item, id) => (
                   <li key={id} className="d-flex align-items-start gap-3">
-                    <div style={{ padding: '4px', background: '#7abfee', borderRadius: '50%', color: '#10b981', display: 'flex' }}>
+                    <div style={{ padding: '4px', background: 'var(--brand-primary-border)', borderRadius: '50%', color: '#10b981', display: 'flex' }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </div>
                     <span style={{ fontSize: '14.5px', color: '#374151' }}>{item}</span>
@@ -115,7 +115,7 @@ export default function VisaPage() {
 
             {/* ── Trust Banner ── */}
             <div className="mb-5 p-4 pe-lg-5" style={{
-              background: 'linear-gradient(135deg, #064e3b 0%, #026eb5 100%)',
+              background: 'linear-gradient(135deg, #064e3b 0%, var(--color-primary) 100%)',
               borderRadius: '24px',
               position: 'relative',
               overflow: 'hidden',
@@ -270,7 +270,7 @@ export default function VisaPage() {
           box-shadow: 0 0 0 4px rgba(16,185,129,0.1) !important;
         }
         .accordion-button:not(.collapsed) {
-          background-color: #c5e5fb;
+          background-color: var(--color-primary-light);
           color: #064e3b;
           box-shadow: none;
         }

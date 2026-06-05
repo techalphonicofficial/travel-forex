@@ -9,7 +9,7 @@ const adventures = [
     image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=700&q=80',
     tag: '🦁 Safari',
     tagColor: '#f59e0b',
-    href: '/tours?type=Safari',
+    href: '/tour?type=Safari',
     duration: '7 Nights',
     from: '₹89,999',
   },
@@ -19,7 +19,7 @@ const adventures = [
     image: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=700&q=80',
     tag: '✨ Adventure',
     tagColor: '#6366f1',
-    href: '/tours?type=Adventure',
+    href: '/tour?type=Adventure',
     duration: '8 Nights',
     from: '₹1,24,999',
   },
@@ -29,7 +29,7 @@ const adventures = [
     image: 'https://images.unsplash.com/photo-1467269204594-f3e4a89fcf87?w=700&q=80',
     tag: '🌊 Luxury',
     tagColor: '#0ea5e9',
-    href: '/tours?type=Luxury',
+    href: '/tour?type=Luxury',
     duration: '10 Nights',
     from: '₹2,19,999',
   },
@@ -39,7 +39,7 @@ const adventures = [
     image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=700&q=80',
     tag: '🌸 Cultural',
     tagColor: '#ec4899',
-    href: '/tours?type=Cultural',
+    href: '/tour?type=Cultural',
     duration: '10 Nights',
     from: '₹1,45,999',
   },
@@ -49,7 +49,7 @@ const adventures = [
     image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=700&q=80',
     tag: '🏖️ Beach',
     tagColor: '#10b981',
-    href: '/tours?type=Beach',
+    href: '/tour?type=Beach',
     duration: '7 Nights',
     from: '₹75,999',
   },
@@ -59,7 +59,7 @@ const adventures = [
     image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=700&q=80',
     tag: '🏔️ Snow',
     tagColor: '#0284c7',
-    href: '/tours?type=Snow',
+    href: '/tour?type=Snow',
     duration: '6 Nights',
     from: '₹1,89,999',
   },
@@ -207,7 +207,7 @@ function AdventureCard({ item, isMobile }) {
             <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10 }}>From</div>
             <div style={{
               fontFamily: 'Poppins, sans-serif', fontWeight: 800,
-              fontSize: 16, color: '#fdce2e',
+              fontSize: 16, color: 'var(--color-secondary)',
             }}>
               {item.from}
             </div>
@@ -238,7 +238,7 @@ function HandpickedCard({ item }) {
 
   return (
     <Link
-      href={`/tours?search=${item.name}`}
+      href={`/tour?search=${item.name}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -339,7 +339,7 @@ export default function ExperienceSection() {
             <div>
               <p style={{
                 fontSize: 11, fontWeight: 700, letterSpacing: 2.5,
-                textTransform: 'uppercase', color: '#026eb5', margin: '0 0 6px',
+                textTransform: 'uppercase', color: 'var(--color-primary)', margin: '0 0 6px',
               }}>
                 CURATED EXPERIENCES
               </p>
@@ -353,13 +353,13 @@ export default function ExperienceSection() {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <Link href="/tours" style={{
-                fontSize: 13, color: '#026eb5', fontWeight: 700,
+                fontSize: 13, color: 'var(--color-primary)', fontWeight: 700,
                 textDecoration: 'none', padding: '8px 18px',
-                border: '1.5px solid #026eb5', borderRadius: 999,
+                border: '1.5px solid var(--color-primary)', borderRadius: 999,
                 whiteSpace: 'nowrap', transition: 'all 0.2s',
               }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#026eb5'; e.currentTarget.style.color = 'white'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#026eb5'; }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-primary)'; e.currentTarget.style.color = 'white'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color-primary)'; }}
               >
                 View all →
               </Link>
@@ -385,7 +385,6 @@ export default function ExperienceSection() {
             </div>
           </div>
 
-          {/* Cards */}
           <div
             ref={adventureRef}
             style={{
@@ -403,14 +402,13 @@ export default function ExperienceSection() {
       </section>
 
       {/* ── Popular Hand-picked Experiences ── */}
-      <section style={{
-        background: 'linear-gradient(135deg, #c5e5fb 0%, #ecfdf5 50%, #c5e5fb 100%)',
+      {/* <section style={{
+        background: 'linear-gradient(135deg, var(--color-primary-light) 0%, #ecfdf5 50%, var(--color-primary-light) 100%)',
         padding: '52px 0 60px',
-        borderTop: '1px solid #7abfee',
+        borderTop: '1px solid var(--brand-primary-border)',
       }}>
         <div className='container' style={{ margin: '0 auto', padding: '0 24px' }}>
 
-          {/* Header row */}
           <div style={{
             display: 'flex', alignItems: 'center',
             justifyContent: 'space-between', marginBottom: 28,
@@ -419,7 +417,7 @@ export default function ExperienceSection() {
             <div>
               <p style={{
                 fontSize: 11, fontWeight: 700, letterSpacing: 2.5,
-                textTransform: 'uppercase', color: '#026eb5', margin: '0 0 6px',
+                textTransform: 'uppercase', color: 'var(--color-primary)', margin: '0 0 6px',
               }}>
                 TRAVEL YOUR WAY
               </p>
@@ -433,13 +431,13 @@ export default function ExperienceSection() {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <Link href="/tours" style={{
-                fontSize: 13, color: '#026eb5', fontWeight: 700,
+                fontSize: 13, color: 'var(--color-primary)', fontWeight: 700,
                 textDecoration: 'none', padding: '8px 18px',
-                border: '1.5px solid #026eb5', borderRadius: 999,
+                border: '1.5px solid var(--color-primary)', borderRadius: 999,
                 whiteSpace: 'nowrap', transition: 'all 0.2s',
               }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#026eb5'; e.currentTarget.style.color = 'white'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#026eb5'; }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-primary)'; e.currentTarget.style.color = 'white'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color-primary)'; }}
               >
                 View all →
               </Link>
@@ -465,7 +463,6 @@ export default function ExperienceSection() {
             </div>
           </div>
 
-          {/* Cards */}
           <div
             ref={handpickedRef}
             style={{
@@ -480,7 +477,7 @@ export default function ExperienceSection() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
     </>
   );
 }

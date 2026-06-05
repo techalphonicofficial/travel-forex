@@ -1,0 +1,37 @@
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://sank-gutless-dripping.ngrok-free.dev/api/v1';
+
+export const dynamic = 'force-dynamic';
+
+export async function GET(request) {
+  const incomingUrl = new URL(request.url);
+  const backendUrl = new URL('/api/v1/trip-inquiries', BACKEND_BASE_URL.replace(/\/api\/v1\/?$/, ''));
+
+  ['page', 'limit', 'search', 'status'].forEach((key) => {
+    const value = incomingUrl.searchParams.get(key);
+    if (value) backendUrl.searchParams.set(key, value);
+  });
+
+  try {
+    const response = await fetch(backendUrl.toString(), {
+      headers: {
+        accept: '*/*',
+        'ngrok-skip-browser-warning': 'true',
+      },
+      cache: 'no-store',
+    });
+
+    const data = await response.json().catch(() => null);
+
+    return Response.json(
+      data || { success: response.ok, data: { rows: [] }, message: response.ok ? undefined : 'Unable to fetch trip inquiries' },
+      { status: response.status }
+    );
+  } catch (error) {
+    console.error('Trip inquiries proxy error:', error);
+
+    return Response.json(
+      { success: false, data: { rows: [] }, message: 'Unable to fetch trip inquiries' },
+      { status: 502 }
+    );
+  }
+}

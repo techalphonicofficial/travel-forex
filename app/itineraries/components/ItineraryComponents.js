@@ -57,8 +57,8 @@ export function BookingSidebar() {
             <div style={{ fontSize: 12, color: '#10b981', fontWeight: 700, marginBottom: 20 }}>Saving ₹{(sampleItinerary.originalPrice - sampleItinerary.price).toLocaleString('en-IN')} / Person</div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
-                <button style={{ background: '#026eb5', color: 'white', border: 'none', padding: '16px', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer', transition: '0.2s', boxShadow: '0 4px 12px rgba(2,110,181,0.2)' }}>Reserve Now</button>
-                <button style={{ background: '#f8fafc', color: '#026eb5', border: '1px solid #026eb5', padding: '16px', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer', transition: '0.2s' }}>Request Callback</button>
+                <button style={{ background: 'var(--color-primary)', color: 'white', border: 'none', padding: '16px', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer', transition: '0.2s', boxShadow: '0 4px 12px rgba(2,110,181,0.2)' }}>Reserve Now</button>
+                <button style={{ background: '#f8fafc', color: 'var(--color-primary)', border: '1px solid var(--color-primary)', padding: '16px', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer', transition: '0.2s' }}>Request Callback</button>
             </div>
 
             <div style={{ paddingTop: 20, borderTop: '1px solid #f3f4f6' }}>
@@ -139,7 +139,7 @@ export function ReviewsSection({ showReviewForm, setShowReviewForm, reviewRating
                         <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#4b5563', marginBottom: 8 }}>Your Review</label>
                         <textarea rows="4" placeholder="Tell us about your trip. What did you like the most?" style={{ width: '100%', padding: '12px 16px', borderRadius: 8, border: '1px solid #d1d5db', fontSize: 14, outline: 'none', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }}></textarea>
                     </div>
-                    <button style={{ background: '#026eb5', color: 'white', border: 'none', padding: '14px 32px', borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(2,110,181,0.2)' }}>Submit Review</button>
+                    <button style={{ background: 'var(--color-primary)', color: 'white', border: 'none', padding: '14px 32px', borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(2,110,181,0.2)' }}>Submit Review</button>
                 </div>
             )}
 
@@ -181,7 +181,7 @@ export function DayWiseItinerary() {
                             width: '40px', 
                             height: '40px', 
                             borderRadius: '50%', 
-                            background: '#026eb5', 
+                            background: 'var(--color-primary)', 
                             color: 'white', 
                             display: 'flex', 
                             alignItems: 'center', 
@@ -209,7 +209,7 @@ export function DayWiseItinerary() {
                                     <p style={{ fontSize: 15, color: '#64748b', lineHeight: 1.7, margin: 0 }}>{day.desc}</p>
                                     
                                     <div style={{ display: 'flex', gap: 16, marginTop: 24 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#026eb5', fontWeight: 600 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--color-primary)', fontWeight: 600 }}>
                                             <span style={{ fontSize: 18 }}>🏨</span> Stay Included
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#10b981', fontWeight: 600 }}>
@@ -345,7 +345,7 @@ export function HotelsSection() {
                     }}>
                         <div style={{ height: 220, position: 'relative' }}>
                             <img src={hotel.image + '?w=800'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={hotel.name} />
-                            <div style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.9)', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, color: '#026eb5', backdropFilter: 'blur(4px)' }}>
+                            <div style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.9)', padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, color: 'var(--color-primary)', backdropFilter: 'blur(4px)' }}>
                                 {hotel.type}
                             </div>
                         </div>
@@ -566,7 +566,7 @@ export function PoliciesSection() {
                         boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.05)'
                     }}>
                         <h4 style={{ fontSize: 18, fontWeight: 800, color: '#1e293b', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#026eb5' }}></span>
+                            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-primary)' }}></span>
                             {p.title}
                         </h4>
                         <ul style={{ paddingLeft: 20, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -634,7 +634,7 @@ export function HeaderSection() {
             <div>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                     {(sampleItinerary.badges || []).map(b => (
-                        <span key={b} style={{ fontSize: 10, fontWeight: 800, background: b === 'BESTSELLER' ? '#10b981' : '#026eb5', color: 'white', padding: '4px 10px', borderRadius: 6, letterSpacing: 0.5 }}>{b}</span>
+                        <span key={b} style={{ fontSize: 10, fontWeight: 800, background: b === 'BESTSELLER' ? '#10b981' : 'var(--color-primary)', color: 'white', padding: '4px 10px', borderRadius: 6, letterSpacing: 0.5 }}>{b}</span>
                     ))}
                 </div>
                 <h1 style={{ fontSize: 'clamp(24px, 3vw, 32px)', fontWeight: 800, color: '#111827', margin: 0, fontFamily: 'var(--font-poppins)' }}>
@@ -707,7 +707,7 @@ export function MapSection() {
             <div style={{ height: 400, background: '#e2e8f0', borderRadius: 20, overflow: 'hidden', position: 'relative' }}>
                 <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} alt="Map" />
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ background: 'white', padding: '12px 24px', borderRadius: 40, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontWeight: 700, color: '#026eb5', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ background: 'white', padding: '12px 24px', borderRadius: 40, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontWeight: 700, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: 10 }}>
                         <svg viewBox="0 0 24 24" width="20" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg>
                         View Interactive Map
                     </div>

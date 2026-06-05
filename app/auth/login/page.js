@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { forgotCustomerPassword, loginCustomer, resetCustomerPassword } from '@/utils/api';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotStep, setForgotStep] = useState('email');
@@ -27,7 +28,8 @@ export default function LoginPage() {
       toast.success('Welcome back! Redirecting...');
       // Previous redirect kept for reference:
       // setTimeout(() => router.push('/dashboard'), 1000);
-      setTimeout(() => router.push('/profile'), 1000);
+      const redirectUrl = searchParams.get('redirect') || '/profile';
+      setTimeout(() => router.push(redirectUrl), 1000);
     } catch (error) {
       const message = error.response?.data?.message || 'Login failed. Please check your email and password.';
       toast.error(message);
@@ -184,12 +186,12 @@ export default function LoginPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                 <label style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>Password</label>
                 {/* Previous anchor kept for reference:
-                <a href="#" style={{ fontSize: 13, fontWeight: 600, color: '#026eb5', textDecoration: 'none' }}>Forgot password?</a>
+                <a href="#" style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-primary)', textDecoration: 'none' }}>Forgot password?</a>
                 */}
                 <button
                   type="button"
                   onClick={() => setForgotOpen(true)}
-                  style={{ fontSize: 13, fontWeight: 600, color: '#026eb5', textDecoration: 'none', background: 'transparent', border: 'none', padding: 0 }}
+                  style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-primary)', textDecoration: 'none', background: 'transparent', border: 'none', padding: 0 }}
                 >
                   Forgot password?
                 </button>
@@ -216,15 +218,15 @@ export default function LoginPage() {
               type="submit"
               disabled={loading}
               style={{
-                width: '100%', padding: '16px', background: '#026eb5', color: 'white',
+                width: '100%', padding: '16px', background: 'var(--color-primary)', color: 'white',
                 border: 'none', borderRadius: 999, fontSize: 16, fontWeight: 600,
                 cursor: loading ? 'not-allowed' : 'pointer',
                 display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 10,
                 transition: 'all 0.2s',
-                boxShadow: '0 4px 14px #026eb54d',
+                boxShadow: '0 4px 14px color-mix(in srgb, var(--color-primary) 30%, transparent)',
               }}
-              onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px #026eb54d'; e.currentTarget.style.background = '#026eb5'; } }}
-              onMouseLeave={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px #026eb54d'; e.currentTarget.style.background = '#026eb5'; } }}
+              onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px color-mix(in srgb, var(--color-primary) 30%, transparent)'; e.currentTarget.style.background = 'var(--color-primary)'; } }}
+              onMouseLeave={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px color-mix(in srgb, var(--color-primary) 30%, transparent)'; e.currentTarget.style.background = 'var(--color-primary)'; } }}
             >
               {loading ? (
                 <>
@@ -257,7 +259,7 @@ export default function LoginPage() {
           </div>
 
           <p style={{ textAlign: 'center', marginTop: 32, fontSize: 14, color: '#6b7280' }}>
-            Don&apos;t have an account? <Link href="/auth/register" style={{ fontWeight: 600, color: '#026eb5', textDecoration: 'none' }}>Sign up</Link>
+            Don&apos;t have an account? <Link href="/auth/register" style={{ fontWeight: 600, color: 'var(--color-primary)', textDecoration: 'none' }}>Sign up</Link>
           </p>
 
         </div>
@@ -318,7 +320,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={forgotLoading}
-                  style={{ width: '100%', marginTop: 20, padding: 15, borderRadius: 999, background: '#026eb5', color: 'white', fontWeight: 700, border: 'none', opacity: forgotLoading ? 0.7 : 1 }}
+                  style={{ width: '100%', marginTop: 20, padding: 15, borderRadius: 999, background: 'var(--color-primary)', color: 'white', fontWeight: 700, border: 'none', opacity: forgotLoading ? 0.7 : 1 }}
                 >
                   {forgotLoading ? 'Sending OTP...' : 'Send OTP'}
                 </button>
@@ -368,11 +370,11 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={forgotLoading}
-                  style={{ width: '100%', marginTop: 20, padding: 15, borderRadius: 999, background: '#026eb5', color: 'white', fontWeight: 700, border: 'none', opacity: forgotLoading ? 0.7 : 1 }}
+                  style={{ width: '100%', marginTop: 20, padding: 15, borderRadius: 999, background: 'var(--color-primary)', color: 'white', fontWeight: 700, border: 'none', opacity: forgotLoading ? 0.7 : 1 }}
                 >
                   {forgotLoading ? 'Resetting password...' : 'Reset Password'}
                 </button>
-                <button type="button" onClick={() => setForgotStep('email')} style={{ width: '100%', marginTop: 10, padding: 12, color: '#026eb5', fontWeight: 700, background: 'transparent', border: 'none' }}>
+                <button type="button" onClick={() => setForgotStep('email')} style={{ width: '100%', marginTop: 10, padding: 12, color: 'var(--color-primary)', fontWeight: 700, background: 'transparent', border: 'none' }}>
                   Change email
                 </button>
               </form>

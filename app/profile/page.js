@@ -187,7 +187,7 @@ export default function ProfilePage() {
               </button>
             </aside>
 
-            <div style={{ display: 'grid', gap: 24 }}>
+            <div style={{ display: 'grid', gap: 24, zIndex:99 }}>
               <section className="card-base" style={{ padding: 28 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 24 }}>
                   <div>

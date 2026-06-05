@@ -21,7 +21,7 @@ export default function HeroSearchBar() {
     if (form.date) params.set('date', form.date);
     if (form.travelers) params.set('travelers', form.travelers);
     if (form.type && form.type !== 'All') params.set('type', form.type);
-    router.push(`/tours?${params.toString()}`);
+    router.push(`/tour?${params.toString()}`);
   };
 
   return (
