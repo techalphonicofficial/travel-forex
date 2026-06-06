@@ -985,16 +985,16 @@ export default function CustomizeFlow() {
       const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
       return (
-        <div style={{ flex: 1, minWidth: 260 }}>
+        <div className="departure-month" style={{ flex: 1, minWidth: 260 }}>
           <h4 style={{ textAlign: 'center', fontSize: 14, fontWeight: 700, margin: '0 0 20px' }}>
             {monthStr} <span style={{ color: '#6b7280', fontWeight: 400 }}>· {year}</span>
           </h4>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8, marginBottom: 12, textAlign: 'center' }}>
-            {days.map(d => <div key={d} style={{ fontSize: 11, fontWeight: 600, color: '#9ca3af' }}>{d}</div>)}
+          <div className="departure-weekdays" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8, marginBottom: 12, textAlign: 'center' }}>
+            {days.map(d => <div className="departure-weekday" key={d} style={{ fontSize: 11, fontWeight: 600, color: '#9ca3af' }}>{d}</div>)}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px 4px', textAlign: 'center' }}>
-            {blanks.map(b => <div key={`blank-${b}`} />)}
+          <div className="departure-days-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px 4px', textAlign: 'center' }}>
+            {blanks.map(b => <div className="departure-blank-day" key={`blank-${b}`} />)}
             {dates.map(date => {
               const calendarDate = new Date(year, monthIndex, date);
               const isPastDate = calendarDate.getTime() < today.getTime();
@@ -1006,7 +1006,7 @@ export default function CustomizeFlow() {
               const borderCol = isPastDate ? 'transparent' : (isLowCrowd ? 'var(--color-primary)' : (isHighCrowd ? '#f59e0b' : 'transparent'));
               const textCol = isPastDate ? '#d1d5db' : (hasCrowdLevel ? '#111827' : '#6b7280');
               return (
-                <div key={date} onClick={() => { if (!isPastDate) handleDate(`${monthStr} ${date}, ${year}`); }}
+                <div className="departure-day-cell" key={date} onClick={() => { if (!isPastDate) handleDate(`${monthStr} ${date}, ${year}`); }}
                   title={isPastDate ? 'Past dates are unavailable' : (hasCrowdLevel ? `${crowdLevel.charAt(0).toUpperCase() + crowdLevel.slice(1)} crowd` : undefined)}
                   style={{
                     height: 32, width: 32, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1034,10 +1034,10 @@ export default function CustomizeFlow() {
     const hasCrowdLevels = Object.keys(crowdLevels).length > 0;
 
     return (
-      <div style={{ maxWidth: 1000, margin: '40px auto', animation: 'fadeIn 0.3s' }}>
+      <div className="departure-calendar-step" style={{ maxWidth: 1000, margin: '40px auto', animation: 'fadeIn 0.3s' }}>
         <h2 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 30px', textAlign: 'center', fontFamily: 'Poppins, sans-serif' }}>When is your departure date?</h2>
 
-        <div style={{ background: 'white', padding: '32px 40px', borderRadius: 16, border: '1px solid #f3f4f6', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', position: 'relative' }}>
+        <div className="departure-calendar-card" style={{ background: 'white', padding: '32px 40px', borderRadius: 16, border: '1px solid #f3f4f6', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', position: 'relative' }}>
           {/* Navigation Arrows */}
           <div
             onClick={() => { if (!isPreviousDisabled) changeMonth(-1); }}
@@ -1048,9 +1048,9 @@ export default function CustomizeFlow() {
             onClick={() => changeMonth(1)}
             style={{ position: 'absolute', right: 24, top: 32, width: 28, height: 28, borderRadius: '50%', background: '#ecfdf5', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, cursor: 'pointer', zIndex: 10 }}>❯</div>
 
-          <div style={{ display: 'flex', gap: 40, justifyContent: 'space-between', padding: '0 20px' }}>
+          <div className="departure-months-wrap" style={{ display: 'flex', gap: 40, justifyContent: 'space-between', padding: '0 20px' }}>
             {months.map((m, idx) => (
-              <div key={idx} style={{ flex: 1 }}>
+              <div className="departure-month-wrap" key={idx} style={{ flex: 1 }}>
                 {renderMonth(m)}
               </div>
             ))}
@@ -1066,7 +1066,7 @@ export default function CustomizeFlow() {
             </p>
           )} */}
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 40 }}>
+          <div className="departure-crowd-legend" style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 40 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid var(--color-primary)' }} />
               <span style={{ fontSize: 13, fontWeight: 600, color: '#4b5563' }}>Low crowd</span>
@@ -1216,10 +1216,10 @@ export default function CustomizeFlow() {
      Modal: Edit Cities
   ───────────────────────────────────────────────────────────────── */
   const renderEditCitiesModal = () => (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'fadeIn 0.2s' }}>
+    <div className="customize-modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'fadeIn 0.2s' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(2px)' }} onClick={() => setSubStep('')} />
 
-      <div style={{ position: 'relative', width: 500, maxHeight: '80vh', background: 'white', borderRadius: 16, display: 'flex', flexDirection: 'column', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+      <div className="customize-edit-modal" style={{ position: 'relative', width: 500, maxHeight: '80vh', background: 'white', borderRadius: 16, display: 'flex', flexDirection: 'column', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
         {/* Header */}
         <div style={{ padding: '24px 24px 16px', textAlign: 'center', borderBottom: '1px solid #f3f4f6', position: 'relative' }}>
           <button onClick={() => setSubStep('')} style={{ position: 'absolute', top: 20, right: 20, width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid #d1d5db', fontSize: 14, cursor: 'pointer', color: '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
@@ -1267,10 +1267,10 @@ export default function CustomizeFlow() {
      Final Mobile Number Modal
   ───────────────────────────────────────────────────────────────── */
   const renderLoginModal = () => (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'fadeIn 0.3s' }}>
+    <div className="customize-modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'fadeIn 0.3s' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }} onClick={() => setSubStep('')} />
 
-      <div style={{ position: 'relative', width: 800, height: 450, background: 'white', borderRadius: 16, display: 'flex', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}>
+      <div className="customize-login-modal" style={{ position: 'relative', width: 800, height: 450, background: 'white', borderRadius: 16, display: 'flex', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}>
 
         {/* Left Side Branding */}
         <div style={{
@@ -1334,10 +1334,10 @@ export default function CustomizeFlow() {
     ];
 
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'fadeIn 0.3s' }}>
+      <div className="customize-modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'fadeIn 0.3s' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }} onClick={() => setSubStep('')} />
 
-        <div style={{ position: 'relative', width: 900, maxWidth: 'calc(100vw - 32px)', maxHeight: '86vh', background: 'white', borderRadius: 16, display: 'flex', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}>
+        <div className="customize-review-modal" style={{ position: 'relative', width: 900, maxWidth: 'calc(100vw - 32px)', maxHeight: '86vh', background: 'white', borderRadius: 16, display: 'flex', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}>
           <div style={{ width: '36%', background: 'var(--color-primary)', padding: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', inset: 0, opacity: 0.1, background: 'repeating-conic-gradient(from 0deg, transparent 0deg 10deg, #fff 10deg 20deg)' }} />
             <div style={{ position: 'relative', zIndex: 2 }}>
@@ -1346,7 +1346,15 @@ export default function CustomizeFlow() {
               </div>
               <h3 style={{ color: 'white', fontSize: 20, fontWeight: 500, margin: '0 0 10px', letterSpacing: 1 }}>REVIEW YOUR</h3>
               <h2 style={{ color: '#fef08a', fontSize: 34, fontWeight: 900, margin: '0 0 16px', lineHeight: 1.1, textShadow: '0 4px 12px rgba(0,0,0,0.3)', fontFamily: 'Poppins, sans-serif' }}>
-                {itinerarySubmitState === 'success' ? 'ITINERARY<br />SAVED' : 'HOLIDAY<br />PLAN'}
+                {itinerarySubmitState === 'success' ? (
+                  <>
+                    ITINERARY<br />SAVED
+                  </>
+                ) : (
+                  <>
+                    HOLIDAY<br />PLAN
+                  </>
+                )}
               </h2>
               <h3 style={{ color: 'white', fontSize: 18, fontWeight: 700, margin: 0, letterSpacing: 1 }}>
                 {itinerarySubmitState === 'submitting' ? 'BUILDING NOW' : itinerarySubmitState === 'success' ? 'READY TO VIEW' : 'CONFIRM TO CONTINUE'}
@@ -1708,6 +1716,138 @@ export default function CustomizeFlow() {
           .cust-review-divider,
           .cust-review-score {
             display: none;
+          }
+          .departure-calendar-step {
+            width: 100%;
+            margin: 22px auto !important;
+          }
+          .departure-calendar-step > h2 {
+            font-size: 24px !important;
+            line-height: 1.18 !important;
+            margin: 0 0 24px !important;
+            padding: 0 4px;
+          }
+          .departure-calendar-card {
+            width: 100%;
+            padding: 24px 10px 26px !important;
+            border-radius: 0 !important;
+            border-left: 0 !important;
+            border-right: 0 !important;
+            box-shadow: none !important;
+            overflow: hidden;
+          }
+          .departure-calendar-card > div[title="Previous month"],
+          .departure-calendar-card > div[title="Earlier months are unavailable"] {
+            left: 12px !important;
+            top: 20px !important;
+          }
+          .departure-calendar-card > div[style*="right: 24px"] {
+            right: 12px !important;
+            top: 20px !important;
+          }
+          .departure-months-wrap {
+            display: block !important;
+            padding: 0 !important;
+          }
+          .departure-month-wrap {
+            display: none;
+          }
+          .departure-month-wrap:first-child {
+            display: block;
+          }
+          .departure-month {
+            min-width: 0 !important;
+            width: 100%;
+          }
+          .departure-month h4 {
+            margin-bottom: 18px !important;
+            min-height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 42px;
+          }
+          .departure-weekdays,
+          .departure-days-grid {
+            width: 100%;
+            grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+          }
+          .departure-weekdays {
+            gap: 0 !important;
+            margin-bottom: 8px !important;
+          }
+          .departure-days-grid {
+            gap: 6px 0 !important;
+          }
+          .departure-weekday {
+            font-size: 10px !important;
+            min-width: 0;
+          }
+          .departure-day-cell {
+            width: 34px !important;
+            height: 34px !important;
+            max-width: calc((100vw - 34px) / 7) !important;
+            margin: 0 auto !important;
+            font-size: 12px !important;
+          }
+          .departure-blank-day {
+            min-height: 34px;
+          }
+          .departure-crowd-legend {
+            flex-wrap: wrap;
+            gap: 14px 20px !important;
+            margin-top: 28px !important;
+          }
+          .customize-modal-overlay {
+            align-items: flex-start !important;
+            justify-content: center !important;
+            padding: 14px !important;
+            overflow-y: auto;
+          }
+          .customize-edit-modal,
+          .customize-login-modal,
+          .customize-review-modal {
+            width: 100% !important;
+            max-width: calc(100vw - 28px) !important;
+            height: auto !important;
+            max-height: calc(100svh - 28px) !important;
+            border-radius: 14px !important;
+            overflow-y: auto !important;
+          }
+          .customize-login-modal,
+          .customize-review-modal {
+            display: block !important;
+          }
+          .customize-login-modal > div:first-of-type,
+          .customize-review-modal > div:first-of-type {
+            width: 100% !important;
+            min-height: 170px;
+            padding: 24px !important;
+          }
+          .customize-login-modal > div:nth-of-type(2),
+          .customize-review-modal > div:nth-of-type(2) {
+            width: 100% !important;
+            padding: 24px 20px !important;
+          }
+          .customize-review-modal [style*="grid-template-columns: 140px 1fr"],
+          .customize-review-modal [style*="gridTemplateColumns"] {
+            grid-template-columns: 1fr !important;
+            gap: 4px !important;
+          }
+        }
+
+        @media (max-width: 380px) {
+          .departure-calendar-card {
+            padding-left: 6px !important;
+            padding-right: 6px !important;
+          }
+          .departure-day-cell {
+            width: 30px !important;
+            height: 30px !important;
+            font-size: 11px !important;
+          }
+          .departure-blank-day {
+            min-height: 30px;
           }
         }
       `}</style>

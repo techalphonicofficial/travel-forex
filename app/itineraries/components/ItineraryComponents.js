@@ -91,7 +91,7 @@ export function ReviewsSection({ showReviewForm, setShowReviewForm, reviewRating
         <div id="reviews" style={{ scrollMarginTop: 150, marginBottom: 64 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 32 }}>
                 <div>
-                    <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, fontFamily: 'var(--font-poppins)' }}>Travelers' Reviews</h2>
+                    <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, fontFamily: 'var(--font-poppins)' }}>Travelers&apos; Reviews</h2>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <span style={{ fontSize: 32, fontWeight: 800, color: '#111827' }}>{sampleItinerary.rating}</span>
                         <div>
@@ -154,7 +154,7 @@ export function ReviewsSection({ showReviewForm, setShowReviewForm, reviewRating
                             </div>
                             <div style={{ marginLeft: 'auto', color: '#fbbf24', fontSize: 12, letterSpacing: 2 }}>{'★'.repeat(review.rating)}</div>
                         </div>
-                        <p style={{ fontSize: 13, color: '#4b5563', lineHeight: 1.6, margin: 0 }}>"{review.text}"</p>
+                        <p style={{ fontSize: 13, color: '#4b5563', lineHeight: 1.6, margin: 0 }}>&quot;{review.text}&quot;</p>
                     </div>
                 ))}
             </div>
@@ -267,7 +267,7 @@ export function TripHighlights({ scrollToSection }) {
                     </button>
                 </div>
 
-                <div style={{ 
+                <div className="sample-highlights-grid" style={{ 
                     display: 'grid', 
                     gridTemplateColumns: 'repeat(4, 1fr)', 
                     gap: 32,
@@ -284,7 +284,7 @@ export function TripHighlights({ scrollToSection }) {
                             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
                             transition: 'transform 0.3s ease'
                         }}>
-                            <div style={{ 
+            <div className="sample-visa-card" style={{
                                 position: 'absolute', 
                                 top: 0, 
                                 left: 0, 
@@ -438,7 +438,7 @@ export function InclusionsExclusionsSection({ inclusionSubTab, setInclusionSubTa
             )}
 
             {/* Inclusions & Exclusions Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 64 }}>
+            <div className="sample-inclusions-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 64 }}>
                 <div>
                     <h4 style={{ fontSize: 14, fontWeight: 800, color: '#1e293b', textTransform: 'uppercase', marginBottom: 24, letterSpacing: 1.5, display: 'flex', alignItems: 'center', gap: 10 }}>
                         <span style={{ color: '#10b981' }}>✓</span> Inclusions
@@ -658,7 +658,7 @@ export function HeaderSection() {
 // ── Gallery Section ── //
 export function GallerySection() {
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gridTemplateRows: '200px 200px', gap: 12, marginBottom: 40, borderRadius: 16, overflow: 'hidden' }}>
+        <div className="sample-gallery-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gridTemplateRows: '200px 200px', gap: 12, marginBottom: 40, borderRadius: 16, overflow: 'hidden' }}>
             <div style={{ gridRow: 'span 2', position: 'relative' }}>
                 <img src={sampleItinerary.gallery[0] + '?w=1200'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Gallery 1" />
             </div>

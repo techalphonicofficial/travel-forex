@@ -500,6 +500,23 @@ function MegaDropdown({ label, cols, isTransparent }) {
 /* ── Side Drawer ───────────────────────────────────────── */
 function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, onLogout, onForexOpen }) {
   const [expanded, setExpanded] = useState(null);
+  const firstName = isLoggedIn ? currentUser?.name?.split(' ')[0] || 'Traveler' : 'Guest';
+  const userInitial = firstName.charAt(0).toUpperCase() || 'G';
+
+  const getNavIcon = (label = '') => {
+    const key = label.toLowerCase();
+    if (key.includes('holiday') || key.includes('package')) return 'HP';
+    if (key.includes('hotel')) return 'HT';
+    if (key.includes('forex')) return 'FX';
+    if (key.includes('profile')) return 'MP';
+    if (key.includes('login')) return 'IN';
+    if (key.includes('faq')) return 'QA';
+    if (key.includes('contact')) return 'CT';
+    if (key.includes('blog')) return 'BL';
+    if (key.includes('about')) return 'AB';
+    if (key.includes('testimonial')) return 'TS';
+    return label.slice(0, 2).toUpperCase();
+  };
 
   const toggleExpand = (label) => {
     setExpanded(expanded === label ? null : label);
@@ -558,32 +575,48 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
       <div
         style={{
           position: 'fixed', top: 0, right: 0,
-          width: '100%', maxWidth: 340, height: '100vh',
-          background: 'white', zIndex: 2001,
+          width: '100%', maxWidth: 360, height: '100vh',
+          background: 'linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)', zIndex: 2001,
           transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
           display: 'flex', flexDirection: 'column',
-          boxShadow: '-10px 0 30px rgba(0,0,0,0.1)',
+          boxShadow: '-18px 0 50px rgba(15,23,42,0.22)',
         }}
       >
         {/* Header */}
-        <div style={{ padding: '24px', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#111827' }}>
-            Hello, {isLoggedIn ? currentUser?.name?.split(' ')[0] || 'Traveler' : 'Guest'}
-          </h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 5, color: '#6b7280' }}>
+        <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid #edf2f7' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+            <span style={{ color: 'var(--color-primary)', fontSize: 11, fontWeight: 900, letterSpacing: 1.6, textTransform: 'uppercase' }}>
+              Travel Menu
+            </span>
+            <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: 12, background: '#f1f5f9', border: '1px solid #e2e8f0', cursor: 'pointer', padding: 0, color: '#64748b', display: 'grid', placeItems: 'center' }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
-          </button>
+            </button>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16, background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%)', color: 'white', boxShadow: '0 14px 30px color-mix(in srgb, var(--color-primary) 24%, transparent)' }}>
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.28)', display: 'grid', placeItems: 'center', fontSize: 15, fontWeight: 900 }}>
+              {userInitial}
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <h2 style={{ fontSize: 17, fontWeight: 850, margin: 0, color: 'white' }}>
+                Hello, {firstName}
+              </h2>
+              <p style={{ margin: '3px 0 0', color: 'rgba(255,255,255,0.74)', fontSize: 12, fontWeight: 700 }}>
+                {isLoggedIn ? 'Manage your travel faster' : 'Sign in for saved trips'}
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Scrollable Content */}
-        <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '14px 14px 10px' }}>
           {navGroups?.map((group, idx) => {
             const isExpanded = expanded === group.label;
             const hasHref = !!group.href;
             const hasAction = typeof group.action === 'function';
+            const navIcon = getNavIcon(group.label);
 
             const ItemTrigger = (
               <div
@@ -595,37 +628,50 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                   }
                 }}
                 style={{
-                  padding: '16px 24px',
+                  padding: '12px 12px',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
-                  background: isExpanded ? '#fff9f2' : 'white',
+                  background: isExpanded ? '#eef8ff' : 'white',
+                  border: isExpanded ? '1px solid #b7ddff' : '1px solid #edf2f7',
+                  borderRadius: 14,
+                  boxShadow: isExpanded ? '0 10px 22px rgba(2,110,181,0.10)' : '0 4px 12px rgba(15,23,42,0.035)',
                 }}
-                onMouseEnter={e => { if (!isExpanded) e.currentTarget.style.background = '#fcfcfc'; }}
+                onMouseEnter={e => { if (!isExpanded) e.currentTarget.style.background = '#f8fafc'; }}
                 onMouseLeave={e => { if (!isExpanded) e.currentTarget.style.background = 'white'; }}
               >
-                <span style={{ fontSize: 13.5, fontWeight: isExpanded ? 600 : 500, color: isExpanded ? '#111827' : '#374151' }}>
-                  {group.label}
+                <span style={{ display: 'flex', alignItems: 'center', gap: 11, minWidth: 0 }}>
+                  <span style={{ width: 34, height: 34, flex: '0 0 34px', borderRadius: 11, display: 'grid', placeItems: 'center', background: isExpanded ? 'var(--color-primary)' : '#eef6fc', color: isExpanded ? 'white' : 'var(--color-primary)', fontSize: 10, fontWeight: 950, letterSpacing: 0.3 }}>
+                    {navIcon}
+                  </span>
+                  <span style={{ fontSize: 13.5, fontWeight: isExpanded ? 850 : 750, color: isExpanded ? '#0f172a' : '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {group.label}
+                  </span>
                 </span>
-                {group.hasSub && (
-                  <svg
-                    viewBox="0 0 24 24" fill="currentColor" width="16" height="16"
-                    style={{
-                      opacity: 0.6,
-                      transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                      transition: 'transform 0.3s ease',
-                    }}
-                  >
-                    <path d="M7 10l5 5 5-5z" />
-                  </svg>
-                )}
+                <span style={{ width: 28, height: 28, borderRadius: 9, display: 'grid', placeItems: 'center', color: isExpanded ? 'var(--color-primary)' : '#94a3b8', background: isExpanded ? '#fff' : '#f8fafc' }}>
+                  {group.hasSub ? (
+                    <svg
+                      viewBox="0 0 24 24" fill="currentColor" width="16" height="16"
+                      style={{
+                        transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.3s ease',
+                      }}
+                    >
+                      <path d="M7 10l5 5 5-5z" />
+                    </svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  )}
+                </span>
               </div>
             );
 
             return (
-              <div key={idx} style={{ borderBottom: '1px solid #f9fafb' }}>
+              <div key={idx} style={{ marginBottom: 9 }}>
                 {hasHref ? (
                   <Link href={group.href} style={{ textDecoration: 'none' }} onClick={onClose}>
                     {ItemTrigger}
@@ -638,7 +684,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
 
                 {/* Expanded Sub-items */}
                 {group.hasSub && isExpanded && (
-                  <div style={{ background: '#fff9f2', paddingBottom: 12 }}>
+                  <div style={{ display: 'grid', gap: 7, padding: '10px 4px 4px 48px' }}>
                     {group.subItems.map((sub, sidx) => {
                       const isObj = typeof sub === 'object';
                       const label = isObj ? sub.label : sub;
@@ -647,14 +693,18 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                       const ItemContent = (
                         <div
                           style={{
-                            padding: '10px 48px',
-                            fontSize: '13px',
-                            color: '#4b5563',
+                            padding: '9px 12px',
+                            borderRadius: 11,
+                            background: '#fff',
+                            border: '1px solid #eef2f7',
+                            fontSize: '12.5px',
+                            fontWeight: 750,
+                            color: '#475569',
                             cursor: 'pointer',
-                            transition: 'color 0.2s',
+                            transition: 'color 0.2s, background 0.2s, border-color 0.2s',
                           }}
-                          onMouseEnter={e => e.currentTarget.style.color = '#10b981'}
-                          onMouseLeave={e => e.currentTarget.style.color = '#4b5563'}
+                          onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-primary)'; e.currentTarget.style.background = '#f8fbff'; e.currentTarget.style.borderColor = '#cde9fb'; }}
+                          onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#eef2f7'; }}
                         >
                           {label}
                         </div>
@@ -676,14 +726,11 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
         </div>
 
         {/* Footer */}
-        <div style={{ padding: '24px', background: '#f9fafb', borderTop: '1px solid #f0f0f0' }}>
+        <div style={{ padding: '16px 18px 20px', background: '#ffffff', borderTop: '1px solid #edf2f7' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-            <div style={{ display: 'flex', gap: 12 }}>
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} style={{ width: 32, height: 32, borderRadius: '50%', background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>
-                  <div style={{ width: 14, height: 14, background: 'currentColor', borderRadius: 2 }} />
-                </div>
-              ))}
+            <div>
+              <div style={{ color: '#0f172a', fontSize: 12, fontWeight: 900 }}>Need help planning?</div>
+              <div style={{ marginTop: 2, color: '#64748b', fontSize: 12, fontWeight: 700 }}>+91 8031274154</div>
             </div>
             {isLoggedIn ? (
               <button
@@ -694,17 +741,20 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                 }}
                 style={{
                   fontSize: 12,
-                  fontWeight: 700,
+                  fontWeight: 900,
                   color: '#dc2626',
-                  background: 'transparent',
-                  border: 'none',
-                  padding: 0,
+                  background: '#fff1f2',
+                  border: '1px solid #fecdd3',
+                  borderRadius: 999,
+                  padding: '9px 13px',
                 }}
               >
                 Sign out
               </button>
             ) : (
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>+91 8031274154</span>
+              <Link href="/auth/login" onClick={onClose} style={{ fontSize: 12, fontWeight: 900, color: 'white', background: 'var(--color-primary)', borderRadius: 999, padding: '10px 14px', textDecoration: 'none' }}>
+                Login
+              </Link>
             )}
           </div>
         </div>
@@ -1551,6 +1601,7 @@ export default function Navbar({ brand, companyInfo }) {
 
               {/* Hamburger Button / Drawer Toggle */}
               <button
+                className="d-lg-none"
                 onClick={() => setDrawerOpen(true)}
                 style={{
                   background: isTransparent ? 'rgba(255,255,255,0.15)' : '#f9fafb',

@@ -32,7 +32,7 @@ export default function ItineraryPage() {
     const [reviewRating, setReviewRating] = useState(0);
 
     return (
-        <div style={{ background: '#f8fafc', minHeight: '100vh', paddingTop: 150, paddingBottom: 100 }}>
+        <div className="itinerary-page-shell" style={{ background: '#f8fafc', minHeight: '100vh', paddingTop: 150, paddingBottom: 100 }}>
             {/* ── Sticky Scroll Header ── */}
             <StickyHeader activeTab={activeTab} scrolled={scrolled} scrollToSection={scrollToSection} />
             <div className="container">
@@ -44,7 +44,7 @@ export default function ItineraryPage() {
                 <GallerySection />
 
                 {/* ── Main Content Grid ── */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 350px', gap: 40, alignItems: 'flex-start' }}>
+                <div className="itinerary-main-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 350px', gap: 40, alignItems: 'flex-start' }}>
 
                     {/* Left Column */}
                     <div>
@@ -97,6 +97,65 @@ export default function ItineraryPage() {
                 <FAQSection />
 
             </div>
+            <style jsx>{`
+                @media (max-width: 991px) {
+                    .itinerary-page-shell {
+                        padding-top: 118px !important;
+                        padding-bottom: 64px !important;
+                    }
+
+                    .itinerary-main-grid {
+                        grid-template-columns: 1fr !important;
+                        gap: 26px !important;
+                    }
+
+                    .itinerary-main-grid > div:last-child {
+                        order: -1;
+                    }
+
+                    :global(.sample-highlights-grid),
+                    :global(.sample-inclusions-grid) {
+                        grid-template-columns: 1fr 1fr !important;
+                        gap: 22px !important;
+                    }
+
+                    :global(.sample-visa-card) {
+                        display: grid !important;
+                        grid-template-columns: 180px 1fr !important;
+                    }
+                }
+
+                @media (max-width: 640px) {
+                    .itinerary-page-shell {
+                        padding-top: 102px !important;
+                    }
+
+                    :global(.sample-gallery-grid) {
+                        grid-template-columns: 1fr !important;
+                        grid-template-rows: none !important;
+                        border-radius: 14px !important;
+                    }
+
+                    :global(.sample-gallery-grid > div) {
+                        grid-row: auto !important;
+                        min-height: 190px;
+                    }
+
+                    :global(.sample-highlights-grid),
+                    :global(.sample-inclusions-grid) {
+                        grid-template-columns: 1fr !important;
+                    }
+
+                    :global(.sample-visa-card) {
+                        display: block !important;
+                    }
+
+                    :global(.sample-visa-card > div:first-child) {
+                        width: 100% !important;
+                        height: 180px;
+                    }
+                }
+            `}</style>
         </div>
     );
 }

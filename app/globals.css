@@ -172,6 +172,18 @@ input,
 select,
 textarea {
   font-family: inherit;
+  max-width: 100%;
+}
+
+main,
+section,
+article,
+aside,
+header,
+footer,
+nav,
+.container {
+  min-width: 0;
 }
 
 /* ==============================
@@ -1825,6 +1837,17 @@ textarea {
   .modal-content-custom {
     border-radius: var(--radius-lg);
     max-height: 92svh;
+  }
+
+  .card-base,
+  .filter-sidebar,
+  .booking-card-sticky,
+  .dashboard-sidebar {
+    max-width: 100%;
+  }
+
+  .row {
+    min-width: 0;
   }
 
   .footer .d-flex.gap-4 {

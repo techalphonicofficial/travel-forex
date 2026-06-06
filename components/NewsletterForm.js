@@ -74,6 +74,7 @@ export default function NewsletterForm() {
   return (
     <>
       <form
+        className="newsletter-form"
         onSubmit={handleSubmit}
         style={{
           display: 'flex',
@@ -224,6 +225,21 @@ export default function NewsletterForm() {
           overflow-wrap: anywhere;
         }
         @media (max-width: 560px) {
+          .newsletter-form {
+            display: grid !important;
+            border-radius: 18px !important;
+            gap: 8px !important;
+            padding: 10px !important;
+          }
+          .newsletter-form input {
+            min-height: 48px;
+            padding: 10px 12px !important;
+            text-align: center;
+          }
+          .newsletter-form button {
+            width: 100%;
+            min-height: 48px;
+          }
           .newsletter-popup {
             padding: 24px 18px;
           }

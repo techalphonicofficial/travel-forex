@@ -1186,6 +1186,25 @@ export default function DashboardPage() {
         .dashboard-return-rule small { color: #64748b; font-size: 11px; font-weight: 900; }
         .dashboard-custom-notes { margin: 0; padding: 10px 12px; border-radius: var(--radius-md); background: #fff7ed; color: #9a3412; font-size: 12px; font-weight: 800; line-height: 1.45; }
         @media (max-width: 700px) {
+          .dashboard-hero {
+            padding: 118px 16px 42px !important;
+            margin-bottom: 26px !important;
+          }
+          .dashboard-hero h1 {
+            font-size: 34px !important;
+            line-height: 1.12 !important;
+          }
+          .dashboard-hero p {
+            font-size: 15px !important;
+          }
+          .dashboard-header-actions {
+            width: 100%;
+            margin-left: 0 !important;
+          }
+          .dashboard-header-actions a {
+            width: 100%;
+            justify-content: center;
+          }
           .booking-review-fields { grid-template-columns: 1fr; }
           .dashboard-booking-card { grid-template-columns: 1fr; }
           .dashboard-booking-media { min-height: 190px; }
@@ -1194,7 +1213,7 @@ export default function DashboardPage() {
         }
       `}</style>
       {/* Blog Hero Container */}
-      <div style={{ background: '#111827', padding: '150px 24px 60px', textAlign: 'center', marginBottom: 50 }}>
+      <div className="dashboard-hero" style={{ background: '#111827', padding: '150px 24px 60px', textAlign: 'center', marginBottom: 50 }}>
         <h1 style={{ fontFamily: 'Poppins, sans-serif', fontSize: 48, fontWeight: 900, color: 'white', margin: '0 0 16px' }}>
           My Dashboard
         </h1>
@@ -1212,7 +1231,7 @@ export default function DashboardPage() {
             </h1>
             <p style={{ color: 'var(--color-text-muted)', fontSize: 14, margin: 0 }}>{user.email}</p>
           </div>
-          <div className="ms-auto d-flex gap-2">
+          <div className="ms-auto d-flex gap-2 dashboard-header-actions">
             <Link href="/tours" className="btn-primary btn-sm">
               Browse More Tours
             </Link>

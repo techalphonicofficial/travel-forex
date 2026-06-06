@@ -12,7 +12,7 @@ export default function AppBanner() {
       <div style={{ position: 'absolute', bottom: -80, left: -80, width: 320, height: 320, borderRadius: '50%', background: 'rgba(134,239,172,0.04)', pointerEvents: 'none' }} />
 
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 48, alignItems: 'center' }}>
+        <div className="app-banner-grid" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 48, alignItems: 'center' }}>
 
           {/* LEFT: text */}
           <div>
@@ -27,7 +27,7 @@ export default function AppBanner() {
             </p>
 
             {/* Features */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 30, maxWidth: 460 }}>
+            <div className="app-banner-features" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 30, maxWidth: 460 }}>
               {[
                 '✅ Chat with expert 24/7',
                 '✅ Offline trip documents',
@@ -40,6 +40,7 @@ export default function AppBanner() {
 
             {/* Email form */}
             <form
+              className="app-banner-form"
               onSubmit={e => { e.preventDefault(); toast.success('App link sent! Check your email 📱'); setEmail(''); }}
               style={{ display: 'flex', gap: 8, maxWidth: 420, marginBottom: 20 }}
             >
@@ -59,7 +60,7 @@ export default function AppBanner() {
             </form>
 
             {/* Store badges */}
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div className="app-banner-stores" style={{ display: 'flex', gap: 10 }}>
               {[
                 { icon: '🍎', store: 'App Store', sub: 'Download on the' },
                 { icon: '▶️', store: 'Google Play', sub: 'Get it on' },
@@ -76,8 +77,8 @@ export default function AppBanner() {
           </div>
 
           {/* RIGHT: Phone mockup */}
-          <div style={{ position: 'relative', flexShrink: 0 }}>
-            <div style={{ width: 260, height: 500, background: '#111827', borderRadius: 38, border: '6px solid rgba(255,255,255,0.08)', overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.6)', position: 'relative' }}>
+          <div className="app-banner-phone-wrap" style={{ position: 'relative', flexShrink: 0 }}>
+            <div className="app-banner-phone" style={{ width: 260, height: 500, background: '#111827', borderRadius: 38, border: '6px solid rgba(255,255,255,0.08)', overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.6)', position: 'relative' }}>
               {/* Top notch */}
               <div style={{ background: 'var(--color-primary)', height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ width: 70, height: 18, background: '#111827', borderRadius: 999 }} />
@@ -116,6 +117,47 @@ export default function AppBanner() {
           </div>
         </div>
       </div>
+      <style jsx>{`
+        @media (max-width: 860px) {
+          .app-banner-grid {
+            grid-template-columns: 1fr !important;
+            gap: 34px !important;
+            text-align: center;
+          }
+          .app-banner-features,
+          .app-banner-form,
+          .app-banner-stores {
+            margin-left: auto;
+            margin-right: auto;
+          }
+          .app-banner-phone-wrap {
+            justify-self: center;
+          }
+        }
+
+        @media (max-width: 560px) {
+          .app-banner-features {
+            grid-template-columns: 1fr !important;
+            text-align: left;
+          }
+          .app-banner-form {
+            display: grid !important;
+          }
+          .app-banner-stores {
+            display: grid !important;
+          }
+          .app-banner-stores button,
+          .app-banner-form button {
+            width: 100%;
+            justify-content: center;
+          }
+          .app-banner-phone {
+            width: min(250px, 78vw) !important;
+            height: auto !important;
+            min-height: 430px;
+          }
+        }
+      `}</style>
     </section>
   );
 }

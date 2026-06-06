@@ -106,6 +106,7 @@ export default function ProfilePage() {
   return (
     <div style={{ background: 'var(--color-bg-soft)', minHeight: '100vh', paddingBottom: 80 }}>
       <section
+        className="profile-hero"
         style={{
           background: 'linear-gradient(135deg, #0a0f1e 0%, #0d2060 100%)',
           color: 'white',
@@ -129,7 +130,7 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      <div className="container" style={{ marginTop: -34 }}>
+      <div className="container profile-content" style={{ marginTop: -34 }}>
         {loading ? (
           <div className="card-base" style={{ padding: 28 }}>
             <div className="skeleton skeleton-title" />
@@ -279,6 +280,36 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .profile-hero {
+            padding: 118px 20px 58px !important;
+          }
+
+          .profile-content {
+            margin-top: 18px !important;
+          }
+
+          .profile-content :global(.dashboard-layout) {
+            gap: 22px;
+          }
+
+          .profile-content :global(.dashboard-sidebar),
+          .profile-content :global(.card-base) {
+            border-radius: 16px;
+          }
+        }
+
+        @media (max-width: 420px) {
+          .profile-hero {
+            padding: 112px 18px 54px !important;
+          }
+
+          .profile-content {
+            margin-top: 16px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
