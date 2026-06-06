@@ -16,11 +16,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'sank-gutless-dripping.ngrok-free.dev',
-      },
-      {
-        protocol: 'https',
-        hostname: 'duo-debut-asking-pushing.trycloudflare.com',
+        hostname: 'sec-been-tions-realm.trycloudflare.com',
       },
     ],
     qualities: [25, 50, 75, 100],

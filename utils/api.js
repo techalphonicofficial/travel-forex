@@ -2,8 +2,8 @@ import axios from 'axios';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 const BASE_IMAGE_URL = process.env.NEXT_PUBLIC_BASE_IMAGE_URL;
-const DEFAULT_API_BASE_URL = 'https://sank-gutless-dripping.ngrok-free.dev/api/v1';
-const DEFAULT_MEDIA_BASE_URL = 'https://sank-gutless-dripping.ngrok-free.dev';
+const DEFAULT_API_BASE_URL = 'https://sec-been-tions-realm.trycloudflare.com/api/v1';
+const DEFAULT_MEDIA_BASE_URL = 'https://sec-been-tions-realm.trycloudflare.com';
 export const AUTH_STORAGE_KEY = 'wl_auth';
 export const TOKEN_STORAGE_KEY = 'wl_token';
 export const AUTH_CHANGED_EVENT = 'wl_auth_changed';

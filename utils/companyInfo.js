@@ -1,6 +1,6 @@
 import 'server-only';
 
-const COMPANY_INFO_ENDPOINT = 'https://sank-gutless-dripping.ngrok-free.dev/api/v1/crm/settings/company-info';
+const COMPANY_INFO_ENDPOINT = 'https://sec-been-tions-realm.trycloudflare.com/api/v1/crm/settings/company-info';
 const COMPANY_INFO_API_KEY = process.env.CRM_COMPANY_INFO_API_KEY || 'pt_dc9eae82075b27c1408392fa7d7e0e632ef9e846f6e4e33e';
 
 export const getCompanyInfo = async () => {
