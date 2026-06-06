@@ -1607,6 +1607,7 @@ export default function Navbar({ brand, companyInfo }) {
                   background: isTransparent ? 'rgba(255,255,255,0.15)' : '#f9fafb',
                   border: isTransparent ? '1.5px solid rgba(255,255,255,0.3)' : '1.5px solid #e5e7eb',
                   borderRadius: 8, padding: '7px 10px',
+                  marginRight: 12,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   color: isTransparent ? 'white' : '#374151',
                   cursor: 'pointer',
