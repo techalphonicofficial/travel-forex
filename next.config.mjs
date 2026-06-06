@@ -16,7 +16,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'sec-been-tions-realm.trycloudflare.com',
+        hostname: 'output-eugene-injection-interpretation.trycloudflare.com',
       },
     ],
     qualities: [25, 50, 75, 100],

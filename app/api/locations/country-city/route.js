@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE_URL = 'https://sec-been-tions-realm.trycloudflare.com/api/v1';
+const DEFAULT_API_BASE_URL = 'https://output-eugene-injection-interpretation.trycloudflare.com/api/v1';
 
 const getBackendBaseUrl = () => {
   const configuredBase = process.env.NEXT_PUBLIC_BASE_URL || DEFAULT_API_BASE_URL;

@@ -506,7 +506,15 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
   };
 
   const navGroup = [
-    { label: 'Hotel', href: HOTEL_HREF },
+    {
+      label: 'Holiday Tour Packages',
+      hasSub: true,
+      subItems: packageCols.flat().map((item) => ({
+        label: item.name,
+        href: item.href,
+      })),
+    },
+    { label: 'Hotels', href: HOTEL_HREF },
     { label: 'Forex', action: onForexOpen },
     { label: 'Testimonial', href: '/testimonials' },
     { label: 'FAQ', href: '/contact#faq' },
@@ -724,7 +732,7 @@ const getLogoUrl = (logo) => {
   if (/^(https?:|data:|blob:)/i.test(logo)) return logo;
   if (!String(logo).startsWith('/uploads')) return logo;
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'https://sec-been-tions-realm.trycloudflare.com/';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'https://output-eugene-injection-interpretation.trycloudflare.com/';
   return `${baseUrl.replace(/\/$/, '')}/${String(logo).replace(/^\//, '')}`;
 };
 
