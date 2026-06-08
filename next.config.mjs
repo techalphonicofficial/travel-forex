@@ -16,7 +16,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'output-eugene-injection-interpretation.trycloudflare.com',
+        hostname: 'improved-founded-layers-unsubscribe.trycloudflare.com',
       },
     ],
     qualities: [25, 50, 75, 100],
