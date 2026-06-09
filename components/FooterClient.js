@@ -120,7 +120,7 @@ const getLogoUrl = (logo) => {
   if (/^(https?:|data:|blob:)/i.test(logo)) return logo;
   if (!String(logo).startsWith('/uploads')) return logo;
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'https://improved-founded-layers-unsubscribe.trycloudflare.com/';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'https://asbestos-filling-thread-tear.trycloudflare.com/';
   return `${baseUrl.replace(/\/$/, '')}/${String(logo).replace(/^\//, '')}`;
 };
 

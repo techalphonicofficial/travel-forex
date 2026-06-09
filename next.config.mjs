@@ -16,7 +16,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'improved-founded-layers-unsubscribe.trycloudflare.com',
+        hostname: 'asbestos-filling-thread-tear.trycloudflare.com',
       },
     ],
     qualities: [25, 50, 75, 100],

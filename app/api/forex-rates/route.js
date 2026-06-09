@@ -1,4 +1,4 @@
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://improved-founded-layers-unsubscribe.trycloudflare.com/api/v1';
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://asbestos-filling-thread-tear.trycloudflare.com/api/v1';
 
 export const dynamic = 'force-dynamic';
 

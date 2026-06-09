@@ -5,10 +5,12 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BootstrapClient from '@/components/BootstrapClient';
 import GlobalInquiryModal from '@/components/GlobalInquiryModal';
+import ThemeColoursClient from '@/components/ThemeColoursClient';
 import ToastProvider from '@/components/ToastProvider';
 import { WishlistProvider } from '@/components/WishlistProvider';
 import { getCompanyInfo } from '@/utils/companyInfo';
 import { getProjectConfig } from '@/utils/projectConfig';
+import { getThemeColours } from '@/utils/themeColours';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const poppins = Poppins({
@@ -51,22 +53,39 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const companyInfo = await getCompanyInfo();
+  const [companyInfo, themeColours] = await Promise.all([
+    getCompanyInfo(),
+    getThemeColours(),
+  ]);
+  const projectTheme = {
+    '--brand-primary': projectConfig.primary,
+    '--brand-primary-hover': projectConfig.primaryHover,
+    '--brand-primary-light': projectConfig.primaryLight,
+    '--brand-primary-border': projectConfig.primaryBorder,
+    '--brand-secondary': projectConfig.secondary,
+    '--brand-secondary-hover': projectConfig.secondaryHover,
+    '--color-primary': 'var(--brand-primary)',
+    '--color-primary-hover': 'var(--brand-primary-hover)',
+    '--color-primary-light': 'var(--brand-primary-light)',
+    '--color-secondary': 'var(--brand-secondary)',
+    '--color-secondary-hover': 'var(--brand-secondary-hover)',
+    '--bs-primary': 'var(--color-primary)',
+    '--bs-secondary': 'var(--color-secondary)',
+    '--bs-link-color': 'var(--color-primary)',
+    '--bs-link-hover-color': 'var(--color-primary-hover)',
+    '--gradient-primary': 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%)',
+    '--gradient-warm': 'linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-hover) 100%)',
+  };
+  const activeTheme = { ...projectTheme, ...themeColours };
 
   return (
     <html lang="en" data-theme="light" data-project={projectConfig.key} data-scroll-behavior="smooth">
       <body
         className={`${inter.variable} ${poppins.variable}`}
-        style={{
-          '--brand-primary': projectConfig.primary,
-          '--brand-primary-hover': projectConfig.primaryHover,
-          '--brand-primary-light': projectConfig.primaryLight,
-          '--brand-primary-border': projectConfig.primaryBorder,
-          '--brand-secondary': projectConfig.secondary,
-          '--brand-secondary-hover': projectConfig.secondaryHover,
-        }}
+        style={activeTheme}
       >
         <BootstrapClient />
+        <ThemeColoursClient initialVariables={activeTheme} />
         <WishlistProvider>
           <Navbar brand={projectConfig} companyInfo={companyInfo} />
           <GlobalInquiryModal brand={projectConfig} />
