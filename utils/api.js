@@ -58,13 +58,22 @@ apiClient.interceptors.request.use((config) => {
     '/customers/forgot-password',
     '/customers/reset-password',
   ];
+  const publicContentUrls = [
+    '/pages',
+    '/categories',
+    '/destinations',
+    '/blogs',
+    '/reviews',
+    '/packages',
+  ];
   const isPublicAuthRequest = publicAuthUrls.some((url) => config.url?.startsWith(url));
+  const isPublicContentRequest = publicContentUrls.some((url) => config.url?.startsWith(url));
 
-  if (token && !isPublicAuthRequest) {
+  if (token && !isPublicAuthRequest && !isPublicContentRequest) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-  if (isPublicAuthRequest) {
+  if (isPublicAuthRequest || isPublicContentRequest) {
     delete config.headers.Authorization;
   }
 
@@ -476,25 +485,24 @@ export const getForexServiceCharge = async () => {
 
 export const getHomePage = async () => {
   try {
-    const response = typeof window === 'undefined'
-      ? await apiClient.get('/pages/slug/home', {
-        params: { _t: Date.now() },
-        headers: {
-          'Cache-Control': 'no-cache',
-          Pragma: 'no-cache',
-        },
-      })
-      : await axios.get('/api/pages/slug/home', {
-        params: { _t: Date.now() },
-        headers: {
-          'Cache-Control': 'no-cache',
-          Pragma: 'no-cache',
-        },
-        validateStatus: () => true,
-      });
+    const response = await axios.get('/api/pages/slug/home', {
+      baseURL: typeof window === 'undefined' ? 'http://localhost:3000' : undefined,
+      params: { _t: Date.now() },
+      headers: {
+        'Cache-Control': 'no-cache',
+        Pragma: 'no-cache',
+      },
+      validateStatus: () => true,
+    });
+
+    if (!response.data?.success && response.status >= 400) {
+      console.warn('Home page CMS unavailable:', response.data?.message || `HTTP ${response.status}`);
+      return null;
+    }
+
     return normalizeApiData(response);
   } catch (error) {
-    console.error('Error fetching home page:', error);
+    console.warn('Home page CMS unavailable:', error?.message || error);
     return null;
   }
 };
@@ -796,6 +804,23 @@ export const createPackageBooking = async (payload) => {
   }
 };
 
+export const validateBookingCoupon = async (payload) => {
+  try {
+    const response = await axios.post('/api/bookings/coupons/validate', payload, {
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      validateStatus: () => true,
+    });
+
+    return response.data || { success: false, message: 'Unable to validate coupon' };
+  } catch (error) {
+    console.warn('Coupon validation unavailable:', error?.message || error);
+    return { success: false, message: 'Unable to validate coupon' };
+  }
+};
+
 export const getCustomerBookings = async ({ customerId, page = 1, limit = 20, status = '' } = {}) => {
   if (!customerId) {
     return { success: false, message: 'Customer id is required.', data: { rows: [] } };
@@ -1000,6 +1025,42 @@ export const getTripInquiryById = async (id) => {
     return normalizeApiData(response);
   } catch (error) {
     console.warn(`Trip inquiry "${id}" unavailable:`, error?.message || error);
+    return null;
+  }
+};
+
+export const submitTripInquiry = async (payload) => {
+  try {
+    const response = await axios.post('/api/trip-inquiries', payload, {
+      headers: {
+        accept: '*/*',
+        'Content-Type': 'application/json',
+      },
+      validateStatus: () => true,
+    });
+
+    return response.data || { success: false, message: 'Unable to submit inquiry' };
+  } catch (error) {
+    console.warn('Trip inquiry submission unavailable:', error?.message || error);
+    return { success: false, message: 'Unable to submit inquiry' };
+  }
+};
+
+export const getCrmPipelineForm = async (pipelineId) => {
+  if (!pipelineId) return null;
+
+  try {
+    const response = await axios.get(`/api/crm/pipelines/${encodeURIComponent(pipelineId)}/form`, {
+      headers: {
+        accept: 'application/json',
+      },
+      params: { _t: Date.now() },
+      validateStatus: () => true,
+    });
+
+    return normalizeApiData(response);
+  } catch (error) {
+    console.warn(`CRM pipeline form "${pipelineId}" unavailable:`, error?.message || error);
     return null;
   }
 };

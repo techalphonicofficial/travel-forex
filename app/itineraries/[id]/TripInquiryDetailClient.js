@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { getMediaUrl, getTripInquiryById, getTripInquiryReviews, submitTripInquiryReview } from '@/utils/api';
+import { getCrmPipelineForm, getMediaUrl, getTripInquiryById, getTripInquiryReviews, submitTripInquiryReview } from '@/utils/api';
 
 const fallbackImage = 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80';
 
@@ -21,6 +21,24 @@ const getDurationCopy = (duration) => {
 const getPriceLabel = (trip) => {
   const amount = Number(trip?.total_amount || trip?.base_price || 0);
   return amount > 0 ? `Rs ${amount.toLocaleString('en-IN')}` : 'On request';
+};
+
+const CUSTOMIZE_INQUIRY_PIPELINE_ID = 6;
+
+const normalizePipelineFields = (formConfig) => {
+  if (!formConfig?.fields?.length) return [];
+
+  return [...formConfig.fields]
+    .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
+    .map((field) => ({
+      id: field.id,
+      label: field.label || field.field_key,
+      fieldKey: field.field_key,
+      fieldType: String(field.field_type || 'text').toLowerCase(),
+      options: Array.isArray(field.options) ? field.options : [],
+      isRequired: Boolean(field.is_required),
+    }))
+    .filter((field) => field.fieldKey);
 };
 
 const isVideoUrl = (url) => /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(String(url || ''));
@@ -347,6 +365,27 @@ function BookedItineraryStyles() {
       .bi-review-form .is-wide { grid-column: 1 / -1; }
       .bi-review-form button { justify-self: start; min-height: 42px; padding: 0 16px; border-radius: 8px; background: var(--gradient-primary); color: #fff; font-size: 13px; font-weight: 900; }
       .bi-review-message { margin: 0; padding: 10px 12px; border: 1px solid #bbf7d0; border-radius: 8px; background: #f0fdf4; color: #15803d; font-size: 12px; font-weight: 900; }
+      .bi-inquiry-modal { position: fixed; inset: 0; z-index: 520; display: grid; place-items: center; padding: 22px; background: rgba(15, 23, 42, .68); backdrop-filter: blur(10px); }
+      .bi-inquiry-panel { width: min(100%, 560px); max-height: min(88vh, 760px); overflow: auto; border: 1px solid #dbe7f3; border-radius: 10px; background: #fff; box-shadow: 0 28px 90px rgba(15, 23, 42, .34); }
+      .bi-inquiry-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 22px 16px; border-bottom: 1px solid #edf3f9; }
+      .bi-inquiry-head span { color: var(--color-primary); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .55px; }
+      .bi-inquiry-head h2 { margin: 3px 0 0; font-family: var(--font-poppins), Poppins, sans-serif; font-size: 22px; font-weight: 900; line-height: 1.15; }
+      .bi-inquiry-close { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; background: #eef4f9; color: #0f172a; font-size: 20px; font-weight: 900; }
+      .bi-inquiry-form { display: grid; gap: 13px; padding: 20px 22px 22px; }
+      .bi-inquiry-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .bi-inquiry-form label { display: grid; gap: 7px; color: #334155; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .35px; }
+      .bi-inquiry-form label.is-wide { grid-column: 1 / -1; }
+      .bi-inquiry-form input, .bi-inquiry-form select, .bi-inquiry-form textarea { width: 100%; border: 1px solid #d8e2ee; border-radius: 8px; background: #fff; color: #0f172a; font: inherit; font-size: 14px; font-weight: 700; outline: none; }
+      .bi-inquiry-form input, .bi-inquiry-form select { height: 44px; padding: 0 12px; }
+      .bi-inquiry-form textarea { min-height: 108px; padding: 12px; resize: vertical; line-height: 1.45; text-transform: none; letter-spacing: 0; }
+      .bi-inquiry-form input:focus, .bi-inquiry-form select:focus, .bi-inquiry-form textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 14%, transparent); }
+      .bi-inquiry-trip { display: grid; gap: 6px; padding: 13px 14px; border: 1px solid #dbe7f3; border-radius: 8px; background: #f8fbff; color: #475569; font-size: 12px; font-weight: 800; }
+      .bi-inquiry-trip strong { color: #0f172a; font-size: 14px; font-weight: 900; }
+      .bi-inquiry-submit { min-height: 46px; border-radius: 8px; background: var(--gradient-primary); color: #fff; font-size: 14px; font-weight: 900; }
+      .bi-inquiry-submit:disabled { opacity: .65; cursor: not-allowed; }
+      .bi-inquiry-message, .bi-inquiry-error { margin: 0; padding: 10px 12px; border-radius: 8px; font-size: 12px; font-weight: 900; line-height: 1.45; }
+      .bi-inquiry-message { border: 1px solid #bbf7d0; background: #f0fdf4; color: #15803d; }
+      .bi-inquiry-error { border: 1px solid #fecaca; background: #fff1f2; color: #b91c1c; }
       .bi-review { display: grid; grid-template-columns: 54px 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--color-border); }
       .bi-review-empty { margin: 0 0 10px; padding: 14px 16px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-bg-soft); color: var(--color-text-secondary); font-size: 13px; font-weight: 800; }
       .bi-avatar { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--gradient-warm); color: #fff; font-size: 22px; font-weight: 900; }
@@ -372,6 +411,7 @@ function BookedItineraryStyles() {
         .bi-media-panel { max-height: 88vh; border-radius: 10px; }
         .bi-media-grid { grid-template-columns: 1fr; max-height: calc(88vh - 76px); padding: 12px; }
         .bi-proof-grid, .bi-day-cells, .bi-day-cells[data-count="3"] { grid-template-columns: 1fr; }
+        .bi-inquiry-grid { grid-template-columns: 1fr; }
         .bi-review-form-grid { grid-template-columns: 1fr; }
         .bi-day-row { grid-template-columns: 1fr; }
         .bi-day-label, .bi-activity { border-right: 0; }
@@ -392,6 +432,14 @@ export default function TripInquiryDetailClient({ id }) {
   const [error, setError] = useState('');
   const [mediaOpen, setMediaOpen] = useState(false);
   const [priceUnlocked, setPriceUnlocked] = useState(false);
+  const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [inquirySubmitting, setInquirySubmitting] = useState(false);
+  const [inquiryMessage, setInquiryMessage] = useState('');
+  const [inquiryError, setInquiryError] = useState('');
+  const [pipelineForm, setPipelineForm] = useState(null);
+  const [pipelineFormLoading, setPipelineFormLoading] = useState(false);
+  const [pipelineFormError, setPipelineFormError] = useState('');
+  const [inquiryForm, setInquiryForm] = useState({});
   const [canAddReview, setCanAddReview] = useState(false);
   const [reviewFormOpen, setReviewFormOpen] = useState(false);
   const [reviewMessage, setReviewMessage] = useState('');
@@ -421,6 +469,12 @@ export default function TripInquiryDetailClient({ id }) {
         setTrip(null);
       } else {
         setTrip(data);
+        setInquiryForm((current) => ({
+          ...current,
+          name: current.name || data.customer_name || data.raw_payload?.customer?.name || '',
+          email: current.email || data.customer_email || data.raw_payload?.customer?.email || '',
+          phone: current.phone || data.customer_phone || data.raw_payload?.customer?.phone || '',
+        }));
         setReviewForm((current) => ({
           ...current,
           name: current.name || data.customer_name || data.raw_payload?.customer?.name || '',
@@ -508,6 +562,17 @@ export default function TripInquiryDetailClient({ id }) {
     return () => window.removeEventListener('keydown', closeOnEscape);
   }, [mediaOpen]);
 
+  useEffect(() => {
+    if (!inquiryOpen) return undefined;
+
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape' && !inquirySubmitting) setInquiryOpen(false);
+    };
+
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [inquiryOpen, inquirySubmitting]);
+
   const media = useMemo(() => getTripMedia(trip), [trip]);
   const cities = trip?.cities?.length ? trip.cities : [{ name: trip?.destination, activities: trip?.destination_info?.activities_data || [] }];
   const destinationNames = cities.map((city) => titleCase(city?.name)).filter(Boolean);
@@ -535,6 +600,39 @@ export default function TripInquiryDetailClient({ id }) {
   const routeStart = titleCase(trip.departure_city || destinationNames[0] || trip.destination || 'Your city');
   const routeEnd = destinationNames[destinationNames.length - 1] || titleCase(trip.destination || 'Destination');
   const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const itinerarySummary = cities.map((city, cityIndex) => {
+    const activities = getCityActivities(city, trip);
+    const rowCount = Math.max(activities.length, 1);
+    const startDay = cities.slice(0, cityIndex).reduce((total, previousCity) => {
+      return total + Math.max(getCityActivities(previousCity, trip).length, 1);
+    }, 1);
+    const nightCount = getCityNightCount(city, rowCount);
+    const cityName = titleCase(city?.name || trip.destination);
+    const cityLines = [`${cityName} - ${nightCount} ${nightCount === 1 ? 'Night' : 'Nights'}`];
+
+    Array.from({ length: rowCount }).forEach((_, dayIndex) => {
+      const entry = activities.find((item) => Number(item.dayNumber) === dayIndex + 1) || activities[dayIndex];
+      const dayActivities = entry?.activities?.length
+        ? entry.activities
+        : [{ time: 'Full day', name: 'At leisure', description: 'Time to explore the destination at your own pace.' }];
+      const activityText = dayActivities
+        .map((activity) => {
+          const time = activity?.time || activity?.duration || activity?.slot || 'Activity';
+          const title = getActivityTitle(activity);
+          const description = getActivityDescription(activity);
+          return `${time} - ${title}${description ? `: ${description}` : ''}`;
+        })
+        .join('; ');
+
+      cityLines.push(`Day ${String(startDay + dayIndex).padStart(2, '0')}: ${activityText}`);
+    });
+
+    if (cityIndex < cities.length - 1) {
+      cityLines.push(`Transfer to ${titleCase(cities[cityIndex + 1]?.name || trip.destination || 'next destination')}`);
+    }
+
+    return cityLines.join('\n');
+  }).join('\n\n');
   const whatsappNumber = String(company?.contact?.whatsapp || company?.contact?.phone || '').replace(/[^\d]/g, '');
   const whatsappUrl = whatsappNumber
     ? `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(`I want help with itinerary ${trip.id}: ${currentUrl}`)}`
@@ -545,6 +643,163 @@ export default function TripInquiryDetailClient({ id }) {
   const printItinerary = () => {
     document.title = `${trip.destination} Itinerary`;
     window.print();
+  };
+  const getInquiryPrefill = () => ({
+    name: inquiryForm.name || trip.customer_name || trip.raw_payload?.customer?.name || '',
+    email: inquiryForm.email || trip.customer_email || trip.raw_payload?.customer?.email || '',
+    phone: inquiryForm.phone || trip.customer_phone || trip.raw_payload?.customer?.phone || '',
+    custom_package_title: inquiryForm.custom_package_title || `${titleCase(trip.destination)} itinerary`,
+    custom_package_id: currentUrl || inquiryForm.custom_package_id ,
+    itenary: inquiryForm.itenary || itinerarySummary,
+  });
+  const openInquiryForm = async () => {
+    setInquiryMessage('');
+    setInquiryError('');
+    setInquiryOpen(true);
+
+    if (!pipelineForm) {
+      setPipelineFormLoading(true);
+      setPipelineFormError('');
+      const formConfig = await getCrmPipelineForm(CUSTOMIZE_INQUIRY_PIPELINE_ID);
+      setPipelineFormLoading(false);
+
+      if (formConfig?.fields?.length) {
+        setPipelineForm(formConfig);
+        const prefill = getInquiryPrefill();
+        setInquiryForm((current) => ({
+          ...prefill,
+          ...current,
+        }));
+      } else {
+        setPipelineFormError('Unable to load inquiry form fields.');
+      }
+    }
+  };
+  const updateInquiryForm = (field, value) => {
+    setInquiryForm((current) => ({ ...current, [field]: value }));
+  };
+  const pipelineFields = normalizePipelineFields(pipelineForm);
+  const getInquiryFieldValue = (fieldKey) => inquiryForm[fieldKey] || getInquiryPrefill()[fieldKey] || '';
+  const renderInquiryField = (field) => {
+    const value = getInquiryFieldValue(field.fieldKey);
+    const labelText = `${field.label}${field.isRequired ? ' *' : ''}`;
+
+    if (field.fieldType === 'textarea') {
+      return (
+        <label className="is-wide" key={field.id || field.fieldKey}>
+          {labelText}
+          <textarea
+            value={value}
+            onChange={(event) => updateInquiryForm(field.fieldKey, event.target.value)}
+            placeholder={field.label}
+            required={field.isRequired}
+          />
+        </label>
+      );
+    }
+
+    if (field.fieldType === 'select') {
+      return (
+        <label key={field.id || field.fieldKey}>
+          {labelText}
+          <select
+            value={value}
+            onChange={(event) => updateInquiryForm(field.fieldKey, event.target.value)}
+            required={field.isRequired}
+          >
+            <option value="">Select {field.label}</option>
+            {field.options.map((option) => {
+              const optionLabel = typeof option === 'string' ? option : option.label || option.name || option.value;
+              const optionValue = typeof option === 'string' ? option : option.value || option.id || optionLabel;
+              return optionLabel ? <option key={String(optionValue)} value={String(optionValue)}>{optionLabel}</option> : null;
+            })}
+          </select>
+        </label>
+      );
+    }
+
+    const inputType = field.fieldType === 'email' ? 'email' : field.fieldType === 'number' ? 'number' : 'text';
+
+    return (
+      <label key={field.id || field.fieldKey}>
+        {labelText}
+        <input
+          type={inputType}
+          value={value}
+          onChange={(event) => updateInquiryForm(field.fieldKey, event.target.value)}
+          placeholder={field.label}
+          required={field.isRequired}
+        />
+      </label>
+    );
+  };
+  const submitInquiryForm = async (event) => {
+    event.preventDefault();
+
+    const missingField = pipelineFields.find((field) => field.isRequired && !String(getInquiryFieldValue(field.fieldKey)).trim());
+    if (missingField) {
+      setInquiryError(`Please enter ${missingField.label}.`);
+      setInquiryMessage('');
+      return;
+    }
+
+    setInquirySubmitting(true);
+    setInquiryError('');
+    setInquiryMessage('');
+
+    const formFields = pipelineFields.reduce((values, field) => ({
+      ...values,
+      [field.fieldKey]: String(getInquiryFieldValue(field.fieldKey)).trim(),
+    }), {});
+    const payload = {
+      pipeline_id: pipelineForm?.id || CUSTOMIZE_INQUIRY_PIPELINE_ID,
+      name: formFields.name || '',
+      email: formFields.email || '',
+      phone: formFields.phone || '',
+      source: 'Itinerary Send Inquiry',
+      notes: formFields.itenary || `Please contact me about itinerary ${id}.`,
+      custom_fields: {
+        ...formFields,
+        inquiry_id: id,
+        trip_inquiry_id: id,
+        existing_trip_inquiry_id: id,
+        page_url: currentUrl,
+        itinerary_url: currentUrl,
+        destination: trip.destination,
+        duration: trip.duration || durationCopy,
+        departure_city: trip.departure_city || '',
+        departure_date: trip.departure_date || '',
+        total_travellers: trip.total_travellers || 1,
+        travel_with: trip.travel_with || '',
+        route: destinationNames.join(' + '),
+        price_label: priceLabel,
+      },
+    };
+
+    try {
+      const response = await fetch('/api/contact-leads', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json().catch(() => null);
+
+      if (response.ok && result?.success) {
+        setInquiryMessage(result.message || 'Inquiry submitted successfully. Our team will contact you shortly.');
+        setInquiryError('');
+        return;
+      }
+
+      setInquiryMessage('');
+      setInquiryError(result?.message || 'Unable to submit inquiry right now.');
+    } catch (error) {
+      setInquiryMessage('');
+      setInquiryError(error?.message || 'Unable to submit inquiry right now.');
+    } finally {
+      setInquirySubmitting(false);
+    }
   };
   const updateReviewForm = (field, value) => {
     setReviewForm((current) => ({ ...current, [field]: field === 'rating' ? Number(value) : value }));
@@ -780,7 +1035,7 @@ export default function TripInquiryDetailClient({ id }) {
                   </div>
                 ) : null}
               </div>
-              <button type="button" onClick={() => setPriceUnlocked(!priceUnlocked)}>
+              <button type="button" onClick={() => (priceUnlocked ? openInquiryForm() : setPriceUnlocked(true))}>
                 {priceUnlocked ? 'Send Inquiry' : 'Unlock Price'}
               </button>
             </div>
@@ -859,6 +1114,40 @@ export default function TripInquiryDetailClient({ id }) {
           </aside>
         </div>
       </div>
+
+      {inquiryOpen ? (
+        <div className="bi-inquiry-modal" role="presentation" onMouseDown={() => { if (!inquirySubmitting) setInquiryOpen(false); }}>
+          <section className="bi-inquiry-panel" role="dialog" aria-modal="true" aria-label="Send itinerary inquiry" onMouseDown={(event) => event.stopPropagation()}>
+            <div className="bi-inquiry-head">
+              <div>
+                <span>Send inquiry</span>
+                <h2>{titleCase(trip.destination)} itinerary</h2>
+              </div>
+              <button type="button" className="bi-inquiry-close" onClick={() => setInquiryOpen(false)} disabled={inquirySubmitting} aria-label="Close inquiry form">
+                x
+              </button>
+            </div>
+            <form className="bi-inquiry-form" onSubmit={submitInquiryForm}>
+              <div className="bi-inquiry-trip">
+                <strong>{durationCopy} - {destinationNames.join(' + ') || titleCase(trip.destination)}</strong>
+                {/* <span>{currentUrl}</span> */}
+              </div>
+              {pipelineFormLoading ? <p className="bi-inquiry-message">Loading inquiry form...</p> : null}
+              {pipelineFormError ? <p className="bi-inquiry-error">{pipelineFormError}</p> : null}
+              {pipelineFields.length ? (
+                <div className="bi-inquiry-grid">
+                  {pipelineFields.map(renderInquiryField)}
+                </div>
+              ) : null}
+              {inquiryError ? <p className="bi-inquiry-error">{inquiryError}</p> : null}
+              {inquiryMessage ? <p className="bi-inquiry-message">{inquiryMessage}</p> : null}
+              <button type="submit" className="bi-inquiry-submit" disabled={inquirySubmitting || pipelineFormLoading || !pipelineFields.length}>
+                {inquirySubmitting ? 'Submitting...' : 'Submit Inquiry'}
+              </button>
+            </form>
+          </section>
+        </div>
+      ) : null}
 
       <BookedItineraryStyles />
     </main>

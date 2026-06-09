@@ -35,3 +35,35 @@ export async function GET(request) {
     );
   }
 }
+
+export async function POST(request) {
+  try {
+    const payload = await request.json();
+    const backendUrl = new URL('/api/v1/trip-inquiries', BACKEND_BASE_URL.replace(/\/api\/v1\/?$/, ''));
+
+    const response = await fetch(backendUrl.toString(), {
+      method: 'POST',
+      headers: {
+        accept: '*/*',
+        'content-type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: JSON.stringify(payload),
+      cache: 'no-store',
+    });
+
+    const data = await response.json().catch(() => null);
+
+    return Response.json(
+      data || { success: response.ok, message: response.ok ? 'Inquiry submitted successfully.' : 'Unable to submit inquiry.' },
+      { status: response.status }
+    );
+  } catch (error) {
+    console.error('Trip inquiry submit proxy error:', error);
+
+    return Response.json(
+      { success: false, message: 'Unable to submit inquiry. Please try again.' },
+      { status: 502 }
+    );
+  }
+}

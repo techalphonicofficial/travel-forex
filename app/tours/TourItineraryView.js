@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { createPackageBooking, createRazorpayOrder, getMediaUrl, getPackageBySlug, getPackageReviews, getPartialBookingSettings, getStoredAuth, getStoredToken, verifyRazorpayPayment } from '@/utils/api';
+import { createPackageBooking, createRazorpayOrder, getMediaUrl, getPackageBySlug, getPackageReviews, getPartialBookingSettings, getStoredAuth, getStoredToken, validateBookingCoupon, verifyRazorpayPayment } from '@/utils/api';
 
 const DEFAULT_PACKAGE_SLUGS = {
   paris: 'paris-honeymoon-special-6n7d',
@@ -555,6 +555,13 @@ function ItineraryStyles() {
       .itn-booking-form input { height: 46px; padding: 0 14px; }
       .itn-booking-form textarea { min-height: 96px; resize: vertical; padding: 12px 14px; line-height: 1.45; text-transform: none; letter-spacing: 0; }
       .itn-booking-form input:focus, .itn-booking-form textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 14%, transparent); }
+      .itn-coupon-field { display: grid; gap: 8px; }
+      .itn-coupon-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+      .itn-coupon-row input { text-transform: uppercase; }
+      .itn-coupon-row button { height: 46px; min-width: 82px; padding: 0 14px; border: 1px solid var(--color-primary); border-radius: 8px; background: var(--color-primary); color: #fff; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .3px; }
+      .itn-coupon-row button:disabled { border-color: #d8e2ee; background: #eef4f9; color: #94a3b8; cursor: not-allowed; }
+      .itn-coupon-note { color: #0f8a4b; font-size: 12px; font-weight: 800; text-transform: none; letter-spacing: 0; }
+      .itn-coupon-error { color: #b91c1c; font-size: 12px; font-weight: 800; text-transform: none; letter-spacing: 0; }
       .itn-booking-error, .itn-booking-message { margin: 14px 20px 0; padding: 12px 14px; border-radius: 8px; font-size: 13px; font-weight: 800; line-height: 1.45; }
       .itn-booking-error { border: 1px solid #fecaca; background: #fff1f2; color: #b91c1c; }
       .itn-booking-message { border: 1px solid #bbf7d0; background: #f0fdf4; color: #15803d; }
@@ -1054,7 +1061,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
   const [partialBooking, setPartialBooking] = useState(null);
   const [paymentMode, setPaymentMode] = useState('partial');
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
-  const [bookingForm, setBookingForm] = useState({ name: '', email: '', phone: '', notes: '' });
+  const [bookingForm, setBookingForm] = useState({ name: '', email: '', phone: '', couponCode: '', notes: '' });
   const [travellerCount, setTravellerCount] = useState(1);
   const [guestTravellers, setGuestTravellers] = useState([]);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
@@ -1062,6 +1069,10 @@ export default function TourItineraryView({ destination, packageSlug }) {
   const [paymentError, setPaymentError] = useState('');
   const [bookingResult, setBookingResult] = useState(null);
   const [loginPromptOpen, setLoginPromptOpen] = useState(false);
+  const [couponValidation, setCouponValidation] = useState(null);
+  const [couponValidating, setCouponValidating] = useState(false);
+  const [couponMessage, setCouponMessage] = useState('');
+  const [couponError, setCouponError] = useState('');
 
   useEffect(() => {
     let mounted = true;
@@ -1248,13 +1259,25 @@ export default function TourItineraryView({ destination, packageSlug }) {
   const packageBaseAmount = packageUnitAmount * travellerCount;
   const taxType = String(pkg.tax_type || '').trim();
   const taxPercent = Math.max(0, Number(pkg.tax_percent) || 0);
-  const taxAmount = packageBaseAmount > 0 && taxPercent > 0 ? Math.round((packageBaseAmount * taxPercent) / 100) : 0;
-  const packageTotal = packageBaseAmount + taxAmount;
-  const priceLabel = packageBaseAmount > 0 ? `Rs ${packageBaseAmount.toLocaleString('en-IN')}` : 'On req';
+  const couponCode = bookingForm.couponCode.trim().toUpperCase();
+  const validatedCouponCode = String(couponValidation?.data?.coupon?.code || '').trim().toUpperCase();
+  const activeCouponData = couponValidation?.success && couponCode && validatedCouponCode === couponCode ? couponValidation.data : null;
+  const activeCouponAmounts = activeCouponData?.amounts || null;
+  const couponDiscountAmount = Math.max(0, Number(activeCouponAmounts?.coupon_discount_amount) || 0);
+  const packageDisplayBaseAmount = activeCouponAmounts ? Number(activeCouponAmounts.package_base_amount) || 0 : packageBaseAmount;
+  const taxAmount = activeCouponAmounts
+    ? Number(activeCouponAmounts.tax_amount) || 0
+    : packageBaseAmount > 0 && taxPercent > 0
+      ? Math.round((packageBaseAmount * taxPercent) / 100)
+      : 0;
+  const packageTotal = activeCouponAmounts ? Number(activeCouponAmounts.package_total) || 0 : packageBaseAmount + taxAmount;
+  const priceLabel = packageDisplayBaseAmount > 0 ? `Rs ${packageDisplayBaseAmount.toLocaleString('en-IN')}` : 'On req';
+  const originalPriceLabel = packageBaseAmount > 0 ? `Rs ${packageBaseAmount.toLocaleString('en-IN')}` : 'On req';
   const unitPriceLabel = packageUnitAmount > 0 ? `Rs ${packageUnitAmount.toLocaleString('en-IN')}` : 'On req';
   const travellerLabel = `${travellerCount} ${travellerCount === 1 ? 'traveller' : 'travellers'}`;
   const taxLabel = taxPercent > 0 ? `${taxType || 'Tax'} ${formatTaxPercent(taxPercent)}%` : taxType || 'Tax';
   const taxAmountLabel = taxAmount > 0 ? `Rs ${taxAmount.toLocaleString('en-IN')}` : 'Rs 0';
+  const couponDiscountLabel = couponDiscountAmount > 0 ? `- Rs ${couponDiscountAmount.toLocaleString('en-IN')}` : 'Rs 0';
   const packageTotalLabel = packageTotal > 0 ? `Rs ${packageTotal.toLocaleString('en-IN')}` : 'On request';
   const partialBookingPercentage = Math.max(0, Math.min(100, Number(partialBooking?.partial_booking_percentage) || 0));
   const partialBookingEnabled = Boolean(partialBooking?.partial_booking_enabled) && partialBookingPercentage > 0 && packageTotal > 0;
@@ -1264,9 +1287,9 @@ export default function TourItineraryView({ destination, packageSlug }) {
   const partialRemainingAmountLabel = partialRemainingAmount > 0 ? `Rs ${partialRemainingAmount.toLocaleString('en-IN')}` : 'Rs 0';
   const selectedPaymentMode = partialBookingEnabled && paymentMode === 'partial' ? 'partial' : 'full';
   const isPartialPayment = selectedPaymentMode === 'partial';
-  const amountToPay = isPartialPayment ? bookingAmount : packageTotal;
-  const amountToPayLabel = amountToPay > 0 ? `Rs ${amountToPay.toLocaleString('en-IN')}` : 'On request';
-  const remainingAmount = Math.max(packageTotal - amountToPay, 0);
+  const amountToPay = activeCouponAmounts?.paid_amount != null ? Number(activeCouponAmounts.paid_amount) || 0 : isPartialPayment ? bookingAmount : packageTotal;
+  const amountToPayLabel = amountToPay > 0 ? `Rs ${amountToPay.toLocaleString('en-IN')}` : 'On reques';
+  const remainingAmount = activeCouponAmounts?.remaining_amount != null ? Math.max(Number(activeCouponAmounts.remaining_amount) || 0, 0) : Math.max(packageTotal - amountToPay, 0);
   const remainingAmountLabel = remainingAmount > 0 ? `Rs ${remainingAmount.toLocaleString('en-IN')}` : 'Rs 0';
   const duePercentLabel = isPartialPayment ? `${partialBookingPercentage}%` : '100%';
   const remainingPercent = isPartialPayment ? Math.max(0, 100 - partialBookingPercentage) : 0;
@@ -1320,9 +1343,10 @@ export default function TourItineraryView({ destination, packageSlug }) {
       package_id: pkg.id || null,
       package_slug: pkg.slug || resolvedSlug,
       package_name: pkg.name,
-      package_price: packageBaseAmount,
+      package_price: packageDisplayBaseAmount,
       package_unit_price: packageUnitAmount,
-      package_base_amount: packageBaseAmount,
+      original_package_base_amount: packageBaseAmount,
+      package_base_amount: packageDisplayBaseAmount,
       tax_type: taxType || null,
       tax_percent: taxPercent,
       tax_amount: taxAmount,
@@ -1343,6 +1367,10 @@ export default function TourItineraryView({ destination, packageSlug }) {
       payable_now: amountToPay,
       remaining_amount: remainingAmount,
       remaining_percentage: remainingPercent,
+      coupon_code: couponCode,
+      promo_code: couponCode,
+      coupon_discount_amount: couponDiscountAmount,
+      coupon_validation: activeCouponData,
       notes: bookingForm.notes || '',
       customer_notes: bookingForm.notes || '',
       customer: {
@@ -1395,12 +1423,14 @@ export default function TourItineraryView({ destination, packageSlug }) {
       name: bookingForm.name || auth.name || auth.full_name || auth.firstName || '',
       email: bookingForm.email || auth.email || '',
       phone: bookingForm.phone || auth.phone || auth.mobile || '',
+      couponCode: bookingForm.couponCode || '',
       notes: bookingForm.notes || '',
     };
     setBookingForm((current) => ({
       name: current.name || nextForm.name,
       email: current.email || nextForm.email,
       phone: current.phone || nextForm.phone,
+      couponCode: current.couponCode || nextForm.couponCode,
       notes: current.notes || nextForm.notes,
     }));
     const nextTravellers = [
@@ -1428,6 +1458,8 @@ export default function TourItineraryView({ destination, packageSlug }) {
       },
       notes: nextForm.notes || '',
       customer_notes: nextForm.notes || '',
+      coupon_code: nextForm.couponCode.trim().toUpperCase(),
+      promo_code: nextForm.couponCode.trim().toUpperCase(),
       travelers: nextTravellers,
       travellers: nextTravellers,
       guest_travellers: nextTravellers.slice(1),
@@ -1459,12 +1491,19 @@ export default function TourItineraryView({ destination, packageSlug }) {
     ];
 
     setBookingForm(nextForm);
+    if (field === 'couponCode') {
+      setCouponValidation(null);
+      setCouponMessage('');
+      setCouponError('');
+    }
     writePackageBookingDraft(buildBookingDraft({
       status: 'draft',
       customer: {
         id: auth.id || auth.customer_id || auth.user_id || auth.customerId || auth.user?.id || auth.customer?.id || null,
         ...nextForm,
       },
+      coupon_code: nextForm.couponCode.trim().toUpperCase(),
+      promo_code: nextForm.couponCode.trim().toUpperCase(),
       travelers: nextTravellers,
       travellers: nextTravellers,
       guest_travellers: nextTravellers.slice(1),
@@ -1472,6 +1511,9 @@ export default function TourItineraryView({ destination, packageSlug }) {
   };
   const updateTravellerCount = (value) => {
     const nextCount = clampTravellerCount(value);
+    setCouponValidation(null);
+    setCouponMessage('');
+    setCouponError('');
     setTravellerCount(nextCount);
     setGuestTravellers((current) => {
       const guestCount = Math.max(nextCount - 1, 0);
@@ -1492,6 +1534,64 @@ export default function TourItineraryView({ destination, packageSlug }) {
 
       return nextGuests;
     });
+  };
+  const updatePaymentMode = (mode) => {
+    setPaymentMode(mode);
+    setCouponValidation(null);
+    setCouponMessage('');
+    setCouponError('');
+  };
+  const validateCouponCode = async () => {
+    const code = couponCode;
+
+    if (!code) {
+      setCouponValidation(null);
+      setCouponMessage('');
+      setCouponError('Please enter a coupon code.');
+      return;
+    }
+
+    setCouponValidating(true);
+    setCouponMessage('');
+    setCouponError('');
+
+    const auth = getStoredAuth() || {};
+    const customerId = auth.id || auth.customer_id || auth.user_id || auth.customerId || auth.user?.id || auth.customer?.id || '';
+    const payload = {
+      package_id: pkg.id || packageIdFromQuery || null,
+      package_slug: pkg.slug || resolvedSlug,
+      coupon_code: code,
+      coupon: {
+        code,
+      },
+      package_base_amount: packageBaseAmount,
+      tax_percent: taxPercent,
+      payable_now: amountToPay,
+      customer: {
+        id: customerId,
+        email: bookingForm.email || auth.email || '',
+      },
+    };
+
+    const response = await validateBookingCoupon(payload);
+    setCouponValidating(false);
+
+    if (response.success) {
+      setCouponValidation(response);
+      setCouponMessage(response.message || 'Coupon is valid.');
+      setCouponError('');
+      writePackageBookingDraft(buildBookingDraft({
+        status: 'coupon_validated',
+        coupon_code: code,
+        promo_code: code,
+        coupon_validation: response.data || response,
+      }));
+      return;
+    }
+
+    setCouponValidation(null);
+    setCouponMessage('');
+    setCouponError(response.message || 'Coupon is not valid for this booking.');
   };
   const startRazorpayPayment = async () => {
     if (!amountToPay || amountToPay <= 0) {
@@ -1521,8 +1621,11 @@ export default function TourItineraryView({ destination, packageSlug }) {
         booking_percentage: isPartialPayment ? String(partialBookingPercentage) : '100',
         traveller_count: String(travellerCount),
         package_total: String(packageTotal),
+        package_base_amount: String(packageDisplayBaseAmount),
+        coupon_discount_amount: String(couponDiscountAmount),
         payable_now: String(amountToPay),
         remaining_amount: String(remainingAmount),
+        coupon_code: couponCode,
         customer_name: bookingForm.name,
         customer_phone: bookingForm.phone,
         customer_id: String(customerId),
@@ -1893,7 +1996,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
                       name="sidebar-payment-mode"
                       value="partial"
                       checked={isPartialPayment}
-                      onChange={() => setPaymentMode('partial')}
+                      onChange={() => updatePaymentMode('partial')}
                     />
                     <span>Pay {partialBookingPercentage}% now</span>
                     <strong>{bookingAmountLabel}</strong>
@@ -1905,7 +2008,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
                       name="sidebar-payment-mode"
                       value="full"
                       checked={!isPartialPayment}
-                      onChange={() => setPaymentMode('full')}
+                      onChange={() => updatePaymentMode('full')}
                     />
                     <span>Pay full amount</span>
                     <strong>{packageTotalLabel}</strong>
@@ -2148,7 +2251,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
                       name="modal-payment-mode"
                       value="partial"
                       checked={isPartialPayment}
-                      onChange={() => setPaymentMode('partial')}
+                      onChange={() => updatePaymentMode('partial')}
                     />
                     <span>Partial payment</span>
                     <strong>{bookingAmountLabel}</strong>
@@ -2160,7 +2263,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
                       name="modal-payment-mode"
                       value="full"
                       checked={!isPartialPayment}
-                      onChange={() => setPaymentMode('full')}
+                      onChange={() => updatePaymentMode('full')}
                     />
                     <span>Full payment</span>
                     <strong>{packageTotalLabel}</strong>
@@ -2209,8 +2312,11 @@ export default function TourItineraryView({ destination, packageSlug }) {
               <div><span>Per traveller price</span><strong>{unitPriceLabel}</strong></div>
               <div><span>Travellers</span><strong>{travellerLabel}</strong></div>
               <div><span>Base package</span><strong>{priceLabel}</strong></div>
+              {couponDiscountAmount > 0 ? <div><span>Original package</span><strong>{originalPriceLabel}</strong></div> : null}
+              {couponDiscountAmount > 0 ? <div><span>Coupon discount</span><strong>{couponDiscountLabel}</strong></div> : null}
               <div><span>{taxLabel}</span><strong>{taxAmountLabel}</strong></div>
               <div><span>Booking total</span><strong>{packageTotalLabel}</strong></div>
+              {couponCode ? <div><span>Coupon code</span><strong>{couponCode}</strong></div> : null}
               <div><span>Payable now</span><strong>{amountToPayLabel}</strong></div>
               <div><span>Balance later</span><strong>{remainingAmountLabel}</strong></div>
               <div><span>Payment gateway fee</span><strong>Added by gateway if applicable</strong></div>
@@ -2242,6 +2348,29 @@ export default function TourItineraryView({ destination, packageSlug }) {
                   onChange={(event) => updateBookingField('phone', event.target.value)}
                   placeholder="Phone number"
                 />
+              </label>
+              <label>
+                Coupon code optional
+                <span className="itn-coupon-field">
+                  <span className="itn-coupon-row">
+                    <input
+                      type="text"
+                      value={bookingForm.couponCode}
+                      onChange={(event) => updateBookingField('couponCode', event.target.value.toUpperCase())}
+                      placeholder="Enter coupon code"
+                      autoComplete="off"
+                    />
+                    <button
+                      type="button"
+                      disabled={!couponCode || couponValidating}
+                      onClick={validateCouponCode}
+                    >
+                      {couponValidating ? 'Checking' : 'Apply'}
+                    </button>
+                  </span>
+                  {couponMessage ? <span className="itn-coupon-note">{couponMessage}</span> : null}
+                  {couponError ? <span className="itn-coupon-error">{couponError}</span> : null}
+                </span>
               </label>
               <label>
                 Notes optional
