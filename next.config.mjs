@@ -16,7 +16,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'row-honolulu-alter-modeling.trycloudflare.com',
+        hostname: 'coverage-automation-slim-elizabeth.trycloudflare.com',
       },
     ],
     qualities: [25, 50, 75, 100],

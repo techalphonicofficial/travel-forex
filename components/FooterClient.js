@@ -120,7 +120,7 @@ const getLogoUrl = (logo) => {
   if (/^(https?:|data:|blob:)/i.test(logo)) return logo;
   if (!String(logo).startsWith('/uploads')) return logo;
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'https://row-honolulu-alter-modeling.trycloudflare.com/';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'https://coverage-automation-slim-elizabeth.trycloudflare.com/';
   return `${baseUrl.replace(/\/$/, '')}/${String(logo).replace(/^\//, '')}`;
 };
 
