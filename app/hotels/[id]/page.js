@@ -1,6 +1,6 @@
 import HotelDetailClient from './HotelDetailClient';
 
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://coverage-automation-slim-elizabeth.trycloudflare.com/api/v1';
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://reads-cas-males-dirt.trycloudflare.com/api/v1';
 
 const fetchHotel = async ({ id, country, city }) => {
   const backendUrl = new URL('/api/v1/hotels', BACKEND_BASE_URL.replace(/\/api\/v1\/?$/, ''));

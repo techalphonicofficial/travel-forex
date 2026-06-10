@@ -3,7 +3,7 @@ import 'server-only';
 import { normalizeThemePayload } from '@/utils/themeVariables';
 
 const THEME_COLOURS_ENDPOINT =
-  'https://coverage-automation-slim-elizabeth.trycloudflare.com/api/v1/crm/settings/theme-colours';
+  'https://reads-cas-males-dirt.trycloudflare.com/api/v1/crm/settings/theme-colours';
 const THEME_COLOURS_API_KEY =
   process.env.CRM_THEME_COLOURS_API_KEY ||
   process.env.CRM_COMPANY_INFO_API_KEY ||

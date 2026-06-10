@@ -1,6 +1,6 @@
 import { normalizeThemePayload } from '@/utils/themeVariables';
 
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://coverage-automation-slim-elizabeth.trycloudflare.com/api/v1';
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://reads-cas-males-dirt.trycloudflare.com/api/v1';
 const THEME_COLOURS_API_KEY =
   process.env.CRM_THEME_COLOURS_API_KEY ||
   process.env.CRM_COMPANY_INFO_API_KEY ||

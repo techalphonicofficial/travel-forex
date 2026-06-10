@@ -16,7 +16,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'coverage-automation-slim-elizabeth.trycloudflare.com',
+        hostname: 'reads-cas-males-dirt.trycloudflare.com',
       },
     ],
     qualities: [25, 50, 75, 100],
