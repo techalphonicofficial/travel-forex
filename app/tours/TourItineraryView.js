@@ -1594,6 +1594,16 @@ export default function TourItineraryView({ destination, packageSlug }) {
     setCouponError(response.message || 'Coupon is not valid for this booking.');
   };
   const startRazorpayPayment = async () => {
+    if (!hasLoggedInUser()) {
+      writePackageBookingDraft(buildBookingDraft({ status: 'login_required' }));
+      setBookingModalOpen(false);
+      setLoginPromptOpen(true);
+      setPaymentProcessing(false);
+      setPaymentMessage('');
+      setPaymentError('Please login before booking this package.');
+      return;
+    }
+
     if (!amountToPay || amountToPay <= 0) {
       setPaymentError('This package does not have an online payable amount. Please contact us for booking.');
       return;

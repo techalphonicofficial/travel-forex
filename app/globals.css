@@ -770,7 +770,7 @@ nav,
 }
 
 .navbar-custom.scrolled {
-  background: rgba(255, 255, 255, 0.96);
+  background: #0a0f1e;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   box-shadow: var(--shadow-md);
@@ -778,7 +778,7 @@ nav,
 }
 
 [data-theme="dark"] .navbar-custom.scrolled {
-  background: rgba(13, 17, 23, 0.96);
+  background: #0a0f1e;
 }
 
 .navbar-custom .nav-link {

@@ -19,6 +19,15 @@ const getFallbackTravellerImage = (name) => {
   return match?.img || TRAVELLERS[0].img;
 };
 
+const getLogoUrl = (logo) => {
+  if (!logo) return '';
+  if (/^(https?:|data:|blob:)/i.test(logo)) return logo;
+  if (!String(logo).startsWith('/uploads')) return logo;
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'https://row-honolulu-alter-modeling.trycloudflare.com/';
+  return `${baseUrl.replace(/\/$/, '')}/${String(logo).replace(/^\//, '')}`;
+};
+
 const DURATIONS = ['3-4 Days', '5-6 Days', '7-8 Days', '9-15 Days'];
 const AIRPORTS_PAGE_LIMIT = 20;
 
@@ -225,7 +234,9 @@ const writeCustomizeUrlDraft = ({ data, step, subStep }) => {
 export default function CustomizeFlow() {
   const router = useRouter();
   const brand = getProjectConfig();
-  const brandLogo = brand.logo || '/logooo.png';
+  const [companyInfo, setCompanyInfo] = useState(null);
+  const brandLogo = getLogoUrl(companyInfo?.logo || companyInfo?.company_logo_url);
+  const brandName = companyInfo?.legalName || companyInfo?.companyName || companyInfo?.brandName || brand.legalName;
   const [step, setStep] = useState(0);
   const [subStep, setSubStep] = useState(''); // 'room-config', 'login-modal'
   const [calendarBaseDate, setCalendarBaseDate] = useState(() => getMonthStart());
@@ -298,8 +309,25 @@ export default function CustomizeFlow() {
       );
     };
 
+    const loadCompanyInfo = async () => {
+      try {
+        const response = await fetch('/api/company-info', {
+          headers: { accept: 'application/json' },
+          cache: 'no-store',
+        });
+        const payload = await response.json();
+
+        if (mounted && payload?.success) {
+          setCompanyInfo(payload.data);
+        }
+      } catch (error) {
+        console.warn('Company info unavailable:', error);
+      }
+    };
+
     loadDestinations();
     loadTravellerOptions();
+    loadCompanyInfo();
 
     return () => {
       mounted = false;
@@ -1282,7 +1310,9 @@ export default function CustomizeFlow() {
 
           <div style={{ position: 'relative', zIndex: 2 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 40 }}>
-              <img src={brandLogo} alt={`${brand.legalName} Logo`} style={{ width: 80, height: 80, objectFit: 'contain' }} />
+              {brandLogo ? (
+                <img src={brandLogo} alt={`${brandName} Logo`} style={{ width: 80, height: 80, objectFit: 'contain' }} />
+              ) : null}
             </div>
             <h3 style={{ color: 'white', fontSize: 22, fontWeight: 500, margin: '0 0 10px', letterSpacing: 1 }}>YOUR</h3>
             <h2 style={{ color: '#fef08a', fontSize: 36, fontWeight: 900, margin: '0 0 16px', lineHeight: 1.1, textShadow: '0 4px 12px rgba(0,0,0,0.3)', fontFamily: 'Poppins, sans-serif' }}>
@@ -1342,7 +1372,9 @@ export default function CustomizeFlow() {
             <div style={{ position: 'absolute', inset: 0, opacity: 0.1, background: 'repeating-conic-gradient(from 0deg, transparent 0deg 10deg, #fff 10deg 20deg)' }} />
             <div style={{ position: 'relative', zIndex: 2 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 32 }}>
-                <img src={brandLogo} alt={`${brand.legalName} Logo`} style={{ width: 80, height: 80, objectFit: 'contain' }} />
+                {brandLogo ? (
+                  <img src={brandLogo} alt={`${brandName} Logo`} style={{ width: 80, height: 80, objectFit: 'contain' }} />
+                ) : null}
               </div>
               <h3 style={{ color: 'white', fontSize: 20, fontWeight: 500, margin: '0 0 10px', letterSpacing: 1 }}>REVIEW YOUR</h3>
               <h2 style={{ color: '#fef08a', fontSize: 34, fontWeight: 900, margin: '0 0 16px', lineHeight: 1.1, textShadow: '0 4px 12px rgba(0,0,0,0.3)', fontFamily: 'Poppins, sans-serif' }}>
@@ -1858,11 +1890,13 @@ export default function CustomizeFlow() {
       {/* ── DESKTOP Header ── */}
       <header className="cust-header">
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-          <img
-            src={brandLogo}
-            alt={`${brand.legalName} Logo`}
-            className="cust-logo"
-          />
+          {brandLogo ? (
+            <img
+              src={brandLogo}
+              alt={`${brandName} Logo`}
+              className="cust-logo"
+            />
+          ) : null}
         </Link>
         <div className="cust-breadcrumbs">
           {BREADCRUMBS.map((crumb, i) => (
@@ -1890,11 +1924,13 @@ export default function CustomizeFlow() {
         {/* Top row: Logo + current step title + close */}
         <div className="cust-mob-top">
           <Link href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
-            <img
-              src={brandLogo}
-              alt={`${brand.legalName} Logo`}
-              className="cust-mob-logo"
-            />
+            {brandLogo ? (
+              <img
+                src={brandLogo}
+                alt={`${brandName} Logo`}
+                className="cust-mob-logo"
+              />
+            ) : null}
           </Link>
 
           <div className="cust-mob-title">

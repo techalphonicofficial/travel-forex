@@ -16,7 +16,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'asbestos-filling-thread-tear.trycloudflare.com',
+        hostname: 'row-honolulu-alter-modeling.trycloudflare.com',
       },
     ],
     qualities: [25, 50, 75, 100],

@@ -634,23 +634,23 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                   alignItems: 'center',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
-                  background: isExpanded ? '#eef8ff' : 'white',
-                  border: isExpanded ? '1px solid #b7ddff' : '1px solid #edf2f7',
+                  background: isExpanded ? 'var(--color-primary-light)' : 'white',
+                  border: isExpanded ? '1px solid var(--brand-primary-border)' : '1px solid #edf2f7',
                   borderRadius: 14,
-                  boxShadow: isExpanded ? '0 10px 22px rgba(2,110,181,0.10)' : '0 4px 12px rgba(15,23,42,0.035)',
+                  boxShadow: isExpanded ? '0 10px 22px color-mix(in srgb, var(--color-primary) 14%, transparent)' : '0 4px 12px rgba(15,23,42,0.035)',
                 }}
-                onMouseEnter={e => { if (!isExpanded) e.currentTarget.style.background = '#f8fafc'; }}
+                onMouseEnter={e => { if (!isExpanded) e.currentTarget.style.background = 'color-mix(in srgb, var(--color-primary) 8%, white)'; }}
                 onMouseLeave={e => { if (!isExpanded) e.currentTarget.style.background = 'white'; }}
               >
                 <span style={{ display: 'flex', alignItems: 'center', gap: 11, minWidth: 0 }}>
-                  <span style={{ width: 34, height: 34, flex: '0 0 34px', borderRadius: 11, display: 'grid', placeItems: 'center', background: isExpanded ? 'var(--color-primary)' : '#eef6fc', color: isExpanded ? 'white' : 'var(--color-primary)', fontSize: 10, fontWeight: 950, letterSpacing: 0.3 }}>
+                  <span style={{ width: 34, height: 34, flex: '0 0 34px', borderRadius: 11, display: 'grid', placeItems: 'center', background: isExpanded ? 'var(--color-primary)' : 'color-mix(in srgb, var(--color-primary) 10%, white)', color: isExpanded ? 'white' : 'var(--color-primary)', fontSize: 10, fontWeight: 950, letterSpacing: 0.3 }}>
                     {navIcon}
                   </span>
                   <span style={{ fontSize: 13.5, fontWeight: isExpanded ? 850 : 750, color: isExpanded ? '#0f172a' : '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {group.label}
                   </span>
                 </span>
-                <span style={{ width: 28, height: 28, borderRadius: 9, display: 'grid', placeItems: 'center', color: isExpanded ? 'var(--color-primary)' : '#94a3b8', background: isExpanded ? '#fff' : '#f8fafc' }}>
+                <span style={{ width: 28, height: 28, borderRadius: 9, display: 'grid', placeItems: 'center', color: isExpanded ? 'var(--color-primary)' : '#94a3b8', background: isExpanded ? '#fff' : 'color-mix(in srgb, var(--color-primary) 6%, white)' }}>
                   {group.hasSub ? (
                     <svg
                       viewBox="0 0 24 24" fill="currentColor" width="16" height="16"
@@ -703,7 +703,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                             cursor: 'pointer',
                             transition: 'color 0.2s, background 0.2s, border-color 0.2s',
                           }}
-                          onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-primary)'; e.currentTarget.style.background = '#f8fbff'; e.currentTarget.style.borderColor = '#cde9fb'; }}
+                          onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-primary)'; e.currentTarget.style.background = 'color-mix(in srgb, var(--color-primary) 8%, white)'; e.currentTarget.style.borderColor = 'var(--brand-primary-border)'; }}
                           onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#eef2f7'; }}
                         >
                           {label}
@@ -782,7 +782,7 @@ const getLogoUrl = (logo) => {
   if (/^(https?:|data:|blob:)/i.test(logo)) return logo;
   if (!String(logo).startsWith('/uploads')) return logo;
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'https://asbestos-filling-thread-tear.trycloudflare.com/';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'https://row-honolulu-alter-modeling.trycloudflare.com/';
   return `${baseUrl.replace(/\/$/, '')}/${String(logo).replace(/^\//, '')}`;
 };
 
@@ -947,16 +947,17 @@ export default function Navbar({ brand, companyInfo }) {
   const brandLogo = getLogoUrl(companyInfo?.company_logo_url) || brand?.logo || '/logooo.png';
   const brandName = brand?.legalName || 'ITS TRAVELS AND TOURS';
   const isTransparent = isHeroPage && atHero && !scrolled && !drawerOpen;
-  const linkColor = isTransparent ? 'rgba(255,255,255,0.92)' : '#374151';
+  const isLightHeader = isTransparent || scrolled;
+  const linkColor = isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151';
   const navButtonStyle = {
     padding: '8px 18px',
     borderRadius: 8,
-    border: isTransparent ? '1.5px solid rgba(255,255,255,0.6)' : '1.5px solid #d1d5db',
-    color: isTransparent ? 'white' : '#374151',
+    border: isLightHeader ? '1.5px solid rgba(255,255,255,0.6)' : '1.5px solid #d1d5db',
+    color: isLightHeader ? 'white' : '#374151',
     fontWeight: 600,
     fontSize: 13,
     textDecoration: 'none',
-    background: isTransparent ? 'rgba(255,255,255,0.1)' : 'white',
+    background: isLightHeader ? 'rgba(255,255,255,0.1)' : 'white',
     backdropFilter: 'blur(6px)',
     transition: 'all 0.2s',
   };
@@ -1541,13 +1542,13 @@ export default function Navbar({ brand, companyInfo }) {
                     key={cat.id}
                     label={cat.name}
                     cols={cat.cols && cat.cols.length > 0 ? cat.cols : []}
-                    isTransparent={isTransparent}
+                    isTransparent={isLightHeader}
                   />
                 ))
               ) : (
                 <>
-                  <MegaDropdown label="Explore Destinations" cols={destinationCols} isTransparent={isTransparent} />
-                  <MegaDropdown label="Holiday Tour Packages" cols={packageCols} isTransparent={isTransparent} />
+                  <MegaDropdown label="Explore Destinations" cols={destinationCols} isTransparent={isLightHeader} />
+                  <MegaDropdown label="Holiday Tour Packages" cols={packageCols} isTransparent={isLightHeader} />
                 </>
               )}
             </ul>
@@ -1599,17 +1600,44 @@ export default function Navbar({ brand, companyInfo }) {
                 </Link>
               )}
 
+              {/* Desktop Hamburger Button / Drawer Toggle */}
+              <button
+                type="button"
+                aria-label="Open travel menu"
+                className="d-none d-lg-inline-flex"
+                onClick={() => setDrawerOpen(true)}
+                style={{
+                  width: 40,
+                  height: 40,
+                  background: isLightHeader ? 'rgba(255,255,255,0.15)' : '#f9fafb',
+                  border: isLightHeader ? '1.5px solid rgba(255,255,255,0.3)' : '1.5px solid #e5e7eb',
+                  borderRadius: 8,
+                  padding: 0,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: isLightHeader ? 'white' : '#374151',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true">
+                  <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+                </svg>
+              </button>
+
               {/* Hamburger Button / Drawer Toggle */}
               <button
+                type="button"
+                aria-label="Open travel menu"
                 className="d-lg-none"
                 onClick={() => setDrawerOpen(true)}
                 style={{
-                  background: isTransparent ? 'rgba(255,255,255,0.15)' : '#f9fafb',
-                  border: isTransparent ? '1.5px solid rgba(255,255,255,0.3)' : '1.5px solid #e5e7eb',
+                  background: isLightHeader ? 'rgba(255,255,255,0.15)' : '#f9fafb',
+                  border: isLightHeader ? '1.5px solid rgba(255,255,255,0.3)' : '1.5px solid #e5e7eb',
                   borderRadius: 8, padding: '7px 10px',
                   transform: 'translateX(-14px)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: isTransparent ? 'white' : '#374151',
+                  color: isLightHeader ? 'white' : '#374151',
                   cursor: 'pointer',
                 }}
               >

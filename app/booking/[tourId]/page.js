@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import tours from '@/data/tours.json';
 import toast from 'react-hot-toast';
+import { getStoredAuth } from '@/utils/api';
 
 const STEPS = ['Tour Details', 'Personal Info', 'Payment', 'Review'];
 
@@ -60,6 +61,16 @@ export default function BookingPage() {
   const [travelers, setTravelers] = useState(2);
   const [selectedDate, setSelectedDate] = useState('');
 
+  useEffect(() => {
+    const auth = getStoredAuth();
+
+    if (!auth?.token) {
+      toast.error('Please login before booking.');
+      const returnUrl = `${window.location.pathname}${window.location.search}`;
+      router.replace(`/auth/login?redirect=${encodeURIComponent(returnUrl)}`);
+    }
+  }, [router]);
+
   const {
     register,
     handleSubmit,
@@ -79,6 +90,13 @@ export default function BookingPage() {
   const totalPrice = tour.price * travelers;
 
   const nextStep = async () => {
+    if (!getStoredAuth()?.token) {
+      toast.error('Please login before booking.');
+      const returnUrl = `${window.location.pathname}${window.location.search}`;
+      router.push(`/auth/login?redirect=${encodeURIComponent(returnUrl)}`);
+      return;
+    }
+
     if (step === 1) {
       const valid = await trigger(['firstName', 'lastName', 'email', 'phone']);
       if (!valid) return;
@@ -96,12 +114,19 @@ export default function BookingPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const onSubmit = (data) => {
+  const onSubmit = () => {
+    if (!getStoredAuth()?.token) {
+      toast.error('Please login before booking.');
+      const returnUrl = `${window.location.pathname}${window.location.search}`;
+      router.push(`/auth/login?redirect=${encodeURIComponent(returnUrl)}`);
+      return;
+    }
+
     toast.success('Booking confirmed! Redirecting...');
     setTimeout(() => router.push('/booking/confirmation'), 1500);
   };
 
-  const TourSummaryCard = () => (
+  const renderTourSummaryCard = () => (
     <div
       style={{
         background: 'var(--color-bg-card)',
@@ -501,7 +526,7 @@ export default function BookingPage() {
 
           {/* Sidebar Summary */}
           <div className="col-lg-4">
-            <TourSummaryCard />
+            {renderTourSummaryCard()}
           </div>
         </div>
       </div>

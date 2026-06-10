@@ -1,6 +1,6 @@
 import { normalizeThemePayload } from '@/utils/themeVariables';
 
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://asbestos-filling-thread-tear.trycloudflare.com/api/v1';
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://row-honolulu-alter-modeling.trycloudflare.com/api/v1';
 const THEME_COLOURS_API_KEY =
   process.env.CRM_THEME_COLOURS_API_KEY ||
   process.env.CRM_COMPANY_INFO_API_KEY ||

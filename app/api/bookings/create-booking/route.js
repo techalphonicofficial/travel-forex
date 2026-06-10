@@ -1,4 +1,4 @@
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://asbestos-filling-thread-tear.trycloudflare.com/api/v1';
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://row-honolulu-alter-modeling.trycloudflare.com/api/v1';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,6 +7,13 @@ export async function POST(request) {
     const payload = await request.json();
     const backendUrl = new URL('/api/v1/bookings/create-booking', BACKEND_BASE_URL.replace(/\/api\/v1\/?$/, ''));
     const authorization = request.headers.get('authorization');
+
+    if (!authorization) {
+      return Response.json(
+        { success: false, message: 'Please login before booking this package.' },
+        { status: 401 }
+      );
+    }
 
     const response = await fetch(backendUrl.toString(), {
       method: 'POST',
