@@ -16,7 +16,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'reads-cas-males-dirt.trycloudflare.com',
+        hostname: 'peninsula-surplus-ray-appraisal.trycloudflare.com',
       },
     ],
     qualities: [25, 50, 75, 100],

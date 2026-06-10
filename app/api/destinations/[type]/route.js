@@ -1,4 +1,4 @@
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://reads-cas-males-dirt.trycloudflare.com/api/v1';
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://peninsula-surplus-ray-appraisal.trycloudflare.com/api/v1';
 const ALLOWED_TYPES = new Set(['trending', 'visa-free']);
 
 export const dynamic = 'force-dynamic';
