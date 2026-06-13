@@ -20,11 +20,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'diagnosis-qualification-vhs-army.trycloudflare.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'vocal-professionals-publicly-balanced.trycloudflare.com',
+        hostname: 'halifax-quoted-olive-pixels.trycloudflare.com',
       },
     ],
     qualities: [25, 50, 75, 100],
