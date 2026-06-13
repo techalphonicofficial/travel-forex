@@ -1,4 +1,4 @@
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://halifax-quoted-olive-pixels.trycloudflare.com/api/v1';
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://chapel-translator-blake-lion.trycloudflare.com/api/v1';
 const PARTIAL_BOOKING_API_KEY =
   process.env.CRM_PARTIAL_BOOKING_API_KEY ||
   process.env.CRM_COMPANY_INFO_API_KEY ||

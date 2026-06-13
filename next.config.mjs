@@ -20,7 +20,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'halifax-quoted-olive-pixels.trycloudflare.com',
+        hostname: 'chapel-translator-blake-lion.trycloudflare.com',
       },
     ],
     qualities: [25, 50, 75, 100],
