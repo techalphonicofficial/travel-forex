@@ -18,6 +18,14 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'peninsula-surplus-ray-appraisal.trycloudflare.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'diagnosis-qualification-vhs-army.trycloudflare.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'vocal-professionals-publicly-balanced.trycloudflare.com',
+      },
     ],
     qualities: [25, 50, 75, 100],
     formats: ['image/avif', 'image/webp'],

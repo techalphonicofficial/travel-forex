@@ -1,6 +1,6 @@
 import 'server-only';
 
-const COMPANY_INFO_ENDPOINT = 'https://peninsula-surplus-ray-appraisal.trycloudflare.com/api/v1/crm/settings/company-info';
+const COMPANY_INFO_ENDPOINT = 'https://vocal-professionals-publicly-balanced.trycloudflare.com/api/v1/crm/settings/company-info';
 const COMPANY_INFO_API_KEY = process.env.CRM_COMPANY_INFO_API_KEY || 'pt_dc9eae82075b27c1408392fa7d7e0e632ef9e846f6e4e33e';
 
 export const getCompanyInfo = async () => {
