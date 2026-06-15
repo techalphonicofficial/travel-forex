@@ -3,7 +3,7 @@ import 'server-only';
 import { normalizeThemePayload } from '@/utils/themeVariables';
 
 const THEME_COLOURS_ENDPOINT =
-  'https://chapel-translator-blake-lion.trycloudflare.com/api/v1/crm/settings/theme-colours';
+  'https://apparel-alternative-derived-lifetime.trycloudflare.com/api/v1/crm/settings/theme-colours';
 const THEME_COLOURS_API_KEY =
   process.env.CRM_THEME_COLOURS_API_KEY ||
   process.env.CRM_COMPANY_INFO_API_KEY ||

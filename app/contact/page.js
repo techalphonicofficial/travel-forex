@@ -3,8 +3,8 @@ import { getMediaUrl, getPageBySlug } from '@/utils/api';
 
 export const dynamic = 'force-dynamic';
 
-const PIPELINE_FORM_ENDPOINT = 'https://chapel-translator-blake-lion.trycloudflare.com/api/v1/crm/pipelines/3/form';
-const COMPANY_INFO_ENDPOINT = 'https://chapel-translator-blake-lion.trycloudflare.com/api/v1/crm/settings/company-info';
+const PIPELINE_FORM_ENDPOINT = 'https://apparel-alternative-derived-lifetime.trycloudflare.com/api/v1/crm/pipelines/3/form';
+const COMPANY_INFO_ENDPOINT = 'https://apparel-alternative-derived-lifetime.trycloudflare.com/api/v1/crm/settings/company-info';
 const CRM_API_KEY = process.env.CRM_PIPELINE_FORM_API_KEY || process.env.CRM_COMPANY_INFO_API_KEY || 'pt_4135380196590f3b81d68d8b5acbc883b3ee46ccbb77e73e';
 
 const fallbackHero = {

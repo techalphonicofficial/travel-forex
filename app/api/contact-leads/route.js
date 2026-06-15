@@ -1,4 +1,4 @@
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://chapel-translator-blake-lion.trycloudflare.com/api/v1';
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://apparel-alternative-derived-lifetime.trycloudflare.com/api/v1';
 const CRM_API_KEY = process.env.CRM_LEADS_API_KEY || process.env.CRM_COMPANY_INFO_API_KEY || 'pt_4135380196590f3b81d68d8b5acbc883b3ee46ccbb77e73e';
 
 export const dynamic = 'force-dynamic';

@@ -16,11 +16,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'peninsula-surplus-ray-appraisal.trycloudflare.com',
+        hostname: 'apparel-alternative-derived-lifetime.trycloudflare.com',
       },
       {
         protocol: 'https',
-        hostname: 'chapel-translator-blake-lion.trycloudflare.com',
+        hostname: 'apparel-alternative-derived-lifetime.trycloudflare.com',
       },
     ],
     qualities: [25, 50, 75, 100],
