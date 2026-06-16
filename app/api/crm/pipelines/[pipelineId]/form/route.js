@@ -1,4 +1,4 @@
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://apparel-alternative-derived-lifetime.trycloudflare.com/api/v1';
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://tourtravel.yber.in/api/v1';
 const CRM_API_KEY =
   process.env.CRM_PIPELINE_FORM_API_KEY ||
   process.env.CRM_COMPANY_INFO_API_KEY ||

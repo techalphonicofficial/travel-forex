@@ -16,11 +16,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'apparel-alternative-derived-lifetime.trycloudflare.com',
+        hostname: 'tourtravel.yber.in',
       },
       {
         protocol: 'https',
-        hostname: 'apparel-alternative-derived-lifetime.trycloudflare.com',
+        hostname: 'tourtravel.yber.in',
       },
     ],
     qualities: [25, 50, 75, 100],

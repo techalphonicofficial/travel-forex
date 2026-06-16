@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE_URL = 'https://apparel-alternative-derived-lifetime.trycloudflare.com/api/v1';
+const DEFAULT_API_BASE_URL = 'https://tourtravel.yber.in/api/v1';
 
 const getBackendBaseUrl = () => {
   const configuredBase = process.env.NEXT_PUBLIC_BASE_URL || DEFAULT_API_BASE_URL;
