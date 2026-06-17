@@ -159,7 +159,7 @@ export default function SideDrawer({ isOpen, onClose, companyInfo }) {
                           {ItemContent}
                         </Link>
                       ) : (
-                        <div key={sidx}>{ItemContent}</div>
+                        // <div key={sidx}>{ItemContent}</div>
                       );
                     })}
                   </div>
