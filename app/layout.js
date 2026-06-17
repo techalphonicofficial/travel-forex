@@ -88,7 +88,7 @@ export default async function RootLayout({ children }) {
         <ThemeColoursClient initialVariables={activeTheme} />
         <WishlistProvider>
           <Navbar brand={projectConfig} companyInfo={companyInfo} />
-          <GlobalInquiryModal brand={projectConfig} />
+          <GlobalInquiryModal brand={projectConfig} companyInfo={companyInfo} />
           <main>{children}</main>
           <Footer brand={projectConfig} companyInfo={companyInfo} />
           <ToastProvider />

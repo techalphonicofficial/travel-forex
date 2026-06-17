@@ -44,8 +44,9 @@ const navGroups = [
   { label: 'Login', href: '/login' },
 ];
 
-export default function SideDrawer({ isOpen, onClose }) {
+export default function SideDrawer({ isOpen, onClose, companyInfo }) {
   const [expanded, setExpanded] = useState(null);
+  const displayPhone = companyInfo?.contact?.phone || '+91 8031274154';
 
   const toggleExpand = (label) => {
     setExpanded(expanded === label ? null : label);
@@ -178,7 +179,7 @@ export default function SideDrawer({ isOpen, onClose }) {
                 </div>
               ))}
             </div>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>+91 8031274154</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{displayPhone}</span>
           </div>
         </div>
       </div>

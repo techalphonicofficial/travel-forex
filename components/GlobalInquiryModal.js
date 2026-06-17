@@ -2,10 +2,20 @@
 
 import { useState, useEffect } from 'react';
 
-export default function GlobalInquiryModal({ brand }) {
+const getLogoUrl = (logo) => {
+  if (!logo) return '';
+  if (/^(https?:|data:|blob:)/i.test(logo)) return logo;
+  if (!String(logo).startsWith('/uploads')) return logo;
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'https://tourtravel.yber.in';
+  return `${baseUrl.replace(/\/$/, '')}/${String(logo).replace(/^\//, '')}`;
+};
+
+export default function GlobalInquiryModal({ brand, companyInfo }) {
   const [isOpen, setIsOpen] = useState(false);
-  const brandLogo = brand?.logo || '/logooo.png';
+  const brandLogo = getLogoUrl(companyInfo?.company_logo_url) || brand?.logo || '/logooo.png';
   const brandName = brand?.legalName || 'ITS TRAVELS AND TOURS';
+  const displayPhone = companyInfo?.contact?.phone || '+91 8031274154';
 
   useEffect(() => {
     // Check if the modal was already closed in this session
@@ -186,7 +196,7 @@ export default function GlobalInquiryModal({ brand }) {
 
           <div className="mt-4 pt-3 border-top text-center">
             <p style={{ fontSize: '13px', color: '#9ca3af', marginBottom: 0 }}>
-              Need help? Reach out at <span className="fw-bold text-dark">+91 8031274154</span>
+              Need help? Reach out at <span className="fw-bold text-dark">{displayPhone}</span>
             </p>
           </div>
         </div>

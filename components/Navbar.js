@@ -498,8 +498,9 @@ function MegaDropdown({ label, cols, isTransparent }) {
 }
 
 /* ── Side Drawer ───────────────────────────────────────── */
-function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, onLogout, onForexOpen }) {
+function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, onLogout, onForexOpen, companyInfo }) {
   const [expanded, setExpanded] = useState(null);
+  const displayPhone = companyInfo?.contact?.phone || '+91 8031274154';
   const firstName = isLoggedIn ? currentUser?.name?.split(' ')[0] || 'Traveler' : 'Guest';
   const userInitial = firstName.charAt(0).toUpperCase() || 'G';
 
@@ -730,7 +731,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
             <div>
               <div style={{ color: '#0f172a', fontSize: 12, fontWeight: 900 }}>Need help planning?</div>
-              <div style={{ marginTop: 2, color: '#64748b', fontSize: 12, fontWeight: 700 }}>+91 8031274154</div>
+              <div style={{ marginTop: 2, color: '#64748b', fontSize: 12, fontWeight: 700 }}>{displayPhone}</div>
             </div>
             {isLoggedIn ? (
               <button
@@ -1785,6 +1786,7 @@ export default function Navbar({ brand, companyInfo }) {
         onClose={() => setDrawerOpen(false)}
         onForexOpen={() => setForexOpen(true)}
         onLogout={clearAuthSession}
+        companyInfo={companyInfo}
       />
     </>
   );
