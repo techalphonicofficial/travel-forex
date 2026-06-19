@@ -100,7 +100,7 @@ const normalizeApiPackage = (pkg) => {
     price,
     priceCategory: getPriceCategory(price),
     type: firstDestination?.type?.toUpperCase() || 'PACKAGE',
-    typeColor: firstDestination?.type === 'domestic' ? '#10b981' : '#6366f1',
+    typeColor: String(firstDestination?.type || '').toLowerCase() === 'domestic' ? '#10b981' : '#6366f1',
     rating: 4.6,
     reviews: 0,
     description: pkg.description,

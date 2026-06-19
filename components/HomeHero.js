@@ -91,13 +91,15 @@ export default function HomeHero() {
   const [locationOpen, setLocationOpen] = useState(false);
   const [activeTraveler, setActiveTraveler] = useState(null);
   const [isVideoMuted, setIsVideoMuted] = useState(true);
-  const [heroHeight, setHeroHeight] = useState('100vh');
+  const [heroHeight, setHeroHeight] = useState('50vh');
   const [isMobile, setIsMobile] = useState(false);
-  const [headline, setHeadline] = useState('CREATE YOUR SOOPER HIT HOLIDAY');
   const [videos, setVideos] = useState(VIDEO_SOURCES);
   const [homeTravelerTypes, setHomeTravelerTypes] = useState([]);
   const [homeCategoriesLoading, setHomeCategoriesLoading] = useState(true);
   const [canScrollCategories, setCanScrollCategories] = useState({ prev: false, next: false });
+  const [heroMediaType, setHeroMediaType] = useState('video'); // 'video' | 'image'
+  const [carouselImages, setCarouselImages] = useState([]);
+  const [currentImgIdx, setCurrentImgIdx] = useState(0);
 
   const updateCategoryScrollState = useCallback(() => {
     const row = travellerRowRef.current;
@@ -116,11 +118,9 @@ export default function HomeHero() {
       const w = window.innerWidth;
       setIsMobile(w <= 767);
       if (w <= 767) {         // Mobile
-        setHeroHeight('100svh');
-      } else if (w <= 1024) {  // Tablet
-        setHeroHeight('100vh');
-      } else {                // Desktop
-        setHeroHeight('100vh');
+        setHeroHeight('50svh');
+      } else {                // Desktop/Tablet
+        setHeroHeight('50vh');
       }
     };
 
@@ -128,6 +128,17 @@ export default function HomeHero() {
     window.addEventListener('resize', updateHeight);
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
+
+  // Auto-play image carousel
+  useEffect(() => {
+    if (heroMediaType !== 'image' || carouselImages.length <= 1) return;
+
+    const timer = setInterval(() => {
+      setCurrentImgIdx((idx) => (idx + 1) % carouselImages.length);
+    }, 4500); // 4.5 seconds per slide
+
+    return () => clearInterval(timer);
+  }, [heroMediaType, carouselImages.length]);
 
   useEffect(() => {
     let mounted = true;
@@ -143,12 +154,26 @@ export default function HomeHero() {
       const header = getHomeSection(page, 'header_key', 'image_text');
       const mediaUrl = getMediaUrl(header?.json_data?.media_url || header?.image);
 
-      if (header?.title) {
-        setHeadline(header.title);
-      }
-
       if (mediaUrl) {
-        setVideos([{ src: mediaUrl, poster: getMediaUrl(page?.feature_image) || VIDEO_SOURCES[0].poster }]);
+        const isVideo = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(mediaUrl);
+        if (isVideo) {
+          setHeroMediaType('video');
+          setVideos([{ src: mediaUrl, poster: getMediaUrl(page?.feature_image) || VIDEO_SOURCES[0].poster }]);
+          setVidIdx(0);
+        } else {
+          setHeroMediaType('image');
+          setCarouselImages([
+            mediaUrl,
+            'https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=1920&q=85',
+            'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=85',
+            'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=85',
+            'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=1920&q=85',
+          ]);
+          setCurrentImgIdx(0);
+        }
+      } else {
+        setHeroMediaType('video');
+        setVideos(VIDEO_SOURCES);
         setVidIdx(0);
       }
 
@@ -161,7 +186,9 @@ export default function HomeHero() {
               id: category.id || category.slug || category.name?.toLowerCase(),
               slug: category.slug,
               label: category.name,
-              image: getMediaUrl(category.feature_image) || getFallbackCategoryImage(category.name),
+              image: (category.slug === 'luxury' || String(category.name).toLowerCase() === 'luxury')
+                ? '/luxury_transparent.png'
+                : (getMediaUrl(category.feature_image) || getFallbackCategoryImage(category.name)),
               alt: category.feature_image_alt || category.name,
               category,
             }))
@@ -310,56 +337,93 @@ export default function HomeHero() {
     <section>
 
       {/* ══════════════════════════════════
-          FULL-SCREEN VIDEO HERO
+          HALF-SCREEN VIDEO HERO
       ══════════════════════════════════ */}
       <div
         style={{
           position: 'relative',
           width: '100%',
           height: heroHeight,
-          minHeight: 620,
-          overflow: 'hidden',
+          minHeight: isMobile ? 430 : 540,
+          overflow: 'visible',
           background: '#041a0c',
         }}
       >
 
-        {/* ── VIDEO background ── */}
-        <video
-          ref={videoRef}
-          key={src}
-          autoPlay
-          loop
-          muted={isVideoMuted}
-          playsInline
-          onEnded={handleEnded}
-          poster={poster}
-          preload="auto"
-          style={{
-            position: 'absolute', inset: 0,
-            width: '100%', height: '100%',
-            objectFit: 'cover', zIndex: 0,
-          }}
-        >
-          <source src={src} type={getVideoType(src)} />
-          {/* Fallback: poster image already shows via the poster prop */}
-        </video>
+        {/* ── Media clip container (keeps video + overlays within bounds) ── */}
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 0 }}>
 
-        {/* ── Dark gradient overlay ── */}
-        <div
-          style={{
-            position: 'absolute', inset: 0, zIndex: 1,
-            background:
-              'linear-gradient(180deg, rgba(0,0,0,0.48) 0%, rgba(0,0,0,0.32) 48%, rgba(4,26,12,0.92) 100%)',
-          }}
-        />
+          {/* ── IMAGE background (slideshow) ── */}
+          {heroMediaType === 'image' && carouselImages.length > 0 && (
+            <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+              {carouselImages.map((imgUrl, i) => (
+                <div
+                  key={imgUrl}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundImage: `url(${imgUrl})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    opacity: i === currentImgIdx ? 1 : 0,
+                    transition: 'opacity 1.2s ease-in-out',
+                    zIndex: i === currentImgIdx ? 1 : 0,
+                  }}
+                />
+              ))}
+            </div>
+          )}
 
-        {/* ── Skip video button ── */}
+          {/* ── VIDEO background ── */}
+          {heroMediaType === 'video' && (
+            <video
+              ref={videoRef}
+              key={src}
+              autoPlay
+              loop
+              muted={isVideoMuted}
+              playsInline
+              onEnded={handleEnded}
+              poster={poster}
+              preload="auto"
+              style={{
+                position: 'absolute', inset: 0,
+                width: '100%', height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center center',
+                zIndex: 0,
+              }}
+            >
+              <source src={src} type={getVideoType(src)} />
+            </video>
+          )}
+
+          {/* ── Dark gradient overlay ── */}
+          <div
+            style={{
+              position: 'absolute', inset: 0, zIndex: 1,
+              background:
+                'linear-gradient(180deg, rgba(2,8,23,0.64) 0%, rgba(2,8,23,0.34) 42%, rgba(2,8,23,0.82) 100%)',
+            }}
+          />
+
+        </div>
+
+
+
+        {/* ── Skip button ── */}
         <button
-          onClick={() => setVidIdx(i => (i + 1) % videos.length)}
-          title="Next video"
-          aria-label="Switch to next video"
+          onClick={() => {
+            if (heroMediaType === 'image') {
+              setCurrentImgIdx((i) => (i + 1) % carouselImages.length);
+            } else {
+              setVidIdx(i => (i + 1) % videos.length);
+            }
+          }}
+          title={heroMediaType === 'image' ? 'Next image' : 'Next video'}
+          aria-label={heroMediaType === 'image' ? 'Switch to next image' : 'Switch to next video'}
           style={{
-            position: 'absolute', bottom: isMobile ? 248 : 256, right: 20, zIndex: 5,
+            position: 'absolute', bottom: isMobile ? 36 : 48, right: 20, zIndex: 5,
             background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)',
             border: '1px solid rgba(255,255,255,0.22)', borderRadius: '50%',
             width: 38, height: 38, display: 'flex', alignItems: 'center',
@@ -375,560 +439,544 @@ export default function HomeHero() {
           </svg>
         </button>
 
-        {/* ── Centered hero content ── */}
-        <button
-          type="button"
-          onClick={() => setIsVideoMuted((muted) => !muted)}
-          title={isVideoMuted ? 'Unmute video' : 'Mute video'}
-          aria-label={isVideoMuted ? 'Unmute video' : 'Mute video'}
-          aria-pressed={!isVideoMuted}
+        {/* ── Mute/Unmute button (only if video) ── */}
+        {heroMediaType === 'video' && (
+          <button
+            type="button"
+            onClick={() => setIsVideoMuted((muted) => !muted)}
+            title={isVideoMuted ? 'Unmute video' : 'Mute video'}
+            aria-label={isVideoMuted ? 'Unmute video' : 'Mute video'}
+            aria-pressed={!isVideoMuted}
+            style={{
+              position: 'absolute',
+              bottom: isMobile ? 36 : 48,
+              left: 20,
+              zIndex: 5,
+              background: 'rgba(0,0,0,0.4)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255,255,255,0.22)',
+              borderRadius: '50%',
+              width: 38,
+              height: 38,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: 'white',
+              transition: 'background 0.2s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.4)'}
+          >
+            {isVideoMuted ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+                <path d="m22 9-6 6" />
+                <path d="m16 9 6 6" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+                <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+                <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+              </svg>
+            )}
+          </button>
+        )}
+
+        {/* ── Green-border search bar ── */}
+        <div
+          ref={searchWrapRef}
           style={{
             position: 'absolute',
-            bottom: isMobile ? 248 : 256,
-            left: 20,
-            zIndex: 5,
-            background: 'rgba(0,0,0,0.4)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255,255,255,0.22)',
-            borderRadius: '50%',
-            width: 38,
-            height: 38,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            color: 'white',
-            transition: 'background 0.2s',
-          }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.4)'}
-        >
-          {isVideoMuted ? (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M11 5 6 9H3v6h3l5 4V5Z" />
-              <path d="m22 9-6 6" />
-              <path d="m16 9 6 6" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M11 5 6 9H3v6h3l5 4V5Z" />
-              <path d="M15.5 8.5a5 5 0 0 1 0 7" />
-              <path d="M18.5 5.5a9 9 0 0 1 0 13" />
-            </svg>
-          )}
-        </button>
-
-        <div
-          style={{
-            position: 'absolute', inset: 0, zIndex: 4,
-            display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
-            textAlign: 'center', padding: '0 16px',
-            paddingBottom: isMobile ? 260 : 248,
+            bottom: isMobile ? 26 : 42,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '100%',
+            maxWidth: isMobile ? 360 : 700,
+            zIndex: 4,
+            padding: '0 16px',
           }}
         >
-
-          {/* Google review badge */}
           <div
             style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.2)', borderRadius: 999,
-              padding: '7px 20px', marginBottom: 22,
+              display: 'flex',
+              alignItems: 'stretch',
+              background: 'rgba(255,255,255,0.12)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.28)',
+              borderRadius: 18,
+              overflow: 'hidden',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.2)',
             }}
           >
-            <svg viewBox="0 0 48 48" width="16" height="16">
-              <path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z" />
-              <path fill="#34A853" d="M6.3 14.7l7 5.1C15.1 16.2 19.2 13 24 13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 16.3 2 9.7 7.4 6.3 14.7z" />
-              <path fill="#FBBC05" d="M24 46c5.4 0 10.5-1.8 14.4-4.9l-6.7-5.5C29.6 37.6 26.9 38.5 24 38.5c-6 0-10.5-3.8-12.2-8.9l-7.1 5.5C8.8 42.2 15.8 46 24 46z" />
-              <path fill="#EA4335" d="M44.5 20H24v8.5h11.8c-.6 2.8-2.2 5.2-4.5 6.8l6.7 5.5C42.4 37.2 45 31 45 24c0-1.3-.2-2.7-.5-4z" />
-            </svg>
-            <span style={{ color: '#fbbf24', fontSize: 14, fontWeight: 700 }}>★ 4.6</span>
-            <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12 }}>From 8,250 reviews</span>
+            <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0, padding: isMobile ? '0 8px 0 16px' : '0 10px 0 20px' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="2.5" width="20" height="20">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              className="hero-search-input"
+              placeholder="Search countries, cities"
+              value={destination}
+              onChange={(event) => {
+                const nextDestination = event.target.value;
+                setDestination(nextDestination);
+                setSelectedLocation(null);
+
+                if (nextDestination.trim().length < 2) {
+                  setLocationSuggestions([]);
+                  setLocationLoading(false);
+                  setLocationOpen(false);
+                } else {
+                  setLocationLoading(true);
+                  setLocationOpen(true);
+                }
+              }}
+              onFocus={() => {
+                if (destination.trim().length >= 2) {
+                  setLocationOpen(true);
+                }
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  if (locationOpen && locationSuggestions[0]) {
+                    handleSearch(locationSuggestions[0]);
+                    return;
+                  }
+                  handleSearch();
+                }
+              }}
+              style={{
+                flex: '1 1 auto', minWidth: 0,
+                border: 'none', outline: 'none',
+                fontSize: isMobile ? 15 : 16, color: 'rgba(255,255,255,0.95)',
+                padding: isMobile ? '14px 6px' : '12px 8px',
+                background: 'transparent',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            />
+            <button
+              onClick={handleSearch}
+              style={{
+                background: 'var(--color-secondary)', color: '#111827',
+                border: 'none', padding: isMobile ? '0 18px' : '0 28px',
+                flex: '0 0 auto', minWidth: isMobile ? 84 : 106,
+                whiteSpace: 'nowrap',
+                fontWeight: 700, fontSize: isMobile ? 14 : 15, cursor: 'pointer',
+                letterSpacing: 0.3, transition: 'background 0.2s',
+                fontFamily: 'Poppins, sans-serif',
+                borderRadius: '0 18px 18px 0',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--color-secondary-hover)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'var(--color-secondary)'}
+            >
+              Search
+            </button>
           </div>
-
-          {/* Main headline */}
-          <h1
-            style={{
-              fontFamily: 'Poppins, sans-serif', fontWeight: 900,
-              fontSize: 'clamp(20px, 3.2vw, 44px)', color: 'white',
-              margin: '0 0 30px', lineHeight: 1.0,
-              textTransform: 'uppercase', letterSpacing: 2,
-              textShadow: '0 3px 28px rgba(0,0,0,0.55)',
-            }}
-          >
-            {headline}
-          </h1>
-
-          {/* ── Green-border search bar — exact PickYourTrail style ── */}
-          <div ref={searchWrapRef} style={{ width: '100%', maxWidth: isMobile ? 340 : 600, position: 'relative' }}>
+          {locationOpen && (locationLoading || locationSuggestions.length > 0) && (
             <div
               style={{
-                display: 'flex',
-                alignItems: 'stretch',
-                background: 'rgba(255,255,255,0.97)',
-                border: '2.5px solid var(--color-secondary)',
-                borderRadius: 999,
+                position: 'absolute',
+                top: 'calc(100% + 10px)',
+                left: 0,
+                right: 0,
+                zIndex: 20,
                 overflow: 'hidden',
-                boxShadow: '0 0 0 5px rgba(253, 206, 46, 0.18), 0 12px 40px rgba(0,0,0,0.45)',
+                borderRadius: 18,
+                background: 'rgba(255,255,255,0.98)',
+                border: '1px solid rgba(15,23,42,0.12)',
+                boxShadow: '0 18px 44px rgba(15,23,42,0.28)',
+                textAlign: 'left',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0, padding: isMobile ? '0 8px 0 16px' : '0 10px 0 20px' }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2.5" width="20" height="20">
-                  <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-                </svg>
-              </div>
-              <input
-                type="text"
-                placeholder="Search countries, cities"
-                value={destination}
-                onChange={(event) => {
-                  const nextDestination = event.target.value;
-                  setDestination(nextDestination);
-                  setSelectedLocation(null);
-
-                  if (nextDestination.trim().length < 2) {
-                    setLocationSuggestions([]);
-                    setLocationLoading(false);
-                    setLocationOpen(false);
-                  } else {
-                    setLocationLoading(true);
-                    setLocationOpen(true);
-                  }
-                }}
-                onFocus={() => {
-                  if (destination.trim().length >= 2) {
-                    setLocationOpen(true);
-                  }
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    if (locationOpen && locationSuggestions[0]) {
-                      handleSearch(locationSuggestions[0]);
-                      return;
-                    }
-                    handleSearch();
-                  }
-                }}
-                style={{
-                  flex: '1 1 auto', minWidth: 0,
-                  border: 'none', outline: 'none',
-                  fontSize: isMobile ? 15 : 16, color: '#111827',
-                  padding: isMobile ? '14px 6px' : '12px 8px',
-                  background: 'transparent',
-                  fontFamily: 'Inter, sans-serif',
-                }}
-              />
-              <button
-                onClick={handleSearch}
-                style={{
-                  background: 'var(--color-secondary)', color: 'white',
-                  border: 'none', padding: isMobile ? '0 18px' : '0 28px',
-                  flex: '0 0 auto', minWidth: isMobile ? 84 : 106,
-                  whiteSpace: 'nowrap',
-                  fontWeight: 700, fontSize: isMobile ? 14 : 15, cursor: 'pointer',
-                  letterSpacing: 0.3, transition: 'background 0.2s',
-                  fontFamily: 'Poppins, sans-serif',
-                  borderRadius: '0 999px 999px 0',
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--color-secondary-hover)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'var(--color-secondary)'}
-              >
-                Search
-              </button>
-            </div>
-            {locationOpen && (locationLoading || locationSuggestions.length > 0) && (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 'calc(100% + 10px)',
-                  left: 0,
-                  right: 0,
-                  zIndex: 20,
-                  overflow: 'hidden',
-                  borderRadius: 18,
-                  background: 'rgba(255,255,255,0.98)',
-                  border: '1px solid rgba(15,23,42,0.12)',
-                  boxShadow: '0 18px 44px rgba(15,23,42,0.28)',
-                  textAlign: 'left',
-                }}
-              >
-                {locationLoading ? (
-                  <div
-                    style={{
-                      padding: '16px 18px',
-                      color: '#64748b',
-                      fontSize: 14,
-                      fontFamily: 'Inter, sans-serif',
-                    }}
-                  >
-                    Searching destinations...
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      maxHeight: isMobile ? 272 : 310,
-                      overflowY: 'auto',
-                      overscrollBehavior: 'contain',
-                    }}
-                  >
-                    {locationSuggestions.map((location, index) => (
-                    <button
-                      key={`${location.type || 'location'}-${location.id}-${getLocationLabel(location)}`}
-                      type="button"
-                      onMouseDown={(event) => event.preventDefault()}
-                      onClick={() => handleLocationSelect(location)}
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 12,
-                        border: 'none',
-                        borderBottom: index === locationSuggestions.length - 1 ? 'none' : '1px solid rgba(226,232,240,0.9)',
-                        background: 'transparent',
-                        minHeight: isMobile ? 54 : 62,
-                        padding: isMobile ? '13px 14px' : '14px 18px',
-                        cursor: 'pointer',
-                        fontFamily: 'Inter, sans-serif',
-                        textAlign: 'left',
-                      }}
-                      onMouseEnter={(event) => {
-                        event.currentTarget.style.background = '#f8fafc';
-                      }}
-                      onMouseLeave={(event) => {
-                        event.currentTarget.style.background = 'transparent';
-                      }}
-                    >
-                      <span style={{ minWidth: 0 }}>
-                        <span
-                          style={{
-                            display: 'block',
-                            color: '#0f172a',
-                            fontSize: isMobile ? 14 : 15,
-                            fontWeight: 800,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {getLocationLabel(location)}
-                        </span>
-                        <span style={{ color: '#64748b', fontSize: 12, fontWeight: 600 }}>
-                          {getLocationMeta(location)}
-                        </span>
-                      </span>
-                      <span
-                        style={{
-                          flex: '0 0 auto',
-                          borderRadius: 999,
-                          padding: '5px 10px',
-                          background: location.type === 'country' ? '#e0f2fe' : '#dcfce7',
-                          color: location.type === 'country' ? '#0369a1' : '#15803d',
-                          fontSize: 11,
-                          fontWeight: 900,
-                          textTransform: 'uppercase',
-                          letterSpacing: 0.4,
-                        }}
-                      >
-                        {location.type || 'city'}
-                      </span>
-                    </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-        </div>
-
-        {/* ══════════════════════════════════
-            "OR PICK WHO'S JOINING" PANEL
-        ══════════════════════════════════ */}
-        <style>{`
-          .traveller-band {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 6;
-            min-height: 236px;
-            background:
-              radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--color-secondary) 20%, transparent), transparent 30%),
-              linear-gradient(135deg,
-                color-mix(in srgb, var(--color-primary) 58%, #05070d) 0%,
-                color-mix(in srgb, var(--color-primary) 72%, #05070d) 48%,
-                color-mix(in srgb, var(--color-primary-hover) 54%, #05070d) 100%);
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-          }
-          .traveller-band::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            opacity: 0.22;
-            pointer-events: none;
-            background-image:
-              linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
-              linear-gradient(0deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 18px 18px;
-          }
-          .traveller-row {
-            position: relative;
-            width: min(1180px, calc(100% - 112px));
-            margin: 0 auto;
-            padding: 20px 28px 18px;
-            display: flex;
-            justify-content: flex-start;
-            gap: clamp(18px, 2vw, 38px);
-            overflow-x: auto;
-            overscroll-behavior-x: contain;
-            scroll-snap-type: x proximity;
-            scroll-padding-inline: 28px;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-          }
-          .traveller-row::-webkit-scrollbar { display: none; }
-          .traveller-option {
-            flex: 0 0 clamp(190px, 17vw, 238px);
-            border: 0;
-            background: transparent;
-            padding: 0;
-            cursor: pointer;
-            color: white;
-            font-family: Poppins, sans-serif;
-            text-align: left;
-            transition: transform 0.22s ease;
-            scroll-snap-align: start;
-          }
-          .traveller-option:focus-visible,
-          .traveller-scroll-btn:focus-visible {
-            outline: 3px solid var(--color-secondary);
-            outline-offset: 4px;
-          }
-          .traveller-option:hover,
-          .traveller-option.is-active {
-            transform: translateY(-5px);
-          }
-          .traveller-visual {
-            position: relative;
-            display: block;
-            height: 158px;
-            margin-bottom: 12px;
-          }
-          .traveller-arrow {
-            position: absolute;
-            left: 18px;
-            right: 0;
-            bottom: 10px;
-            height: 122px;
-            border-radius: 16px 36px 36px 16px;
-            background:
-              linear-gradient(135deg,
-                color-mix(in srgb, var(--color-secondary) 24%, var(--color-primary)) 0%,
-                color-mix(in srgb, var(--color-primary) 76%, #000) 100%);
-            clip-path: polygon(0 0, 74% 0, 100% 50%, 74% 100%, 0 100%, 11% 50%);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
-            transition: filter 0.22s ease, transform 0.22s ease;
-          }
-          .traveller-option:hover .traveller-arrow,
-          .traveller-option.is-active .traveller-arrow {
-            filter: brightness(1.14) saturate(1.08);
-            transform: translateX(4px);
-          }
-          .traveller-photo-wrap {
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 142px;
-            height: 154px;
-            overflow: hidden;
-            border-radius: 70px 70px 8px 8px;
-            filter: drop-shadow(0 14px 18px rgba(0,0,0,0.26));
-          }
-          .traveller-photo-wrap img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-            display: block;
-          }
-          .traveller-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding-left: 40px;
-            font-size: clamp(20px, 1.9vw, 29px);
-            line-height: 1;
-            font-weight: 900;
-            letter-spacing: 0;
-            text-transform: uppercase;
-            text-shadow: 0 3px 10px rgba(0,0,0,0.22);
-            white-space: nowrap;
-            transition: color 0.22s ease;
-          }
-          .traveller-option:hover .traveller-label,
-          .traveller-option.is-active .traveller-label {
-            color: var(--color-secondary);
-          }
-          .traveller-label svg {
-            width: 20px;
-            height: 20px;
-            stroke-width: 3.2;
-            flex: 0 0 auto;
-          }
-          .traveller-scroll-btn {
-            position: absolute;
-            z-index: 4;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.28);
-            background: color-mix(in srgb, var(--color-primary) 64%, #000);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.22);
-            transition: background .18s ease, color .18s ease, opacity .18s ease;
-          }
-          .traveller-scroll-btn:hover {
-            background: var(--color-secondary);
-            color: #111827;
-          }
-          .traveller-scroll-btn:disabled {
-            opacity: .38;
-            cursor: default;
-            pointer-events: none;
-          }
-          .traveller-scroll-btn.prev { left: 18px; }
-          .traveller-scroll-btn.next { right: 18px; }
-          .traveller-empty-state {
-            width: min(760px, calc(100% - 48px));
-            min-height: 120px;
-            margin: 0 auto;
-            display: grid;
-            place-items: center;
-            border: 1px dashed rgba(255,255,255,.32);
-            border-radius: 14px;
-            color: rgba(255,255,255,.86);
-            background: rgba(255,255,255,.06);
-            font-size: 14px;
-            font-weight: 800;
-            text-align: center;
-          }
-          @media (max-width: 900px) {
-            .traveller-band { min-height: 224px; }
-            .traveller-row {
-              width: calc(100% - 44px);
-              justify-content: flex-start;
-              gap: 26px;
-              padding-inline: 22px;
-            }
-            .traveller-option { flex-basis: 190px; }
-            .traveller-label {
-              font-size: 23px;
-              padding-left: 30px;
-            }
-          }
-          @media (max-width: 640px) {
-            .traveller-band { min-height: 210px; }
-            .traveller-row {
-              gap: 20px;
-              padding: 18px 18px 16px;
-            }
-            .traveller-option { flex-basis: 164px; }
-            .traveller-visual { height: 134px; }
-            .traveller-arrow {
-              height: 104px;
-              left: 12px;
-            }
-            .traveller-photo-wrap {
-              width: 116px;
-              height: 130px;
-            }
-            .traveller-label {
-              font-size: 20px;
-              padding-left: 20px;
-            }
-            .traveller-scroll-btn { display: none; }
-          }
-        `}</style>
-        <div className="traveller-band" aria-label="Pick who is joining">
-          <button
-            type="button"
-            className="traveller-scroll-btn prev"
-            aria-label="Scroll categories left"
-            aria-disabled={!canScrollCategories.prev}
-            onClick={() => scrollTravellerRow(-1)}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" strokeWidth="3">
-              <path d="M15 5l-7 7 7 7" />
-            </svg>
-          </button>
-          {homeCategoriesLoading || homeTravelerTypes.length === 0 ? (
-            <div className="traveller-empty-state" aria-live="polite">
-              {homeCategoriesLoading ? 'Loading holiday categories...' : 'No home categories returned from the API.'}
-            </div>
-          ) : (
-            <div
-              ref={travellerRowRef}
-              className="traveller-row"
-              onWheel={(event) => {
-                if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
-                event.preventDefault();
-                event.currentTarget.scrollLeft += event.deltaY;
-                window.requestAnimationFrame(updateCategoryScrollState);
-              }}
-            >
-              {homeTravelerTypes.map(({ id, label, image, alt }) => (
-                <button
-                  key={id}
-                  type="button"
-                  className={`traveller-option${activeTraveler === id ? ' is-active' : ''}`}
-                  onMouseEnter={() => setActiveTraveler(id)}
-                  onFocus={() => setActiveTraveler(id)}
-                  onMouseLeave={() => setActiveTraveler(null)}
-                  onBlur={() => setActiveTraveler(null)}
-                  onClick={() => {
-                    router.push(getCategoryHref({ label, destination }));
+              {locationLoading ? (
+                <div
+                  style={{
+                    padding: '16px 18px',
+                    color: '#64748b',
+                    fontSize: 14,
+                    fontFamily: 'Inter, sans-serif',
                   }}
                 >
-                  <span className="traveller-visual">
-                    <span className="traveller-arrow" />
-                    <span className="traveller-photo-wrap">
-                      <img src={image} alt={alt || label} loading="lazy" />
+                  Searching destinations...
+                </div>
+              ) : (
+                <div
+                  style={{
+                    maxHeight: isMobile ? 272 : 310,
+                    overflowY: 'auto',
+                    overscrollBehavior: 'contain',
+                  }}
+                >
+                  {locationSuggestions.map((location, index) => (
+                  <button
+                    key={`${location.type || 'location'}-${location.id}-${getLocationLabel(location)}`}
+                    type="button"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => handleLocationSelect(location)}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 12,
+                      border: 'none',
+                      borderBottom: index === locationSuggestions.length - 1 ? 'none' : '1px solid rgba(226,232,240,0.9)',
+                      background: 'transparent',
+                      minHeight: isMobile ? 54 : 62,
+                      padding: isMobile ? '13px 14px' : '14px 18px',
+                      cursor: 'pointer',
+                      fontFamily: 'Inter, sans-serif',
+                      textAlign: 'left',
+                    }}
+                    onMouseEnter={(event) => {
+                      event.currentTarget.style.background = '#f8fafc';
+                    }}
+                    onMouseLeave={(event) => {
+                      event.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <span style={{ minWidth: 0 }}>
+                      <span
+                        style={{
+                          display: 'block',
+                          color: '#0f172a',
+                          fontSize: isMobile ? 14 : 15,
+                          fontWeight: 800,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {getLocationLabel(location)}
+                      </span>
+                      <span style={{ color: '#64748b', fontSize: 12, fontWeight: 600 }}>
+                        {getLocationMeta(location)}
+                      </span>
                     </span>
-                  </span>
-                  <span className="traveller-label">
-                    {label}
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <path d="M9 5l7 7-7 7" />
-                    </svg>
-                  </span>
-                </button>
-              ))}
+                    <span
+                      style={{
+                        flex: '0 0 auto',
+                        borderRadius: 999,
+                        padding: '5px 10px',
+                        background: location.type === 'country' ? '#e0f2fe' : '#dcfce7',
+                        color: location.type === 'country' ? '#0369a1' : '#15803d',
+                        fontSize: 11,
+                        fontWeight: 900,
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.4,
+                      }}
+                    >
+                      {location.type || 'city'}
+                    </span>
+                  </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
-          <button
-            type="button"
-            className="traveller-scroll-btn next"
-            aria-label="Scroll categories right"
-            aria-disabled={!canScrollCategories.next}
-            onClick={() => scrollTravellerRow(1)}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" strokeWidth="3">
-              <path d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
         </div>
 
       </div>
+
+      {/* ══════════════════════════════════
+          "OR PICK WHO'S JOINING" PANEL (below the banner)
+      ══════════════════════════════════ */}
+      <style>{`
+        .traveller-band {
+          position: relative;
+          z-index: 2;
+          min-height: 218px;
+          background:
+            radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--color-secondary) 20%, transparent), transparent 30%),
+            linear-gradient(135deg,
+              color-mix(in srgb, var(--color-primary) 58%, #05070d) 0%,
+              color-mix(in srgb, var(--color-primary) 72%, #05070d) 48%,
+              color-mix(in srgb, var(--color-primary-hover) 54%, #05070d) 100%);
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          padding-top: 28px;
+          padding-bottom: 22px;
+        }
+        .traveller-band::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          opacity: 0.22;
+          pointer-events: none;
+          background-image:
+            linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+          background-size: 18px 18px;
+        }
+        .traveller-row {
+          position: relative;
+          width: min(1540px, calc(100% - 112px));
+          margin: 0 auto;
+          padding: 20px 28px 18px;
+          display: flex;
+          justify-content: flex-start;
+          gap: clamp(18px, 2vw, 38px);
+          overflow-x: auto;
+          overscroll-behavior-x: contain;
+          scroll-snap-type: x proximity;
+          scroll-padding-inline: 28px;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+        }
+        .traveller-row::-webkit-scrollbar { display: none; }
+        .traveller-option {
+          flex: 0 0 clamp(190px, 17vw, 238px);
+          border: 0;
+          background: transparent;
+          padding: 0;
+          cursor: pointer;
+          color: white;
+          font-family: Poppins, sans-serif;
+          text-align: left;
+          transition: transform 0.22s ease;
+          scroll-snap-align: start;
+        }
+        .traveller-option:focus-visible,
+        .traveller-scroll-btn:focus-visible {
+          outline: 3px solid var(--color-secondary);
+          outline-offset: 4px;
+        }
+        .traveller-option:hover,
+        .traveller-option.is-active {
+          transform: translateY(-5px);
+        }
+        .traveller-visual {
+          position: relative;
+          display: block;
+          height: 158px;
+          margin-bottom: 12px;
+        }
+        .traveller-arrow {
+          position: absolute;
+          left: 18px;
+          right: 0;
+          bottom: 10px;
+          height: 122px;
+          border-radius: 16px 36px 36px 16px;
+          background:
+            linear-gradient(135deg,
+              color-mix(in srgb, var(--color-secondary) 24%, var(--color-primary)) 0%,
+              color-mix(in srgb, var(--color-primary) 76%, #000) 100%);
+          clip-path: polygon(0 0, 74% 0, 100% 50%, 74% 100%, 0 100%, 11% 50%);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+          transition: filter 0.22s ease, transform 0.22s ease;
+        }
+        .traveller-option:hover .traveller-arrow,
+        .traveller-option.is-active .traveller-arrow {
+          filter: brightness(1.14) saturate(1.08);
+          transform: translateX(4px);
+        }
+        .traveller-photo-wrap {
+          position: absolute;
+          left: 0;
+          bottom: 0;
+          width: 142px;
+          height: 154px;
+          overflow: hidden;
+          border-radius: 70px 70px 8px 8px;
+          filter: drop-shadow(0 14px 18px rgba(0,0,0,0.26));
+          background: var(--color-primary-light);
+          transition: background 0.22s ease, transform 0.22s ease;
+        }
+        .traveller-option:hover .traveller-photo-wrap,
+        .traveller-option.is-active .traveller-photo-wrap {
+          background: var(--color-secondary);
+        }
+        .traveller-photo-wrap img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+          display: block;
+        }
+        .traveller-label {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding-left: 40px;
+          font-size: clamp(20px, 1.9vw, 29px);
+          line-height: 1;
+          font-weight: 900;
+          letter-spacing: 0;
+          text-transform: uppercase;
+          text-shadow: 0 3px 10px rgba(0,0,0,0.22);
+          white-space: nowrap;
+          transition: color 0.22s ease;
+        }
+        .traveller-option:hover .traveller-label,
+        .traveller-option.is-active .traveller-label {
+          color: var(--color-secondary);
+        }
+        .traveller-label svg {
+          width: 20px;
+          height: 20px;
+          stroke-width: 3.2;
+          flex: 0 0 auto;
+        }
+        .traveller-scroll-btn {
+          position: absolute;
+          z-index: 4;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.28);
+          background: color-mix(in srgb, var(--color-primary) 64%, #000);
+          color: white;
+          display: flex;
+          align-items: center;
+          justifyContent: center;
+          cursor: pointer;
+          box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+          transition: background .18s ease, color .18s ease, opacity .18s ease;
+        }
+        .traveller-scroll-btn:hover {
+          background: var(--color-secondary);
+          color: #111827;
+        }
+        .traveller-scroll-btn:disabled {
+          opacity: .38;
+          cursor: default;
+          pointer-events: none;
+        }
+        .traveller-scroll-btn.prev { left: 18px; }
+        .traveller-scroll-btn.next { right: 18px; }
+        .traveller-empty-state {
+          width: min(760px, calc(100% - 48px));
+          min-height: 120px;
+          margin: 0 auto;
+          display: grid;
+          place-items: center;
+          border: 1px dashed rgba(255,255,255,.32);
+          border-radius: 14px;
+          color: rgba(255,255,255,.86);
+          background: rgba(255,255,255,.06);
+          font-size: 14px;
+          font-weight: 800;
+          text-align: center;
+        }
+        @media (max-width: 900px) {
+          .traveller-band { min-height: 214px; padding-top: 28px; }
+          .traveller-row {
+            width: calc(100% - 44px);
+            justify-content: flex-start;
+            gap: 26px;
+            padding-inline: 22px;
+          }
+          .traveller-option { flex-basis: 190px; }
+          .traveller-label {
+            font-size: 23px;
+            padding-left: 30px;
+          }
+        }
+        @media (max-width: 640px) {
+          .traveller-band { min-height: 200px; padding-top: 26px; }
+          .traveller-row {
+            gap: 20px;
+            padding: 18px 18px 16px;
+          }
+          .traveller-option { flex-basis: 164px; }
+          .traveller-visual { height: 134px; }
+          .traveller-arrow {
+            height: 104px;
+            left: 12px;
+          }
+          .traveller-photo-wrap {
+            width: 116px;
+            height: 130px;
+          }
+          .traveller-label {
+            font-size: 20px;
+            padding-left: 20px;
+          }
+          .traveller-scroll-btn { display: none; }
+        }
+        /* Frosted glass search bar placeholder */
+        .hero-search-input::placeholder {
+          color: rgba(255, 255, 255, 0.55);
+        }
+      `}</style>
+
+      <div className="traveller-band" aria-label="Pick who is joining">
+        <button
+          type="button"
+          className="traveller-scroll-btn prev"
+          aria-label="Scroll categories left"
+          aria-disabled={!canScrollCategories.prev}
+          onClick={() => scrollTravellerRow(-1)}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" strokeWidth="3">
+            <path d="M15 5l-7 7 7 7" />
+          </svg>
+        </button>
+        {homeCategoriesLoading || homeTravelerTypes.length === 0 ? (
+          <div className="traveller-empty-state" aria-live="polite">
+            {homeCategoriesLoading ? 'Loading holiday styles...' : 'Holiday styles are being refreshed.'}
+          </div>
+        ) : (
+          <div
+            ref={travellerRowRef}
+            className="traveller-row"
+            onWheel={(event) => {
+              if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+              event.preventDefault();
+              event.currentTarget.scrollLeft += event.deltaY;
+              window.requestAnimationFrame(updateCategoryScrollState);
+            }}
+          >
+            {homeTravelerTypes.map(({ id, label, image, alt }) => (
+              <button
+                key={id}
+                type="button"
+                className={`traveller-option${activeTraveler === id ? ' is-active' : ''}`}
+                onMouseEnter={() => setActiveTraveler(id)}
+                onFocus={() => setActiveTraveler(id)}
+                onMouseLeave={() => setActiveTraveler(null)}
+                onBlur={() => setActiveTraveler(null)}
+                onClick={() => {
+                  router.push(getCategoryHref({ label, destination }));
+                }}
+              >
+                <span className="traveller-visual">
+                  <span className="traveller-arrow" />
+                  <span className="traveller-photo-wrap">
+                    <img src={image} alt={alt || label} loading="lazy" />
+                  </span>
+                </span>
+                <span className="traveller-label">
+                  {label}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+        <button
+          type="button"
+          className="traveller-scroll-btn next"
+          aria-label="Scroll categories right"
+          aria-disabled={!canScrollCategories.next}
+          onClick={() => scrollTravellerRow(1)}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" strokeWidth="3">
+            <path d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
     </section>
   );
 }

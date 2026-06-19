@@ -4,12 +4,12 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getHomePage, getMediaUrl } from '@/utils/api';
 
-const statIcons = ['✈️', '😊', '⭐'];
+const statIcons = ['01', '02', '03'];
 
 const fallbackStats = [
   { number: '3400+', label: 'Holidays\nCustomized', icon: statIcons[0] },
   { number: '98%', label: 'Customer\nSatisfaction', icon: statIcons[1] },
-  { number: '4.9★', label: 'Average App\nRating', icon: statIcons[2] },
+  { number: '4.9/5', label: 'Average App\\nRating', icon: statIcons[2] },
 ];
 
 const fallbackFeatures = [
@@ -79,7 +79,7 @@ export default function WhyChooseSection() {
   }, []);
 
   return (
-    <section style={{ background: 'white', padding: '52px 0 56px' }}>
+    <section style={{ background: 'var(--color-bg)', padding: '64px 0 68px' }}>
       <style>{`
         .why-choose-grid {
           display: grid;
@@ -119,16 +119,16 @@ export default function WhyChooseSection() {
         <div className="why-choose-grid">
           <div>
             <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'var(--color-primary)', margin: '0 0 8px' }}>OUR TRACK RECORD</p>
-            <h2 className="section-title" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: 28, color: 'var(--color-primary)', lineHeight: 1.2, margin: '0 0 28px' }}>
+            <h2 className="section-title" style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: 30, color: 'var(--color-primary)', lineHeight: 1.2, margin: '0 0 28px' }}>
               {content.title}
             </h2>
 
             <div className="stats-grid">
               {content.stats.map(({ number, label, icon }) => (
-                <div key={`${number}-${label}`} style={{ textAlign: 'center', padding: '18px 8px', background: 'var(--color-primary-light)', borderRadius: 14, border: '1px solid var(--brand-primary-border)' }}>
-                  <div style={{ fontSize: 24, marginBottom: 4 }}>{icon}</div>
+                <div key={`${number}-${label}`} style={{ textAlign: 'center', padding: '18px 10px', background: 'color-mix(in srgb, var(--color-primary-light) 64%, white)', borderRadius: 12, border: '1px solid var(--brand-primary-border)' }}>
+                  <div style={{ fontSize: 11, marginBottom: 8, color: 'var(--color-primary)', fontWeight: 900, letterSpacing: 1.2 }}>{icon}</div>
                   <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: 24, color: 'var(--color-primary)', lineHeight: 1 }}>{number}</div>
-                  <div style={{ fontSize: 11, color: '#6b7280', marginTop: 5, whiteSpace: 'pre-line', lineHeight: 1.4 }}>{label}</div>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginTop: 5, whiteSpace: 'pre-line', lineHeight: 1.4 }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -139,8 +139,8 @@ export default function WhyChooseSection() {
                   {icon}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: '#111827', marginBottom: 2 }}>{title}</div>
-                  <div style={{ fontSize: 13, color: '#6b7280', lineHeight: 1.5 }}>{desc}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-text-primary)', marginBottom: 2 }}>{title}</div>
+                  <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>{desc}</div>
                 </div>
               </div>
             ))}
@@ -173,3 +173,4 @@ export default function WhyChooseSection() {
     </section>
   );
 }
+

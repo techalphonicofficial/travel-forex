@@ -28,69 +28,142 @@ const mapDestination = (destination, index) => ({
   href: getDestinationHref(destination),
 });
 
-function DestinationCard({ item }) {
+function DestinationCard({ item, type }) {
   const [hovered, setHovered] = useState(false);
+
+  const isTrending = type === 'trending';
 
   return (
     <Link
       href={item.href || getDestinationHref(item)}
-      style={{ flexShrink: 0, width: 200, textDecoration: 'none', display: 'block' }}
+      style={{ flexShrink: 0, width: 'clamp(220px, 24vw, 260px)', textDecoration: 'none', display: 'block' }}
     >
       <div
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{
-          width: 200,
-          height: 210,
-          borderRadius: 14,
+          width: '100%',
+          height: 'clamp(300px, 34vw, 340px)',
+          borderRadius: 16,
           overflow: 'hidden',
           position: 'relative',
           cursor: 'pointer',
-          transform: hovered ? 'translateY(-5px)' : 'none',
-          transition: 'all 0.35s ease',
+          transform: hovered ? 'translateY(-8px)' : 'none',
+          boxShadow: hovered 
+            ? '0 20px 35px rgba(2, 110, 181, 0.18)' 
+            : '0 8px 16px rgba(0,0,0,0.06)',
+          transition: 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
         }}
       >
         <img
           src={item.image}
           alt={item.alt || item.name}
           style={{
-            width: '100%', height: '100%', objectFit: 'cover', display: 'block',
-            transform: hovered ? 'scale(1.08)' : 'scale(1)',
-            transition: 'transform 0.45s ease',
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block',
+            transform: hovered ? 'scale(1.12)' : 'scale(1)',
+            transition: 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)',
           }}
           loading="lazy"
         />
 
         <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.72) 100%)',
+          position: 'absolute',
+          top: 16,
+          left: 16,
+          background: 'rgba(255, 255, 255, 0.18)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          borderRadius: 999,
+          padding: '6px 12px',
+          color: '#fff',
+          fontSize: 11,
+          fontWeight: 800,
+          letterSpacing: '0.5px',
+          textTransform: 'uppercase',
+          textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          zIndex: 2,
+        }}>
+          {isTrending ? 'Trending' : 'Visa Free'}
+        </div>
+
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: hovered
+            ? 'linear-gradient(180deg, rgba(10, 15, 30, 0.1) 0%, rgba(10, 15, 30, 0.5) 50%, rgba(10, 15, 30, 0.88) 100%)'
+            : 'linear-gradient(180deg, rgba(10, 15, 30, 0.05) 0%, rgba(10, 15, 30, 0.4) 50%, rgba(10, 15, 30, 0.8) 100%)',
+          transition: 'all 0.4s ease',
+          zIndex: 1,
         }} />
 
         <div style={{
-          position: 'absolute', bottom: 14, left: 12, right: 12,
+          position: 'absolute',
+          bottom: 20,
+          left: 18,
+          right: 18,
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          zIndex: 2,
         }}>
-          <p style={{
-            color: 'rgba(255,255,255,0.75)',
-            fontSize: 9,
-            fontWeight: 700,
-            letterSpacing: 1.4,
-            textTransform: 'uppercase',
-            margin: '0 0 2px',
-            lineHeight: 1.3,
+          <div style={{ flex: 1, paddingRight: 10 }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              color: 'rgba(255, 255, 255, 0.85)',
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: 1.2,
+              textTransform: 'uppercase',
+              marginBottom: 4,
+              lineHeight: 1.2,
+            }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="12" height="12" strokeWidth="2.5" style={{ color: 'var(--color-secondary)' }}>
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {item.subtitle}
+              </span>
+            </div>
+            <p style={{
+              color: 'white',
+              fontSize: item.name.length > 14 ? 18 : 22,
+              fontWeight: 800,
+              fontFamily: 'Poppins, sans-serif',
+              margin: 0,
+              lineHeight: 1.1,
+              textShadow: '0 2px 8px rgba(0,0,0,0.4)',
+            }}>
+              {item.name}
+            </p>
+          </div>
+
+          <div style={{
+            width: 36,
+            height: 36,
+            borderRadius: '50%',
+            background: hovered ? 'var(--color-secondary)' : 'rgba(255, 255, 255, 0.25)',
+            backdropFilter: hovered ? 'none' : 'blur(4px)',
+            WebkitBackdropFilter: hovered ? 'none' : 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: hovered ? '#111827' : '#fff',
+            transform: hovered ? 'scale(1.1) translateX(2px)' : 'scale(1)',
+            transition: 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
+            flexShrink: 0,
           }}>
-            {item.subtitle}
-          </p>
-          <p style={{
-            color: 'white',
-            fontSize: item.name.length > 12 ? 18 : item.name.length > 8 ? 20 : 24,
-            fontWeight: 800,
-            fontFamily: 'Poppins, sans-serif',
-            margin: 0,
-            lineHeight: 1.1,
-            textShadow: '0 2px 8px rgba(0,0,0,0.4)',
-          }}>
-            {item.name}
-          </p>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" strokeWidth="3">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </div>
         </div>
       </div>
     </Link>
@@ -140,53 +213,109 @@ export default function PopularDestinationRows() {
 
   const scroll = (rowId, dir) => {
     const el = scrollRefs.current[rowId];
-    if (el) el.scrollBy({ left: dir * 214, behavior: 'smooth' });
+    if (el) el.scrollBy({ left: dir * 280, behavior: 'smooth' });
+  };
+
+  const rowEyebrows = {
+    trending: 'POPULAR ESCAPES',
+    visafree: 'HASSLE-FREE TRAVEL',
+  };
+
+  const rowSubtitles = {
+    trending: 'Discover the hottest destinations that travelers are flocking to right now.',
+    visafree: 'Pack your bags and go! No visa approvals required for these popular getaways.',
   };
 
   return (
-    <section style={{ background: '#fff', padding: '52px 0 64px' }}>
+    <section style={{
+      background: 'linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-soft) 100%)',
+      padding: '68px 0 72px',
+      borderTop: '1px solid var(--color-border)',
+    }}>
       <div className="container" style={{ margin: '0 auto', padding: '0 24px' }}>
         {rows.map((row) => (
-          <div key={row.id} style={{ marginBottom: 52 }}>
+          <div key={row.id} style={{ marginBottom: row.id === 'visafree' ? 0 : 58 }}>
             <div style={{
-              display: 'flex', alignItems: 'center',
+              display: 'flex',
+              alignItems: 'flex-end',
               justifyContent: 'space-between',
-              marginBottom: 20,
+              marginBottom: 28,
             }}>
-              <h2 style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontWeight: 900,
-                fontSize: 18,
-                color: '#111827',
-                margin: 0,
-                letterSpacing: 0.5,
-                textTransform: 'uppercase',
-              }}>
-                {row.title}
-              </h2>
+              <div>
+                <p style={{
+                  fontSize: 11,
+                  fontWeight: 800,
+                  color: 'var(--color-primary)',
+                  letterSpacing: '1.8px',
+                  textTransform: 'uppercase',
+                  margin: '0 0 6px 0',
+                }}>
+                  {rowEyebrows[row.id]}
+                </p>
+                <h2 style={{
+                  fontFamily: 'Poppins, sans-serif',
+                  fontWeight: 900,
+                  fontSize: 30,
+                  color: 'var(--color-text-primary)',
+                  margin: 0,
+                  lineHeight: 1.1,
+                }}>
+                  {row.title}
+                </h2>
+                <p style={{
+                  color: 'var(--color-text-secondary)',
+                  fontSize: 14,
+                  margin: '8px 0 0 0',
+                  maxWidth: 580,
+                }}>
+                  {rowSubtitles[row.id]}
+                </p>
+              </div>
 
-              <div style={{ display: 'flex', gap: 8 }}>
-                {['‹', '›'].map((arrow, i) => (
+              <div style={{ display: 'flex', gap: 10 }}>
+                {['left', 'right'].map((dir, i) => (
                   <button
-                    key={arrow}
-                    onClick={() => scroll(row.id, i === 0 ? -1 : 1)}
+                    key={dir}
+                    onClick={() => scroll(row.id, dir === 'left' ? -1 : 1)}
+                    aria-label={`Scroll ${dir}`}
                     style={{
-                      width: 34, height: 34,
+                      width: 40,
+                      height: 40,
                       borderRadius: '50%',
-                      border: '1.5px solid #d1d5db',
-                      background: 'white',
-                      color: '#374151',
-                      fontSize: 18,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      border: '1.5px solid var(--color-border)',
+                      background: 'var(--color-bg)',
+                      color: 'var(--color-text-secondary)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       cursor: 'pointer',
-                      lineHeight: 1,
-                      transition: 'all 0.2s',
-                      boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      boxShadow: 'var(--shadow-xs)',
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.borderColor = '#9ca3af'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#d1d5db'; }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = 'var(--color-primary-light)';
+                      e.currentTarget.style.borderColor = 'var(--color-primary)';
+                      e.currentTarget.style.color = 'var(--color-primary)';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = 'var(--color-bg)';
+                      e.currentTarget.style.borderColor = 'var(--color-border)';
+                      e.currentTarget.style.color = 'var(--color-text-secondary)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-xs)';
+                    }}
                   >
-                    {arrow}
+                    {dir === 'left' ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" strokeWidth="2.5">
+                        <path d="M15 18l-6-6 6-6"/>
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" strokeWidth="2.5">
+                        <path d="M9 18l6-6-6-6"/>
+                      </svg>
+                    )}
                   </button>
                 ))}
               </div>
@@ -196,30 +325,39 @@ export default function PopularDestinationRows() {
               ref={el => { scrollRefs.current[row.id] = el; }}
               style={{
                 display: 'flex',
-                gap: 14,
+                gap: 20,
                 overflowX: 'auto',
-                paddingBottom: 4,
-                paddingTop: '10px',
+                paddingBottom: '24px',
+                paddingTop: '12px',
+                paddingLeft: '4px',
+                paddingRight: '4px',
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
               }}
+              className="scroll-container-hide"
             >
+              <style>{`
+                .scroll-container-hide::-webkit-scrollbar {
+                  display: none;
+                }
+              `}</style>
               {row.items.map((item, index) => (
-                <DestinationCard key={`${row.id}-${item.name}-${index}`} item={item} />
+                <DestinationCard key={`${row.id}-${item.name}-${index}`} item={item} type={row.id} />
               ))}
               {!loading && row.items.length === 0 && (
                 <div style={{
                   flex: '1 0 100%',
-                  minHeight: 120,
+                  minHeight: 160,
                   display: 'grid',
                   placeItems: 'center',
-                  border: '1px dashed #d1d5db',
-                  borderRadius: 12,
-                  color: '#64748b',
-                  fontSize: 13,
-                  fontWeight: 700,
+                  border: '1.5px dashed var(--color-border)',
+                  borderRadius: 16,
+                  color: 'var(--color-text-muted)',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  background: 'var(--color-bg-soft)',
                 }}>
-                  No live destinations returned.
+                  We are refreshing these destinations. Please check back soon.
                 </div>
               )}
             </div>

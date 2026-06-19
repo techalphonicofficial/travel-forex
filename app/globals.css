@@ -30,13 +30,13 @@
   --color-text-muted: #8a94a6;
 
   /* Backgrounds */
-  --color-bg: #ffffff;
-  --color-bg-soft: #f8faff;
-  --color-bg-card: #ffffff;
+  --color-bg: #f0f6ff;          /* light sky blue — replaces pure white */
+  --color-bg-soft: #e4eff9;     /* slightly deeper blue for alternating sections */
+  --color-bg-card: #fafcff;     /* near-white with blue tint for cards */
   --color-bg-overlay: rgba(10, 15, 30, 0.7);
 
   /* Borders */
-  --color-border: #e2e8f0;
+  --color-border: #d0e2f0;      /* slightly more visible border for blue bg */
   --color-border-focus: var(--color-primary);
 
   /* Shadows */
@@ -96,6 +96,11 @@
   --brand-primary-border: #7abfee;
   --brand-secondary: #fdce2e;
   --brand-secondary-hover: #f6b800;
+  /* Branded backgrounds for Travel_Holiday */
+  --color-bg: #f0f6ff;
+  --color-bg-soft: #e4eff9;
+  --color-bg-card: #fafcff;
+  --color-border: #d0e2f0;
 }
 
 [data-project="Travel_and_Tour"] {
@@ -119,6 +124,107 @@
   --color-primary-light: #0d1f42;
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ================================================
+   HOMEPAGE — WARM IVORY LUXURY THEME
+   Scoped to .hp-ivory wrapper in app/page.js
+   ================================================ */
+.hp-ivory {
+  /* ── Core palette overrides ── */
+  --color-bg:           #fdf8f0;   /* warm primary cream */
+  --color-bg-soft:      #f5eddf;   /* alternating section — slightly deeper */
+  --color-bg-card:      #fffcf7;   /* warm near-white card surface */
+  --color-border:       #e0c9a0;   /* golden warm border */
+  --color-text-primary: #1a120a;   /* deep warm brown — softer than pure black */
+  --color-text-secondary: #6b4f3a; /* warm mid-brown */
+  --color-text-muted:   #a08060;   /* warm muted tone */
+
+  /* ── Warm shadows (replace cold grey with warm brown) ── */
+  --shadow-xs:   0 1px 3px rgba(120, 80, 30, 0.06);
+  --shadow-sm:   0 2px 8px rgba(120, 80, 30, 0.08);
+  --shadow-md:   0 4px 20px rgba(120, 80, 30, 0.10);
+  --shadow-lg:   0 8px 40px rgba(120, 80, 30, 0.12);
+  --shadow-xl:   0 16px 60px rgba(120, 80, 30, 0.14);
+  --shadow-card-hover: 0 16px 48px rgba(120, 80, 30, 0.18);
+
+  /* ── Base ── */
+  background: #fdf8f0;
+  transition: background 0.3s ease;
+}
+
+/* Alternating section rhythm — cream / deeper cream */
+.hp-ivory > section:nth-child(even),
+.hp-ivory > div[class*="section"]:nth-child(even) {
+  background: #f7ede0 !important;
+}
+
+/* Warm section heading accent — gold underline micro-detail */
+.hp-ivory .section-label,
+.hp-ivory [style*="letterSpacing: 2"],
+.hp-ivory [style*="letter-spacing: 2"] {
+  color: #b87a2b !important;  /* warm gold label */
+}
+
+/* Cards inside .hp-ivory get warm borders + shadows */
+.hp-ivory [style*="var(--color-bg-card)"],
+.hp-ivory .package-card-hover,
+.hp-ivory .booking-card-item {
+  box-shadow: 0 4px 24px rgba(120, 80, 30, 0.07) !important;
+  border-color: #e0c9a0 !important;
+}
+
+/* Warm hover lift on cards */
+.hp-ivory .package-card-hover:hover,
+.hp-ivory .booking-card-item:hover {
+  box-shadow: 0 16px 48px rgba(120, 80, 30, 0.18) !important;
+}
+
+/* Warm stat cards in WhyChooseSection */
+.hp-ivory [style*="color-mix(in srgb, var(--color-primary-light)"] {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
+  border-color: #f6cc6e !important;
+}
+
+/* Trust / partner strip */
+.hp-ivory [style*="var(--color-bg)"] {
+  background: #fdf8f0;
+}
+
+/* Form inputs inside warm ivory — warm ivory bg instead of pure white */
+.hp-ivory select,
+.hp-ivory input[type="text"],
+.hp-ivory input[type="email"],
+.hp-ivory input[type="tel"],
+.hp-ivory input[type="date"],
+.hp-ivory textarea {
+  background: #fffdf8 !important;
+  border-color: #d8c090 !important;
+  color: #1a120a !important;
+}
+.hp-ivory select:focus,
+.hp-ivory input:focus,
+.hp-ivory textarea:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(2, 110, 181, 0.12) !important;
+  outline: none;
+}
+
+/* Warm package card hover — override the default blue-shadow hover */
+.hp-ivory .package-card-hover:hover {
+  border-color: #d4a860 !important;
+}
+
+/* Smooth warm gradient bottom edge of ivory wrapper — transitions to ForexSection dark */
+.hp-ivory {
+  position: relative;
+}
+.hp-ivory::after {
+  content: '';
+  display: block;
+  height: 40px;
+  background: linear-gradient(180deg, #fdf8f0 0%, transparent 100%);
+  margin-bottom: -1px;
 }
 
 /* ==============================
@@ -440,7 +546,7 @@ nav,
    ============================== */
 .container {
   width: 100%;
-  max-width: 1240px;
+  max-width: 1600px !important;
   margin: 0 auto;
   padding: 0 var(--space-6);
 }

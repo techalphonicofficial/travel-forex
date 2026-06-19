@@ -331,7 +331,7 @@ function DestinationDropdown({ currentDest, onChange, destinations = DESTINATION
           display: 'flex', alignItems: 'center', gap: 8,
           padding: '7px 16px', borderRadius: 999,
           border: open ? '1.5px solid var(--color-primary)' : '1.5px solid #d1d5db',
-          background: 'white',
+          background: 'var(--color-bg-card)',
           color: '#374151', fontSize: 13, fontWeight: 500, cursor: 'pointer',
           whiteSpace: 'nowrap', transition: 'all 0.2s',
           boxShadow: open ? '0 0 0 3px rgba(20,83,45,0.1)' : 'none',
@@ -346,7 +346,7 @@ function DestinationDropdown({ currentDest, onChange, destinations = DESTINATION
       {open && (
         <div style={{
           position: 'absolute', top: 'calc(100% + 8px)', left: 0,
-          background: 'white', border: '1px solid #e5e7eb',
+          background: 'var(--color-bg-card)', border: '1px solid var(--color-border)',
           borderRadius: 12, boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
           minWidth: 200, zIndex: 50, padding: '8px 0',
           animation: 'fadeSlideIn 0.2s ease',
@@ -1076,10 +1076,10 @@ function BookingCard({ pkg, animDelay, isMobile }) {
       style={{
         flexShrink: 0,
         width: isMobile ? 'calc(100vw - 32px)' : 310,
-        background: 'white',
+        background: 'var(--color-bg-card)',
         borderRadius: 16,
         overflow: 'hidden',
-        border: '1px solid #e5e7eb',
+        border: '1px solid var(--color-border)',
         // boxShadow: hovered ? '0 12px 40px rgba(0,0,0,0.14)' : '0 2px 12px rgba(0,0,0,0.07)',
         transform: hovered ? 'translateY(-4px)' : 'none',
         transition: 'all 0.3s ease',

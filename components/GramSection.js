@@ -199,7 +199,7 @@ export default function GramSection() {
             fontFamily: 'Poppins, sans-serif', fontWeight: 900,
             fontSize: 40, color: 'white', margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: 1
           }}>
-            LOVE FROM THE GRAM <span style={{ color: '#ef4444' }}>❤️</span>
+            LOVE FROM THE GRAM
           </h2>
           
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32 }}>
@@ -210,7 +210,7 @@ export default function GramSection() {
               <div style={{ color: 'white', fontSize: 13, fontWeight: 700, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   4.6<span style={{ fontSize: 10, color: '#9ca3af', marginRight: 4 }}>/5</span> 
-                  <span style={{ color: '#fbbf24', fontSize: 14 }}>★</span>
+                  <span style={{ color: '#fbbf24', fontSize: 14 }}>star</span>
                 </div>
                 <div style={{ fontSize: 10, color: '#e5e7eb', fontWeight: 500, letterSpacing: 0.5 }}>8250 reviews</div>
               </div>
@@ -228,7 +228,7 @@ export default function GramSection() {
               <div style={{ color: 'white', fontSize: 13, fontWeight: 700, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   4.8<span style={{ fontSize: 10, color: '#9ca3af', marginRight: 4 }}>/5</span> 
-                  <span style={{ color: '#fbbf24', fontSize: 14 }}>★</span>
+                  <span style={{ color: '#fbbf24', fontSize: 14 }}>star</span>
                 </div>
                 <div style={{ fontSize: 10, color: '#e5e7eb', fontWeight: 500, letterSpacing: 0.5 }}>1440 reviews</div>
               </div>

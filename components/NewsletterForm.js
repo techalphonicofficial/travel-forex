@@ -78,15 +78,25 @@ export default function NewsletterForm() {
         onSubmit={handleSubmit}
         style={{
           display: 'flex',
-          gap: 10,
-          background: 'white',
+          gap: 8,
+          background: 'rgba(255,255,255,0.12)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.28)',
           borderRadius: 'var(--radius-2xl)',
           padding: 8,
-          boxShadow: '0 8px 40px rgba(0,0,0,0.2)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.2)',
         }}
       >
+        {/* Email icon */}
+        <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0, padding: '0 4px 0 14px' }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" width="18" height="18">
+            <rect x="2" y="4" width="20" height="16" rx="3" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+          </svg>
+        </div>
         <input
           type="email"
+          className="newsletter-email-input"
           placeholder="Enter your email address"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
@@ -95,14 +105,36 @@ export default function NewsletterForm() {
             flex: 1,
             border: 'none',
             outline: 'none',
-            padding: '10px 16px',
+            padding: '10px 8px',
             fontSize: 15,
             background: 'transparent',
-            color: 'var(--color-text-primary)',
+            color: 'rgba(255,255,255,0.95)',
+            fontFamily: 'Inter, sans-serif',
           }}
         />
-        <button type="submit" className="btn-primary" disabled={loading} style={{ opacity: loading ? 0.75 : 1 }}>
-          {loading ? 'Subscribing...' : 'Subscribe'}
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            flexShrink: 0,
+            background: 'var(--color-secondary)',
+            color: '#111827',
+            border: 'none',
+            borderRadius: 'calc(var(--radius-2xl) - 8px)',
+            padding: '10px 24px',
+            fontWeight: 800,
+            fontSize: 14,
+            cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? 0.75 : 1,
+            whiteSpace: 'nowrap',
+            transition: 'background 0.2s, transform 0.2s',
+            fontFamily: 'Poppins, sans-serif',
+            letterSpacing: 0.3,
+          }}
+          onMouseEnter={e => { if (!loading) e.currentTarget.style.background = 'var(--color-secondary-hover)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'var(--color-secondary)'; }}
+        >
+          {loading ? 'Subscribing…' : 'Subscribe'}
         </button>
       </form>
 
@@ -135,6 +167,9 @@ export default function NewsletterForm() {
       ) : null}
 
       <style jsx>{`
+        .newsletter-email-input::placeholder {
+          color: rgba(255, 255, 255, 0.5);
+        }
         .newsletter-popup-backdrop {
           position: fixed;
           inset: 0;

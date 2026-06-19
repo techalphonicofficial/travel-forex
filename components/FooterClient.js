@@ -146,8 +146,31 @@ export default function FooterClient({ brand, companyInfo }) {
         <div className="container">
           <div className="row g-5">
             <div className="col-lg-4">
-              <div className="d-flex align-items-center gap-2 mb-4">
-                <Image src={brandLogo} alt={`${brandName} Logo`} width={100} height={100} style={{ width: 100, height: 100, objectFit: 'contain' }} />
+              <div className="d-flex align-items-center gap-3 mb-4">
+                <Image src={brandLogo} alt={`${brandName} Logo`} width={52} height={52} style={{ width: 52, height: 52, objectFit: 'contain', borderRadius: '8px' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+                  <span style={{ 
+                    fontFamily: 'Poppins, sans-serif', 
+                    fontWeight: 900, 
+                    fontSize: '20px', 
+                    letterSpacing: '1.5px', 
+                    color: 'white',
+                    textTransform: 'uppercase'
+                  }}>
+                    ITS
+                  </span>
+                  <span style={{ 
+                    fontFamily: 'Georgia, serif', 
+                    fontStyle: 'italic',
+                    fontWeight: 600, 
+                    fontSize: '13px', 
+                    color: 'rgba(255,255,255,0.7)',
+                    whiteSpace: 'nowrap',
+                    letterSpacing: '0.2px'
+                  }}>
+                    Travels & Tours
+                  </span>
+                </div>
               </div>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 15, lineHeight: 1.8, maxWidth: 320, marginBottom: 24 }}>
                 {brandDescription}

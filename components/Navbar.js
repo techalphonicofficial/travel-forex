@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { getDestinationHref } from '@/utils/destinationLinks';
+import toast from 'react-hot-toast';
 
 /* ── Mega-menu data ───────────────────────────────────── */
 const destinationCols = [
@@ -61,6 +62,20 @@ const packageCols = [
   ],
 ];
 
+const serviceCols = [
+  [
+    { name: 'Hotels Booking', tag: 'LIVE', tagClr: '#059669', tagBg: '#ecfdf5', href: '/hotels' },
+    { name: 'Flight Booking', tag: 'BEST RATES', tagClr: '#026eb5', tagBg: '#e0f2fe', href: '#flight', isFlightAction: true },
+  ],
+  [
+    { name: 'Domestic Trips', tag: 'EXPLORE', tagClr: '#d97706', tagBg: '#fffbeb', href: '/packages?type=DOMESTIC' },
+    { name: 'International Trips', tag: 'POPULAR', tagClr: '#8b5cf6', tagBg: '#f5f3ff', href: '/packages?type=INTERNATIONAL' },
+  ],
+  [
+    { name: 'Customize Packages', tag: 'RECOMMENDED', tagClr: '#ec4899', tagBg: '#fdf2f8', href: '/customize' }
+  ]
+];
+
 const HOTEL_HREF = '/hotels';
 
 const currencyOptions = [
@@ -96,6 +111,21 @@ const emptyForexInquiry = {
   phone: '',
   email: '',
   notes: '',
+};
+
+const emptyFlightDraft = {
+  tripType: 'Round-trip',
+  departureCity: '',
+  destinationCity: '',
+  departureDate: '',
+  returnDate: '',
+  adults: 1,
+  children: 0,
+  cabinClass: 'Economy',
+  customerName: '',
+  phone: '',
+  email: '',
+  notes: ''
 };
 
 const forexRowsFromPayload = (payload) => {
@@ -391,7 +421,7 @@ function Tag({ label, color, bg }) {
 }
 
 /* ── Mega Dropdown ────────────────────────────────────── */
-function MegaDropdown({ label, cols, isTransparent }) {
+function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -462,33 +492,72 @@ function MegaDropdown({ label, cols, isTransparent }) {
                 borderRight: ci < cols.length - 1 ? '1px solid #f3f4f6' : 'none',
               }}
             >
-              {col.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '8px 0',
-                    borderBottom: '1px solid #f9fafb',
-                    textDecoration: 'none',
-                    color: item.isExplore ? 'var(--color-primary)' : '#1f2937',
-                    fontWeight: item.isExplore ? 700 : 500,
-                    fontSize: 13.5,
-                    transition: 'color 0.15s',
-                    lineHeight: 1.5,
-                    whiteSpace: 'nowrap',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-primary)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = item.isExplore ? 'var(--color-primary)' : '#1f2937'; }}
-                >
-                  {item.name}
-                  {item.tag && (
-                    <Tag label={item.tag} color={item.tagClr} bg={item.tagBg} />
-                  )}
-                </Link>
-              ))}
+              {col.map((item) => {
+                if (item.isFlightAction) {
+                  return (
+                    <button
+                      key={item.name}
+                      type="button"
+                      onClick={() => {
+                        setOpen(false);
+                        if (typeof onFlightOpen === 'function') onFlightOpen();
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                        textAlign: 'left',
+                        padding: '8px 0',
+                        borderBottom: '1px solid #f9fafb',
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#1f2937',
+                        fontWeight: 500,
+                        fontSize: 13.5,
+                        transition: 'color 0.15s',
+                        lineHeight: 1.5,
+                        whiteSpace: 'nowrap',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-primary)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = '#1f2937'; }}
+                    >
+                      {item.name}
+                      {item.tag && (
+                        <Tag label={item.tag} color={item.tagClr} bg={item.tagBg} />
+                      )}
+                    </button>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '8px 0',
+                      borderBottom: '1px solid #f9fafb',
+                      textDecoration: 'none',
+                      color: item.isExplore ? 'var(--color-primary)' : '#1f2937',
+                      fontWeight: item.isExplore ? 700 : 500,
+                      fontSize: 13.5,
+                      transition: 'color 0.15s',
+                      lineHeight: 1.5,
+                      whiteSpace: 'nowrap',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-primary)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = item.isExplore ? 'var(--color-primary)' : '#1f2937'; }}
+                  >
+                    {item.name}
+                    {item.tag && (
+                      <Tag label={item.tag} color={item.tagClr} bg={item.tagBg} />
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           ))}
         </div>
@@ -498,7 +567,7 @@ function MegaDropdown({ label, cols, isTransparent }) {
 }
 
 /* ── Side Drawer ───────────────────────────────────────── */
-function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, onLogout, onForexOpen, companyInfo }) {
+function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, onLogout, onForexOpen, onFlightOpen, companyInfo }) {
   const [expanded, setExpanded] = useState(null);
   const displayPhone = companyInfo?.contact?.phone || '+91 8031274154';
   const firstName = isLoggedIn ? currentUser?.name?.split(' ')[0] || 'Traveler' : 'Guest';
@@ -506,6 +575,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
 
   const getNavIcon = (label = '') => {
     const key = label.toLowerCase();
+    if (key.includes('service')) return 'SV';
     if (key.includes('holiday') || key.includes('package')) return 'HP';
     if (key.includes('hotel')) return 'HT';
     if (key.includes('forex')) return 'FX';
@@ -525,6 +595,17 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
 
   const navGroup = [
     {
+      label: 'Services',
+      hasSub: true,
+      subItems: [
+        { label: 'Hotels Booking', href: '/hotels' },
+        { label: 'Flight Booking', action: onFlightOpen },
+        { label: 'Domestic Trips', href: '/packages?type=DOMESTIC' },
+        { label: 'International Trips', href: '/packages?type=INTERNATIONAL' },
+        { label: 'Customize Packages', href: '/customize' }
+      ]
+    },
+    {
       label: 'Holiday Tour Packages',
       hasSub: true,
       subItems: packageCols.flat().map((item) => ({
@@ -533,7 +614,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
       })),
     },
     { label: 'Hotels', href: HOTEL_HREF },
-    { label: 'Forex', action: onForexOpen },
+    { label: 'Forex', href: '/forex' },
     { label: 'Testimonial', href: '/testimonials' },
     { label: 'FAQ', href: '/contact#faq' },
     { label: 'Contact us', href: '/contact' },
@@ -542,10 +623,6 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
     ...(isLoggedIn
       ? [{ label: 'My Profile', href: '/profile' }]
       : [{ label: 'Login', href: '/auth/login' }]),
-    // Previous static login link kept for reference:
-    // { label: 'Login', href: '/auth/login' },
-    // { label: 'Careers', href: '/careers' },
-    // { label: 'Choose Country', hasSub: true, subItems: ['USA', 'UK', 'Australia', 'UAE'] },
   ];
 
   const dynamicGroups = (allCategories || []).map(cat => ({
@@ -591,9 +668,9 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
               Travel Menu
             </span>
             <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: 12, background: '#f1f5f9', border: '1px solid #e2e8f0', cursor: 'pointer', padding: 0, color: '#64748b', display: 'grid', placeItems: 'center' }}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
             </button>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16, background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%)', color: 'white', boxShadow: '0 14px 30px color-mix(in srgb, var(--color-primary) 24%, transparent)' }}>
@@ -690,6 +767,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                       const isObj = typeof sub === 'object';
                       const label = isObj ? sub.label : sub;
                       const href = isObj ? sub.href : '#';
+                      const hasSubAction = isObj && typeof sub.action === 'function';
 
                       const ItemContent = (
                         <div
@@ -710,6 +788,20 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                           {label}
                         </div>
                       );
+
+                      if (hasSubAction) {
+                        return (
+                          <div
+                            key={sidx}
+                            onClick={() => {
+                              sub.action();
+                              onClose();
+                            }}
+                          >
+                            {ItemContent}
+                          </div>
+                        );
+                      }
 
                       return isObj && href !== '#' ? (
                         <Link key={sidx} href={href} style={{ textDecoration: 'none' }} onClick={onClose}>
@@ -805,6 +897,9 @@ export default function Navbar({ brand, companyInfo }) {
   const [forexLookupRate, setForexLookupRate] = useState(null);
   const [forexServiceCharge, setForexServiceCharge] = useState(null);
   const [forexConversion, setForexConversion] = useState(null);
+  const [flightOpen, setFlightOpen] = useState(false);
+  const [flightDraft, setFlightDraft] = useState(emptyFlightDraft);
+  const [flightLoading, setFlightLoading] = useState(false);
   const pathname = usePathname();
 
   const isHeroPage = pathname === '/' || pathname === '/packages' || pathname.startsWith('/package') || pathname.startsWith('/tours') || pathname.startsWith('/hotels') || pathname.startsWith('/about') || pathname.startsWith('/blog') || pathname.startsWith('/contact');
@@ -893,6 +988,91 @@ export default function Navbar({ brand, companyInfo }) {
     const frame = requestAnimationFrame(() => setDrawerOpen(false));
     return () => cancelAnimationFrame(frame);
   }, [pathname]);
+
+  useEffect(() => {
+    if (currentUser) {
+      setFlightDraft(prev => ({
+        ...prev,
+        customerName: currentUser.name || '',
+        email: currentUser.email || '',
+        phone: currentUser.phone || ''
+      }));
+    } else {
+      setFlightDraft(prev => ({
+        ...prev,
+        customerName: '',
+        email: '',
+        phone: ''
+      }));
+    }
+  }, [currentUser]);
+
+  const updateFlightDraft = (key, value) => {
+    setFlightDraft(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleFlightSubmit = async (event) => {
+    event.preventDefault();
+    setFlightLoading(true);
+
+    try {
+      const passengerStr = `${flightDraft.adults} Adult${flightDraft.adults > 1 ? 's' : ''}${flightDraft.children > 0 ? `, ${flightDraft.children} Child${flightDraft.children > 1 ? 'ren' : ''}` : ''}`;
+
+      const flightDetails = [
+        `Flight Booking Inquiry Details:`,
+        `- Trip Type: ${flightDraft.tripType}`,
+        `- From: ${flightDraft.departureCity}`,
+        `- To: ${flightDraft.destinationCity}`,
+        `- Departure Date: ${flightDraft.departureDate}`,
+        flightDraft.tripType === 'Round-trip' ? `- Return Date: ${flightDraft.returnDate}` : '',
+        `- Passengers: ${passengerStr}`,
+        `- Cabin Class: ${flightDraft.cabinClass}`,
+        `- Customer: ${flightDraft.customerName}`,
+        `- Contact: ${flightDraft.phone} | ${flightDraft.email}`,
+        flightDraft.notes.trim() ? `- Special Requests: ${flightDraft.notes.trim()}` : ''
+      ].filter(Boolean).join('\n');
+
+      const payload = {
+        pipeline_id: 3,
+        name: flightDraft.customerName || 'Flight Inquiry',
+        email: flightDraft.email || '',
+        phone: flightDraft.phone || '',
+        source: 'Website',
+        notes: flightDetails,
+        custom_fields: {
+          subject: 'Flight Booking Inquiry',
+          message: flightDetails
+        }
+      };
+
+      const response = await fetch('/api/contact-leads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const resData = await response.json();
+
+      if (!response.ok || !resData?.success) {
+        throw new Error(resData?.message || 'Unable to submit your flight inquiry.');
+      }
+
+      toast.success(resData.message || 'Flight inquiry submitted successfully! Our team will contact you shortly.');
+      setFlightDraft(prev => ({
+        ...emptyFlightDraft,
+        customerName: currentUser?.name || '',
+        email: currentUser?.email || '',
+        phone: currentUser?.phone || ''
+      }));
+      setFlightOpen(false);
+    } catch (error) {
+      toast.error(error.message || 'Unable to submit your flight inquiry. Please try again.');
+    } finally {
+      setFlightLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!forexOpen) return undefined;
@@ -1496,6 +1676,174 @@ export default function Navbar({ brand, companyInfo }) {
             grid-template-columns: 1fr;
           }
         }
+
+        .flight-modal-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 2200;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          background: rgba(15, 23, 42, 0.58);
+          backdrop-filter: blur(5px);
+        }
+        .flight-modal {
+          width: min(100%, 680px);
+          max-height: min(90vh, 740px);
+          overflow: auto;
+          border-radius: 14px;
+          background: #fff;
+          box-shadow: 0 24px 60px rgba(15,23,42,0.24);
+        }
+        .flight-modal-head {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 18px;
+          padding: 24px 28px;
+          background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+          color: #fff;
+        }
+        .flight-modal-head span {
+          display: block;
+          margin-bottom: 6px;
+          color: rgba(255,255,255,0.8);
+          font-size: 11px;
+          font-weight: 900;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+        }
+        .flight-modal-head h2 {
+          margin: 0 0 6px;
+          font-family: Poppins, sans-serif;
+          font-size: 22px;
+          font-weight: 850;
+        }
+        .flight-modal-head p {
+          margin: 0;
+          color: rgba(255,255,255,0.76);
+          font-size: 13.5px;
+          line-height: 1.5;
+        }
+        .flight-modal-close {
+          width: 34px;
+          height: 34px;
+          border: 1px solid rgba(255,255,255,0.25);
+          border-radius: 50%;
+          background: rgba(255,255,255,0.1);
+          color: #fff;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        .flight-modal-close:hover {
+          background: rgba(255,255,255,0.2);
+        }
+        .flight-modal-form {
+          display: grid;
+          gap: 20px;
+          padding: 28px;
+        }
+        .flight-trip-type-selector {
+          display: flex;
+          gap: 12px;
+          border-bottom: 1px solid #edf2f7;
+          padding-bottom: 16px;
+        }
+        .flight-trip-type-btn {
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .flight-trip-type-btn.active {
+          background: var(--color-primary-light);
+          color: var(--color-primary);
+          border: 1.5px solid var(--brand-primary-border);
+        }
+        .flight-trip-type-btn.inactive {
+          background: #f8fafc;
+          color: #64748b;
+          border: 1.5px solid #e2e8f0;
+        }
+        .flight-trip-type-btn:hover {
+          border-color: var(--brand-primary-border);
+        }
+        .flight-modal-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 16px;
+        }
+        .flight-modal-grid label {
+          display: grid;
+          gap: 7px;
+          color: #334155;
+          font-size: 12px;
+          font-weight: 850;
+        }
+        .flight-modal-grid input,
+        .flight-modal-grid select,
+        .flight-modal-grid textarea {
+          width: 100%;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 8px;
+          background: #fff;
+          color: #1e293b;
+          font: inherit;
+          font-size: 13.5px;
+          font-weight: 600;
+          outline: none;
+          min-height: 42px;
+          padding: 0 12px;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .flight-modal-grid input:focus,
+        .flight-modal-grid select:focus,
+        .flight-modal-grid textarea:focus {
+          border-color: var(--color-primary);
+          box-shadow: 0 0 0 3px var(--color-primary-light);
+        }
+        .flight-modal-grid textarea {
+          min-height: 80px;
+          padding: 10px 12px;
+          resize: vertical;
+        }
+        .flight-grid-full {
+          grid-column: 1 / -1;
+        }
+        .flight-submit-btn {
+          min-height: 44px;
+          padding: 0 24px;
+          border: 0;
+          border-radius: 8px;
+          background: var(--color-primary);
+          color: #fff;
+          font-weight: 900;
+          font-size: 14px;
+          cursor: pointer;
+          transition: background 0.2s, opacity 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+        .flight-submit-btn:hover {
+          background: var(--color-primary-hover);
+        }
+        .flight-submit-btn:disabled {
+          cursor: not-allowed;
+          opacity: 0.72;
+        }
+        @media (max-width: 640px) {
+          .flight-modal-grid { grid-template-columns: 1fr; }
+          .flight-modal-head { padding: 20px; }
+          .flight-modal-form { padding: 20px; }
+        }
       `}</style>
 
       <header
@@ -1510,23 +1858,40 @@ export default function Navbar({ brand, companyInfo }) {
           <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
 
             {/* Logo */}
-            <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-              {/* <img
-                src={isTransparent
-                  ? "https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp"
-                  : "https://i.ibb.co/6cV4xWbm/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy.webp"
-                }
-                alt="ITS TRAVELS AND TOURS Logo"
-                style={{ width: 80, height: 80, objectFit: 'contain' }}
-              /> */}
+            <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
               <Image
                 src={brandLogo}
                 alt={`${brandName} Logo`}
-                width={142}
-                height={54}
-                style={{ width: 142, height: 54, objectFit: 'contain' }}
+                width={42}
+                height={42}
+                style={{ width: 42, height: 42, objectFit: 'contain', borderRadius: '8px' }}
                 priority
               />
+              <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+                <span style={{
+                  fontFamily: 'Poppins, sans-serif',
+                  fontWeight: 900,
+                  fontSize: '17px',
+                  letterSpacing: '1.5px',
+                  color: isLightHeader ? '#ffffff' : 'var(--color-primary)',
+                  textShadow: isLightHeader ? '0 2px 4px rgba(0,0,0,0.5)' : 'none',
+                  textTransform: 'uppercase'
+                }}>
+                  ITS
+                </span>
+                <span style={{
+                  fontFamily: 'Georgia, serif',
+                  fontStyle: 'italic',
+                  fontWeight: 600,
+                  fontSize: '12px',
+                  color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#4b5563',
+                  textShadow: isLightHeader ? '0 1px 3px rgba(0,0,0,0.4)' : 'none',
+                  whiteSpace: 'nowrap',
+                  letterSpacing: '0.2px'
+                }}>
+                  Travels & Tours
+                </span>
+              </div>
             </Link>
 
             {/* Desktop Center Links (Hidden on Mobile) */}
@@ -1552,6 +1917,7 @@ export default function Navbar({ brand, companyInfo }) {
                   <MegaDropdown label="Holiday Tour Packages" cols={packageCols} isTransparent={isLightHeader} />
                 </>
               )}
+              <MegaDropdown label="Services" cols={serviceCols} isTransparent={isLightHeader} onFlightOpen={() => setFlightOpen(true)} />
             </ul>
 
             {/* Right side controls */}
@@ -1567,19 +1933,18 @@ export default function Navbar({ brand, companyInfo }) {
               >
                 Hotels
               </Link>
-              <button
-                type="button"
+              <Link
+                href="/forex"
                 className="d-none d-lg-inline-flex"
-                onClick={() => setForexOpen(true)}
                 style={{
                   ...navButtonStyle,
-                  cursor: 'pointer',
+                  display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
                 }}
               >
                 Forex
-              </button>
+              </Link>
               {isLoggedIn ? (
                 <Link
                   href="/profile"
@@ -1777,6 +2142,173 @@ export default function Navbar({ brand, companyInfo }) {
         </div>
       ) : null}
 
+      {flightOpen ? (
+        <div className="flight-modal-backdrop" role="presentation" onMouseDown={() => setFlightOpen(false)}>
+          <section className="flight-modal" role="dialog" aria-modal="true" aria-labelledby="flight-modal-title" onMouseDown={(event) => event.stopPropagation()}>
+            <div className="flight-modal-head">
+              <div>
+                <span>Flight Services</span>
+                <h2 id="flight-modal-title">Book Flights at Best Rates</h2>
+                <p>Send your trip requirements and our team will custom-build options for your journey.</p>
+              </div>
+              <button type="button" className="flight-modal-close" aria-label="Close Flight inquiry" onClick={() => setFlightOpen(false)}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form className="flight-modal-form" onSubmit={handleFlightSubmit}>
+              <div className="flight-trip-type-selector">
+                <button
+                  type="button"
+                  className={`flight-trip-type-btn ${flightDraft.tripType === 'Round-trip' ? 'active' : 'inactive'}`}
+                  onClick={() => updateFlightDraft('tripType', 'Round-trip')}
+                >
+                  Round-trip
+                </button>
+                <button
+                  type="button"
+                  className={`flight-trip-type-btn ${flightDraft.tripType === 'One-way' ? 'active' : 'inactive'}`}
+                  onClick={() => updateFlightDraft('tripType', 'One-way')}
+                >
+                  One-way
+                </button>
+              </div>
+
+              <div className="flight-modal-grid">
+                <label>
+                  From
+                  <input
+                    type="text"
+                    value={flightDraft.departureCity}
+                    onChange={(event) => updateFlightDraft('departureCity', event.target.value)}
+                    placeholder="Departure city or airport"
+                    required
+                  />
+                </label>
+                <label>
+                  To
+                  <input
+                    type="text"
+                    value={flightDraft.destinationCity}
+                    onChange={(event) => updateFlightDraft('destinationCity', event.target.value)}
+                    placeholder="Destination city or airport"
+                    required
+                  />
+                </label>
+
+                <label>
+                  Departure Date
+                  <input
+                    type="date"
+                    value={flightDraft.departureDate}
+                    onChange={(event) => updateFlightDraft('departureDate', event.target.value)}
+                    required
+                  />
+                </label>
+                {flightDraft.tripType === 'Round-trip' ? (
+                  <label>
+                    Return Date
+                    <input
+                      type="date"
+                      value={flightDraft.returnDate}
+                      onChange={(event) => updateFlightDraft('returnDate', event.target.value)}
+                      required
+                    />
+                  </label>
+                ) : (
+                  <label style={{ opacity: 0.5 }}>
+                    Return Date
+                    <input type="text" placeholder="One-way flight selected" disabled />
+                  </label>
+                )}
+
+                <label>
+                  Adults (12y+)
+                  <select
+                    value={flightDraft.adults}
+                    onChange={(event) => updateFlightDraft('adults', Number(event.target.value))}
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                      <option key={num} value={num}>{num}</option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Children (2-12y)
+                  <select
+                    value={flightDraft.children}
+                    onChange={(event) => updateFlightDraft('children', Number(event.target.value))}
+                  >
+                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                      <option key={num} value={num}>{num}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="flight-grid-full">
+                  Cabin Class
+                  <select
+                    value={flightDraft.cabinClass}
+                    onChange={(event) => updateFlightDraft('cabinClass', event.target.value)}
+                  >
+                    <option value="Economy">Economy</option>
+                    <option value="Premium Economy">Premium Economy</option>
+                    <option value="Business">Business</option>
+                    <option value="First Class">First Class</option>
+                  </select>
+                </label>
+
+                <label className="flight-grid-full" style={{ borderTop: '1px solid #edf2f7', paddingTop: '16px', marginTop: '8px' }}>
+                  Customer Name
+                  <input
+                    type="text"
+                    value={flightDraft.customerName}
+                    onChange={(event) => updateFlightDraft('customerName', event.target.value)}
+                    placeholder="Full name"
+                    required
+                  />
+                </label>
+                <label>
+                  Phone Number
+                  <input
+                    type="tel"
+                    value={flightDraft.phone}
+                    onChange={(event) => updateFlightDraft('phone', event.target.value)}
+                    placeholder="+91 99999 99999"
+                    required
+                  />
+                </label>
+                <label>
+                  Email Address
+                  <input
+                    type="email"
+                    value={flightDraft.email}
+                    onChange={(event) => updateFlightDraft('email', event.target.value)}
+                    placeholder="email@example.com"
+                    required
+                  />
+                </label>
+
+                <label className="flight-grid-full">
+                  Special Notes / Preferences
+                  <textarea
+                    value={flightDraft.notes}
+                    onChange={(event) => updateFlightDraft('notes', event.target.value)}
+                    placeholder="Mention preferred airlines, meal requirements, or flexible date window details"
+                    rows="3"
+                  />
+                </label>
+              </div>
+
+              <button type="submit" className="flight-submit-btn" disabled={flightLoading}>
+                {flightLoading ? 'Submitting Inquiry...' : 'Submit Flight Inquiry'}
+              </button>
+            </form>
+          </section>
+        </div>
+      ) : null}
+
       {/* Sidebar Drawer Component */}
       <SideDrawer
         allCategories={allCategories}
@@ -1784,7 +2316,7 @@ export default function Navbar({ brand, companyInfo }) {
         isLoggedIn={isLoggedIn}
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        onForexOpen={() => setForexOpen(true)}
+        onFlightOpen={() => setFlightOpen(true)}
         onLogout={clearAuthSession}
         companyInfo={companyInfo}
       />

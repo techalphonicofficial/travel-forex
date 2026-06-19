@@ -38,6 +38,16 @@ export default function GlobalInquiryModal({ brand, companyInfo }) {
     }
   }, []);
 
+  useEffect(() => {
+    const handleTrigger = () => {
+      setIsOpen(true);
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('openGlobalInquiry', handleTrigger);
+      return () => window.removeEventListener('openGlobalInquiry', handleTrigger);
+    }
+  }, []);
+
   const handleClose = () => {
     setIsOpen(false);
     try {
