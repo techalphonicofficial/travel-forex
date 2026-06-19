@@ -216,7 +216,7 @@ export default function ForexClient() {
     return currenciesToDisplay.map((code) => {
       const match = findForexRateMatch(rates, code, 'INR');
       const mid = match.rate;
-      
+
       const buyRate = mid * 0.995;
       const sellRate = mid * 1.005;
 
@@ -416,14 +416,14 @@ export default function ForexClient() {
 
   return (
     <div style={{ background: 'var(--color-bg)', color: 'var(--color-text-primary)', minHeight: '100vh', fontFamily: 'var(--font-inter), sans-serif' }}>
-      
+
       {/* 1. HERO SECTION (Dynamic Dark Blue Theme Banner matching Flights/Hotels) */}
-      <section style={{ 
-        padding: '120px 0 80px', 
-        background: 'linear-gradient(135deg, var(--color-primary) 0%, #013e68 100%)', 
+      <section style={{
+        padding: '120px 0 80px',
+        background: 'linear-gradient(135deg, var(--color-primary) 0%, #013e68 100%)',
         color: 'white',
-        position: 'relative', 
-        overflow: 'hidden' 
+        position: 'relative',
+        overflow: 'hidden'
       }}>
         {/* Decorative elements */}
         <div style={{ position: 'absolute', top: '10%', right: '-15%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(253,206,46,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
@@ -433,22 +433,22 @@ export default function ForexClient() {
           <div className="row align-items-center g-5">
             {/* Title / Description */}
             <div className="col-12 col-lg-6">
-              <span style={{ 
-                color: 'var(--color-secondary)', 
-                fontSize: 12, 
-                fontWeight: 800, 
-                letterSpacing: '3px', 
-                textTransform: 'uppercase', 
-                display: 'block', 
-                marginBottom: 12 
+              <span style={{
+                color: 'var(--color-secondary)',
+                fontSize: 12,
+                fontWeight: 800,
+                letterSpacing: '3px',
+                textTransform: 'uppercase',
+                display: 'block',
+                marginBottom: 12
               }}>
                 ✦ RBI Authorized Partner
               </span>
-              <h1 style={{ 
-                fontFamily: 'var(--font-poppins), sans-serif', 
-                fontWeight: 900, 
-                fontSize: 'clamp(32px, 5vw, 48px)', 
-                lineHeight: 1.15, 
+              <h1 style={{
+                fontFamily: 'var(--font-poppins), sans-serif',
+                fontWeight: 900,
+                fontSize: 'clamp(32px, 5vw, 48px)',
+                lineHeight: 1.15,
                 marginBottom: 20,
                 color: 'white'
               }}>
@@ -457,18 +457,18 @@ export default function ForexClient() {
               <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 16, lineHeight: 1.6, marginBottom: 30, maxWidth: '520px' }}>
                 Secure instant multi-currency card loading, international tuition remittances, and cash doorstep deliveries. Lock in competitive live rates today with India's trusted travel-forex partner.
               </p>
-              
+
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 15 }}>
                 <a href="#lead-form" onClick={scrollToLeadForm} className="btn-primary" style={{ padding: '14px 28px', textDecoration: 'none', color: '#0f172a', background: 'var(--color-secondary)' }}>
                   Apply Forex Card
                 </a>
-                <a href="#live-rates-table" onClick={scrollToRates} style={{ 
-                  color: 'white', 
-                  border: '1.5px solid rgba(255,255,255,0.3)', 
-                  padding: '13px 26px', 
-                  borderRadius: 12, 
-                  fontSize: 15, 
-                  fontWeight: 700, 
+                <a href="#live-rates-table" onClick={scrollToRates} style={{
+                  color: 'white',
+                  border: '1.5px solid rgba(255,255,255,0.3)',
+                  padding: '13px 26px',
+                  borderRadius: 12,
+                  fontSize: 15,
+                  fontWeight: 700,
                   background: 'rgba(255,255,255,0.1)',
                   backdropFilter: 'blur(4px)',
                   textDecoration: 'none'
@@ -480,24 +480,24 @@ export default function ForexClient() {
 
             {/* Converter Panel Card (White Container for high contrast against dark background) */}
             <div className="col-12 col-lg-6">
-              <div style={{ 
-                background: 'var(--color-bg-card)', 
-                border: '1px solid var(--color-border)', 
-                borderRadius: 24, 
+              <div style={{
+                background: 'var(--color-bg-card)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 24,
                 boxShadow: 'var(--shadow-xl)',
                 padding: '28px',
                 color: 'var(--color-text-primary)'
               }}>
-                
+
                 {/* Custom Tabs */}
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(4, 1fr)', 
-                  gap: 4, 
-                  background: 'var(--color-bg-soft)', 
-                  padding: 4, 
-                  borderRadius: 12, 
-                  marginBottom: 24 
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: 4,
+                  background: 'var(--color-bg-soft)',
+                  padding: 4,
+                  borderRadius: 12,
+                  marginBottom: 24
                 }}>
                   {[
                     { id: 'buy', label: 'Buy Forex' },
@@ -998,10 +998,10 @@ export default function ForexClient() {
           </div>
 
           <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <div className="table-responsive" style={{ 
-              background: 'var(--color-bg-card)', 
-              border: '1px solid var(--color-border)', 
-              borderRadius: 16, 
+            <div className="table-responsive" style={{
+              background: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 16,
               overflow: 'hidden',
               boxShadow: 'var(--shadow-sm)'
             }}>
@@ -1019,13 +1019,13 @@ export default function ForexClient() {
                     <tr key={row.code} style={{ verticalAlign: 'middle', borderBottom: '1px solid var(--color-border)' }}>
                       <td style={{ padding: '18px 24px', color: 'var(--color-text-primary)', fontWeight: 700 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <span style={{ 
-                            width: 32, 
-                            height: 32, 
-                            borderRadius: '50%', 
-                            background: 'var(--color-bg-soft)', 
-                            display: 'grid', 
-                            placeItems: 'center', 
+                          <span style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '50%',
+                            background: 'var(--color-bg-soft)',
+                            display: 'grid',
+                            placeItems: 'center',
                             fontSize: 14,
                             color: 'var(--color-primary)'
                           }}>
@@ -1101,10 +1101,10 @@ export default function ForexClient() {
           <div className="row g-4">
             {/* Card 1 */}
             <div className="col-12 col-md-6 col-lg-3">
-              <div className="card-base" style={{ 
-                background: 'var(--color-bg-card)', 
+              <div className="card-base" style={{
+                background: 'var(--color-bg-card)',
                 border: '1px solid var(--color-border)',
-                padding: '30px 24px', 
+                padding: '30px 24px',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -1125,10 +1125,10 @@ export default function ForexClient() {
 
             {/* Card 2 */}
             <div className="col-12 col-md-6 col-lg-3">
-              <div className="card-base" style={{ 
-                background: 'var(--color-bg-card)', 
+              <div className="card-base" style={{
+                background: 'var(--color-bg-card)',
                 border: '1px solid var(--color-border)',
-                padding: '30px 24px', 
+                padding: '30px 24px',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -1149,10 +1149,10 @@ export default function ForexClient() {
 
             {/* Card 3 */}
             <div className="col-12 col-md-6 col-lg-3">
-              <div className="card-base" style={{ 
-                background: 'var(--color-bg-card)', 
+              <div className="card-base" style={{
+                background: 'var(--color-bg-card)',
                 border: '1px solid var(--color-border)',
-                padding: '30px 24px', 
+                padding: '30px 24px',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -1173,10 +1173,10 @@ export default function ForexClient() {
 
             {/* Card 4 */}
             <div className="col-12 col-md-6 col-lg-3">
-              <div className="card-base" style={{ 
-                background: 'var(--color-bg-card)', 
+              <div className="card-base" style={{
+                background: 'var(--color-bg-card)',
                 border: '1px solid var(--color-border)',
-                padding: '30px 24px', 
+                padding: '30px 24px',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -1221,7 +1221,7 @@ export default function ForexClient() {
                 Why Choose Us
               </span>
               <h2 style={{ fontFamily: 'var(--font-poppins), sans-serif', fontWeight: 900, fontSize: 34, marginTop: 8, marginBottom: 20 }}>
-                India\'s Safest & Best Rate Forex Platform
+                India's Safest & Best Rate Forex Platform
               </h2>
               <p style={{ color: 'var(--color-text-secondary)', fontSize: 15, lineHeight: 1.6, marginBottom: 30 }}>
                 We streamline currency booking under strict RBI guidelines, offering verified zero-markup card services, transparent rates, and fast door delivery.
@@ -1248,22 +1248,22 @@ export default function ForexClient() {
                   { title: '24x7 Support', desc: 'Around-the-clock emergency support. Block cards, resolve queries anytime.' },
                   { title: 'Fast Processing', desc: 'Realization, verification, and currency package deliveries within 24 hours.' }
                 ].map((item, idx) => (
-                  <div key={idx} style={{ 
-                    background: 'var(--color-bg-card)', 
-                    border: '1px solid var(--color-border)', 
-                    borderRadius: 16, 
-                    padding: 20 
+                  <div key={idx} style={{
+                    background: 'var(--color-bg-card)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 16,
+                    padding: 20
                   }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                      <span style={{ 
-                        color: 'var(--color-primary)', 
-                        fontSize: 16, 
-                        fontWeight: 900, 
-                        background: 'var(--color-primary-light)', 
-                        width: 28, 
-                        height: 28, 
-                        borderRadius: '50%', 
-                        display: 'grid', 
+                      <span style={{
+                        color: 'var(--color-primary)',
+                        fontSize: 16,
+                        fontWeight: 900,
+                        background: 'var(--color-primary-light)',
+                        width: 28,
+                        height: 28,
+                        borderRadius: '50%',
+                        display: 'grid',
                         placeItems: 'center',
                         flexShrink: 0
                       }}>✓</span>
@@ -1305,10 +1305,10 @@ export default function ForexClient() {
               const match = findForexRateMatch(rates, dest.curr, 'INR');
               return (
                 <div key={dest.name} className="col-12 col-md-6 col-lg-3">
-                  <div 
+                  <div
                     onClick={() => selectDestination(dest.curr)}
-                    style={{ 
-                      background: 'var(--color-bg-card)', 
+                    style={{
+                      background: 'var(--color-bg-card)',
                       border: '1px solid var(--color-border)',
                       borderRadius: 20,
                       padding: 24,
@@ -1321,12 +1321,12 @@ export default function ForexClient() {
                     <div style={{ fontSize: 44, marginBottom: 12 }}>{dest.flag}</div>
                     <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)', marginBottom: 4 }}>{dest.name}</h3>
                     <p style={{ color: 'var(--color-text-secondary)', fontSize: 12, marginBottom: 12 }}>{dest.desc}</p>
-                    <div style={{ 
-                      background: 'var(--color-primary-light)', 
-                      padding: '8px 12px', 
-                      borderRadius: 10, 
-                      fontSize: 13, 
-                      fontWeight: 700, 
+                    <div style={{
+                      background: 'var(--color-primary-light)',
+                      padding: '8px 12px',
+                      borderRadius: 10,
+                      fontSize: 13,
+                      fontWeight: 700,
                       color: 'var(--color-primary)',
                       display: 'inline-block'
                     }}>
@@ -1341,15 +1341,15 @@ export default function ForexClient() {
       </section>
 
       {/* 6. FOREX CARD SECTION */}
-      <section style={{ 
-        padding: '100px 0', 
-        background: 'linear-gradient(135deg, var(--color-primary) 0%, #013e68 100%)', 
+      <section style={{
+        padding: '100px 0',
+        background: 'linear-gradient(135deg, var(--color-primary) 0%, #013e68 100%)',
         color: 'white',
         position: 'relative',
         overflow: 'hidden'
       }}>
         <div style={{ position: 'absolute', right: '-5%', bottom: '-10%', width: '380px', height: '220px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', transform: 'rotate(-15deg)', pointerEvents: 'none', border: '1px solid rgba(255,255,255,0.1)' }} />
-        
+
         <div className="container">
           <div className="row align-items-center g-5">
             <div className="col-12 col-lg-7">
@@ -1455,11 +1455,11 @@ export default function ForexClient() {
             </div>
 
             <div className="col-12 col-lg-6">
-              <div style={{ 
-                background: 'var(--color-bg-soft)', 
-                border: '1px solid var(--color-border)', 
-                borderRadius: 24, 
-                padding: 30 
+              <div style={{
+                background: 'var(--color-bg-soft)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 24,
+                padding: 30
               }}>
                 <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 20, borderBottom: '1px solid var(--color-border)', paddingBottom: 12, color: 'var(--color-text-primary)' }}>
                   Required Document Guidelines
@@ -1476,14 +1476,14 @@ export default function ForexClient() {
                     { item: 'Confirmed Air Ticket', desc: 'Confirmed booking itinerary representing flight travel dates.' }
                   ].map((doc, idx) => (
                     <div key={idx} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                      <span style={{ 
-                        background: 'var(--color-primary-light)', 
-                        color: 'var(--color-primary)', 
-                        width: 24, 
-                        height: 24, 
-                        borderRadius: 6, 
-                        display: 'grid', 
-                        placeItems: 'center', 
+                      <span style={{
+                        background: 'var(--color-primary-light)',
+                        color: 'var(--color-primary)',
+                        width: 24,
+                        height: 24,
+                        borderRadius: 6,
+                        display: 'grid',
+                        placeItems: 'center',
                         fontSize: 12,
                         fontWeight: 900,
                         flexShrink: 0
@@ -1520,11 +1520,11 @@ export default function ForexClient() {
 
           <div style={{ display: 'grid', gap: 12 }}>
             {/* Purchase Accordion */}
-            <div style={{ 
-              background: 'var(--color-bg-card)', 
-              border: '1px solid var(--color-border)', 
-              borderRadius: 12, 
-              overflow: 'hidden' 
+            <div style={{
+              background: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 12,
+              overflow: 'hidden'
             }}>
               <button
                 onClick={() => setActiveDocIndex(activeDocIndex === 0 ? null : 0)}
@@ -1560,11 +1560,11 @@ export default function ForexClient() {
             </div>
 
             {/* Student Remittance Accordion */}
-            <div style={{ 
-              background: 'var(--color-bg-card)', 
-              border: '1px solid var(--color-border)', 
-              borderRadius: 12, 
-              overflow: 'hidden' 
+            <div style={{
+              background: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 12,
+              overflow: 'hidden'
             }}>
               <button
                 onClick={() => setActiveDocIndex(activeDocIndex === 1 ? null : 1)}
@@ -1605,10 +1605,10 @@ export default function ForexClient() {
       {/* 9. CURRENCY CALCULATOR */}
       <section style={{ padding: '80px 0', background: 'var(--color-bg)' }}>
         <div className="container" style={{ maxWidth: '800px' }}>
-          <div style={{ 
-            background: 'var(--color-bg-card)', 
+          <div style={{
+            background: 'var(--color-bg-card)',
             border: '1px solid var(--color-border)',
-            borderRadius: 24, 
+            borderRadius: 24,
             padding: 36,
             textAlign: 'center',
             boxShadow: 'var(--shadow-sm)'
@@ -1640,9 +1640,9 @@ export default function ForexClient() {
               ))}
             </div>
 
-            <div style={{ 
-              fontSize: 'clamp(24px, 4vw, 36px)', 
-              fontWeight: 900, 
+            <div style={{
+              fontSize: 'clamp(24px, 4vw, 36px)',
+              fontWeight: 900,
               color: 'var(--color-text-primary)',
               margin: '20px 0'
             }}>
@@ -1675,10 +1675,10 @@ export default function ForexClient() {
               { text: "My Multi-Currency Card worked perfectly at retail stores and local transit terminals throughout London and Paris. Easy reloading via their platform when I ran short of money.", name: "Ananya Mehta", role: "Student Traveler (UK & Europe)" }
             ].map((rev, idx) => (
               <div key={idx} className="col-12 col-lg-4">
-                <div style={{ 
-                  background: 'var(--color-bg-card)', 
-                  border: '1px solid var(--color-border)', 
-                  borderRadius: 20, 
+                <div style={{
+                  background: 'var(--color-bg-card)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 20,
                   padding: 30,
                   height: '100%',
                   display: 'flex',
@@ -1717,13 +1717,13 @@ export default function ForexClient() {
 
           <div style={{ display: 'grid', gap: 15 }}>
             {faqs.map((faq, idx) => (
-              <div 
-                key={idx} 
-                style={{ 
-                  background: 'var(--color-bg-card)', 
-                  border: '1px solid var(--color-border)', 
-                  borderRadius: 12, 
-                  overflow: 'hidden' 
+              <div
+                key={idx}
+                style={{
+                  background: 'var(--color-bg-card)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 12,
+                  overflow: 'hidden'
                 }}
               >
                 <button
@@ -1748,12 +1748,12 @@ export default function ForexClient() {
                   </span>
                 </button>
                 {activeFaqIndex === idx && (
-                  <div style={{ 
-                    padding: '0 24px 20px', 
-                    color: 'var(--color-text-secondary)', 
-                    fontSize: 13.5, 
+                  <div style={{
+                    padding: '0 24px 20px',
+                    color: 'var(--color-text-secondary)',
+                    fontSize: 13.5,
                     lineHeight: 1.5,
-                    borderTop: '1px solid var(--color-border)' 
+                    borderTop: '1px solid var(--color-border)'
                   }}>
                     <p style={{ marginTop: 15, marginBottom: 0 }}>{faq.a}</p>
                   </div>
@@ -1765,16 +1765,16 @@ export default function ForexClient() {
       </section>
 
       {/* 12. LEAD GENERATION FORM */}
-      <section id="lead-form" ref={leadFormRef} style={{ 
-        padding: '100px 0', 
+      <section id="lead-form" ref={leadFormRef} style={{
+        padding: '100px 0',
         background: 'linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-soft) 100%)',
         position: 'relative'
       }}>
         <div className="container" style={{ maxWidth: '640px' }}>
-          <div style={{ 
-            background: 'var(--color-bg-card)', 
+          <div style={{
+            background: 'var(--color-bg-card)',
             border: '1px solid var(--color-border)',
-            borderRadius: 24, 
+            borderRadius: 24,
             padding: 40,
             boxShadow: 'var(--shadow-lg)',
             color: 'var(--color-text-primary)'
