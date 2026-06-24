@@ -561,10 +561,8 @@ export default function RecommendedPackages() {
           animation: fadeSlideIn 0.32s ease both;
         }
         .recent-bookings-section {
-          background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+          background: transparent;
           padding: 64px 0 68px;
-          border-top: 1px solid rgba(226, 232, 240, .68);
-          border-bottom: 1px solid rgba(226, 232, 240, .68);
         }
         .recent-filters {
           display: flex;
@@ -609,10 +607,10 @@ export default function RecommendedPackages() {
           min-height: 128px;
           display: grid;
           place-items: center;
-          border: 1px dashed #d1d5db;
+          border: 1px dashed var(--color-border);
           border-radius: 12px;
           color: #64748b;
-          background: #fff;
+          background: var(--color-bg-card);
           font-size: 13px;
           font-weight: 700;
         }
@@ -620,9 +618,9 @@ export default function RecommendedPackages() {
           flex-shrink: 0;
           width: 310px;
           overflow: hidden;
-          border: 1px solid #e6ebf1;
+          border: 1px solid var(--color-border);
           border-radius: 12px;
-          background: #fff;
+          background: var(--color-bg-card);
           box-shadow: 0 10px 26px rgba(15, 23, 42, .07);
           transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
           scroll-snap-align: start;

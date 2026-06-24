@@ -43,7 +43,7 @@ function DestinationCard({ item, type }) {
         onMouseLeave={() => setHovered(false)}
         style={{
           width: '100%',
-          height: 'clamp(300px, 34vw, 340px)',
+          aspectRatio: '1 / 1',
           borderRadius: 16,
           overflow: 'hidden',
           position: 'relative',

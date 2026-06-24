@@ -6,8 +6,11 @@ import GramSection from '@/components/GramSection';
 import TrustSection from '@/components/TrustSection';
 import NewsletterForm from '@/components/NewsletterForm';
 import { getHomePage } from '@/utils/api';
-import DomesticInternationalPackages from '@/components/DomesticInternationalPackages';
+import TabbedPackagesSection from '@/components/TabbedPackagesSection';
 import ForexSection from '@/components/ForexSection';
+import OffersCarousel from '@/components/OffersCarousel';
+import CategoriesCarousel from '@/components/CategoriesCarousel';
+import TestimonialSlider from '@/components/TestimonialSlider';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,7 +36,11 @@ export default async function HomePage() {
           WARM IVORY SECTIONS — cream luxury theme
           ═══════════════════════════════════════════ */}
       <div className="hp-ivory">
-        <DomesticInternationalPackages />
+        <CategoriesCarousel />
+        
+        <OffersCarousel />
+
+        <TabbedPackagesSection />
 
         <PopularDestinationRows />
 
@@ -46,6 +53,8 @@ export default async function HomePage() {
 
       {/* Dark-themed sections — own explicit backgrounds, unaffected */}
       <ForexSection />
+
+      <TestimonialSlider />
 
       <GramSection />
 

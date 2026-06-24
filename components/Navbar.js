@@ -1127,8 +1127,8 @@ export default function Navbar({ brand, companyInfo }) {
 
   const brandLogo = getLogoUrl(companyInfo?.company_logo_url) || brand?.logo || '/logooo.png';
   const brandName = brand?.legalName || 'ITS TRAVELS AND TOURS';
-  const isTransparent = isHeroPage && atHero && !scrolled && !drawerOpen;
-  const isLightHeader = isTransparent || scrolled;
+  const isTransparent = false;
+  const isLightHeader = true;
   const linkColor = isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151';
   const navButtonStyle = {
     padding: '8px 18px',
@@ -1136,7 +1136,7 @@ export default function Navbar({ brand, companyInfo }) {
     border: isLightHeader ? '1.5px solid rgba(255,255,255,0.6)' : '1.5px solid #d1d5db',
     color: isLightHeader ? 'white' : '#374151',
     fontWeight: 600,
-    fontSize: 13,
+    fontSize: 15,
     textDecoration: 'none',
     background: isLightHeader ? 'rgba(255,255,255,0.1)' : 'white',
     backdropFilter: 'blur(6px)',
@@ -1844,16 +1844,48 @@ export default function Navbar({ brand, companyInfo }) {
           .flight-modal-head { padding: 20px; }
           .flight-modal-form { padding: 20px; }
         }
+        .top-bar-announcement {
+          position: fixed;
+          top: 0; left: 0; width: 100%;
+          height: 72px;
+          z-index: 2200;
+          background: linear-gradient(90deg, #1e3a8a 0%, #0ea5e9 100%);
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 26px;
+          font-weight: 900;
+          letter-spacing: 1px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        @media (max-width: 767px) {
+          .top-bar-announcement {
+            height: 56px;
+            font-size: 18px;
+          }
+          .navbar-custom {
+            top: 56px !important;
+          }
+        }
+        @media (min-width: 768px) {
+          .navbar-custom {
+            top: 72px !important;
+          }
+        }
       `}</style>
 
+      <div className="top-bar-announcement">
+        <span style={{ marginRight: 16 }}>🎉</span> 
+        Celebrating 27 Years of Excellence in Travel! 
+        <span style={{ marginLeft: 16 }}>🌍</span>
+      </div>
+
       <header
-        className={`navbar-custom ${scrolled ? 'scrolled' : ''}`}
-        style={{
-          background: isTransparent
-            ? 'linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 80%, transparent 100%)'
-            : undefined,
-        }}
+        className="navbar-custom scrolled"
+        style={{ background: undefined }}
       >
+
         <div className="container">
           <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
 
@@ -1862,9 +1894,9 @@ export default function Navbar({ brand, companyInfo }) {
               <Image
                 src={brandLogo}
                 alt={`${brandName} Logo`}
-                width={42}
-                height={42}
-                style={{ width: 42, height: 42, objectFit: 'contain', borderRadius: '8px' }}
+                width={64}
+                height={64}
+                style={{ width: 64, height: 64, objectFit: 'contain', borderRadius: '8px' }}
                 priority
               />
               <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
@@ -1902,49 +1934,55 @@ export default function Navbar({ brand, companyInfo }) {
             }}
               className="d-none d-lg-flex"
             >
-              {categories.length > 0 ? (
-                categories.map(cat => (
-                  <MegaDropdown
-                    key={cat.id}
-                    label={cat.name}
-                    cols={cat.cols && cat.cols.length > 0 ? cat.cols : []}
-                    isTransparent={isLightHeader}
-                  />
-                ))
-              ) : (
-                <>
-                  <MegaDropdown label="Explore Destinations" cols={destinationCols} isTransparent={isLightHeader} />
-                  <MegaDropdown label="Holiday Tour Packages" cols={packageCols} isTransparent={isLightHeader} />
-                </>
-              )}
-              <MegaDropdown label="Services" cols={serviceCols} isTransparent={isLightHeader} onFlightOpen={() => setFlightOpen(true)} />
+              <Link href="#flight" onClick={(e) => { e.preventDefault(); setFlightOpen(true); }} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151', textDecoration: 'none', fontWeight: 700, fontSize: 18, transition: 'color 0.2s' }} onMouseEnter={e => { if (!isLightHeader) e.currentTarget.style.color = 'var(--color-primary)'; }} onMouseLeave={e => { if (!isLightHeader) e.currentTarget.style.color = '#374151'; }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.5 5.5L6 17l-3-1-1.5 1.5 4 2.5 2.5 4 1.5-1.5-1-3 3.5-3.5 5.5 6.5l1.2-.7c.4-.2.7-.6.6-1.1z"/></svg>
+                Flights
+              </Link>
+              <Link href={HOTEL_HREF} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151', textDecoration: 'none', fontWeight: 700, fontSize: 18, transition: 'color 0.2s' }} onMouseEnter={e => { if (!isLightHeader) e.currentTarget.style.color = 'var(--color-primary)'; }} onMouseLeave={e => { if (!isLightHeader) e.currentTarget.style.color = '#374151'; }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21h18M5 21V7l8-4v18M13 21V3l8 4v14M9 11v.01M9 15v.01M17 11v.01M17 15v.01"/></svg>
+                Hotels
+              </Link>
+              <MegaDropdown
+                label={
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: 18, fontWeight: 700 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 12V22M12 2v10M12 12c-5 0-9-4-9-9h18c0 5-4 9-9 9z"/></svg>
+                    Holidays
+                  </span>
+                }
+                cols={packageCols}
+                isTransparent={isLightHeader}
+              />
+              <Link href="/cruise" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151', textDecoration: 'none', fontWeight: 700, fontSize: 18, transition: 'color 0.2s' }} onMouseEnter={e => { if (!isLightHeader) e.currentTarget.style.color = 'var(--color-primary)'; }} onMouseLeave={e => { if (!isLightHeader) e.currentTarget.style.color = '#374151'; }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 21c3 0 5-1.5 7-1.5s4 1.5 7 1.5 5-1.5 7-1.5M2 17c3 0 5-1.5 7-1.5s4 1.5 7 1.5 5-1.5 7-1.5"/><path d="M5 14l2-8h10l2 8"/></svg>
+                Cruise
+              </Link>
+              <Link href="/forex" onClick={(e) => { e.preventDefault(); setForexOpen(true); }} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151', textDecoration: 'none', fontWeight: 700, fontSize: 18, transition: 'color 0.2s' }} onMouseEnter={e => { if (!isLightHeader) e.currentTarget.style.color = 'var(--color-primary)'; }} onMouseLeave={e => { if (!isLightHeader) e.currentTarget.style.color = '#374151'; }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8M12 6v2M12 16v2"/></svg>
+                Forex
+              </Link>
+              
+              <MegaDropdown
+                label={
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: 18, fontWeight: 700 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="12" r="2"/></svg>
+                    More
+                  </span>
+                }
+                cols={[
+                  [
+                    { name: 'Visa Services', href: '/visa' },
+                    { name: 'Euro Rails', href: '/eurorail' },
+                    { name: 'Events & Weddings', href: '/events' },
+                    { name: 'Conferences', href: '/conferences' }
+                  ],
+                  ...(categories.length > 0 ? [categories.map(c => ({ name: c.name, href: `/packages?category=${c.id}` }))] : [destinationCols[0]])
+                ]}
+                isTransparent={isLightHeader}
+              />
             </ul>
 
             {/* Right side controls */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
-
-              {/* Previous static login button kept for reference:
-              <Link href="/auth/login" className="d-none d-lg-inline-flex">Login</Link>
-              */}
-              <Link
-                href={HOTEL_HREF}
-                className="d-none d-lg-inline-flex"
-                style={navButtonStyle}
-              >
-                Hotels
-              </Link>
-              <Link
-                href="/forex"
-                className="d-none d-lg-inline-flex"
-                style={{
-                  ...navButtonStyle,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                }}
-              >
-                Forex
-              </Link>
               {isLoggedIn ? (
                 <Link
                   href="/profile"

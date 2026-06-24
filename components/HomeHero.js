@@ -348,7 +348,18 @@ export default function HomeHero() {
           overflow: 'visible',
           background: '#041a0c',
         }}
+        className="home-hero-container"
       >
+        <style>{`
+          .home-hero-container {
+            margin-top: 154px;
+          }
+          @media (max-width: 767px) {
+            .home-hero-container {
+              margin-top: 120px;
+            }
+          }
+        `}</style>
 
         {/* ── Media clip container (keeps video + overlays within bounds) ── */}
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 0 }}>
@@ -489,30 +500,28 @@ export default function HomeHero() {
           ref={searchWrapRef}
           style={{
             position: 'absolute',
-            bottom: isMobile ? 26 : 42,
+            bottom: isMobile ? -30 : -36,
             left: '50%',
             transform: 'translateX(-50%)',
             width: '100%',
-            maxWidth: isMobile ? 360 : 700,
-            zIndex: 4,
+            maxWidth: isMobile ? 360 : 850,
+            zIndex: 10,
             padding: '0 16px',
+            marginTop: 20,
           }}
         >
           <div
             style={{
               display: 'flex',
-              alignItems: 'stretch',
-              background: 'rgba(255,255,255,0.12)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.28)',
+              background: '#ffffff',
+              border: '1px solid rgba(0,0,0,0.08)',
               borderRadius: 18,
               overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.2)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0, padding: isMobile ? '0 8px 0 16px' : '0 10px 0 20px' }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="2.5" width="20" height="20">
+            <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0, padding: isMobile ? '0 10px 0 16px' : '0 14px 0 24px' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" width="24" height="24">
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
             </div>
@@ -552,8 +561,8 @@ export default function HomeHero() {
               style={{
                 flex: '1 1 auto', minWidth: 0,
                 border: 'none', outline: 'none',
-                fontSize: isMobile ? 15 : 16, color: 'rgba(255,255,255,0.95)',
-                padding: isMobile ? '14px 6px' : '12px 8px',
+                fontSize: isMobile ? 16 : 18, color: '#1f2937',
+                padding: isMobile ? '16px 8px' : '20px 14px',
                 background: 'transparent',
                 fontFamily: 'Inter, sans-serif',
               }}
@@ -562,10 +571,10 @@ export default function HomeHero() {
               onClick={handleSearch}
               style={{
                 background: 'var(--color-secondary)', color: '#111827',
-                border: 'none', padding: isMobile ? '0 18px' : '0 28px',
-                flex: '0 0 auto', minWidth: isMobile ? 84 : 106,
+                border: 'none', padding: isMobile ? '0 24px' : '0 40px',
+                flex: '0 0 auto', minWidth: isMobile ? 100 : 140,
                 whiteSpace: 'nowrap',
-                fontWeight: 700, fontSize: isMobile ? 14 : 15, cursor: 'pointer',
+                fontWeight: 700, fontSize: isMobile ? 16 : 18, cursor: 'pointer',
                 letterSpacing: 0.3, transition: 'background 0.2s',
                 fontFamily: 'Poppins, sans-serif',
                 borderRadius: '0 18px 18px 0',
@@ -680,301 +689,6 @@ export default function HomeHero() {
           )}
         </div>
 
-      </div>
-
-      {/* ══════════════════════════════════
-          "OR PICK WHO'S JOINING" PANEL (below the banner)
-      ══════════════════════════════════ */}
-      <style>{`
-        .traveller-band {
-          position: relative;
-          z-index: 2;
-          min-height: 218px;
-          background:
-            radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--color-secondary) 20%, transparent), transparent 30%),
-            linear-gradient(135deg,
-              color-mix(in srgb, var(--color-primary) 58%, #05070d) 0%,
-              color-mix(in srgb, var(--color-primary) 72%, #05070d) 48%,
-              color-mix(in srgb, var(--color-primary-hover) 54%, #05070d) 100%);
-          overflow: hidden;
-          display: flex;
-          align-items: center;
-          padding-top: 28px;
-          padding-bottom: 22px;
-        }
-        .traveller-band::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          opacity: 0.22;
-          pointer-events: none;
-          background-image:
-            linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
-            linear-gradient(0deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-          background-size: 18px 18px;
-        }
-        .traveller-row {
-          position: relative;
-          width: min(1540px, calc(100% - 112px));
-          margin: 0 auto;
-          padding: 20px 28px 18px;
-          display: flex;
-          justify-content: flex-start;
-          gap: clamp(18px, 2vw, 38px);
-          overflow-x: auto;
-          overscroll-behavior-x: contain;
-          scroll-snap-type: x proximity;
-          scroll-padding-inline: 28px;
-          -webkit-overflow-scrolling: touch;
-          scrollbar-width: none;
-        }
-        .traveller-row::-webkit-scrollbar { display: none; }
-        .traveller-option {
-          flex: 0 0 clamp(190px, 17vw, 238px);
-          border: 0;
-          background: transparent;
-          padding: 0;
-          cursor: pointer;
-          color: white;
-          font-family: Poppins, sans-serif;
-          text-align: left;
-          transition: transform 0.22s ease;
-          scroll-snap-align: start;
-        }
-        .traveller-option:focus-visible,
-        .traveller-scroll-btn:focus-visible {
-          outline: 3px solid var(--color-secondary);
-          outline-offset: 4px;
-        }
-        .traveller-option:hover,
-        .traveller-option.is-active {
-          transform: translateY(-5px);
-        }
-        .traveller-visual {
-          position: relative;
-          display: block;
-          height: 158px;
-          margin-bottom: 12px;
-        }
-        .traveller-arrow {
-          position: absolute;
-          left: 18px;
-          right: 0;
-          bottom: 10px;
-          height: 122px;
-          border-radius: 16px 36px 36px 16px;
-          background:
-            linear-gradient(135deg,
-              color-mix(in srgb, var(--color-secondary) 24%, var(--color-primary)) 0%,
-              color-mix(in srgb, var(--color-primary) 76%, #000) 100%);
-          clip-path: polygon(0 0, 74% 0, 100% 50%, 74% 100%, 0 100%, 11% 50%);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
-          transition: filter 0.22s ease, transform 0.22s ease;
-        }
-        .traveller-option:hover .traveller-arrow,
-        .traveller-option.is-active .traveller-arrow {
-          filter: brightness(1.14) saturate(1.08);
-          transform: translateX(4px);
-        }
-        .traveller-photo-wrap {
-          position: absolute;
-          left: 0;
-          bottom: 0;
-          width: 142px;
-          height: 154px;
-          overflow: hidden;
-          border-radius: 70px 70px 8px 8px;
-          filter: drop-shadow(0 14px 18px rgba(0,0,0,0.26));
-          background: var(--color-primary-light);
-          transition: background 0.22s ease, transform 0.22s ease;
-        }
-        .traveller-option:hover .traveller-photo-wrap,
-        .traveller-option.is-active .traveller-photo-wrap {
-          background: var(--color-secondary);
-        }
-        .traveller-photo-wrap img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          object-position: center;
-          display: block;
-        }
-        .traveller-label {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding-left: 40px;
-          font-size: clamp(20px, 1.9vw, 29px);
-          line-height: 1;
-          font-weight: 900;
-          letter-spacing: 0;
-          text-transform: uppercase;
-          text-shadow: 0 3px 10px rgba(0,0,0,0.22);
-          white-space: nowrap;
-          transition: color 0.22s ease;
-        }
-        .traveller-option:hover .traveller-label,
-        .traveller-option.is-active .traveller-label {
-          color: var(--color-secondary);
-        }
-        .traveller-label svg {
-          width: 20px;
-          height: 20px;
-          stroke-width: 3.2;
-          flex: 0 0 auto;
-        }
-        .traveller-scroll-btn {
-          position: absolute;
-          z-index: 4;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 38px;
-          height: 38px;
-          border-radius: 50%;
-          border: 1px solid rgba(255,255,255,0.28);
-          background: color-mix(in srgb, var(--color-primary) 64%, #000);
-          color: white;
-          display: flex;
-          align-items: center;
-          justifyContent: center;
-          cursor: pointer;
-          box-shadow: 0 10px 24px rgba(0,0,0,0.22);
-          transition: background .18s ease, color .18s ease, opacity .18s ease;
-        }
-        .traveller-scroll-btn:hover {
-          background: var(--color-secondary);
-          color: #111827;
-        }
-        .traveller-scroll-btn:disabled {
-          opacity: .38;
-          cursor: default;
-          pointer-events: none;
-        }
-        .traveller-scroll-btn.prev { left: 18px; }
-        .traveller-scroll-btn.next { right: 18px; }
-        .traveller-empty-state {
-          width: min(760px, calc(100% - 48px));
-          min-height: 120px;
-          margin: 0 auto;
-          display: grid;
-          place-items: center;
-          border: 1px dashed rgba(255,255,255,.32);
-          border-radius: 14px;
-          color: rgba(255,255,255,.86);
-          background: rgba(255,255,255,.06);
-          font-size: 14px;
-          font-weight: 800;
-          text-align: center;
-        }
-        @media (max-width: 900px) {
-          .traveller-band { min-height: 214px; padding-top: 28px; }
-          .traveller-row {
-            width: calc(100% - 44px);
-            justify-content: flex-start;
-            gap: 26px;
-            padding-inline: 22px;
-          }
-          .traveller-option { flex-basis: 190px; }
-          .traveller-label {
-            font-size: 23px;
-            padding-left: 30px;
-          }
-        }
-        @media (max-width: 640px) {
-          .traveller-band { min-height: 200px; padding-top: 26px; }
-          .traveller-row {
-            gap: 20px;
-            padding: 18px 18px 16px;
-          }
-          .traveller-option { flex-basis: 164px; }
-          .traveller-visual { height: 134px; }
-          .traveller-arrow {
-            height: 104px;
-            left: 12px;
-          }
-          .traveller-photo-wrap {
-            width: 116px;
-            height: 130px;
-          }
-          .traveller-label {
-            font-size: 20px;
-            padding-left: 20px;
-          }
-          .traveller-scroll-btn { display: none; }
-        }
-        /* Frosted glass search bar placeholder */
-        .hero-search-input::placeholder {
-          color: rgba(255, 255, 255, 0.55);
-        }
-      `}</style>
-
-      <div className="traveller-band" aria-label="Pick who is joining">
-        <button
-          type="button"
-          className="traveller-scroll-btn prev"
-          aria-label="Scroll categories left"
-          aria-disabled={!canScrollCategories.prev}
-          onClick={() => scrollTravellerRow(-1)}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" strokeWidth="3">
-            <path d="M15 5l-7 7 7 7" />
-          </svg>
-        </button>
-        {homeCategoriesLoading || homeTravelerTypes.length === 0 ? (
-          <div className="traveller-empty-state" aria-live="polite">
-            {homeCategoriesLoading ? 'Loading holiday styles...' : 'Holiday styles are being refreshed.'}
-          </div>
-        ) : (
-          <div
-            ref={travellerRowRef}
-            className="traveller-row"
-            onWheel={(event) => {
-              if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
-              event.preventDefault();
-              event.currentTarget.scrollLeft += event.deltaY;
-              window.requestAnimationFrame(updateCategoryScrollState);
-            }}
-          >
-            {homeTravelerTypes.map(({ id, label, image, alt }) => (
-              <button
-                key={id}
-                type="button"
-                className={`traveller-option${activeTraveler === id ? ' is-active' : ''}`}
-                onMouseEnter={() => setActiveTraveler(id)}
-                onFocus={() => setActiveTraveler(id)}
-                onMouseLeave={() => setActiveTraveler(null)}
-                onBlur={() => setActiveTraveler(null)}
-                onClick={() => {
-                  router.push(getCategoryHref({ label, destination }));
-                }}
-              >
-                <span className="traveller-visual">
-                  <span className="traveller-arrow" />
-                  <span className="traveller-photo-wrap">
-                    <img src={image} alt={alt || label} loading="lazy" />
-                  </span>
-                </span>
-                <span className="traveller-label">
-                  {label}
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M9 5l7 7-7 7" />
-                  </svg>
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
-        <button
-          type="button"
-          className="traveller-scroll-btn next"
-          aria-label="Scroll categories right"
-          aria-disabled={!canScrollCategories.next}
-          onClick={() => scrollTravellerRow(1)}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" strokeWidth="3">
-            <path d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
       </div>
 
     </section>

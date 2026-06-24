@@ -131,91 +131,95 @@
    Scoped to .hp-ivory wrapper in app/page.js
    ================================================ */
 .hp-ivory {
-  /* ── Core palette overrides ── */
-  --color-bg:           #fdf8f0;   /* warm primary cream */
-  --color-bg-soft:      #f5eddf;   /* alternating section — slightly deeper */
-  --color-bg-card:      #fffcf7;   /* warm near-white card surface */
-  --color-border:       #e0c9a0;   /* golden warm border */
-  --color-text-primary: #1a120a;   /* deep warm brown — softer than pure black */
-  --color-text-secondary: #6b4f3a; /* warm mid-brown */
-  --color-text-muted:   #a08060;   /* warm muted tone */
+  /* ── Core palette overrides (Vibrant Dreamscape) ── */
+  --color-bg:           transparent; /* Background is now handled by the vibrant gradient below */
+  --color-bg-soft:      rgba(255, 255, 255, 0.3); /* Soft translucent for alternating sections */
+  --color-bg-card:      #ffffff;   /* Pure crisp white cards for massive contrast */
+  --color-border:       #e2e8f0;   /* Clean modern border */
+  --color-text-primary: #0f172a;   /* slate-900 — Deep bold text */
+  --color-text-secondary: #334155; /* slate-700 */
+  --color-text-muted:   #64748b;   /* slate-500 */
 
-  /* ── Warm shadows (replace cold grey with warm brown) ── */
-  --shadow-xs:   0 1px 3px rgba(120, 80, 30, 0.06);
-  --shadow-sm:   0 2px 8px rgba(120, 80, 30, 0.08);
-  --shadow-md:   0 4px 20px rgba(120, 80, 30, 0.10);
-  --shadow-lg:   0 8px 40px rgba(120, 80, 30, 0.12);
-  --shadow-xl:   0 16px 60px rgba(120, 80, 30, 0.14);
-  --shadow-card-hover: 0 16px 48px rgba(120, 80, 30, 0.18);
+  /* ── Cool, crisp modern shadows with a vibrant purple/pink glow ── */
+  --shadow-xs:   0 1px 2px rgba(139, 92, 246, 0.05);
+  --shadow-sm:   0 4px 12px rgba(139, 92, 246, 0.06);
+  --shadow-md:   0 8px 24px rgba(139, 92, 246, 0.1);
+  --shadow-lg:   0 12px 32px rgba(139, 92, 246, 0.12);
+  --shadow-xl:   0 20px 48px rgba(139, 92, 246, 0.15);
+  --shadow-card-hover: 0 24px 60px rgba(236, 72, 153, 0.18); /* Hot pink hover glow */
 
   /* ── Base ── */
-  background: #fdf8f0;
+  background: linear-gradient(135deg, #e0f2fe 0%, #ede9fe 40%, #fce7f3 100%);
+  background-attachment: fixed; /* Keeps the gradient smooth while scrolling */
   transition: background 0.3s ease;
 }
 
-/* Alternating section rhythm — cream / deeper cream */
+/* Alternating section rhythm */
 .hp-ivory > section:nth-child(even),
 .hp-ivory > div[class*="section"]:nth-child(even) {
-  background: #f7ede0 !important;
+  background: rgba(255, 255, 255, 0.4) !important;
 }
 
-/* Warm section heading accent — gold underline micro-detail */
+/* Section heading accent — vibrant primary color */
 .hp-ivory .section-label,
 .hp-ivory [style*="letterSpacing: 2"],
 .hp-ivory [style*="letter-spacing: 2"] {
-  color: #b87a2b !important;  /* warm gold label */
+  color: var(--color-primary) !important;
 }
 
-/* Cards inside .hp-ivory get warm borders + shadows */
+/* Cards inside the vibrant section */
 .hp-ivory [style*="var(--color-bg-card)"],
 .hp-ivory .package-card-hover,
 .hp-ivory .booking-card-item {
-  box-shadow: 0 4px 24px rgba(120, 80, 30, 0.07) !important;
-  border-color: #e0c9a0 !important;
+  box-shadow: var(--shadow-md) !important;
+  border-color: var(--color-border) !important;
+  border-radius: 20px !important;
+  background-color: var(--color-bg-card) !important;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* Warm hover lift on cards */
+/* Vibrant hover lift on cards */
 .hp-ivory .package-card-hover:hover,
 .hp-ivory .booking-card-item:hover {
-  box-shadow: 0 16px 48px rgba(120, 80, 30, 0.18) !important;
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: var(--shadow-card-hover) !important;
+  border-color: rgba(2, 110, 181, 0.3) !important; /* soft primary border on hover */
 }
 
-/* Warm stat cards in WhyChooseSection */
+/* Vibrant stat cards in WhyChooseSection */
 .hp-ivory [style*="color-mix(in srgb, var(--color-primary-light)"] {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
-  border-color: #f6cc6e !important;
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%) !important; /* sky blue gradient */
+  border-color: #7dd3fc !important;
+  color: #0369a1 !important;
 }
 
 /* Trust / partner strip */
 .hp-ivory [style*="var(--color-bg)"] {
-  background: #fdf8f0;
+  background: var(--color-bg);
 }
 
-/* Form inputs inside warm ivory — warm ivory bg instead of pure white */
+/* Form inputs inside vibrant section */
 .hp-ivory select,
 .hp-ivory input[type="text"],
 .hp-ivory input[type="email"],
 .hp-ivory input[type="tel"],
 .hp-ivory input[type="date"],
 .hp-ivory textarea {
-  background: #fffdf8 !important;
-  border-color: #d8c090 !important;
-  color: #1a120a !important;
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  border-radius: 12px !important;
 }
 .hp-ivory select:focus,
 .hp-ivory input:focus,
 .hp-ivory textarea:focus {
   border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 3px rgba(2, 110, 181, 0.12) !important;
+  box-shadow: 0 0 0 4px rgba(2, 110, 181, 0.15) !important;
   outline: none;
 }
 
-/* Warm package card hover — override the default blue-shadow hover */
-.hp-ivory .package-card-hover:hover {
-  border-color: #d4a860 !important;
-}
-
-/* Smooth warm gradient bottom edge of ivory wrapper — transitions to ForexSection dark */
+/* Smooth gradient bottom edge */
 .hp-ivory {
   position: relative;
 }
@@ -223,7 +227,7 @@
   content: '';
   display: block;
   height: 40px;
-  background: linear-gradient(180deg, #fdf8f0 0%, transparent 100%);
+  background: linear-gradient(180deg, var(--color-bg) 0%, transparent 100%);
   margin-bottom: -1px;
 }
 
