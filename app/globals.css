@@ -167,6 +167,9 @@
   background-attachment: fixed;
   /* Keeps the gradient smooth while scrolling */
   transition: background 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 120px;
 }
 
 /* Alternating section rhythm */

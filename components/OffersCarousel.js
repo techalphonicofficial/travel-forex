@@ -39,12 +39,12 @@ const mockOffers = [
 
 export default function OffersCarousel() {
   return (
-    <section style={{ padding: '60px 0', background: 'transparent' }}>
+    <section style={{ padding: '0', background: 'transparent' }}>
       <style>{`
         .offers-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          grid-template-rows: repeat(2, 220px);
+          grid-auto-rows: 220px;
           gap: 20px;
         }
 

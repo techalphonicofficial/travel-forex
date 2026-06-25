@@ -36,14 +36,26 @@ export default function CategoriesCarousel() {
 
   if (loading || categories.length === 0) return null;
 
-  const bentoItems = categories.slice(0, 6);
+  const bentoItems = categories.slice(0, 7);
+  const total = bentoItems.length;
+
+  const getBentoClass = (index, total) => {
+    if (total === 1) return 'span-12';
+    if (total === 2) return 'span-6';
+    if (total === 3) return 'span-4';
+    if (total === 4) return 'span-6';
+    if (total === 5) return index < 2 ? 'span-6' : 'span-4';
+    if (total === 6) return (index === 0 || index === 5) ? 'span-6' : 'span-3';
+    if (total === 7) return index === 0 ? 'span-6' : 'span-3';
+    return 'span-4';
+  };
 
   return (
-    <section style={{ padding: '60px 0', background: 'transparent' }}>
+    <section className="CategoriesSection" style={{ background: 'transparent' }}>
       <style>{`
         .bento-grid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
+          grid-template-columns: repeat(12, 1fr);
           gap: 20px;
           width: 100%;
         }
@@ -63,15 +75,10 @@ export default function CategoriesCarousel() {
           box-shadow: 0 12px 24px rgba(0,0,0,0.2);
         }
         
-        .bento-card-large {
-          grid-column: span 2;
-          height: 320px;
-        }
-        
-        .bento-card-small {
-          grid-column: span 1;
-          height: 320px;
-        }
+        .span-12 { grid-column: span 12; height: 320px; }
+        .span-6 { grid-column: span 6; height: 260px; }
+        .span-4 { grid-column: span 4; height: 260px; }
+        .span-3 { grid-column: span 3; height: 260px; }
         
         .bento-card-img-wrap {
           position: absolute;
@@ -126,22 +133,13 @@ export default function CategoriesCarousel() {
         }
 
         @media (max-width: 1024px) {
-          .bento-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-          .bento-card-large, .bento-card-small {
-            grid-column: span 1;
-            height: 280px;
-          }
+          .span-12 { grid-column: span 12; height: 300px; }
+          .span-6, .span-4, .span-3 { grid-column: span 6; height: 260px; }
         }
 
         @media (max-width: 640px) {
-          .bento-grid {
-            grid-template-columns: 1fr;
-          }
-          .bento-card-large, .bento-card-small {
-            height: 240px;
-          }
+          .bento-grid { gap: 12px; }
+          .span-12, .span-6, .span-4, .span-3 { grid-column: span 12; height: 220px; }
         }
       `}</style>
       <div className="container">
@@ -162,8 +160,7 @@ export default function CategoriesCarousel() {
 
         <div className="bento-grid">
           {bentoItems.map((category, index) => {
-            const isLarge = index === 0 || index === 5;
-            const cardClass = isLarge ? 'bento-card-large' : 'bento-card-small';
+            const cardClass = getBentoClass(index, total);
 
             return (
               <Link

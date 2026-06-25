@@ -79,7 +79,7 @@ export default function WhyChooseSection() {
   }, []);
 
   return (
-    <section style={{ background: 'var(--color-bg)', padding: '64px 0 68px' }}>
+    <section style={{ background: 'transparent', padding: '0' }}>
       <style>{`
         .why-choose-grid {
           display: grid;

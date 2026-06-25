@@ -90,7 +90,7 @@ export default function BannerCarousel({ banners = DEFAULT_BANNERS }) {
         .banner-carousel-section {
           width: 100%;
           max-width: 1800px;
-          margin: 40px auto;
+          margin: 0 auto;
           padding: 0 15px;
         }
         

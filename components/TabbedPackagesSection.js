@@ -92,7 +92,7 @@ export default function TabbedPackagesSection() {
     : regionPackages.slice(0, 6);
 
   return (
-    <section style={{ padding: '60px 0', background: 'var(--color-bg-soft)' }}>
+    <section style={{ padding: '0', background: 'transparent' }}>
       <div className="container">
         {/* Title */}
         <h2 style={{ fontSize: 28, fontWeight: 800, marginBottom: 24, textAlign: 'center', color: 'var(--color-primary)' }}>
@@ -161,7 +161,7 @@ export default function TabbedPackagesSection() {
               .magazine-grid {
                 display: grid;
                 grid-template-columns: repeat(4, 1fr);
-                grid-template-rows: repeat(2, 280px);
+                grid-auto-rows: 280px;
                 gap: 20px;
               }
               .mag-card {

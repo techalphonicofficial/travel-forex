@@ -123,15 +123,14 @@ export default function PopularDestinationRows() {
 
   return (
     <section style={{
-      background: 'linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-soft) 100%)',
-      padding: '68px 0 72px',
-      borderTop: '1px solid var(--color-border)',
+      background: 'transparent',
+      padding: '0',
     }}>
       <style>{`
         .dest-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          grid-template-rows: repeat(2, 200px);
+          grid-auto-rows: 200px;
           gap: 16px;
         }
 
