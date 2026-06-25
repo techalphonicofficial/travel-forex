@@ -118,9 +118,9 @@ export default function HomeHero() {
       const w = window.innerWidth;
       setIsMobile(w <= 767);
       if (w <= 767) {         // Mobile
-        setHeroHeight('50svh');
+        setHeroHeight('70svh');
       } else {                // Desktop/Tablet
-        setHeroHeight('50vh');
+        setHeroHeight('70vh');
       }
     };
 
@@ -350,16 +350,9 @@ export default function HomeHero() {
         }}
         className="home-hero-container"
       >
-        <style>{`
-          .home-hero-container {
-            margin-top: 154px;
-          }
-          @media (max-width: 767px) {
-            .home-hero-container {
-              margin-top: 120px;
-            }
-          }
-        `}</style>
+
+
+
 
         {/* ── Media clip container (keeps video + overlays within bounds) ── */}
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 0 }}>

@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getHomeDestinations, getMediaUrl } from '@/utils/api';
 import { getDestinationHref } from '@/utils/destinationLinks';
 
 const fallbackImages = [
-  'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=500&q=80',
-  'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=500&q=80',
-  'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500&q=80',
-  'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=500&q=80',
+  'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=80',
+  'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&q=80',
+  'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80',
+  'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&q=80',
+  'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800&q=80',
 ];
 
 const getDestinationSubtitle = (destination) => {
@@ -28,150 +29,49 @@ const mapDestination = (destination, index) => ({
   href: getDestinationHref(destination),
 });
 
-function DestinationCard({ item, type }) {
-  const [hovered, setHovered] = useState(false);
-
-  const isTrending = type === 'trending';
+function DestinationMosaicCard({ item, type, index, isMirrored }) {
+  // Pattern 1 (Trending): Large on Left (index 0 is large)
+  // Pattern 2 (Visa Free): Large on Right (index 4 is large)
+  const isLarge = isMirrored ? index === 4 : index === 0;
 
   return (
     <Link
       href={item.href || getDestinationHref(item)}
-      style={{ flexShrink: 0, width: 'clamp(220px, 24vw, 260px)', textDecoration: 'none', display: 'block' }}
+      className={`dest-card ${isLarge ? 'dest-large' : 'dest-small'}`}
     >
-      <div
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        style={{
-          width: '100%',
-          aspectRatio: '1 / 1',
-          borderRadius: 16,
-          overflow: 'hidden',
-          position: 'relative',
-          cursor: 'pointer',
-          transform: hovered ? 'translateY(-8px)' : 'none',
-          boxShadow: hovered 
-            ? '0 20px 35px rgba(2, 110, 181, 0.18)' 
-            : '0 8px 16px rgba(0,0,0,0.06)',
-          transition: 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
-        }}
-      >
+      <div className="dest-img-wrap">
         <img
           src={item.image}
           alt={item.alt || item.name}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            display: 'block',
-            transform: hovered ? 'scale(1.12)' : 'scale(1)',
-            transition: 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)',
-          }}
+          className="dest-img"
           loading="lazy"
         />
+        <div className="dest-overlay" />
+      </div>
 
-        <div style={{
-          position: 'absolute',
-          top: 16,
-          left: 16,
-          background: 'rgba(255, 255, 255, 0.18)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          borderRadius: 999,
-          padding: '6px 12px',
-          color: '#fff',
-          fontSize: 11,
-          fontWeight: 800,
-          letterSpacing: '0.5px',
-          textTransform: 'uppercase',
-          textShadow: '0 1px 2px rgba(0,0,0,0.2)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          zIndex: 2,
-        }}>
-          {isTrending ? 'Trending' : 'Visa Free'}
+      <div className="dest-badge">
+        {type === 'trending' ? 'Trending' : 'Visa Free'}
+      </div>
+
+      <div className="dest-content">
+        <div className="dest-subtitle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="12" height="12" strokeWidth="2.5" style={{ color: 'var(--color-secondary)', marginRight: 4 }}>
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {item.subtitle}
+          </span>
         </div>
-
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          background: hovered
-            ? 'linear-gradient(180deg, rgba(10, 15, 30, 0.1) 0%, rgba(10, 15, 30, 0.5) 50%, rgba(10, 15, 30, 0.88) 100%)'
-            : 'linear-gradient(180deg, rgba(10, 15, 30, 0.05) 0%, rgba(10, 15, 30, 0.4) 50%, rgba(10, 15, 30, 0.8) 100%)',
-          transition: 'all 0.4s ease',
-          zIndex: 1,
-        }} />
-
-        <div style={{
-          position: 'absolute',
-          bottom: 20,
-          left: 18,
-          right: 18,
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
-          zIndex: 2,
-        }}>
-          <div style={{ flex: 1, paddingRight: 10 }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              color: 'rgba(255, 255, 255, 0.85)',
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: 1.2,
-              textTransform: 'uppercase',
-              marginBottom: 4,
-              lineHeight: 1.2,
-            }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="12" height="12" strokeWidth="2.5" style={{ color: 'var(--color-secondary)' }}>
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {item.subtitle}
-              </span>
-            </div>
-            <p style={{
-              color: 'white',
-              fontSize: item.name.length > 14 ? 18 : 22,
-              fontWeight: 800,
-              fontFamily: 'Poppins, sans-serif',
-              margin: 0,
-              lineHeight: 1.1,
-              textShadow: '0 2px 8px rgba(0,0,0,0.4)',
-            }}>
-              {item.name}
-            </p>
-          </div>
-
-          <div style={{
-            width: 36,
-            height: 36,
-            borderRadius: '50%',
-            background: hovered ? 'var(--color-secondary)' : 'rgba(255, 255, 255, 0.25)',
-            backdropFilter: hovered ? 'none' : 'blur(4px)',
-            WebkitBackdropFilter: hovered ? 'none' : 'blur(4px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: hovered ? '#111827' : '#fff',
-            transform: hovered ? 'scale(1.1) translateX(2px)' : 'scale(1)',
-            transition: 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
-            flexShrink: 0,
-          }}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" strokeWidth="3">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </div>
-        </div>
+        <h3 className="dest-title">
+          {item.name}
+        </h3>
       </div>
     </Link>
   );
 }
 
 export default function PopularDestinationRows() {
-  const scrollRefs = useRef({});
   const [rows, setRows] = useState([
     { id: 'trending', title: 'TRENDING DESTINATIONS', items: [] },
     { id: 'visafree', title: 'VISA FREE DESTINATIONS', items: [] },
@@ -193,12 +93,12 @@ export default function PopularDestinationRows() {
         {
           id: 'trending',
           title: 'TRENDING DESTINATIONS',
-          items: trending?.length ? trending.map(mapDestination) : [],
+          items: trending?.length ? trending.slice(0, 5).map(mapDestination) : [],
         },
         {
           id: 'visafree',
           title: 'VISA FREE DESTINATIONS',
-          items: visaFree?.length ? visaFree.map(mapDestination) : [],
+          items: visaFree?.length ? visaFree.slice(0, 5).map(mapDestination) : [],
         },
       ]);
       setLoading(false);
@@ -210,11 +110,6 @@ export default function PopularDestinationRows() {
       mounted = false;
     };
   }, []);
-
-  const scroll = (rowId, dir) => {
-    const el = scrollRefs.current[rowId];
-    if (el) el.scrollBy({ left: dir * 280, behavior: 'smooth' });
-  };
 
   const rowEyebrows = {
     trending: 'POPULAR ESCAPES',
@@ -232,121 +127,183 @@ export default function PopularDestinationRows() {
       padding: '68px 0 72px',
       borderTop: '1px solid var(--color-border)',
     }}>
-      <div className="container" style={{ margin: '0 auto', padding: '0 24px' }}>
-        {rows.map((row) => (
-          <div key={row.id} style={{ marginBottom: row.id === 'visafree' ? 0 : 58 }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'flex-end',
-              justifyContent: 'space-between',
-              marginBottom: 28,
-            }}>
-              <div>
-                <p style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  color: 'var(--color-primary)',
-                  letterSpacing: '1.8px',
-                  textTransform: 'uppercase',
-                  margin: '0 0 6px 0',
-                }}>
-                  {rowEyebrows[row.id]}
-                </p>
-                <h2 style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 900,
-                  fontSize: 30,
-                  color: 'var(--color-text-primary)',
-                  margin: 0,
-                  lineHeight: 1.1,
-                }}>
-                  {row.title}
-                </h2>
-                <p style={{
-                  color: 'var(--color-text-secondary)',
-                  fontSize: 14,
-                  margin: '8px 0 0 0',
-                  maxWidth: 580,
-                }}>
-                  {rowSubtitles[row.id]}
-                </p>
-              </div>
+      <style>{`
+        .dest-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          grid-template-rows: repeat(2, 200px);
+          gap: 16px;
+        }
 
-              <div style={{ display: 'flex', gap: 10 }}>
-                {['left', 'right'].map((dir, i) => (
-                  <button
-                    key={dir}
-                    onClick={() => scroll(row.id, dir === 'left' ? -1 : 1)}
-                    aria-label={`Scroll ${dir}`}
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: '50%',
-                      border: '1.5px solid var(--color-border)',
-                      background: 'var(--color-bg)',
-                      color: 'var(--color-text-secondary)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                      boxShadow: 'var(--shadow-xs)',
-                    }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.background = 'var(--color-primary-light)';
-                      e.currentTarget.style.borderColor = 'var(--color-primary)';
-                      e.currentTarget.style.color = 'var(--color-primary)';
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.background = 'var(--color-bg)';
-                      e.currentTarget.style.borderColor = 'var(--color-border)';
-                      e.currentTarget.style.color = 'var(--color-text-secondary)';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-xs)';
-                    }}
-                  >
-                    {dir === 'left' ? (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" strokeWidth="2.5">
-                        <path d="M15 18l-6-6 6-6"/>
-                      </svg>
-                    ) : (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" strokeWidth="2.5">
-                        <path d="M9 18l6-6-6-6"/>
-                      </svg>
-                    )}
-                  </button>
-                ))}
-              </div>
+        .dest-grid.mirrored .dest-large {
+          grid-column: span 2;
+          grid-row: span 2;
+          order: 10; /* Force it to the end logically if needed, but CSS Grid places by source order. We'll rely on source order handling or explicit placement. */
+        }
+        
+        /* If mirrored, we want index 4 to be large, and it's at the end. It naturally falls into the last 2x2 cells. */
+
+        .dest-card {
+          border-radius: 16px;
+          overflow: hidden;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+          text-decoration: none;
+          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .dest-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 16px 32px rgba(0,0,0,0.15);
+        }
+
+        .dest-large {
+          grid-column: span 2;
+          grid-row: span 2;
+        }
+
+        .dest-small {
+          grid-column: span 1;
+          grid-row: span 1;
+        }
+
+        .dest-img-wrap {
+          position: absolute;
+          inset: 0;
+          z-index: 1;
+        }
+
+        .dest-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dest-card:hover .dest-img {
+          transform: scale(1.08);
+        }
+
+        .dest-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 100%);
+          z-index: 2;
+        }
+
+        .dest-badge {
+          position: absolute;
+          top: 16px;
+          left: 16px;
+          background: rgba(255, 255, 255, 0.18);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 999px;
+          padding: 6px 12px;
+          color: #fff;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          z-index: 4;
+        }
+
+        .dest-content {
+          position: relative;
+          z-index: 3;
+          padding: 20px;
+        }
+
+        .dest-subtitle {
+          display: flex;
+          align-items: center;
+          color: rgba(255, 255, 255, 0.85);
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 1.2px;
+          text-transform: uppercase;
+          margin-bottom: 4px;
+        }
+
+        .dest-title {
+          color: white;
+          font-size: 20px;
+          font-weight: 800;
+          font-family: 'Poppins', sans-serif;
+          margin: 0;
+          line-height: 1.1;
+          text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .dest-large .dest-title {
+          font-size: 32px;
+        }
+
+        @media (max-width: 1024px) {
+          .dest-grid {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: auto;
+          }
+          .dest-large, .dest-small {
+            grid-column: span 1;
+            grid-row: span 1;
+            height: 220px;
+          }
+          .dest-large .dest-title {
+            font-size: 24px;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .dest-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
+      <div className="container" style={{ margin: '0 auto' }}>
+        {rows.map((row) => (
+          <div key={row.id} style={{ marginBottom: row.id === 'visafree' ? 0 : 64 }}>
+            <div style={{ marginBottom: 28 }}>
+              <p style={{
+                fontSize: 11,
+                fontWeight: 800,
+                color: 'var(--color-primary)',
+                letterSpacing: '1.8px',
+                textTransform: 'uppercase',
+                margin: '0 0 6px 0',
+              }}>
+                {rowEyebrows[row.id]}
+              </p>
+              <h2 style={{
+                fontFamily: 'Poppins, sans-serif',
+                fontWeight: 900,
+                fontSize: 30,
+                color: 'var(--color-text-primary)',
+                margin: 0,
+                lineHeight: 1.1,
+              }}>
+                {row.title}
+              </h2>
+              <p style={{
+                color: 'var(--color-text-secondary)',
+                fontSize: 14,
+                margin: '8px 0 0 0',
+                maxWidth: 580,
+              }}>
+                {rowSubtitles[row.id]}
+              </p>
             </div>
 
-            <div
-              ref={el => { scrollRefs.current[row.id] = el; }}
-              style={{
-                display: 'flex',
-                gap: 20,
-                overflowX: 'auto',
-                paddingBottom: '24px',
-                paddingTop: '12px',
-                paddingLeft: '4px',
-                paddingRight: '4px',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-              }}
-              className="scroll-container-hide"
-            >
-              <style>{`
-                .scroll-container-hide::-webkit-scrollbar {
-                  display: none;
-                }
-              `}</style>
+            <div className={`dest-grid ${row.id === 'visafree' ? 'mirrored' : ''}`}>
               {row.items.map((item, index) => (
-                <DestinationCard key={`${row.id}-${item.name}-${index}`} item={item} type={row.id} />
+                <DestinationMosaicCard key={`${row.id}-${item.name}-${index}`} item={item} type={row.id} index={index} isMirrored={row.id === 'visafree'} />
               ))}
               {!loading && row.items.length === 0 && (
                 <div style={{
-                  flex: '1 0 100%',
+                  gridColumn: '1 / -1',
                   minHeight: 160,
                   display: 'grid',
                   placeItems: 'center',

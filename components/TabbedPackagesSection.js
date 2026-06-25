@@ -88,8 +88,8 @@ export default function TabbedPackagesSection() {
   }, [activeRegion, subTabs, activeSubTab]);
 
   const displayedPackages = activeSubTab 
-    ? regionPackages.filter(p => p.destination === activeSubTab)
-    : regionPackages.slice(0, 8);
+    ? regionPackages.filter(p => p.destination === activeSubTab).slice(0, 6)
+    : regionPackages.slice(0, 6);
 
   return (
     <section style={{ padding: '60px 0', background: 'var(--color-bg-soft)' }}>
@@ -148,41 +148,144 @@ export default function TabbedPackagesSection() {
 
         {/* Packages Grid */}
         {loading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
-            {[1, 2, 3, 4].map(i => (
-               <div key={i} style={{ height: 280, background: '#e2e8f0', borderRadius: 16, animation: 'pulse 1.5s infinite' }} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(2, 280px)', gap: 20 }}>
+            {[1, 2, 3, 4, 5, 6].map(i => (
+               <div key={i} style={{ background: '#e2e8f0', borderRadius: 16, animation: 'pulse 1.5s infinite' }} />
             ))}
           </div>
         ) : displayedPackages.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>No packages found for {activeSubTab || 'this region'}.</div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
-            {displayedPackages.slice(0, 8).map(pkg => (
-              <Link
-                key={pkg.id}
-                href={`/tours/${pkg.slug}`}
-                style={{ 
-                  display: 'block', textDecoration: 'none', color: 'inherit', 
-                  borderRadius: 16, overflow: 'hidden', position: 'relative', 
-                  height: 280, boxShadow: '0 4px 12px rgba(0,0,0,0.08)', transition: 'transform 0.2s' 
-                }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'none'}
-              >
-                <Image src={pkg.image} alt={pkg.title} fill style={{ objectFit: 'cover' }} sizes="(max-width: 768px) 100vw, 33vw" />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0) 100%)' }} />
+          <div className="magazine-grid">
+            <style>{`
+              .magazine-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(2, 280px);
+                gap: 20px;
+              }
+              .mag-card {
+                position: relative;
+                border-radius: 16px;
+                overflow: hidden;
+                text-decoration: none;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+              }
+              .mag-card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 16px 32px rgba(0,0,0,0.15);
+              }
+              /* Magazine Layout Spans */
+              .mag-card-0 { grid-column: span 2; grid-row: span 1; } /* Wide top left */
+              .mag-card-1 { grid-column: span 1; grid-row: span 1; } /* Square */
+              .mag-card-2 { grid-column: span 1; grid-row: span 2; } /* Tall right */
+              .mag-card-3 { grid-column: span 1; grid-row: span 1; } /* Square */
+              .mag-card-4 { grid-column: span 1; grid-row: span 1; } /* Square */
+              .mag-card-5 { grid-column: span 1; grid-row: span 1; } /* Square */
+              
+              .mag-img-wrap {
+                position: absolute;
+                inset: 0;
+                z-index: 1;
+              }
+              .mag-img {
+                transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+              }
+              .mag-card:hover .mag-img {
+                transform: scale(1.08);
+              }
+              .mag-overlay {
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 100%);
+                z-index: 2;
+              }
+              .mag-content {
+                position: relative;
+                z-index: 3;
+                padding: 24px;
+              }
+              .mag-title {
+                font-size: 20px;
+                font-weight: 800;
+                color: white;
+                margin: 0 0 12px;
+                line-height: 1.2;
+                font-family: 'Poppins', sans-serif;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+              }
+              .mag-card-0 .mag-title, .mag-card-2 .mag-title {
+                font-size: 26px;
+              }
+              .mag-meta {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+              }
+              .mag-duration {
+                font-size: 13px;
+                color: rgba(255,255,255,0.9);
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+              }
+              .mag-price {
+                font-size: 22px;
+                font-weight: 800;
+                color: var(--color-secondary);
+              }
+              
+              @media (max-width: 1024px) {
+                .magazine-grid {
+                  grid-template-columns: repeat(2, 1fr);
+                  grid-template-rows: auto;
+                }
+                .mag-card-0, .mag-card-1, .mag-card-2, .mag-card-3, .mag-card-4, .mag-card-5 {
+                  grid-column: span 1;
+                  grid-row: span 1;
+                  height: 280px;
+                }
+                .mag-card-0 .mag-title, .mag-card-2 .mag-title {
+                  font-size: 20px;
+                }
+              }
+              @media (max-width: 640px) {
+                .magazine-grid {
+                  grid-template-columns: 1fr;
+                }
+              }
+            `}</style>
+            
+            {displayedPackages.map((pkg, idx) => (
+              <Link key={pkg.id} href={`/tours/${pkg.slug}`} className={`mag-card mag-card-${idx}`}>
+                <div className="mag-img-wrap">
+                  <Image 
+                    src={pkg.image} 
+                    alt={pkg.title} 
+                    fill 
+                    style={{ objectFit: 'cover' }} 
+                    sizes="(max-width: 768px) 100vw, 33vw" 
+                    className="mag-img"
+                  />
+                  <div className="mag-overlay" />
+                </div>
                 
-                {/* Overlay Text */}
-                <div style={{ position: 'absolute', bottom: 0, left: 0, padding: 20, width: '100%' }}>
-                  <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 6px', color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {pkg.title}
-                  </h3>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.9)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                <div className="mag-content">
+                  <h3 className="mag-title">{pkg.title}</h3>
+                  <div className="mag-meta">
+                    <div className="mag-duration">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                       {pkg.nights}N / {pkg.nights + 1}D
                     </div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-secondary)' }}>
+                    <div className="mag-price">
                       ₹{pkg.price.toLocaleString('en-IN')}
                     </div>
                   </div>

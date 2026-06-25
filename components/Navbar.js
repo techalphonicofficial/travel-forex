@@ -1845,32 +1845,23 @@ export default function Navbar({ brand, companyInfo }) {
           .flight-modal-form { padding: 20px; }
         }
         .top-bar-announcement {
-          position: fixed;
-          top: 0; left: 0; width: 100%;
-          height: 72px;
+          position: relative;
+          width: 100%;
+          height: 48px;
           z-index: 2200;
           background: linear-gradient(90deg, #1e3a8a 0%, #0ea5e9 100%);
           color: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 26px;
-          font-weight: 900;
-          letter-spacing: 1px;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+          font-size: 18px;
+          font-weight: 800;
+          letter-spacing: 0.5px;
         }
         @media (max-width: 767px) {
           .top-bar-announcement {
-            height: 56px;
-            font-size: 18px;
-          }
-          .navbar-custom {
-            top: 56px !important;
-          }
-        }
-        @media (min-width: 768px) {
-          .navbar-custom {
-            top: 72px !important;
+            height: 40px;
+            font-size: 14px;
           }
         }
       `}</style>

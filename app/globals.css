@@ -1,5 +1,5 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
 /* ==============================
    CSS VARIABLES / DESIGN TOKENS
@@ -870,13 +870,13 @@ nav,
    NAVBAR
    ============================== */
 .navbar-custom {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   right: 0;
   z-index: var(--z-sticky);
   transition: all var(--transition-slow);
-  padding: 20px 0;
+  padding: 12px 0;
 }
 
 .navbar-custom.scrolled {
@@ -884,7 +884,7 @@ nav,
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   box-shadow: var(--shadow-md);
-  padding: 12px 0;
+  padding: 8px 0;
 }
 
 [data-theme="dark"] .navbar-custom.scrolled {
