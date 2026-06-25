@@ -25,6 +25,9 @@ export default function BannerCarousel({ banners = DEFAULT_BANNERS }) {
     return () => clearInterval(timerRef.current);
   }, [banners.length, isHovered]);
 
+
+
+
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
   };
@@ -37,20 +40,20 @@ export default function BannerCarousel({ banners = DEFAULT_BANNERS }) {
 
   return (
     <div className="banner-carousel-section">
-      <div 
+      <div
         className="banner-carousel-wrapper"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div 
-          className="banner-carousel-track" 
+        <div
+          className="banner-carousel-track"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
           {banners.map((src, idx) => (
             <div className="banner-slide" key={`banner-${idx}`}>
-              <Image 
-                src={src} 
-                alt={`Banner ${idx + 1}`} 
+              <Image
+                src={src}
+                alt={`Banner ${idx + 1}`}
                 fill
                 sizes="100vw"
                 style={{ objectFit: 'cover', objectPosition: 'center' }}
@@ -74,7 +77,7 @@ export default function BannerCarousel({ banners = DEFAULT_BANNERS }) {
             </button>
             <div className="banner-indicators">
               {banners.map((_, idx) => (
-                <button 
+                <button
                   key={`dot-${idx}`}
                   className={`banner-dot ${idx === currentIndex ? 'active' : ''}`}
                   onClick={() => setCurrentIndex(idx)}
