@@ -30,13 +30,17 @@
   --color-text-muted: #8a94a6;
 
   /* Backgrounds */
-  --color-bg: #f0f6ff;          /* light sky blue — replaces pure white */
-  --color-bg-soft: #e4eff9;     /* slightly deeper blue for alternating sections */
-  --color-bg-card: #fafcff;     /* near-white with blue tint for cards */
+  --color-bg: #f0f6ff;
+  /* light sky blue — replaces pure white */
+  --color-bg-soft: #e4eff9;
+  /* slightly deeper blue for alternating sections */
+  --color-bg-card: #fafcff;
+  /* near-white with blue tint for cards */
   --color-bg-overlay: rgba(10, 15, 30, 0.7);
 
   /* Borders */
-  --color-border: #d0e2f0;      /* slightly more visible border for blue bg */
+  --color-border: #d0e2f0;
+  /* slightly more visible border for blue bg */
   --color-border-focus: var(--color-primary);
 
   /* Shadows */
@@ -132,34 +136,62 @@
    ================================================ */
 .hp-ivory {
   /* ── Core palette overrides (Vibrant Dreamscape) ── */
-  --color-bg:           transparent; /* Background is now handled by the vibrant gradient below */
-  --color-bg-soft:      rgba(255, 255, 255, 0.3); /* Soft translucent for alternating sections */
-  --color-bg-card:      #ffffff;   /* Pure crisp white cards for massive contrast */
-  --color-border:       #e2e8f0;   /* Clean modern border */
-  --color-text-primary: #0f172a;   /* slate-900 — Deep bold text */
-  --color-text-secondary: #334155; /* slate-700 */
-  --color-text-muted:   #64748b;   /* slate-500 */
+  --color-bg: transparent;
+  /* Background is now handled by the vibrant gradient below */
+  --color-bg-soft: rgba(255, 255, 255, 0.3);
+  /* Soft translucent for alternating sections */
+  --color-bg-card: #ffffff;
+  /* Pure crisp white cards for massive contrast */
+  --color-border: #e2e8f0;
+  /* Clean modern border */
+  --color-text-primary: #0f172a;
+  /* slate-900 — Deep bold text */
+  --color-text-secondary: #334155;
+  /* slate-700 */
+  --color-text-muted: #64748b;
+  /* slate-500 */
 
   /* ── Cool, crisp modern shadows with a vibrant purple/pink glow ── */
-  --shadow-xs:   0 1px 2px rgba(139, 92, 246, 0.05);
-  --shadow-sm:   0 4px 12px rgba(139, 92, 246, 0.06);
-  --shadow-md:   0 8px 24px rgba(139, 92, 246, 0.1);
-  --shadow-lg:   0 12px 32px rgba(139, 92, 246, 0.12);
-  --shadow-xl:   0 20px 48px rgba(139, 92, 246, 0.15);
-  --shadow-card-hover: 0 24px 60px rgba(236, 72, 153, 0.18); /* Hot pink hover glow */
+  --shadow-xs: 0 1px 2px rgba(139, 92, 246, 0.05);
+  --shadow-sm: 0 4px 12px rgba(139, 92, 246, 0.06);
+  --shadow-md: 0 8px 24px rgba(139, 92, 246, 0.1);
+  --shadow-lg: 0 12px 32px rgba(139, 92, 246, 0.12);
+  --shadow-xl: 0 20px 48px rgba(139, 92, 246, 0.15);
+  --shadow-card-hover: 0 24px 60px rgba(236, 72, 153, 0.18);
+  /* Hot pink hover glow */
 
   /* ── Base ── */
-  background: linear-gradient(135deg, #e0f2fe 0%, #ede9fe 40%, #fce7f3 100%);
-  background-attachment: fixed; /* Keeps the gradient smooth while scrolling */
+  background: url('/images/bg-sunset.png') no-repeat center center / cover;
+  background-attachment: fixed;
+  /* Keeps the background smooth while scrolling */
   transition: background 0.3s ease;
 }
 
 /* Alternating section rhythm */
-.hp-ivory > section:nth-child(even),
-.hp-ivory > div[class*="section"]:nth-child(even) {
+.hp-ivory>section:nth-child(even),
+.hp-ivory>div[class*="section"]:nth-child(even) {
   background: rgba(255, 255, 255, 0.4) !important;
 }
 
+/* Premium Card Hover Effects */
+.premium-card {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.premium-card:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15) !important;
+}
+
+.premium-card img {
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.premium-card:hover img {
+  transform: scale(1.08) !important;
+}
+
+/* Animations */
 /* Section heading accent — vibrant primary color */
 .hp-ivory .section-label,
 .hp-ivory [style*="letterSpacing: 2"],
@@ -184,12 +216,14 @@
 .hp-ivory .booking-card-item:hover {
   transform: translateY(-6px) scale(1.01);
   box-shadow: var(--shadow-card-hover) !important;
-  border-color: rgba(2, 110, 181, 0.3) !important; /* soft primary border on hover */
+  border-color: rgba(2, 110, 181, 0.3) !important;
+  /* soft primary border on hover */
 }
 
 /* Vibrant stat cards in WhyChooseSection */
 .hp-ivory [style*="color-mix(in srgb, var(--color-primary-light)"] {
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%) !important; /* sky blue gradient */
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%) !important;
+  /* sky blue gradient */
   border-color: #7dd3fc !important;
   color: #0369a1 !important;
 }
@@ -211,6 +245,7 @@
   color: #0f172a !important;
   border-radius: 12px !important;
 }
+
 .hp-ivory select:focus,
 .hp-ivory input:focus,
 .hp-ivory textarea:focus {
@@ -223,6 +258,7 @@
 .hp-ivory {
   position: relative;
 }
+
 .hp-ivory::after {
   content: '';
   display: block;
@@ -880,7 +916,7 @@ nav,
 }
 
 .navbar-custom.scrolled {
-  background: #0a0f1e;
+  background: rgba(10, 15, 30, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   box-shadow: var(--shadow-md);
@@ -2047,4 +2083,48 @@ nav,
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+.section-padding {
+  padding: 80px 0;
+}
+
+@media (max-width: 768px) {
+  .section-padding {
+    padding: 48px 0;
+  }
 }

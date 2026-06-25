@@ -112,9 +112,9 @@ export default function HomeHero() {
       const w = window.innerWidth;
       setIsMobile(w <= 767);
       if (w <= 767) {         // Mobile
-        setHeroHeight('70svh');
+        setHeroHeight('85svh');
       } else {                // Desktop/Tablet
-        setHeroHeight('70vh');
+        setHeroHeight('85vh');
       }
     };
 
@@ -303,7 +303,7 @@ export default function HomeHero() {
                     inset: 0,
                     backgroundImage: `url(${imgUrl})`,
                     backgroundSize: 'cover',
-                    backgroundPosition: 'top',
+                    backgroundPosition: 'center',
                     opacity: i === currentImgIdx ? 1 : 0,
                     transition: 'opacity 1.2s ease-in-out',
                     zIndex: i === currentImgIdx ? 1 : 0,
@@ -328,8 +328,8 @@ export default function HomeHero() {
               style={{
                 position: 'absolute', inset: 0,
                 width: '100%', height: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center top',
+                objectFit: 'fill',
+                objectPosition: 'center',
                 zIndex: 0,
               }}
             >
@@ -342,7 +342,8 @@ export default function HomeHero() {
             style={{
               position: 'absolute', inset: 0, zIndex: 1,
               background:
-                'linear-gradient(180deg, rgba(2,8,23,0.64) 0%, rgba(2,8,23,0.34) 42%, rgba(2,8,23,0.82) 100%)',
+                'linear-gradient(180deg, rgba(2,8,23,0.3) 0%, rgba(2,8,23,0.1) 42%, rgba(2,8,23,0.5) 100%)',
+              pointerEvents: 'none',
             }}
           />
 

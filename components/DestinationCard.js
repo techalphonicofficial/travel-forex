@@ -6,7 +6,7 @@ import { getDestinationHref } from '@/utils/destinationLinks';
 
 export default function DestinationCard({ destination, className = '' }) {
   return (
-    <Link href={getDestinationHref(destination)} className={`destination-card ${className}`}>
+    <Link href={getDestinationHref(destination)} className={`destination-card premium-card ${className}`}>
       <Image
         src={destination.image}
         alt={destination.name}

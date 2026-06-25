@@ -48,7 +48,7 @@ export default function TourCard({ tour, className = '' }) {
     : 0;
 
   return (
-    <div className={`tour-card ${className}`}>
+    <div className={`tour-card premium-card ${className}`}>
       {/* Image */}
       <div className="tour-card-image-wrap" style={{ position: 'relative' }}>
         <Image

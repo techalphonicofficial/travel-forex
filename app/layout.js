@@ -1,6 +1,6 @@
 import './globals.css';
 
-import { Montserrat, Playfair_Display } from 'next/font/google';
+import { Inter, Poppins } from 'next/font/google';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BootstrapClient from '@/components/BootstrapClient';
@@ -12,9 +12,9 @@ import { getCompanyInfo } from '@/utils/companyInfo';
 import { getProjectConfig } from '@/utils/projectConfig';
 import { getThemeColours } from '@/utils/themeColours';
 
-const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-inter' });
-const playfair = Playfair_Display({
-  weight: ['400', '500', '600', '700', '800'],
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const poppins = Poppins({
+  weight: ['400', '500', '600', '700', '800', '900'],
   subsets: ['latin'],
   variable: '--font-poppins',
 });
@@ -80,10 +80,7 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang="en" data-theme="light" data-project={projectConfig.key} data-scroll-behavior="smooth">
-      <body
-        className={`${montserrat.variable} ${playfair.variable}`}
-        style={activeTheme}
-      >
+      <body className={`${inter.variable} ${poppins.variable} bg-light min-h-screen flex flex-col font-sans`} style={activeTheme}>
         <BootstrapClient />
         <ThemeColoursClient initialVariables={activeTheme} />
         <WishlistProvider>

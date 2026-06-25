@@ -2027,7 +2027,7 @@ export default function Navbar({ brand, companyInfo }) {
         }
       `}</style>
 
-      <div className="top-bar-announcement">
+      <div className="top-bar-announcement animate-fade-up delay-100">
         <span style={{ marginRight: 16 }}>🎉</span> 
         Celebrating 27 Years of Excellence in Travel! 
         <span style={{ marginLeft: 16 }}>🌍</span>
@@ -2042,7 +2042,7 @@ export default function Navbar({ brand, companyInfo }) {
           <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
 
             {/* Logo */}
-            <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            <Link href="/" className="animate-fade-up delay-200" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
               <Image
                 src={brandLogo}
                 alt={`${brandName} Logo`}

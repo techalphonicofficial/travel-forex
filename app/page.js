@@ -1,4 +1,5 @@
 import HomeHero from '@/components/HomeHero';
+import BannerCarousel from '@/components/BannerCarousel';
 import RecommendedPackages from '@/components/FeaturedToursRow';
 import WhyChooseSection from '@/components/WhyChooseSection';
 import PopularDestinationRows from '@/components/PopularDestinationRows';
@@ -11,6 +12,7 @@ import ForexSection from '@/components/ForexSection';
 import OffersCarousel from '@/components/OffersCarousel';
 import CategoriesCarousel from '@/components/CategoriesCarousel';
 import TestimonialSlider from '@/components/TestimonialSlider';
+import FadeInSection from '@/components/FadeInSection';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,28 +37,52 @@ export default async function HomePage() {
       {/* ═══════════════════════════════════════════
           WARM IVORY SECTIONS — cream luxury theme
           ═══════════════════════════════════════════ */}
-      <div className="hp-ivory">
-        <CategoriesCarousel />
+      <div className="hp-ivory section-padding">
+        <FadeInSection>
+          <CategoriesCarousel />
+        </FadeInSection>
         
-        <OffersCarousel />
+        <FadeInSection delay={100}>
+          <OffersCarousel />
+        </FadeInSection>
 
-        <TabbedPackagesSection />
+        <FadeInSection delay={100}>
+          <TabbedPackagesSection />
+        </FadeInSection>
 
-        <PopularDestinationRows />
+        <FadeInSection delay={100}>
+          <PopularDestinationRows />
+        </FadeInSection>
 
-        <WhyChooseSection />
+        <FadeInSection delay={100}>
+          <BannerCarousel />
+        </FadeInSection>
 
-        <RecommendedPackages />
+        <FadeInSection delay={100}>
+          <WhyChooseSection />
+        </FadeInSection>
 
-        <TrustSection section={trustSection} />
+        <FadeInSection delay={100}>
+          <RecommendedPackages />
+        </FadeInSection>
+
+        <FadeInSection delay={100}>
+          <TrustSection section={trustSection} />
+        </FadeInSection>
       </div>
 
       {/* Dark-themed sections — own explicit backgrounds, unaffected */}
-      <ForexSection />
+      <FadeInSection delay={100}>
+        <ForexSection />
+      </FadeInSection>
 
-      <TestimonialSlider />
+      <FadeInSection delay={100}>
+        <TestimonialSlider />
+      </FadeInSection>
 
-      <GramSection />
+      <FadeInSection delay={100}>
+        <GramSection />
+      </FadeInSection>
 
       <section style={{ background: 'var(--color-primary)', padding: '48px 0' }}>
         <div className="container" style={{ textAlign: 'center', maxWidth: 420, width: '40%' }}>
