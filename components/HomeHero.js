@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { getHomeCategories, getHomePage, getMediaUrl, searchCountryCityLocations } from '@/utils/api';
+import { getHomeCategories, getHomePage, getMediaUrl } from '@/utils/api';
 
 /*
   CORS-safe video sources from Google's public CDN
@@ -82,13 +82,7 @@ export default function HomeHero() {
   const router = useRouter();
   const videoRef = useRef(null);
   const travellerRowRef = useRef(null);
-  const searchWrapRef = useRef(null);
   const [vidIdx, setVidIdx] = useState(0);
-  const [destination, setDestination] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState(null);
-  const [locationSuggestions, setLocationSuggestions] = useState([]);
-  const [locationLoading, setLocationLoading] = useState(false);
-  const [locationOpen, setLocationOpen] = useState(false);
   const [activeTraveler, setActiveTraveler] = useState(null);
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const [heroHeight, setHeroHeight] = useState('50vh');
@@ -231,45 +225,6 @@ export default function HomeHero() {
     };
   }, [homeTravelerTypes, updateCategoryScrollState]);
 
-  useEffect(() => {
-    const handlePointerDown = (event) => {
-      if (!searchWrapRef.current?.contains(event.target)) {
-        setLocationOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handlePointerDown);
-    return () => document.removeEventListener('mousedown', handlePointerDown);
-  }, []);
-
-  useEffect(() => {
-    const query = destination.trim();
-
-    if (selectedLocation && query === getLocationLabel(selectedLocation)) {
-      return;
-    }
-
-    if (query.length < 2) {
-      return;
-    }
-
-    let active = true;
-    const debounceTimer = setTimeout(async () => {
-      const result = await searchCountryCityLocations({ search: query, limit: 20 });
-
-      if (!active) return;
-
-      setLocationSuggestions(result.suggestions || []);
-      setLocationLoading(false);
-      setLocationOpen(true);
-    }, 350);
-
-    return () => {
-      active = false;
-      clearTimeout(debounceTimer);
-    };
-  }, [destination, selectedLocation]);
-
   const scrollTravellerRow = (direction) => {
     const row = travellerRowRef.current;
     if (!row) return;
@@ -309,28 +264,6 @@ export default function HomeHero() {
     if (p) p.catch(() => { });
   }, [vidIdx, videos]);
 
-  const getSearchValue = (location = selectedLocation) => {
-    return (location?.name || destination).trim();
-  };
-
-  const handleSearch = (location) => {
-    const searchValue = getSearchValue(location);
-
-    if (searchValue) {
-      router.push(`/tour?search=${encodeURIComponent(searchValue)}`);
-    } else {
-      router.push('/tours');
-    }
-  };
-
-  const handleLocationSelect = (location) => {
-    setSelectedLocation(location);
-    setDestination(getLocationLabel(location));
-    setLocationSuggestions([]);
-    setLocationLoading(false);
-    setLocationOpen(false);
-  };
-
   const { src, poster } = videos[vidIdx] || VIDEO_SOURCES[0];
 
   return (
@@ -354,6 +287,8 @@ export default function HomeHero() {
 
 
 
+
+
         {/* ── Media clip container (keeps video + overlays within bounds) ── */}
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 0 }}>
 
@@ -368,7 +303,7 @@ export default function HomeHero() {
                     inset: 0,
                     backgroundImage: `url(${imgUrl})`,
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center',
+                    backgroundPosition: 'top',
                     opacity: i === currentImgIdx ? 1 : 0,
                     transition: 'opacity 1.2s ease-in-out',
                     zIndex: i === currentImgIdx ? 1 : 0,
@@ -394,7 +329,7 @@ export default function HomeHero() {
                 position: 'absolute', inset: 0,
                 width: '100%', height: '100%',
                 objectFit: 'cover',
-                objectPosition: 'center center',
+                objectPosition: 'center top',
                 zIndex: 0,
               }}
             >
@@ -488,199 +423,7 @@ export default function HomeHero() {
           </button>
         )}
 
-        {/* ── Green-border search bar ── */}
-        <div
-          ref={searchWrapRef}
-          style={{
-            position: 'absolute',
-            bottom: isMobile ? -30 : -36,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '100%',
-            maxWidth: isMobile ? 360 : 850,
-            zIndex: 10,
-            padding: '0 16px',
-            marginTop: 20,
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              background: '#ffffff',
-              border: '1px solid rgba(0,0,0,0.08)',
-              borderRadius: 18,
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0, padding: isMobile ? '0 10px 0 16px' : '0 14px 0 24px' }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" width="24" height="24">
-                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-              </svg>
-            </div>
-            <input
-              type="text"
-              className="hero-search-input"
-              placeholder="Search countries, cities"
-              value={destination}
-              onChange={(event) => {
-                const nextDestination = event.target.value;
-                setDestination(nextDestination);
-                setSelectedLocation(null);
 
-                if (nextDestination.trim().length < 2) {
-                  setLocationSuggestions([]);
-                  setLocationLoading(false);
-                  setLocationOpen(false);
-                } else {
-                  setLocationLoading(true);
-                  setLocationOpen(true);
-                }
-              }}
-              onFocus={() => {
-                if (destination.trim().length >= 2) {
-                  setLocationOpen(true);
-                }
-              }}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  if (locationOpen && locationSuggestions[0]) {
-                    handleSearch(locationSuggestions[0]);
-                    return;
-                  }
-                  handleSearch();
-                }
-              }}
-              style={{
-                flex: '1 1 auto', minWidth: 0,
-                border: 'none', outline: 'none',
-                fontSize: isMobile ? 16 : 18, color: '#1f2937',
-                padding: isMobile ? '16px 8px' : '20px 14px',
-                background: 'transparent',
-                fontFamily: 'Inter, sans-serif',
-              }}
-            />
-            <button
-              onClick={handleSearch}
-              style={{
-                background: 'var(--color-secondary)', color: '#111827',
-                border: 'none', padding: isMobile ? '0 24px' : '0 40px',
-                flex: '0 0 auto', minWidth: isMobile ? 100 : 140,
-                whiteSpace: 'nowrap',
-                fontWeight: 700, fontSize: isMobile ? 16 : 18, cursor: 'pointer',
-                letterSpacing: 0.3, transition: 'background 0.2s',
-                fontFamily: 'Poppins, sans-serif',
-                borderRadius: '0 18px 18px 0',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'var(--color-secondary-hover)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'var(--color-secondary)'}
-            >
-              Search
-            </button>
-          </div>
-          {locationOpen && (locationLoading || locationSuggestions.length > 0) && (
-            <div
-              style={{
-                position: 'absolute',
-                top: 'calc(100% + 10px)',
-                left: 0,
-                right: 0,
-                zIndex: 20,
-                overflow: 'hidden',
-                borderRadius: 18,
-                background: 'rgba(255,255,255,0.98)',
-                border: '1px solid rgba(15,23,42,0.12)',
-                boxShadow: '0 18px 44px rgba(15,23,42,0.28)',
-                textAlign: 'left',
-              }}
-            >
-              {locationLoading ? (
-                <div
-                  style={{
-                    padding: '16px 18px',
-                    color: '#64748b',
-                    fontSize: 14,
-                    fontFamily: 'Inter, sans-serif',
-                  }}
-                >
-                  Searching destinations...
-                </div>
-              ) : (
-                <div
-                  style={{
-                    maxHeight: isMobile ? 272 : 310,
-                    overflowY: 'auto',
-                    overscrollBehavior: 'contain',
-                  }}
-                >
-                  {locationSuggestions.map((location, index) => (
-                  <button
-                    key={`${location.type || 'location'}-${location.id}-${getLocationLabel(location)}`}
-                    type="button"
-                    onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => handleLocationSelect(location)}
-                    style={{
-                      width: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: 12,
-                      border: 'none',
-                      borderBottom: index === locationSuggestions.length - 1 ? 'none' : '1px solid rgba(226,232,240,0.9)',
-                      background: 'transparent',
-                      minHeight: isMobile ? 54 : 62,
-                      padding: isMobile ? '13px 14px' : '14px 18px',
-                      cursor: 'pointer',
-                      fontFamily: 'Inter, sans-serif',
-                      textAlign: 'left',
-                    }}
-                    onMouseEnter={(event) => {
-                      event.currentTarget.style.background = '#f8fafc';
-                    }}
-                    onMouseLeave={(event) => {
-                      event.currentTarget.style.background = 'transparent';
-                    }}
-                  >
-                    <span style={{ minWidth: 0 }}>
-                      <span
-                        style={{
-                          display: 'block',
-                          color: '#0f172a',
-                          fontSize: isMobile ? 14 : 15,
-                          fontWeight: 800,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {getLocationLabel(location)}
-                      </span>
-                      <span style={{ color: '#64748b', fontSize: 12, fontWeight: 600 }}>
-                        {getLocationMeta(location)}
-                      </span>
-                    </span>
-                    <span
-                      style={{
-                        flex: '0 0 auto',
-                        borderRadius: 999,
-                        padding: '5px 10px',
-                        background: location.type === 'country' ? '#e0f2fe' : '#dcfce7',
-                        color: location.type === 'country' ? '#0369a1' : '#15803d',
-                        fontSize: 11,
-                        fontWeight: 900,
-                        textTransform: 'uppercase',
-                        letterSpacing: 0.4,
-                      }}
-                    >
-                      {location.type || 'city'}
-                    </span>
-                  </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
 
       </div>
 

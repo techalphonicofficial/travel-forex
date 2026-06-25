@@ -3,8 +3,9 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { getDestinationHref } from '@/utils/destinationLinks';
+import { searchCountryCityLocations } from '@/utils/api';
 import toast from 'react-hot-toast';
 
 /* ── Mega-menu data ───────────────────────────────────── */
@@ -686,6 +687,9 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
               </p>
             </div>
           </div>
+          <div className="d-lg-none mt-3">
+            <HeaderSearch isLightHeader={false} />
+          </div>
         </div>
 
         {/* Scrollable Content */}
@@ -878,6 +882,163 @@ const getLogoUrl = (logo) => {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'https://tourtravel.yber.in';
   return `${baseUrl.replace(/\/$/, '')}/${String(logo).replace(/^\//, '')}`;
 };
+
+/* ── Header Search Component ───────────────────────────── */
+function HeaderSearch({ isLightHeader }) {
+  const router = useRouter();
+  const [destination, setDestination] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationOpen, setLocationOpen] = useState(false);
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setLocationOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const getLocationLabel = (loc) => {
+    if (loc.type === 'country') return loc.name;
+    return `${loc.name}, ${loc.country?.name || 'Country'}`;
+  };
+
+  useEffect(() => {
+    const query = destination.trim();
+    if (selectedLocation && query === getLocationLabel(selectedLocation)) return;
+    if (query.length < 2) return;
+
+    let active = true;
+    const debounceTimer = setTimeout(async () => {
+      const result = await searchCountryCityLocations({ search: query, limit: 10 });
+      if (!active) return;
+      setLocationSuggestions(result.suggestions || []);
+      setLocationLoading(false);
+      setLocationOpen(true);
+    }, 350);
+
+    return () => {
+      active = false;
+      clearTimeout(debounceTimer);
+    };
+  }, [destination, selectedLocation]);
+
+  const handleSearch = (locToSearch = selectedLocation) => {
+    setLocationOpen(false);
+    if (locToSearch) {
+      if (locToSearch.type === 'country') {
+        router.push(`/packages?country=${locToSearch.id}`);
+      } else {
+        router.push(`/packages?city=${locToSearch.id}`);
+      }
+      return;
+    }
+    const q = destination.trim();
+    if (q) {
+      router.push(`/packages?search=${encodeURIComponent(q)}`);
+    } else {
+      router.push('/packages');
+    }
+  };
+
+  return (
+    <div ref={searchRef} style={{ position: 'relative', display: 'flex', alignItems: 'center' }} className="d-none d-lg-flex">
+      <div style={{
+        display: 'flex', alignItems: 'center', background: isLightHeader ? 'rgba(255,255,255,0.15)' : '#f9fafb',
+        border: isLightHeader ? '1.5px solid rgba(255,255,255,0.3)' : '1.5px solid #e5e7eb',
+        borderRadius: 20, padding: '4px 12px', width: 220, transition: 'all 0.2s'
+      }}>
+        <svg viewBox="0 0 24 24" fill="none" stroke={isLightHeader ? 'white' : '#64748b'} strokeWidth="2.5" width="16" height="16">
+          <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+        </svg>
+        <input
+          type="text"
+          placeholder="Search..."
+          value={destination}
+          onChange={(e) => {
+            const val = e.target.value;
+            setDestination(val);
+            setSelectedLocation(null);
+            if (val.trim().length < 2) {
+              setLocationSuggestions([]);
+              setLocationLoading(false);
+              setLocationOpen(false);
+            } else {
+              setLocationLoading(true);
+              setLocationOpen(true);
+            }
+          }}
+          onFocus={() => { if (destination.trim().length >= 2) setLocationOpen(true); }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              if (locationOpen && locationSuggestions[0]) {
+                handleSearch(locationSuggestions[0]);
+              } else {
+                handleSearch();
+              }
+            }
+          }}
+          style={{
+            border: 'none', background: 'transparent', outline: 'none',
+            color: isLightHeader ? 'white' : '#1f2937', fontSize: 14,
+            width: '100%', marginLeft: 8, fontFamily: 'Inter, sans-serif'
+          }}
+        />
+      </div>
+      {locationOpen && (locationLoading || locationSuggestions.length > 0) && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 280,
+          background: '#fff', borderRadius: 12, boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+          zIndex: 50, overflow: 'hidden', border: '1px solid #e2e8f0'
+        }}>
+          {locationLoading ? (
+            <div style={{ padding: 12, fontSize: 13, color: '#64748b' }}>Searching...</div>
+          ) : (
+            <div style={{ maxHeight: 250, overflowY: 'auto' }}>
+              {locationSuggestions.map((loc, i) => (
+                <button
+                  key={`hs-${loc.id}-${i}`}
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    setDestination(getLocationLabel(loc));
+                    setSelectedLocation(loc);
+                    handleSearch(loc);
+                  }}
+                  style={{
+                    width: '100%', display: 'flex', justifyContent: 'space-between',
+                    padding: '10px 14px', border: 'none', borderBottom: '1px solid #f1f5f9',
+                    background: 'transparent', cursor: 'pointer', textAlign: 'left',
+                    alignItems: 'center'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <span style={{ fontSize: 13, color: '#0f172a', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {getLocationLabel(loc)}
+                  </span>
+                  <span style={{
+                    fontSize: 10, padding: '2px 6px', borderRadius: 4,
+                    background: loc.type === 'country' ? '#e0f2fe' : '#dcfce7',
+                    color: loc.type === 'country' ? '#0369a1' : '#15803d',
+                    textTransform: 'uppercase', fontWeight: 700
+                  }}>
+                    {loc.type || 'city'}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Navbar({ brand, companyInfo }) {
   const [scrolled, setScrolled] = useState(false);
@@ -1974,6 +2135,8 @@ export default function Navbar({ brand, companyInfo }) {
 
             {/* Right side controls */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
+              <HeaderSearch isLightHeader={isLightHeader} />
+
               {isLoggedIn ? (
                 <Link
                   href="/profile"
