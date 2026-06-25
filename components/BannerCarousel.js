@@ -100,12 +100,12 @@ export default function BannerCarousel({ banners = DEFAULT_BANNERS }) {
           border-radius: 16px;
           overflow: hidden;
           box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-          aspect-ratio: 21 / 9;
+          height: 50vh;
         }
 
         @media (max-width: 768px) {
           .banner-carousel-wrapper {
-            aspect-ratio: 16 / 9;
+            height: 40vh;
           }
           .banner-carousel-section {
             margin: 20px auto;
@@ -115,7 +115,7 @@ export default function BannerCarousel({ banners = DEFAULT_BANNERS }) {
         
         @media (max-width: 480px) {
           .banner-carousel-wrapper {
-            aspect-ratio: 4 / 3;
+            height: 35vh;
           }
         }
 

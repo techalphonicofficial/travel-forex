@@ -161,9 +161,11 @@
   /* Hot pink hover glow */
 
   /* ── Base ── */
-  background: url('/images/bg-sunset.png') no-repeat center center / cover;
+  /* background: url('/images/bg-sunset.png') no-repeat center center / cover;
+  background-attachment: fixed; Keeps the background smooth while scrolling */
+  background: linear-gradient(135deg, #e0f2fe 0%, #ede9fe 40%, #fce7f3 100%);
   background-attachment: fixed;
-  /* Keeps the background smooth while scrolling */
+  /* Keeps the gradient smooth while scrolling */
   transition: background 0.3s ease;
 }
 
