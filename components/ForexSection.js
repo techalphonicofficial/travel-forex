@@ -58,7 +58,7 @@ export default function ForexSection() {
               onMouseLeave={e => e.currentTarget.style.transform = 'none'}
               >
                 <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '50%' }}>
-                  <img src="https://images.unsplash.com/photo-1580519542036-ed4768589f46?w=500&q=80" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Send Money Abroad" />
+                  <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=500&q=80" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Send Money Abroad" />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, var(--color-bg-card) 0%, rgba(255,255,255,0) 100%)' }} />
                 </div>
                 <div style={{ position: 'relative', zIndex: 2, maxWidth: '60%' }}>

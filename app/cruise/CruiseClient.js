@@ -427,8 +427,11 @@ export default function CruiseClient() {
           padding-bottom: 80px;
         }
         .cruise-hero {
-          padding: 140px 0 60px;
-          background: linear-gradient(135deg, #022340 0%, #054c73 100%);
+          padding: 48px 0 48px;
+          background: linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%),
+                      url('https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1920&q=80');
+          background-size: cover;
+          background-position: center;
           color: white;
           position: relative;
           overflow: hidden;
@@ -778,8 +781,41 @@ export default function CruiseClient() {
           border-radius: 12px;
           overflow: hidden;
         }
+        .faq-question-btn {
+          width: 100%;
+          padding: 16px 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 15px;
+          font-weight: 800;
+          color: var(--color-text-primary);
+          text-align: left;
+          cursor: pointer;
+          background: none;
+          border: none;
+          transition: background 0.2s;
+        }
+        .faq-question-btn:hover {
+          background: #f8fafc;
+        }
+        .faq-arrow {
+          font-size: 10px;
+          color: var(--color-text-muted);
+          transition: transform 0.2s;
+        }
+        .faq-answer-panel {
+          padding: 16px 20px 20px;
+          font-size: 14.5px;
+          color: var(--color-text-secondary);
+          line-height: 1.6;
+          border-top: 1px solid #f1f5f9;
+        }
         
         @media (max-width: 991px) {
+          .cruise-hero {
+            padding: 36px 0 32px;
+          }
           .cruise-hero-grid {
             grid-template-columns: 1fr;
             gap: 35px;

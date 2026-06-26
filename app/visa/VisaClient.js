@@ -348,7 +348,7 @@ export default function VisaClient() {
           padding-bottom: 80px;
         }
         .visa-hero {
-          padding: 140px 0 60px;
+          padding: 48px 0 48px;
           background: linear-gradient(135deg, #0f1c2b 0%, #0d3861 100%);
           color: white;
           position: relative;
@@ -688,6 +688,9 @@ export default function VisaClient() {
         }
         
         @media (max-width: 991px) {
+          .visa-hero {
+            padding: 36px 0 32px;
+          }
           .visa-hero-grid {
             grid-template-columns: 1fr;
             gap: 35px;

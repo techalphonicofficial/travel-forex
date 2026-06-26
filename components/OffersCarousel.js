@@ -32,7 +32,7 @@ const mockOffers = [
     title: 'Get 5% Extra on Forex Cards',
     code: 'FOREX5',
     validity: 'Valid on Forex Cards',
-    image: 'https://images.unsplash.com/photo-1580519542036-ed4768589f46?w=500&q=80',
+    image: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=500&q=80',
     tag: 'Forex Offer',
   },
 ];

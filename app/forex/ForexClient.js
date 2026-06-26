@@ -418,13 +418,7 @@ export default function ForexClient() {
     <div style={{ background: 'var(--color-bg)', color: 'var(--color-text-primary)', minHeight: '100vh', fontFamily: 'var(--font-inter), sans-serif' }}>
 
       {/* 1. HERO SECTION (Dynamic Dark Blue Theme Banner matching Flights/Hotels) */}
-      <section style={{
-        padding: '120px 0 80px',
-        background: 'linear-gradient(135deg, var(--color-primary) 0%, #013e68 100%)',
-        color: 'white',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
+      <section className="forex-hero">
         {/* Decorative elements */}
         <div style={{ position: 'absolute', top: '10%', right: '-15%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(253,206,46,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '10%', left: '-15%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
@@ -1900,6 +1894,22 @@ export default function ForexClient() {
         </div>
       </section>
 
+      <style jsx global>{`
+        .forex-hero {
+          padding: 48px 0 40px;
+          background: linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%), url('https://images.unsplash.com/photo-1508962914676-134849a727f0?w=1920&q=80');
+          background-size: cover;
+          background-position: center;
+          color: white;
+          position: relative;
+          overflow: hidden;
+        }
+        @media (max-width: 991px) {
+          .forex-hero {
+            padding: 36px 0 32px;
+          }
+        }
+      `}</style>
     </div>
   );
 }

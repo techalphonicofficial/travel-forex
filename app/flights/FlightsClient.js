@@ -395,8 +395,11 @@ export default function FlightsClient() {
           padding-bottom: 80px;
         }
         .flights-hero {
-          padding: 140px 0 60px;
-          background: linear-gradient(135deg, #0b1d35 0%, #0c4a75 100%);
+          padding: 48px 0 48px;
+          background: linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%),
+                      url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');
+          background-size: cover;
+          background-position: center;
           color: white;
           position: relative;
           overflow: hidden;
@@ -729,6 +732,9 @@ export default function FlightsClient() {
         }
         
         @media (max-width: 991px) {
+          .flights-hero {
+            padding: 36px 0 32px;
+          }
           .flights-hero-grid {
             grid-template-columns: 1fr;
             gap: 30px;
