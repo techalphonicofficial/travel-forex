@@ -169,7 +169,7 @@
   transition: background 0.3s ease;
   display: flex;
   flex-direction: column;
-  gap: 120px;
+  gap: 80px;
 }
 
 /* Alternating section rhythm */

@@ -3,8 +3,8 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 
 const DEFAULT_BANNERS = [
-  '/images/banners/banner1.jpg',
-  '/images/banners/banner2.jpg',
+  '/images/banners/banner1.png',
+  '/images/banners/banner2.png',
   '/images/banners/banner3.png'
 ];
 
@@ -103,28 +103,21 @@ export default function BannerCarousel({ banners = DEFAULT_BANNERS }) {
           border-radius: 16px;
           overflow: hidden;
           box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-          height: 50vh;
+          aspect-ratio: 1024 / 241;
+          height: auto;
         }
 
         @media (max-width: 768px) {
-          .banner-carousel-wrapper {
-            height: 40vh;
-          }
           .banner-carousel-section {
             margin: 20px auto;
             padding: 0 10px;
           }
         }
-        
-        @media (max-width: 480px) {
-          .banner-carousel-wrapper {
-            height: 35vh;
-          }
-        }
 
         .banner-carousel-track {
           display: flex;
-          height: 100%;
+          position: absolute;
+          inset: 0;
           width: 100%;
           transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
         }

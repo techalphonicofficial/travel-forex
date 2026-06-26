@@ -18,9 +18,7 @@ export default function ThemesClient() {
           setCategories(res.map(c => ({
             id: c.id,
             label: c.name,
-            image: c.slug === 'luxury' || String(c.name).toLowerCase() === 'luxury'
-              ? '/luxury_transparent.png'
-              : getMediaUrl(c.feature_image),
+            image: getMediaUrl(c.feature_image) || '/images/banners/banner1.png',
             slug: c.slug
           })));
         }
@@ -138,6 +136,7 @@ export default function ThemesClient() {
                   src={category.image} 
                   alt={category.label} 
                   fill 
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   style={{ objectFit: 'cover', objectPosition: 'top' }} 
                   className="theme-card-img"
                 />

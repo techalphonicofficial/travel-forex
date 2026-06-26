@@ -100,29 +100,43 @@ export default function TabbedPackagesSection() {
         </h2>
 
         {/* Primary Tabs */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginBottom: 32 }}>
-          <button
-            onClick={() => setActiveRegion('domestic')}
-            style={{
-              background: activeRegion === 'domestic' ? 'var(--color-primary)' : '#f1f5f9', 
-              border: 'none', padding: '10px 24px', borderRadius: 999, fontSize: 14, fontWeight: 700, cursor: 'pointer',
-              color: activeRegion === 'domestic' ? 'white' : '#475569',
-              transition: 'all 0.2s'
-            }}
-          >
-            India Tour Packages
-          </button>
-          <button
-            onClick={() => setActiveRegion('international')}
-            style={{
-              background: activeRegion === 'international' ? 'var(--color-primary)' : '#f1f5f9', 
-              border: 'none', padding: '10px 24px', borderRadius: 999, fontSize: 14, fontWeight: 700, cursor: 'pointer',
-              color: activeRegion === 'international' ? 'white' : '#475569',
-              transition: 'all 0.2s'
-            }}
-          >
-            International Tour Packages
-          </button>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
+          <div style={{
+            display: 'inline-flex',
+            background: 'rgba(255, 255, 255, 0.5)',
+            backdropFilter: 'blur(12px)',
+            borderRadius: 999,
+            padding: 6,
+            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.8)'
+          }}>
+            <button
+              onClick={() => setActiveRegion('domestic')}
+              style={{
+                background: activeRegion === 'domestic' ? 'var(--color-primary)' : 'transparent', 
+                border: 'none',
+                padding: '12px 32px', borderRadius: 999, fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                color: activeRegion === 'domestic' ? 'white' : 'var(--color-text-primary)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: activeRegion === 'domestic' ? '0 4px 12px rgba(2, 110, 181, 0.3)' : 'none'
+              }}
+            >
+              India Tour Packages
+            </button>
+            <button
+              onClick={() => setActiveRegion('international')}
+              style={{
+                background: activeRegion === 'international' ? 'var(--color-primary)' : 'transparent', 
+                border: 'none',
+                padding: '12px 32px', borderRadius: 999, fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                color: activeRegion === 'international' ? 'white' : 'var(--color-text-primary)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: activeRegion === 'international' ? '0 4px 12px rgba(2, 110, 181, 0.3)' : 'none'
+              }}
+            >
+              International Tour Packages
+            </button>
+          </div>
         </div>
 
         {/* Secondary Sub-tabs */}
@@ -133,11 +147,13 @@ export default function TabbedPackagesSection() {
                 key={tab}
                 onClick={() => setActiveSubTab(tab)}
                 style={{
-                  padding: '8px 20px', borderRadius: 999, border: '1px solid', fontSize: 14, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
-                  borderColor: activeSubTab === tab ? 'var(--color-primary)' : '#cbd5e1',
-                  background: activeSubTab === tab ? 'var(--color-primary)' : 'white',
-                  color: activeSubTab === tab ? 'white' : '#475569',
-                  transition: 'all 0.2s',
+                  padding: '10px 24px', borderRadius: 999, border: '1px solid', fontSize: 14, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
+                  borderColor: activeSubTab === tab ? 'transparent' : 'rgba(255, 255, 255, 0.6)',
+                  background: activeSubTab === tab ? 'var(--color-primary)' : 'rgba(255, 255, 255, 0.4)',
+                  backdropFilter: 'blur(8px)',
+                  color: activeSubTab === tab ? 'white' : 'var(--color-text-primary)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: activeSubTab === tab ? '0 6px 12px rgba(2, 110, 181, 0.3)' : 'none',
                 }}
               >
                 {tab}
@@ -160,9 +176,9 @@ export default function TabbedPackagesSection() {
             <style>{`
               .magazine-grid {
                 display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                grid-auto-rows: 280px;
+                grid-template-columns: repeat(12, 1fr);
                 gap: 20px;
+                grid-auto-rows: 280px;
               }
               .mag-card {
                 position: relative;
@@ -179,13 +195,14 @@ export default function TabbedPackagesSection() {
                 transform: translateY(-6px);
                 box-shadow: 0 16px 32px rgba(0,0,0,0.15);
               }
-              /* Magazine Layout Spans */
-              .mag-card-0 { grid-column: span 2; grid-row: span 1; } /* Wide top left */
-              .mag-card-1 { grid-column: span 1; grid-row: span 1; } /* Square */
-              .mag-card-2 { grid-column: span 1; grid-row: span 2; } /* Tall right */
-              .mag-card-3 { grid-column: span 1; grid-row: span 1; } /* Square */
-              .mag-card-4 { grid-column: span 1; grid-row: span 1; } /* Square */
-              .mag-card-5 { grid-column: span 1; grid-row: span 1; } /* Square */
+              
+              /* Dynamic Bento Spans */
+              .span-12 { grid-column: span 12; grid-row: span 1; }
+              .span-6 { grid-column: span 6; grid-row: span 1; }
+              .span-4 { grid-column: span 4; grid-row: span 1; }
+              .span-3 { grid-column: span 3; grid-row: span 1; }
+              .span-8 { grid-column: span 8; grid-row: span 1; }
+              .span-2-tall { grid-column: span 6; grid-row: span 2; } /* Only used if needed */
               
               .mag-img-wrap {
                 position: absolute;
@@ -242,19 +259,38 @@ export default function TabbedPackagesSection() {
                 font-weight: 800;
                 color: var(--color-secondary);
               }
+
+              .explore-btn {
+                position: absolute;
+                bottom: 24px;
+                right: 24px;
+                background: var(--color-primary);
+                color: white;
+                border-radius: 50%;
+                width: 44px;
+                height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transform: translateX(20px);
+                transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                box-shadow: 0 4px 12px rgba(2, 110, 181, 0.4);
+              }
+              
+              .mag-card:hover .explore-btn {
+                opacity: 1;
+                transform: translateX(0);
+              }
               
               @media (max-width: 1024px) {
                 .magazine-grid {
                   grid-template-columns: repeat(2, 1fr);
                   grid-template-rows: auto;
                 }
-                .mag-card-0, .mag-card-1, .mag-card-2, .mag-card-3, .mag-card-4, .mag-card-5 {
-                  grid-column: span 1;
+                .span-12, .span-6, .span-4, .span-3, .span-8, .span-2-tall {
+                  grid-column: span 12;
                   grid-row: span 1;
-                  height: 280px;
-                }
-                .mag-card-0 .mag-title, .mag-card-2 .mag-title {
-                  font-size: 20px;
                 }
               }
               @media (max-width: 640px) {
@@ -264,34 +300,51 @@ export default function TabbedPackagesSection() {
               }
             `}</style>
             
-            {displayedPackages.map((pkg, idx) => (
-              <Link key={pkg.id} href={`/tours/${pkg.slug}`} className={`mag-card mag-card-${idx}`}>
-                <div className="mag-img-wrap">
-                  <Image 
-                    src={pkg.image} 
-                    alt={pkg.title} 
-                    fill 
-                    style={{ objectFit: 'cover' }} 
-                    sizes="(max-width: 768px) 100vw, 33vw" 
-                    className="mag-img"
-                  />
-                  <div className="mag-overlay" />
-                </div>
-                
-                <div className="mag-content">
-                  <h3 className="mag-title">{pkg.title}</h3>
-                  <div className="mag-meta">
-                    <div className="mag-duration">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                      {pkg.nights}N / {pkg.nights + 1}D
-                    </div>
-                    <div className="mag-price">
-                      ₹{pkg.price.toLocaleString('en-IN')}
+            {displayedPackages.map((pkg, index) => {
+              const total = displayedPackages.length;
+              const getBentoClass = (index, total) => {
+                if (total === 1) return 'span-12';
+                if (total === 2) return 'span-6';
+                if (total === 3) return 'span-4';
+                if (total === 4) return 'span-6';
+                if (total === 5) return index < 2 ? 'span-6' : 'span-4';
+                if (total === 6) return (index === 0 || index === 5) ? 'span-6' : 'span-3';
+                return 'span-4';
+              };
+              const cardClass = getBentoClass(index, total);
+
+              return (
+                <Link key={pkg.id} href={`/package/${pkg.slug}`} className={`mag-card ${cardClass}`}>
+                  <div className="mag-img-wrap">
+                    <Image 
+                      src={pkg.image} 
+                      alt={pkg.title} 
+                      fill 
+                      style={{ objectFit: 'cover' }} 
+                      sizes="(max-width: 768px) 100vw, 33vw" 
+                      className="mag-img"
+                    />
+                    <div className="mag-overlay" />
+                  </div>
+                  
+                  <div className="mag-content">
+                    <h3 className="mag-title">{pkg.title}</h3>
+                    <div className="mag-meta">
+                      <div className="mag-duration">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        {pkg.nights}N / {pkg.nights + 1}D
+                      </div>
+                      <div className="mag-price">
+                        ₹{pkg.price.toLocaleString('en-IN')}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                  <div className="explore-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>

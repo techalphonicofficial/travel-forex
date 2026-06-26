@@ -180,9 +180,7 @@ export default function HomeHero() {
               id: category.id || category.slug || category.name?.toLowerCase(),
               slug: category.slug,
               label: category.name,
-              image: (category.slug === 'luxury' || String(category.name).toLowerCase() === 'luxury')
-                ? '/luxury_transparent.png'
-                : (getMediaUrl(category.feature_image) || getFallbackCategoryImage(category.name)),
+              image: getMediaUrl(category.feature_image) || getFallbackCategoryImage(category.name),
               alt: category.feature_image_alt || category.name,
               category,
             }))

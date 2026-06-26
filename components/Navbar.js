@@ -2086,7 +2086,7 @@ export default function Navbar({ brand, companyInfo }) {
             }}
               className="d-none d-lg-flex"
             >
-              <Link href="#flight" onClick={(e) => { e.preventDefault(); setFlightOpen(true); }} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151', textDecoration: 'none', fontWeight: 700, fontSize: 18, transition: 'color 0.2s' }} onMouseEnter={e => { if (!isLightHeader) e.currentTarget.style.color = 'var(--color-primary)'; }} onMouseLeave={e => { if (!isLightHeader) e.currentTarget.style.color = '#374151'; }}>
+              <Link href="/flights" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151', textDecoration: 'none', fontWeight: 700, fontSize: 18, transition: 'color 0.2s' }} onMouseEnter={e => { if (!isLightHeader) e.currentTarget.style.color = 'var(--color-primary)'; }} onMouseLeave={e => { if (!isLightHeader) e.currentTarget.style.color = '#374151'; }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.5 5.5L6 17l-3-1-1.5 1.5 4 2.5 2.5 4 1.5-1.5-1-3 3.5-3.5 5.5 6.5l1.2-.7c.4-.2.7-.6.6-1.1z"/></svg>
                 Flights
               </Link>
@@ -2108,7 +2108,7 @@ export default function Navbar({ brand, companyInfo }) {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 21c3 0 5-1.5 7-1.5s4 1.5 7 1.5 5-1.5 7-1.5M2 17c3 0 5-1.5 7-1.5s4 1.5 7 1.5 5-1.5 7-1.5"/><path d="M5 14l2-8h10l2 8"/></svg>
                 Cruise
               </Link>
-              <Link href="/forex" onClick={(e) => { e.preventDefault(); setForexOpen(true); }} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151', textDecoration: 'none', fontWeight: 700, fontSize: 18, transition: 'color 0.2s' }} onMouseEnter={e => { if (!isLightHeader) e.currentTarget.style.color = 'var(--color-primary)'; }} onMouseLeave={e => { if (!isLightHeader) e.currentTarget.style.color = '#374151'; }}>
+              <Link href="/forex" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151', textDecoration: 'none', fontWeight: 700, fontSize: 18, transition: 'color 0.2s' }} onMouseEnter={e => { if (!isLightHeader) e.currentTarget.style.color = 'var(--color-primary)'; }} onMouseLeave={e => { if (!isLightHeader) e.currentTarget.style.color = '#374151'; }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8M12 6v2M12 16v2"/></svg>
                 Forex
               </Link>

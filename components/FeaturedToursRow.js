@@ -562,7 +562,7 @@ export default function RecommendedPackages() {
         }
         .recent-bookings-section {
           background: transparent;
-          padding: 64px 0 68px;
+          padding: 24px 0 32px;
         }
         .recent-filters {
           display: flex;
@@ -764,7 +764,7 @@ export default function RecommendedPackages() {
         }
 
         @media (max-width: 768px) {
-           .recent-bookings-section { padding: 52px 0 56px; }
+           .recent-bookings-section { padding: 20px 0 24px; }
            .recent-bookings-section .th-section-intro {
              width: 100%;
              min-width: 0;
