@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar';
 import { notFound } from 'next/navigation';
 import { blogsData } from '@/data/blogs';
 import { getBlogBySlug, getMediaUrl, getRelatedBlogs } from '@/utils/api';
+import BlogInquiryCard from './BlogInquiryCard';
 
 export const dynamic = 'force-dynamic';
 
@@ -207,13 +208,7 @@ export default async function BlogArticle({ params }) {
         </article>
 
         <aside className="blog-sidebar">
-          <div className="inquiry-card">
-            <h2>Get in touch</h2>
-            <p>Want help planning a trip around this story?</p>
-            <input placeholder="Name" aria-label="Name" />
-            <input placeholder="Mobile number" aria-label="Mobile number" />
-            <button>WhatsApp enquiry</button>
-          </div>
+          <BlogInquiryCard blogTitle={blog.title} />
           <div className="planner-card">
             <span>Customise your trip</span>
             <h2>Your perfect holiday starts here</h2>

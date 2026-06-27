@@ -917,7 +917,7 @@ export default function TripInquiryDetailClient({ id }) {
               <h2>Why choose Travel Holiday?</h2>
               <div className="bi-proof-grid">
                 {[
-                  ['Customizable package', trip.destination_info?.is_customizable ? 'This itinerary can be adjusted to your travel style.' : 'Our team can help you plan details.'],
+                  ['Customizable package', (trip.destination_info?.is_customizable === true || trip.destination_info?.is_customizable === 1 || String(trip.destination_info?.is_customizable) === '1' || String(trip.destination_info?.is_customizable).toLowerCase() === 'true') ? 'This itinerary can be adjusted to your travel style.' : 'Our team can help you plan details.'],
                   ['Curated destinations', destinationNames.join(', ') || titleCase(trip.destination)],
                   ['Duration', trip.duration || durationCopy],
                   ['Included experiences', `${activityCount || 0} activities added to this itinerary.`],

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import InquiryForm from '@/components/InquiryForm';
 
 export default function ForexSection() {
   return (
@@ -75,6 +76,16 @@ export default function ForexSection() {
           </div>
 
         </div>
+      </div>
+
+      <div className="container" style={{ marginTop: 40 }}>
+        <InquiryForm
+          title="Get the Best Forex Rates Today"
+          subtitle="Talk to our forex experts — we'll find you the most competitive exchange rates."
+          serviceName="Forex / Currency Exchange"
+          variant="strip"
+          darkBg={false}
+        />
       </div>
     </section>
   );

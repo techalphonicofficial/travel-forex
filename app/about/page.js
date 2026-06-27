@@ -2,6 +2,7 @@ import Image from 'next/image';
 import ScrollReveal from '@/components/ScrollReveal';
 import TeamCard from '@/components/TeamCard';
 import { getMediaUrl, getPageBySlug } from '@/utils/api';
+import InquiryForm from '@/components/InquiryForm';
 
 const FALLBACK_HERO_IMAGE = 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=75';
 export const dynamic = 'force-dynamic';
@@ -262,6 +263,17 @@ export default async function AboutPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* Inquiry CTA */}
+      <section style={{ background: 'var(--color-bg-soft, #f8fafc)', padding: '0 0 60px' }}>
+        <InquiryForm
+          title="27 Years of Crafting Perfect Holidays — Let Us Plan Yours"
+          subtitle="Speak to a travel expert today. No commitment, just great advice."
+          serviceName="Holiday Planning"
+          variant="strip"
+          showMessage
+        />
       </section>
     </>
   );

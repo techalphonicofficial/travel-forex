@@ -1814,7 +1814,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
             </div>
             <div>
               <span>Trip Style</span>
-              <strong>{pkg.is_customizable ? 'Customizable holiday' : 'Curated package'}</strong>
+              <strong>{ (pkg.is_customizable === true || pkg.is_customizable === 1 || String(pkg.is_customizable) === '1' || String(pkg.is_customizable).toLowerCase() === 'true') ? 'Customizable holiday' : 'Curated package'}</strong>
             </div>
           </div>
           <div className="itn-print-lists">
@@ -1886,7 +1886,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
               <h2>Why choose Travel Holiday?</h2>
               <div className="itn-proof-grid">
                 {[
-                  ['Customizable package', pkg.is_customizable ? 'This itinerary can be adjusted to your travel style.' : 'Our team can help you plan details.'],
+                  ['Customizable package', (pkg.is_customizable === true || pkg.is_customizable === 1 || String(pkg.is_customizable) === '1' || String(pkg.is_customizable).toLowerCase() === 'true') ? 'This itinerary can be adjusted to your travel style.' : 'Our team can help you plan details.'],
                   ['Curated destinations', destinationNames.length ? destinationNames.join(', ') : 'Hand-picked destination route.'],
                   ['Duration', getDurationLabel(pkg.duration_days)],
                   ['Included experiences', `${includedItems.length} inclusions added to this package.`],

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { getHotels } from '@/utils/api';
+import InquiryForm from '@/components/InquiryForm';
 
 const formatMoney = (value) => `Rs ${Number(value || 0).toLocaleString('en-IN')}`;
 
@@ -316,6 +317,16 @@ export default function HotelsClient() {
           )}
         </div>
       </section>
+
+      <InquiryForm
+        title="Can't find the perfect hotel?"
+        subtitle="Our hotel specialists will handpick the best options for your destination, budget and travel dates."
+        serviceName="Hotel Booking"
+        variant="strip"
+        showDate
+        showMessage
+      />
+
       <HotelStyles />
     </main>
   );

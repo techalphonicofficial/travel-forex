@@ -4,8 +4,10 @@ const getDestinationValue = (destination) =>
 const getDestinationName = (destination) =>
   destination?.name || destination?.destination || destination?.slug || '';
 
+const isTruthy = (val) => val === true || val === 1 || String(val) === '1' || String(val).toLowerCase() === 'true';
+
 export const isCustomizableDestination = (destination) =>
-  destination?.customize === true || destination?.is_customizable === true;
+  isTruthy(destination?.customize) || isTruthy(destination?.is_customizable);
 
 export const getDestinationHref = (destination, { traveller } = {}) => {
   const value = getDestinationValue(destination);

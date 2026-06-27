@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getPackages, getMediaUrl } from '@/utils/api';
+import InquiryForm from '@/components/InquiryForm';
 
 const FALLBACK_PACKAGE_IMAGE = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80';
 
@@ -348,6 +349,14 @@ export default function TabbedPackagesSection() {
           </div>
         )}
       </div>
+
+      <InquiryForm
+        title="Can't find your destination?"
+        subtitle="Tell us where you want to go — we'll build a custom package just for you."
+        serviceName="Custom Holiday Package"
+        variant="strip"
+        showDate
+      />
     </section>
   );
 }
