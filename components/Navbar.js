@@ -1286,7 +1286,9 @@ export default function Navbar({ brand, companyInfo }) {
     return null;
   }
 
-  const brandLogo = getLogoUrl(companyInfo?.company_logo_url) || brand?.logo || '/logooo.png';
+  const brandLogo = pathname === '/forex'
+    ? '/forex_logo.png'
+    : (getLogoUrl(companyInfo?.company_logo_url) || brand?.logo || '/logooo.png');
   const brandName = brand?.legalName || 'ITS TRAVELS AND TOURS';
   const isTransparent = false;
   const isLightHeader = true;
@@ -2028,8 +2030,8 @@ export default function Navbar({ brand, companyInfo }) {
       `}</style>
 
       <div className="top-bar-announcement animate-fade-up delay-100">
-        <span style={{ marginRight: 16 }}>🎉</span> 
-        Celebrating 27 Years of Excellence in Travel! 
+        <span style={{ marginRight: 16 }}>🎉</span>
+        Celebrating 27 Years of Excellence in Travel!
         <span style={{ marginLeft: 16 }}>🌍</span>
       </div>
 
@@ -2048,34 +2050,72 @@ export default function Navbar({ brand, companyInfo }) {
                 alt={`${brandName} Logo`}
                 width={64}
                 height={64}
-                style={{ width: 64, height: 64, objectFit: 'contain', borderRadius: '8px' }}
+                style={{
+                  width: 64,
+                  height: 64,
+                  objectFit: 'contain',
+                  borderRadius: '8px',
+                  ...(pathname === '/forex' ? {
+                    transform: 'scale(1.99)',
+                    transformOrigin: 'center center',
+                  } : {})
+                }}
                 priority
               />
-              <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
-                <span style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 900,
-                  fontSize: '17px',
-                  letterSpacing: '1.5px',
-                  color: isLightHeader ? '#ffffff' : 'var(--color-primary)',
-                  textShadow: isLightHeader ? '0 2px 4px rgba(0,0,0,0.5)' : 'none',
-                  textTransform: 'uppercase'
-                }}>
-                  ITS
-                </span>
-                <span style={{
-                  fontFamily: 'Georgia, serif',
-                  fontStyle: 'italic',
-                  fontWeight: 600,
-                  fontSize: '12px',
-                  color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#4b5563',
-                  textShadow: isLightHeader ? '0 1px 3px rgba(0,0,0,0.4)' : 'none',
-                  whiteSpace: 'nowrap',
-                  letterSpacing: '0.2px'
-                }}>
-                  Travels & Tours
-                </span>
-              </div>
+              {pathname === '/forex' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+                  <span style={{
+                    fontFamily: 'Poppins, sans-serif',
+                    fontWeight: 900,
+                    fontSize: '15px',
+                    letterSpacing: '1px',
+                    color: isLightHeader ? '#ffffff' : '#1e3a8a',
+                    textShadow: isLightHeader ? '0 2px 4px rgba(0,0,0,0.5)' : 'none',
+                    textTransform: 'uppercase',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    Karnation India
+                  </span>
+                  <span style={{
+                    fontFamily: 'Poppins, sans-serif',
+                    fontWeight: 700,
+                    fontSize: '11px',
+                    color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#f97316',
+                    textShadow: isLightHeader ? '0 1px 3px rgba(0,0,0,0.4)' : 'none',
+                    whiteSpace: 'nowrap',
+                    letterSpacing: '0.3px',
+                    textTransform: 'uppercase',
+                  }}>
+                    Forex Services Pvt. Ltd.
+                  </span>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+                  <span style={{
+                    fontFamily: 'Poppins, sans-serif',
+                    fontWeight: 900,
+                    fontSize: '17px',
+                    letterSpacing: '1.5px',
+                    color: isLightHeader ? '#ffffff' : 'var(--color-primary)',
+                    textShadow: isLightHeader ? '0 2px 4px rgba(0,0,0,0.5)' : 'none',
+                    textTransform: 'uppercase'
+                  }}>
+                    ITS
+                  </span>
+                  <span style={{
+                    fontFamily: 'Georgia, serif',
+                    fontStyle: 'italic',
+                    fontWeight: 600,
+                    fontSize: '12px',
+                    color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#4b5563',
+                    textShadow: isLightHeader ? '0 1px 3px rgba(0,0,0,0.4)' : 'none',
+                    whiteSpace: 'nowrap',
+                    letterSpacing: '0.2px'
+                  }}>
+                    Travels &amp; Tours
+                  </span>
+                </div>
+              )}
             </Link>
 
             {/* Desktop Center Links (Hidden on Mobile) */}
@@ -2087,17 +2127,17 @@ export default function Navbar({ brand, companyInfo }) {
               className="d-none d-lg-flex"
             >
               <Link href="/flights" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151', textDecoration: 'none', fontWeight: 700, fontSize: 18, transition: 'color 0.2s' }} onMouseEnter={e => { if (!isLightHeader) e.currentTarget.style.color = 'var(--color-primary)'; }} onMouseLeave={e => { if (!isLightHeader) e.currentTarget.style.color = '#374151'; }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.5 5.5L6 17l-3-1-1.5 1.5 4 2.5 2.5 4 1.5-1.5-1-3 3.5-3.5 5.5 6.5l1.2-.7c.4-.2.7-.6.6-1.1z"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.5 5.5L6 17l-3-1-1.5 1.5 4 2.5 2.5 4 1.5-1.5-1-3 3.5-3.5 5.5 6.5l1.2-.7c.4-.2.7-.6.6-1.1z" /></svg>
                 Flights
               </Link>
               <Link href={HOTEL_HREF} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151', textDecoration: 'none', fontWeight: 700, fontSize: 18, transition: 'color 0.2s' }} onMouseEnter={e => { if (!isLightHeader) e.currentTarget.style.color = 'var(--color-primary)'; }} onMouseLeave={e => { if (!isLightHeader) e.currentTarget.style.color = '#374151'; }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21h18M5 21V7l8-4v18M13 21V3l8 4v14M9 11v.01M9 15v.01M17 11v.01M17 15v.01"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21h18M5 21V7l8-4v18M13 21V3l8 4v14M9 11v.01M9 15v.01M17 11v.01M17 15v.01" /></svg>
                 Hotels
               </Link>
               <MegaDropdown
                 label={
                   <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: 18, fontWeight: 700 }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 12V22M12 2v10M12 12c-5 0-9-4-9-9h18c0 5-4 9-9 9z"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 12V22M12 2v10M12 12c-5 0-9-4-9-9h18c0 5-4 9-9 9z" /></svg>
                     Holidays
                   </span>
                 }
@@ -2105,18 +2145,18 @@ export default function Navbar({ brand, companyInfo }) {
                 isTransparent={isLightHeader}
               />
               <Link href="/cruise" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151', textDecoration: 'none', fontWeight: 700, fontSize: 18, transition: 'color 0.2s' }} onMouseEnter={e => { if (!isLightHeader) e.currentTarget.style.color = 'var(--color-primary)'; }} onMouseLeave={e => { if (!isLightHeader) e.currentTarget.style.color = '#374151'; }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 21c3 0 5-1.5 7-1.5s4 1.5 7 1.5 5-1.5 7-1.5M2 17c3 0 5-1.5 7-1.5s4 1.5 7 1.5 5-1.5 7-1.5"/><path d="M5 14l2-8h10l2 8"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 21c3 0 5-1.5 7-1.5s4 1.5 7 1.5 5-1.5 7-1.5M2 17c3 0 5-1.5 7-1.5s4 1.5 7 1.5 5-1.5 7-1.5" /><path d="M5 14l2-8h10l2 8" /></svg>
                 Cruise
               </Link>
               <Link href="/forex" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151', textDecoration: 'none', fontWeight: 700, fontSize: 18, transition: 'color 0.2s' }} onMouseEnter={e => { if (!isLightHeader) e.currentTarget.style.color = 'var(--color-primary)'; }} onMouseLeave={e => { if (!isLightHeader) e.currentTarget.style.color = '#374151'; }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8M12 6v2M12 16v2"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8M12 6v2M12 16v2" /></svg>
                 Forex
               </Link>
-              
+
               <MegaDropdown
                 label={
                   <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: 18, fontWeight: 700 }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="12" r="2"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /><circle cx="5" cy="12" r="2" /></svg>
                     More
                   </span>
                 }

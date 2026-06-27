@@ -39,7 +39,7 @@ export default function BannerCarousel({ banners = DEFAULT_BANNERS }) {
   if (!banners || banners.length === 0) return null;
 
   return (
-    <div className="banner-carousel-section">
+    <div className="banner-carousel-section container">
       <div
         className="banner-carousel-wrapper"
         onMouseEnter={() => setIsHovered(true)}
@@ -92,9 +92,7 @@ export default function BannerCarousel({ banners = DEFAULT_BANNERS }) {
       <style>{`
         .banner-carousel-section {
           width: 100%;
-          max-width: 1800px;
           margin: 0 auto;
-          padding: 0 15px;
         }
         
         .banner-carousel-wrapper {
@@ -110,7 +108,6 @@ export default function BannerCarousel({ banners = DEFAULT_BANNERS }) {
         @media (max-width: 768px) {
           .banner-carousel-section {
             margin: 20px auto;
-            padding: 0 10px;
           }
         }
 
