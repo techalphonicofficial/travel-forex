@@ -1287,7 +1287,7 @@ export default function Navbar({ brand, companyInfo }) {
   }
 
   const brandLogo = pathname === '/forex'
-    ? '/forex_logo.png'
+    ? '/forex-logo-new.png'
     : (getLogoUrl(companyInfo?.company_logo_url) || brand?.logo || '/logooo.png');
   const brandName = brand?.legalName || 'ITS TRAVELS AND TOURS';
   const isTransparent = false;
@@ -2055,10 +2055,6 @@ export default function Navbar({ brand, companyInfo }) {
                   height: 64,
                   objectFit: 'contain',
                   borderRadius: '8px',
-                  ...(pathname === '/forex' ? {
-                    transform: 'scale(1.99)',
-                    transformOrigin: 'center center',
-                  } : {})
                 }}
                 priority
               />

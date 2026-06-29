@@ -315,7 +315,7 @@ export default function TabbedPackagesSection() {
               const cardClass = getBentoClass(index, total);
 
               return (
-                <Link key={pkg.id} href={`/package/${pkg.slug}`} className={`mag-card ${cardClass}`}>
+                <Link key={pkg.id} href={`/tours/${pkg.slug}`} className={`mag-card ${cardClass}`}>
                   <div className="mag-img-wrap">
                     <Image 
                       src={pkg.image} 

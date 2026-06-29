@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { getForexRates, getForexServiceCharge, convertForexRate, getStoredAuth, getStoredToken } from '@/utils/api';
 
