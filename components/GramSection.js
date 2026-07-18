@@ -123,7 +123,7 @@ function GramCard({ photo, index }) {
 
       {/* Description */}
       <div style={{ textAlign: 'center', marginTop: 16 }}>
-        <h4 style={{ color: 'white', fontSize: 13, fontWeight: 700, margin: '0 0 8px', fontFamily: 'Poppins, sans-serif' }}>
+        <h4 style={{ color: '#1f2937', fontSize: 13, fontWeight: 700, margin: '0 0 8px', fontFamily: 'Poppins, sans-serif' }}>
           {photo.user} {photo.location} Holiday
         </h4>
         <div style={{ 
