@@ -1293,7 +1293,7 @@ export default function Navbar({ brand, companyInfo }) {
     : (getLogoUrl(companyInfo?.company_logo_url) || brand?.logo || '/logooo.png');
   const brandName = brand?.legalName || 'ITS TRAVELS AND TOURS';
   const isTransparent = false;
-  const isLightHeader = true;
+  const isLightHeader = false;
   const linkColor = isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151';
   const navButtonStyle = {
     padding: '8px 18px',
@@ -2035,7 +2035,7 @@ export default function Navbar({ brand, companyInfo }) {
 
       <header
         className="navbar-custom scrolled"
-        style={{ background: 'radial-gradient(ellipse 60% 100% at 50% 0%, #1e3a8a 0%, #0a0f1e 100%)', borderBottom: '1px solid rgba(255,255,255,0.05)', zIndex: 2100 }}
+        style={{ background: '#e5fcff', borderBottom: '1px solid rgba(0,0,0,0.05)', zIndex: 2100 }}
       >
         <div className="container" style={{ display: 'flex', alignItems: 'center', height: '110px' }}>
           {/* Logo */}
@@ -2060,18 +2060,18 @@ export default function Navbar({ brand, companyInfo }) {
 
             {/* Social Icons (Top Right) */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 24, marginBottom: 14, paddingRight: 4 }}>
-              <Link href="https://facebook.com" target="_blank" aria-label="Facebook" style={{ color: '#eab308', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
+              <Link href="https://facebook.com" target="_blank" aria-label="Facebook" style={{ color: '#1877F2', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /></svg>
               </Link>
-              <Link href="https://instagram.com" target="_blank" aria-label="Instagram" style={{ color: '#eab308', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
+              <Link href="https://instagram.com" target="_blank" aria-label="Instagram" style={{ color: '#E4405F', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
               </Link>
-              <Link href="https://twitter.com" target="_blank" aria-label="Twitter" style={{ color: '#eab308', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
+              <Link href="https://twitter.com" target="_blank" aria-label="X (Twitter)" style={{ color: '#000000', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
               </Link>
-              {/* <Link href="https://linkedin.com" target="_blank" aria-label="LinkedIn" style={{ color: '#0A66C2', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
+              <Link href="https://linkedin.com" target="_blank" aria-label="LinkedIn" style={{ color: '#0A66C2', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
-              </Link> */}
+              </Link>
             </div>
 
             {/* Main Nav */}
@@ -2084,59 +2084,82 @@ export default function Navbar({ brand, companyInfo }) {
               }}
                 className="d-none d-lg-flex"
               >
-                <Link href="/flights" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff', textDecoration: 'none', fontWeight: 600, fontSize: 16, transition: 'color 0.2s' }}>
-                  <svg style={{ color: '#eab308' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.5 5.5L6 17l-3-1-1.5 1.5 4 2.5 2.5 4 1.5-1.5-1-3 3.5-3.5 5.5 6.5l1.2-.7c.4-.2.7-.6.6-1.1z" /></svg>
+                <Link href="/flights" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1f2937', textDecoration: 'none', fontWeight: 600, fontSize: 16, transition: 'color 0.2s' }}>
+                  <svg style={{ color: '#1f2937' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.5 5.5L6 17l-3-1-1.5 1.5 4 2.5 2.5 4 1.5-1.5-1-3 3.5-3.5 5.5 6.5l1.2-.7c.4-.2.7-.6.6-1.1z" /></svg>
                   Flights
                 </Link>
-                <span style={{ color: '#eab308', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#1f2937', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
-                <Link href={HOTEL_HREF} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff', textDecoration: 'none', fontWeight: 600, fontSize: 16, transition: 'color 0.2s' }}>
-                  <svg style={{ color: '#eab308' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 21h18M5 21V7l8-4v18M13 21V3l8 4v14M9 11v.01M9 15v.01M17 11v.01M17 15v.01" /></svg>
+                <Link href={HOTEL_HREF} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1f2937', textDecoration: 'none', fontWeight: 600, fontSize: 16, transition: 'color 0.2s' }}>
+                  <svg style={{ color: '#1f2937' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 21h18M5 21V7l8-4v18M13 21V3l8 4v14M9 11v.01M9 15v.01M17 11v.01M17 15v.01" /></svg>
                   Hotels
                 </Link>
-                <span style={{ color: '#eab308', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#1f2937', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
                   label={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#ffffff' }}>
-                      <svg style={{ color: '#eab308' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 12V22M12 2v10M12 12c-5 0-9-4-9-9h18c0 5-4 9-9 9z" /></svg>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#1f2937' }}>
+                      <svg style={{ color: '#1f2937' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 12V22M12 2v10M12 12c-5 0-9-4-9-9h18c0 5-4 9-9 9z" /></svg>
                       Holidays
                     </span>
                   }
                   cols={packageCols}
-                  isTransparent={isLightHeader}
+                  isTransparent={false}
                 />
-                <span style={{ color: '#eab308', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
-
-                <Link href="/cruise" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff', textDecoration: 'none', fontWeight: 600, fontSize: 16, transition: 'color 0.2s' }}>
-                  <svg style={{ color: '#eab308' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M2 21c3 0 5-1.5 7-1.5s4 1.5 7 1.5 5-1.5 7-1.5M2 17c3 0 5-1.5 7-1.5s4 1.5 7 1.5 5-1.5 7-1.5" /><path d="M5 14l2-8h10l2 8" /></svg>
-                  Cruise
-                </Link>
-                <span style={{ color: '#eab308', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
-
-                <Link href="/forex" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff', textDecoration: 'none', fontWeight: 600, fontSize: 16, transition: 'color 0.2s' }}>
-                  <svg style={{ color: '#eab308' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8M12 6v2M12 16v2" /></svg>
-                  Forex
-                </Link>
-                <span style={{ color: '#eab308', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#1f2937', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
                   label={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#ffffff' }}>
-                      <svg style={{ color: '#eab308' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /><circle cx="5" cy="12" r="2" /></svg>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#1f2937' }}>
+                      <svg style={{ color: '#1f2937' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg>
+                      Visa
+                    </span>
+                  }
+                  cols={[
+                    [
+                      { name: 'Visa Free Countries', href: '/visa?type=free' },
+                      { name: 'Paid Visa Countries', href: '/visa?type=paid' },
+                    ]
+                  ]}
+                  isTransparent={false}
+                />
+                <span style={{ color: '#1f2937', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+
+                <MegaDropdown
+                  label={
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#1f2937' }}>
+                      <svg style={{ color: '#1f2937' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8M12 6v2M12 16v2" /></svg>
+                      Forex
+                    </span>
+                  }
+                  cols={[
+                    [
+                      { name: 'Currency', href: '/forex?tab=currency' },
+                      { name: 'Forex Card', href: '/forex?tab=card' },
+                      { name: 'International Transfer', href: '/forex?tab=transfer' }
+                    ]
+                  ]}
+                  isTransparent={false}
+                />
+                <span style={{ color: '#1f2937', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+
+                <MegaDropdown
+                  label={
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#1f2937' }}>
+                      <svg style={{ color: '#1f2937' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /><circle cx="5" cy="12" r="2" /></svg>
                       More
                     </span>
                   }
                   cols={[
                     [
-                      { name: 'Visa Services', href: '/visa' },
+                      { name: 'Cruise', href: '/cruise' },
+                      { name: 'Overseas Insurance', href: '/insurance' },
                       { name: 'Euro Rails', href: '/eurorail' },
                       { name: 'Events & Weddings', href: '/events' },
-                      { name: 'Conferences', href: '/conferences' }
-                    ],
-                    ...(categories.length > 0 ? [categories.map(c => ({ name: c.name, href: `/packages?category=${c.id}` }))] : [destinationCols[0]])
+                      { name: 'Conference', href: '/conferences' }
+                    ]
                   ]}
-                  isTransparent={isLightHeader}
+                  isTransparent={false}
                 />
               </ul>
 
@@ -2174,13 +2197,13 @@ export default function Navbar({ brand, companyInfo }) {
                   style={{
                     width: 44,
                     height: 44,
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1.5px solid rgba(255,255,255,0.2)',
+                    background: 'rgba(0,0,0,0.02)',
+                    border: '1.5px solid rgba(0,0,0,0.1)',
                     borderRadius: 8,
                     padding: 0,
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'white',
+                    color: '#1f2937',
                     cursor: 'pointer',
                     flexShrink: 0,
                     transition: 'all 0.2s'
@@ -2198,11 +2221,11 @@ export default function Navbar({ brand, companyInfo }) {
                   className="d-lg-none"
                   onClick={() => setDrawerOpen(true)}
                   style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1.5px solid rgba(255,255,255,0.2)',
+                    background: 'rgba(0,0,0,0.02)',
+                    border: '1.5px solid rgba(0,0,0,0.1)',
                     borderRadius: 8, padding: '7px 10px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'white',
+                    color: '#1f2937',
                     cursor: 'pointer',
                   }}
                 >

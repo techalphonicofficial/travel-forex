@@ -126,25 +126,25 @@ export default function HomeHero() {
       if (!mounted) return;
 
       const header = getHomeSection(page, 'header_key', 'image_text');
-      const mediaUrl = getMediaUrl(header?.json_data?.media_url || header?.image);
+      const rawMediaUrl = header?.json_data?.media_url || header?.image;
+      const mediaUrl = rawMediaUrl ? getMediaUrl(rawMediaUrl) : null;
+      const gallery = header?.json_data?.gallery || header?.json_data?.banners || [];
+      const galleryImages = gallery.map(item => getMediaUrl(item.img || item.image || item)).filter(Boolean);
 
-      if (mediaUrl) {
-        const isVideo = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(mediaUrl);
-        if (isVideo) {
-          setHeroMediaType('video');
-          setVideos([{ src: mediaUrl }]);
-          setVidIdx(0);
-        } else {
-          setHeroMediaType('image');
-          setCarouselImages([
-            mediaUrl,
-            'https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=1920&q=85',
-            'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=85',
-            'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=85',
-            'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=1920&q=85',
-          ]);
-          setCurrentImgIdx(0);
-        }
+      const isVideo = mediaUrl && /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(mediaUrl);
+
+      if (isVideo) {
+        setHeroMediaType('video');
+        setVideos([{ src: mediaUrl }]);
+        setVidIdx(0);
+      } else if (galleryImages.length > 0) {
+        setHeroMediaType('image');
+        setCarouselImages(galleryImages);
+        setCurrentImgIdx(0);
+      } else if (mediaUrl) {
+        setHeroMediaType('image');
+        setCarouselImages([mediaUrl]);
+        setCurrentImgIdx(0);
       } else {
         setHeroMediaType('video');
         setVideos([]);
@@ -276,8 +276,9 @@ export default function HomeHero() {
                     position: 'absolute',
                     inset: 0,
                     backgroundImage: `url(${imgUrl})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
+                    backgroundSize: 'contain',
+                    backgroundPosition: 'top center',
+                    backgroundRepeat: 'no-repeat',
                     opacity: i === currentImgIdx ? 1 : 0,
                     transition: 'opacity 1.2s ease-in-out',
                     zIndex: i === currentImgIdx ? 1 : 0,

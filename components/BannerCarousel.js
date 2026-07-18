@@ -13,6 +13,8 @@ export default function BannerCarousel({ banners = DEFAULT_BANNERS }) {
   const [isHovered, setIsHovered] = useState(false);
   const timerRef = useRef(null);
 
+  // console.log("banners------->>>", banners);
+
   useEffect(() => {
     if (banners.length <= 1) return;
 
