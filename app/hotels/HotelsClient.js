@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { getHotels } from '@/utils/api';
 import InquiryForm from '@/components/InquiryForm';
+import HotelInquiryModal from '@/components/HotelInquiryModal';
 
 const formatMoney = (value) => `Rs ${Number(value || 0).toLocaleString('en-IN')}`;
 
@@ -98,13 +99,22 @@ function HotelCard({ hotel, city, country }) {
             {(hotel.amenities || []).length > 5 ? <span>+{hotel.amenities.length - 5} more</span> : null}
           </div>
         </div>
-        <div className="hotel-price-panel">
-          <small>{hotel.provider_name || 'Hotel partner'}</small>
-          {discount > 0 ? <del>{formatMoney(price)}</del> : null}
-          <strong>{formatMoney(discountedPrice)}</strong>
-          <span>per night</span>
+        <div className="hotel-price-panel" style={{ justifyContent: 'center', alignContent: 'center', gap: '8px' }}>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              if (typeof window !== 'undefined') {
+                sessionStorage.setItem(`hotel:${hotel.id}`, JSON.stringify(hotel));
+                window.dispatchEvent(new CustomEvent('openHotelInquiry', { detail: { hotel } }));
+              }
+            }}
+            className="send-inquiry-btn"
+          >
+            Send Inquiry
+          </button>
           <Link
             href={detailHref}
+            className="view-details-link"
             onClick={() => {
               if (typeof window !== 'undefined') {
                 sessionStorage.setItem(`hotel:${hotel.id}`, JSON.stringify(hotel));
@@ -234,7 +244,7 @@ export default function HotelsClient() {
         <div className="hotels-container">
           <div>
             <span>Hotel stays</span>
-            <h1>{query.city || 'Goa'} Hotels</h1>
+            <h1>{query.city ? `${query.city} Hotels` : 'Explore Hotels'}</h1>
             <p>{pagination?.total || hotels.length || 0} stays from verified hotel partners</p>
           </div>
           <form className="hotel-search-bar" onSubmit={searchHotels}>
@@ -253,12 +263,7 @@ export default function HotelsClient() {
             <button type="button" onClick={() => setFilters({ stars: [], amenities: [], providers: [], minGuestRating: 0, maxPrice: 0, discountedOnly: false })}>Reset</button>
           </div>
 
-          {filterOptions.maxPrice ? (
-            <FilterGroup title="Price per night">
-              <div className="hotel-range-copy">Up to {formatMoney(effectiveMaxPrice)}</div>
-              <input type="range" min="0" max={filterOptions.maxPrice} step="250" value={effectiveMaxPrice} onChange={(event) => setFilters((current) => ({ ...current, maxPrice: Number(event.target.value) }))} />
-            </FilterGroup>
-          ) : null}
+
 
           {filterOptions.stars.length ? (
             <FilterGroup title="Star category">
@@ -290,9 +295,7 @@ export default function HotelsClient() {
             </FilterGroup>
           ) : null}
 
-          <FilterGroup title="Offers">
-            <label><input type="checkbox" checked={filters.discountedOnly} onChange={(event) => setFilters((current) => ({ ...current, discountedOnly: event.target.checked }))} /> Discounted hotels</label>
-          </FilterGroup>
+
         </aside>
 
         <div className="hotels-results">
@@ -326,6 +329,8 @@ export default function HotelsClient() {
         showDate
         showMessage
       />
+
+      <HotelInquiryModal />
 
       <HotelStyles />
     </main>
@@ -382,19 +387,18 @@ function HotelStyles() {
       .hotel-desc { margin-top: 12px !important; color: #3f4f63 !important; font-weight: 500 !important; line-height: 1.55; }
       .hotel-amenities { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
       .hotel-amenities span { padding: 5px 8px; border-radius: 999px; background: #f1f5f9; color: #334155; font-size: 11px; font-weight: 800; }
-      .hotel-price-panel { border-left: 1px solid #edf1f5; padding-left: 16px; display: grid; align-content: end; justify-items: end; text-align: right; }
-      .hotel-price-panel small { color: #64748b; font-size: 12px; font-weight: 800; }
-      .hotel-price-panel del { color: #94a3b8; font-size: 13px; }
-      .hotel-price-panel strong { color: #111827; font-family: var(--font-poppins), Poppins, sans-serif; font-size: 24px; font-weight: 900; }
-      .hotel-price-panel span { color: #64748b; font-size: 12px; font-weight: 700; }
-      .hotel-price-panel a { margin-top: 12px; padding: 10px 16px; border-radius: 8px; background: var(--color-primary); color: #fff; font-size: 13px; font-weight: 900; text-decoration: none; }
+      .hotel-price-panel { border-left: 1px solid #edf1f5; padding-left: 16px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 10px; }
+      .send-inquiry-btn { width: 100%; padding: 12px 16px; border-radius: 8px; background: var(--color-primary); color: #fff; font-size: 14px; font-weight: 900; border: none; cursor: pointer; transition: background 0.2s; }
+      .send-inquiry-btn:hover { background: var(--color-primary-dark, #0d5c9e); }
+      .view-details-link { width: 100%; text-align: center; padding: 10px 16px; border-radius: 8px; background: #f1f5f9; color: #334155; font-size: 13px; font-weight: 800; text-decoration: none; transition: background 0.2s; }
+      .view-details-link:hover { background: #e2e8f0; }
       @media (max-width: 991px) {
         .hotels-hero { padding: 36px 0 20px; }
         .hotels-layout { grid-template-columns: 1fr; }
         .hotels-filters { position: static; }
         .hotel-card { grid-template-columns: 1fr; }
         .hotel-card-body { grid-template-columns: 1fr; }
-        .hotel-price-panel { border-left: 0; border-top: 1px solid #edf1f5; padding: 16px 0 0; justify-items: start; text-align: left; }
+        .hotel-price-panel { border-left: 0; border-top: 1px solid #edf1f5; padding: 16px 0 0; }
         .hotel-search-bar { grid-template-columns: 1fr; }
       }
     `}</style>

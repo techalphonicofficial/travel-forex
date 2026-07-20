@@ -2,8 +2,9 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
-import { getStoredAuth, submitHotelInquiry } from '@/utils/api';
+import { useState, useMemo } from 'react';
+import toast from 'react-hot-toast';
+import { getStoredAuth } from '@/utils/api';
 
 const fallbackImage = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
 
@@ -63,69 +64,58 @@ export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, 
       return null;
     }
   });
-  const [form, setForm] = useState({ room_count: 1, notes: '' });
-  const [rooms, setRooms] = useState([{ adults: 2, children: 0 }]);
+  const [form, setForm] = useState({ name: '', phone: '', email: '', date: '', guests: '2', message: '' });
   const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState('');
-  const [loginPromptOpen, setLoginPromptOpen] = useState(false);
 
   const images = useMemo(() => getImages(hotel), [hotel]);
-  const discountedPrice = getDiscountedPrice(hotel);
   const location = [hotel?.destination?.name || city, hotel?.destination?.country || country].filter(Boolean).join(', ');
-  const totalGuests = rooms.reduce((total, room) => total + Number(room.adults || 0) + Number(room.children || 0), 0);
 
-  const syncRooms = (nextRooms) => {
-    const nextCount = nextRooms.length;
-    setForm((current) => ({ ...current, room_count: nextCount }));
-    setRooms(nextRooms);
-  };
-
-  const addRoom = () => {
-    if (rooms.length >= 8) return;
-    syncRooms([...rooms, { adults: 2, children: 0 }]);
-  };
-
-  const removeRoom = (index) => {
-    if (rooms.length <= 1) return;
-    syncRooms(rooms.filter((_, roomIndex) => roomIndex !== index));
-  };
-
-  const updateRoom = (index, key, value) => {
-    const minValue = key === 'adults' ? 1 : 0;
-    const nextValue = Math.max(minValue, Math.min(8, Number(value) || minValue));
-    setRooms((current) => current.map((room, roomIndex) => (
-      roomIndex === index ? { ...room, [key]: nextValue } : room
-    )));
-  };
-
-  const stepRoomGuest = (index, key, delta) => {
-    const currentValue = Number(rooms[index]?.[key]) || 0;
-    updateRoom(index, key, currentValue + delta);
-  };
+  const update = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
   const submitInquiry = async (event) => {
     event.preventDefault();
-    const userId = getLoggedInUserId();
-
-    if (!userId) {
-      setLoginPromptOpen(true);
+    if (!form.name.trim() || !form.phone.trim()) {
+      toast.error('Please enter your name and phone number.');
       return;
     }
 
     setSubmitting(true);
-    setMessage('');
+    const hotelName = hotel?.name || 'Hotel';
+    
+    const noteLines = [
+      `Service Interest: Hotel Booking`,
+      `Hotel: ${hotelName} (${location})`,
+      form.date ? `Check-in Date: ${form.date}` : '',
+      form.guests ? `Guests: ${form.guests}` : '',
+      form.message.trim() ? `Message: ${form.message.trim()}` : '',
+    ].filter(Boolean).join('\n');
 
-    const payload = {
-      user_id: userId,
-      hotel_id: Number(hotel?.id || hotelId),
-      room_count: Number(form.room_count) || rooms.length,
-      rooms,
-      notes: form.notes.trim(),
-    };
-
-    const result = await submitHotelInquiry(payload);
-    setSubmitting(false);
-    setMessage(result?.success ? result.message || 'Hotel booking submitted successfully.' : result?.message || 'Unable to submit inquiry right now.');
+    try {
+      const res = await fetch('/api/contact-leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pipeline_id: 1, // Default pipeline
+          name: form.name.trim(),
+          phone: form.phone.trim(),
+          email: form.email.trim(),
+          source: 'Website - Hotel Page Inquiry',
+          notes: noteLines,
+          custom_fields: {
+            subject: `Hotel Booking Inquiry: ${hotelName}`,
+            message: noteLines,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data?.success) throw new Error(data?.message || 'Submission failed');
+      toast.success(data.message || 'Thank you! Our team will contact you shortly about this hotel.');
+      setForm({ name: '', phone: '', email: '', date: '', guests: '2', message: '' });
+    } catch (err) {
+      toast.error(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!hotel) {
@@ -172,8 +162,6 @@ export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, 
             <p>{hotel.description}</p>
             <div className="hotel-detail-facts">
               <div><strong>{hotel.total_rooms}</strong><span>Total rooms</span></div>
-              <div><strong>{formatMoney(discountedPrice)}</strong><span>Per night</span></div>
-              <div><strong>{Number(hotel.discount_percent || 0).toFixed(0)}%</strong><span>Discount</span></div>
             </div>
           </section>
 
@@ -186,90 +174,122 @@ export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, 
         </div>
 
         <aside className="hotel-inquiry-card">
-          <div className="hotel-inquiry-price">
-            <span>Starts from</span>
-            <strong>{formatMoney(discountedPrice)}</strong>
-            <p>per room, per night</p>
-            <div className="hotel-inquiry-summary">
-              <span>{rooms.length} {rooms.length === 1 ? 'room' : 'rooms'}</span>
-              <span>{totalGuests} {totalGuests === 1 ? 'guest' : 'guests'}</span>
-            </div>
+          <div className="mb-4">
+            <h3 style={{ fontWeight: 800, fontSize: '20px', color: '#111827', marginBottom: '8px' }}>Send Booking Inquiry</h3>
+            <p style={{ color: '#6b7280', fontSize: '13px' }}>Fill in your details and we will get back to you with the best rates.</p>
           </div>
-          <form onSubmit={submitInquiry}>
-            <div className="hotel-room-toolbar">
-              <div>
-                <strong>Rooms and guests</strong>
-                <span>Customize occupancy for this inquiry</span>
+
+          <form onSubmit={submitInquiry} className="d-flex flex-column gap-3">
+            <div className="form-floating">
+              <input 
+                type="text" 
+                className="form-control" 
+                placeholder="Name" 
+                style={formInputStyle} 
+                required 
+                value={form.name}
+                onChange={e => update('name', e.target.value)}
+              />
+              <label>Full Name</label>
+            </div>
+
+            <div className="form-floating">
+              <input 
+                type="email" 
+                className="form-control" 
+                placeholder="Email" 
+                style={formInputStyle} 
+                required 
+                value={form.email}
+                onChange={e => update('email', e.target.value)}
+              />
+              <label>Email Address</label>
+            </div>
+
+            <div className="d-flex gap-2">
+              <div className="form-floating" style={{ width: '80px' }}>
+                <input type="text" className="form-control" defaultValue="+91" style={formInputStyle} />
+                <label>Code</label>
               </div>
-              <button type="button" className="hotel-add-room" onClick={addRoom} disabled={rooms.length >= 8}>
-                + Add room
-              </button>
+              <div className="form-floating flex-grow-1">
+                <input 
+                  type="tel" 
+                  className="form-control" 
+                  placeholder="Phone" 
+                  style={formInputStyle} 
+                  required 
+                  value={form.phone}
+                  onChange={e => update('phone', e.target.value)}
+                />
+                <label>Mobile Number</label>
+              </div>
             </div>
-            <div className="hotel-room-list">
-              {rooms.map((room, index) => (
-                <div className="hotel-room-row" key={index}>
-                  <div className="hotel-room-title">
-                    <strong>Room {index + 1}</strong>
-                    {rooms.length > 1 ? (
-                      <button type="button" onClick={() => removeRoom(index)} aria-label={`Remove room ${index + 1}`}>Remove</button>
-                    ) : null}
-                  </div>
-                  <div className="hotel-guest-stepper">
-                    <div>
-                      <strong>Adults</strong>
-                      <span>Age 12+</span>
-                    </div>
-                    <div className="hotel-stepper-controls">
-                      <button type="button" onClick={() => stepRoomGuest(index, 'adults', -1)} disabled={room.adults <= 1} aria-label={`Decrease adults in room ${index + 1}`}>−</button>
-                      <output>{room.adults}</output>
-                      <button type="button" onClick={() => stepRoomGuest(index, 'adults', 1)} aria-label={`Increase adults in room ${index + 1}`}>+</button>
-                    </div>
-                  </div>
-                  <div className="hotel-guest-stepper">
-                    <div>
-                      <strong>Children</strong>
-                      <span>Age 0-11</span>
-                    </div>
-                    <div className="hotel-stepper-controls">
-                      <button type="button" onClick={() => stepRoomGuest(index, 'children', -1)} disabled={room.children <= 0} aria-label={`Decrease children in room ${index + 1}`}>−</button>
-                      <output>{room.children}</output>
-                      <button type="button" onClick={() => stepRoomGuest(index, 'children', 1)} aria-label={`Increase children in room ${index + 1}`}>+</button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+
+            <div className="d-flex gap-2">
+              <div className="form-floating flex-grow-1">
+                <input 
+                  type="date" 
+                  className="form-control" 
+                  style={formInputStyle} 
+                  value={form.date}
+                  onChange={e => update('date', e.target.value)}
+                />
+                <label>Check-in Date (Optional)</label>
+              </div>
+              <div className="form-floating" style={{ width: '100px' }}>
+                <select 
+                  className="form-select" 
+                  style={formInputStyle}
+                  value={form.guests}
+                  onChange={e => update('guests', e.target.value)}
+                >
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5+">5+</option>
+                </select>
+                <label>Guests</label>
+              </div>
             </div>
-            <label>
-              Notes
-              <textarea value={form.notes} onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))} placeholder="Special requests, dates, meal plan, room category..." />
-            </label>
-            <button type="submit" disabled={submitting}>{submitting ? 'Submitting...' : 'Send Inquiry'}</button>
-            {message ? <p className="hotel-inquiry-message">{message}</p> : null}
+            
+            <div className="form-floating">
+              <textarea 
+                className="form-control" 
+                placeholder="Message" 
+                style={{ ...formInputStyle, height: '80px', resize: 'none' }} 
+                value={form.message}
+                onChange={e => update('message', e.target.value)}
+              ></textarea>
+              <label>Any special requests?</label>
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="btn py-3 mt-2"
+              style={{
+                background: 'var(--color-primary)',
+                color: 'white',
+                fontWeight: 750,
+                borderRadius: '14px',
+                fontSize: '16px',
+                border: 'none',
+                boxShadow: '0 15px 30px -5px color-mix(in srgb, var(--color-primary) 30%, transparent)',
+                transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                opacity: submitting ? 0.75 : 1,
+                cursor: submitting ? 'wait' : 'pointer',
+                width: '100%'
+              }}
+              onMouseEnter={e => { if(!submitting) e.currentTarget.style.transform = 'scale(1.02)' }}
+              onMouseLeave={e => { if(!submitting) e.currentTarget.style.transform = 'scale(1)' }}
+            >
+              {submitting ? 'Submitting...' : 'Send Inquiry'}
+            </button>
           </form>
         </aside>
       </section>
-      {loginPromptOpen ? (
-        <div className="hotel-login-modal" role="dialog" aria-modal="true" aria-labelledby="hotel-login-title">
-          <div className="hotel-login-panel">
-            <button
-              type="button"
-              className="hotel-login-close"
-              onClick={() => setLoginPromptOpen(false)}
-              aria-label="Close login prompt"
-            >
-              ×
-            </button>
-            <h2 id="hotel-login-title">Login required</h2>
-            <p>Please login to send this hotel inquiry. We will bring you back to this hotel after login.</p>
-            <div className="hotel-login-actions">
-              <button type="button" onClick={() => setLoginPromptOpen(false)}>Not now</button>
-              <Link href={`/auth/login?redirect=${encodeURIComponent(typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/hotels')}`}>
-                Login to continue
-              </Link>
-            </div>
-          </div>
-        </div>
-      ) : null}
+
       <HotelDetailStyles />
     </main>
   );
@@ -342,19 +362,25 @@ function HotelDetailStyles() {
       .hotel-login-actions button, .hotel-login-actions a { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; border-radius: 8px; padding: 0 14px; font-size: 13px; font-weight: 900; text-decoration: none; }
       .hotel-login-actions button { border: 1px solid #dbe3ed; background: #fff; color: #475569; }
       .hotel-login-actions a { background: var(--color-primary); color: #fff; }
-      .hotel-detail-empty { margin-top: 40px; padding: 40px; text-align: center; }
-      @media (max-width: 900px) {
-        .hotel-detail-gallery { grid-template-columns: 1fr 1fr; grid-template-rows: 260px 150px 150px; }
-        .hotel-detail-main-image { grid-column: span 2; grid-row: auto; }
-        .hotel-detail-layout { grid-template-columns: 1fr; }
-        .hotel-inquiry-card { position: static; }
-      }
-      @media (max-width: 640px) {
-        .hotel-detail-gallery { display: block; }
-        .hotel-detail-gallery img { height: 220px; margin-bottom: 8px; border-radius: 8px; }
-        .hotel-detail-facts { grid-template-columns: 1fr; }
-        .hotel-room-toolbar { align-items: flex-start; flex-direction: column; }
-      }
-    `}</style>
+        .hotel-detail-empty { margin-top: 40px; padding: 40px; text-align: center; }
+        @media (max-width: 900px) {
+          .hotel-detail-gallery { grid-template-columns: 1fr 1fr; grid-template-rows: 260px 150px 150px; }
+          .hotel-detail-main-image { grid-column: span 2; grid-row: auto; }
+          .hotel-detail-layout { grid-template-columns: 1fr; }
+          .hotel-inquiry-card { position: static; }
+        }
+        @media (max-width: 640px) {
+          .hotel-detail-gallery { display: block; }
+          .hotel-detail-gallery img { height: 220px; margin-bottom: 8px; border-radius: 8px; }
+          .hotel-detail-facts { grid-template-columns: 1fr; }
+        }
+      `}</style>
   );
 }
+
+const formInputStyle = {
+  borderRadius: '14px',
+  background: '#f9fafb',
+  border: '1.5px solid #f3f4f6',
+  fontSize: '14.5px'
+};
