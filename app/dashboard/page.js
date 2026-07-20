@@ -7,7 +7,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import bookingsData from '@/data/bookings.json';
 import { useWishlist } from '@/components/WishlistProvider';
-import { createRazorpayOrder, getCancellationRules, getCustomerBookings, getMediaUrl, getMyPackageReturnRequests, getStoredAuth, getTripInquiries, payRemainingPackageBooking, submitPackageReturnRequest, submitPackageReview, verifyRazorpayPayment } from '@/utils/api';
+import { getStoredToken, createRazorpayOrder, getCancellationRules, getCustomerBookings, getMediaUrl, getMyPackageReturnRequests, getStoredAuth, getTripInquiries, payRemainingPackageBooking, submitPackageReturnRequest, submitPackageReview, verifyRazorpayPayment } from '@/utils/api';
 
 const NAV_ITEMS = [
   { id: 'bookings', label: 'My Bookings', icon: '📋' },
@@ -414,6 +414,7 @@ const loadRazorpayCheckout = () => new Promise((resolve, reject) => {
 });
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('bookings');
   const [bookingView, setBookingView] = useState('package');
   const [reviewingBookingId, setReviewingBookingId] = useState(null);

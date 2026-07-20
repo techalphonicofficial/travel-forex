@@ -3,8 +3,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { getHotels } from '@/utils/api';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { getStoredToken, getHotels } from '@/utils/api';
 import InquiryForm from '@/components/InquiryForm';
 import HotelInquiryModal from '@/components/HotelInquiryModal';
 
@@ -130,6 +130,7 @@ function HotelCard({ hotel, city, country }) {
 }
 
 export default function HotelsClient() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [hotels, setHotels] = useState([]);
   const [pagination, setPagination] = useState(null);

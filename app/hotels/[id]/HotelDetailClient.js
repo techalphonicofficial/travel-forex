@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
-import { getStoredAuth } from '@/utils/api';
+import { getStoredToken, getStoredAuth } from '@/utils/api';
 
 const fallbackImage = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
 
@@ -54,6 +54,7 @@ const getLoggedInUserId = () => {
 };
 
 export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, country }) {
+  const router = useRouter();
   const [hotel] = useState(() => {
     if (initialHotel || typeof window === 'undefined') return initialHotel;
 

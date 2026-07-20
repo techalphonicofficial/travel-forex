@@ -99,6 +99,7 @@ const getFormPayload = (formElement, fields, pipelineId) => {
 };
 
 export default function ContactClient({ hero = fallbackHero, faqContent = fallbackFaqContent, heroImage = '', formConfig = null, companyInfo = null }) {
+  const router = useRouter();
   const fields = useMemo(() => (
     formConfig?.fields?.length ? formConfig.fields : fallbackFormFields
   ), [formConfig]);
@@ -113,6 +114,13 @@ export default function ContactClient({ hero = fallbackHero, faqContent = fallba
   ];
 
   const handleSubmit = async (e) => {
+    const token = getStoredToken();
+    if (!token) {
+      toast.error('Please login first to continue.');
+      router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
     e.preventDefault();
     const form = e.currentTarget;
     setSending(true);

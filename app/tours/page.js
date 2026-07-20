@@ -41,13 +41,15 @@ const getLocationParts = (pkg) => {
 
 const normalizePackageToTour = (pkg) => {
   const { city, country, continent, destination } = getLocationParts(pkg);
-  const destinationNames = (pkg?.destinations || [])
-    .map((item) => item?.destination?.name)
-    .filter(Boolean);
+  const destinationsArr = (pkg?.destinations || []).map(item => item?.destination).filter(Boolean);
+  const destinationNames = destinationsArr.map(d => d.name).filter(Boolean);
   const location = destinationNames.length ? destinationNames.join(', ') : city || country || 'Destination';
   const price = Number(pkg?.price) || 0;
   const duration = Number(pkg?.duration_days) || 1;
-  const destinationType = destination?.type || '';
+  
+  // Determine if it's International or Domestic by looking at all destinations
+  const isInternational = destinationsArr.some(d => d.type?.toLowerCase() === 'international');
+  const computedType = isInternational ? 'International' : 'Domestic';
 
   return {
     id: pkg?.id,
@@ -56,7 +58,7 @@ const normalizePackageToTour = (pkg) => {
     location,
     country: country || city || location,
     continent,
-    type: destinationType ? destinationType.charAt(0).toUpperCase() + destinationType.slice(1) : 'Package',
+    type: computedType,
     duration,
     groupSize: 12,
     rating: Number(pkg?.rating) || 4.6,
@@ -198,35 +200,32 @@ function FilterSidebar({ filters, setFilters, resetFilters, filterOptions }) {
       </div>
 
       <div className="filter-group">
-        <div className="filter-group-title">Tour Type</div>
+        <div className="filter-group-title">Categories</div>
         <div className="d-flex flex-column gap-2">
-          {filterOptions.tourTypes.map((type) => (
+          {[
+            { key: '', label: 'All Categories' },
+            { key: 'solo', label: 'Solo Tour' },
+            { key: 'family', label: 'Family Tour' },
+            { key: 'beach', label: 'Beach Tour' },
+            { key: 'group', label: 'Group Tour' },
+            ...(filters.type === 'DOMESTIC' ? [{ key: 'religious', label: 'Religious Tour' }] : []),
+            { key: 'honeymoon', label: 'Honeymoon Tour' },
+            { key: 'couple', label: 'Couple Tour' },
+          ].map((cat) => (
             <label
-              key={type.key}
+              key={cat.key}
               className="d-flex align-items-center gap-2"
               style={{ cursor: 'pointer', fontSize: 14, color: 'var(--color-text-secondary)' }}
             >
               <input
                 type="radio"
-                name="tourType"
-                value={type.key}
-                checked={filters.type === type.key}
-                onChange={() => setFilters({ ...filters, type: type.key })}
+                name="category"
+                value={cat.key}
+                checked={filters.package_category_slug === cat.key || (cat.key === '' && !filters.package_category_slug)}
+                onChange={() => setFilters({ ...filters, package_category_slug: cat.key })}
                 style={{ accentColor: 'var(--color-primary)' }}
               />
-              {type.label}
-              <span
-                style={{
-                  marginLeft: 'auto',
-                  fontSize: 12,
-                  background: 'var(--color-bg-soft)',
-                  padding: '1px 8px',
-                  borderRadius: 999,
-                  color: 'var(--color-text-muted)',
-                }}
-              >
-                {type.count}
-              </span>
+              {cat.label}
             </label>
           ))}
         </div>
@@ -340,6 +339,25 @@ function ToursContent() {
     package_category_slug: searchParams.get('package_category_slug') || searchParams.get('category') || '',
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    setFilters((prev) => {
+      const newType = searchParams.get('tour_type') || searchParams.get('type') || 'all';
+      const newSearch = getUrlSearchValue(searchParams);
+      const newCategory = searchParams.get('package_category_slug') || searchParams.get('category') || '';
+      
+      if (prev.type !== newType || prev.search !== newSearch || prev.package_category_slug !== newCategory) {
+        return {
+          ...prev,
+          type: newType,
+          search: newSearch,
+          package_category_slug: newCategory
+        };
+      }
+      return prev;
+    });
+  }, [searchParams]);
+
   const { search, type, minPrice, maxPrice, duration, package_category_slug } = filters;
   const activePackageQuery = useMemo(
     () => buildApiQueryFromFilters({ search, type, minPrice, maxPrice, duration, package_category_slug }),
@@ -400,6 +418,18 @@ function ToursContent() {
           t.location.toLowerCase().includes(q) ||
           t.country.toLowerCase().includes(q) ||
           t.continent.toLowerCase().includes(q)
+      );
+    }
+
+    if (filters.type === 'DOMESTIC' || filters.type === 'INTERNATIONAL') {
+      result = result.filter(t => t.type?.toUpperCase() === filters.type);
+    }
+
+    if (filters.package_category_slug) {
+      const catSearch = filters.package_category_slug.toLowerCase();
+      result = result.filter(t => 
+        t.title.toLowerCase().includes(catSearch) || 
+        t.description?.toLowerCase().includes(catSearch)
       );
     }
 
@@ -527,12 +557,18 @@ function ToursContent() {
               </div>
             </div>
 
-            {(filters.type !== 'all' || filters.search || filters.minRating > 0 || filters.maxPrice < (filterOptions.priceRange.max || MAX_PRICE) || filters.duration !== 'any') && (
+            {(filters.type !== 'all' || filters.search || filters.package_category_slug || filters.minRating > 0 || filters.maxPrice < (filterOptions.priceRange.max || MAX_PRICE) || filters.duration !== 'any') && (
               <div className="d-flex flex-wrap gap-2 mb-4">
                 {filters.type !== 'all' && (
                   <span className="badge badge-primary" style={{ padding: '6px 12px', fontSize: 13 }}>
-                    {getTourTypeLabel(filterOptions, filters.type)}
+                    {filters.type === 'DOMESTIC' ? 'Domestic' : filters.type === 'INTERNATIONAL' ? 'International' : getTourTypeLabel(filterOptions, filters.type)}
                     <button onClick={() => setFilters({ ...filters, type: 'all' })} style={{ border: 'none', background: 'none', cursor: 'pointer', marginLeft: 4, color: 'inherit' }}>x</button>
+                  </span>
+                )}
+                {filters.package_category_slug && (
+                  <span className="badge badge-primary" style={{ padding: '6px 12px', fontSize: 13, textTransform: 'capitalize' }}>
+                    {filters.package_category_slug} Tour
+                    <button onClick={() => setFilters({ ...filters, package_category_slug: '' })} style={{ border: 'none', background: 'none', cursor: 'pointer', marginLeft: 4, color: 'inherit' }}>x</button>
                   </span>
                 )}
                 {filters.search && (

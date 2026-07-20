@@ -191,6 +191,7 @@ const faqs = [
 ];
 
 export default function CruiseClient({ pageData, formConfig }) {
+  const router = useRouter();
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -238,6 +239,13 @@ export default function CruiseClient({ pageData, formConfig }) {
   }, []);
 
   const handleSearchSubmit = async (e) => {
+    const token = getStoredToken();
+    if (!token) {
+      toast.error('Please login first to continue.');
+      router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
     e.preventDefault();
     const form = e.currentTarget;
     setLoading(true);

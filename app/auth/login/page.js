@@ -90,6 +90,12 @@ export default function LoginPage() {
       return;
     }
 
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(forgotPassword)) {
+      toast.error('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.');
+      return;
+    }
+
     if (forgotPassword !== forgotConfirmPassword) {
       toast.error('Passwords do not match.');
       return;

@@ -569,6 +569,7 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
 
 /* ── Side Drawer ───────────────────────────────────────── */
 function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, onLogout, onForexOpen, onFlightOpen, companyInfo, dynamicPackageCols }) {
+  const pathname = usePathname();
   const [expanded, setExpanded] = useState(null);
   const displayPhone = companyInfo?.contact?.phone || '+91 8031274154';
   const firstName = isLoggedIn ? currentUser?.name?.split(' ')[0] || 'Traveler' : 'Guest';
@@ -594,7 +595,15 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
     setExpanded(expanded === label ? null : label);
   };
 
-  const navGroup = [
+  const navGroups = [
+    {
+      label: 'Tour Categories',
+      hasSub: allCategories && allCategories.length > 0,
+      subItems: (allCategories || []).map(cat => ({
+        label: cat.name,
+        href: `/tours?category=${cat.slug || cat.name.toLowerCase().replace(/ /g, '-')}`
+      }))
+    },
     {
       label: 'Services',
       hasSub: true,
@@ -615,7 +624,15 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
       })),
     },
     { label: 'Hotels', href: HOTEL_HREF },
-    { label: 'Forex', href: '/forex' },
+    {
+      label: 'Forex',
+      hasSub: true,
+      subItems: [
+        { label: 'Currency', href: '/forex/currency' },
+        { label: 'Forex Card', href: '/forex/card' },
+        { label: 'International Transfer', href: '/forex/transfer' }
+      ]
+    },
     { label: 'Testimonial', href: '/testimonials' },
     { label: 'FAQ', href: '/contact#faq' },
     { label: 'Contact us', href: '/contact' },
@@ -623,19 +640,8 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
     { label: 'About us', href: '/about' },
     ...(isLoggedIn
       ? [{ label: 'My Profile', href: '/profile' }]
-      : [{ label: 'Login', href: '/auth/login' }]),
+      : [{ label: 'Login', href: `/auth/login?redirect=${encodeURIComponent(pathname)}` }]),
   ];
-
-  const dynamicGroups = (allCategories || []).map(cat => ({
-    label: cat.name,
-    hasSub: (cat.destinations && cat.destinations.length > 0),
-    subItems: (cat.destinations || []).map(dest => ({
-      label: dest.name,
-      href: getDestinationHref(dest)
-    }))
-  }));
-
-  const navGroups = [...dynamicGroups, ...navGroup];
 
   return (
     <>
@@ -851,7 +857,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                 Sign out
               </button>
             ) : (
-              <Link href="/auth/login" onClick={onClose} style={{ fontSize: 12, fontWeight: 900, color: 'white', background: 'var(--color-primary)', borderRadius: 999, padding: '10px 14px', textDecoration: 'none' }}>
+              <Link href={`/auth/login?redirect=${encodeURIComponent(pathname)}`} onClick={onClose} style={{ fontSize: 12, fontWeight: 900, color: 'white', background: 'var(--color-primary)', borderRadius: 999, padding: '10px 14px', textDecoration: 'none' }}>
                 Login
               </Link>
             )}
@@ -1080,22 +1086,9 @@ export default function Navbar({ brand, companyInfo }) {
   const dynamicPackageCols = [
     [
       { name: 'Domestic Packages', href: '/tours?type=DOMESTIC', isExplore: true },
-      { name: 'Solo', href: '/tours?type=DOMESTIC&category=solo' },
-      { name: 'Family', href: '/tours?type=DOMESTIC&category=family' },
-      { name: 'Beach', href: '/tours?type=DOMESTIC&category=beach' },
-      { name: 'Group', href: '/tours?type=DOMESTIC&category=group' },
-      { name: 'Religious', href: '/tours?type=DOMESTIC&category=religious' },
-      { name: 'Honeymoon', href: '/tours?type=DOMESTIC&category=honeymoon' },
-      { name: 'Couple', href: '/tours?type=DOMESTIC&category=couple' },
     ],
     [
       { name: 'International Packages', href: '/tours?type=INTERNATIONAL', isExplore: true },
-      { name: 'Solo', href: '/tours?type=INTERNATIONAL&category=solo' },
-      { name: 'Family', href: '/tours?type=INTERNATIONAL&category=family' },
-      { name: 'Beach', href: '/tours?type=INTERNATIONAL&category=beach' },
-      { name: 'Group', href: '/tours?type=INTERNATIONAL&category=group' },
-      { name: 'Honeymoon', href: '/tours?type=INTERNATIONAL&category=honeymoon' },
-      { name: 'Couple', href: '/tours?type=INTERNATIONAL&category=couple' },
     ],
   ];
 
@@ -1310,7 +1303,7 @@ export default function Navbar({ brand, companyInfo }) {
     return null;
   }
 
-  const brandLogo = pathname === '/forex'
+  const brandLogo = pathname.startsWith('/forex')
     ? '/forex-logo-new.png'
     : (getLogoUrl(companyInfo?.company_logo_url) || brand?.logo || '/logooo.png');
   const brandName = brand?.legalName || 'ITS TRAVELS AND TOURS';
@@ -2157,9 +2150,9 @@ export default function Navbar({ brand, companyInfo }) {
                   }
                   cols={[
                     [
-                      { name: 'Currency', href: '/forex?tab=currency' },
-                      { name: 'Forex Card', href: '/forex?tab=card' },
-                      { name: 'International Transfer', href: '/forex?tab=transfer' }
+                      { name: 'Currency', href: '/forex/currency' },
+                      { name: 'Forex Card', href: '/forex/card' },
+                      { name: 'International Transfer', href: '/forex/transfer' }
                     ]
                   ]}
                   isTransparent={false}
@@ -2200,7 +2193,7 @@ export default function Navbar({ brand, companyInfo }) {
                   </Link>
                 ) : (
                   <Link
-                    href="/auth/login"
+                    href={`/auth/login?redirect=${encodeURIComponent(pathname)}`}
                     className="d-none d-lg-inline-flex"
                     style={{
                       ...navButtonStyle,

@@ -177,7 +177,14 @@ export default function RegisterPage() {
                 }}
                 onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.1)'; e.currentTarget.style.background = '#ffffff' }}
                 onBlur={e => { e.currentTarget.style.borderColor = errors.password ? '#ef4444' : '#d1d5db'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; e.currentTarget.style.background = '#f9fafb' }}
-                {...register('password', { required: 'Password is required', minLength: { value: 8, message: 'Must be at least 8 characters' } })}
+                {...register('password', { 
+                  required: 'Password is required', 
+                  minLength: { value: 8, message: 'Must be at least 8 characters' },
+                  pattern: {
+                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                    message: 'Must include uppercase, lowercase, number, and special character'
+                  }
+                })}
               />
               {errors.password && <span style={{ color: '#ef4444', fontSize: 12, marginTop: 4, display: 'block' }}>{errors.password.message}</span>}
             </div>

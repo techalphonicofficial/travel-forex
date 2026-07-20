@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import tours from '@/data/tours.json';
 import toast from 'react-hot-toast';
-import { getStoredAuth } from '@/utils/api';
+import { getStoredToken, getStoredAuth } from '@/utils/api';
 
 const STEPS = ['Tour Details', 'Personal Info', 'Payment', 'Review'];
 

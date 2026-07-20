@@ -9,7 +9,7 @@ const statIcons = ['01', '02', '03'];
 const fallbackStats = [
   { number: '3400+', label: 'Holidays\nCustomized', icon: statIcons[0] },
   { number: '98%', label: 'Customer\nSatisfaction', icon: statIcons[1] },
-  { number: '4.9/5', label: 'Average App\\nRating', icon: statIcons[2] },
+  { number: '4.9/5', label: 'Average App\nRating', icon: statIcons[2] },
 ];
 
 const fallbackFeatures = [

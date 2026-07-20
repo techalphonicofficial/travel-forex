@@ -10,6 +10,7 @@ import ScrollReveal from '@/components/ScrollReveal';
 const BLUR_PLACEHOLDER = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoH7AQsBAsNCwsKCwsNCxAQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/wAARCAAUAEADASIAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AJQAB/9k=";
 
 export default function TourDetailClient({ tour, similarTours }) {
+  const router = useRouter();
   const [travelers, setTravelers] = useState(2);
   const [selectedDate, setSelectedDate] = useState('');
   const [galleryModal, setGalleryModal] = useState(null);
@@ -37,6 +38,13 @@ export default function TourDetailClient({ tour, similarTours }) {
   const currentReviews = [...submittedReviews, ...getReviews(tour.id)];
 
   const handleReviewSubmit = (event) => {
+    const token = getStoredToken();
+    if (!token) {
+      toast.error('Please login first to continue.');
+      router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
     event.preventDefault();
 
     if (!reviewRating || !reviewText.trim()) {

@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { getMediaUrl, getTripInquiryById, getTripInquiryReviews, submitTripInquiryReview } from '@/utils/api';
+import { getStoredToken, getMediaUrl, getTripInquiryById, getTripInquiryReviews, submitTripInquiryReview } from '@/utils/api';
 
 const fallbackImage = 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80';
 
@@ -412,6 +412,7 @@ function BookedItineraryStyles() {
 }
 
 export default function TripInquiryDetailClient({ id, formConfig }) {
+  const router = useRouter();
   const [trip, setTrip] = useState(null);
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);

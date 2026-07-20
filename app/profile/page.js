@@ -34,7 +34,7 @@ export default function ProfilePage() {
 
       if (!token) {
         toast.error('Please login to view your profile.');
-        router.replace('/auth/login');
+        router.replace('/auth/login?redirect=/profile');
         return;
       }
 
@@ -46,7 +46,7 @@ export default function ProfilePage() {
         toast.error(message);
 
         if (error.response?.status === 401) {
-          router.replace('/auth/login');
+          router.replace('/auth/login?redirect=/profile');
         }
       } finally {
         setLoading(false);
@@ -71,6 +71,12 @@ export default function ProfilePage() {
 
     if (password.length < 8) {
       toast.error('Password must be at least 8 characters.');
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      toast.error('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.');
       return;
     }
 

@@ -115,6 +115,7 @@ const faqs = [
 ];
 
 export default function FlightsClient({ roundTripConfig, oneWayConfig }) {
+  const router = useRouter();
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -132,6 +133,13 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig }) {
   }, []);
 
   const handleSearchSubmit = async (e) => {
+    const token = getStoredToken();
+    if (!token) {
+      toast.error('Please login first to continue.');
+      router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
     e.preventDefault();
     const form = e.currentTarget;
     setLoading(true);
@@ -225,7 +233,7 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig }) {
 
 
       {/* 3. AIRLINE PARTNERS (REPLACED WITH TRUSTED PARTNERS MARQUEE) */}
-      <TrustedPartners />
+      <TrustedPartners category="airlines" />
 
       {/* 4. WHY BOOK WITH US */}
       <section className="flights-section container">
