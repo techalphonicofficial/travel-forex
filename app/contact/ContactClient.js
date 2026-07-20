@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import ScrollReveal from '@/components/ScrollReveal';
 import toast from 'react-hot-toast';

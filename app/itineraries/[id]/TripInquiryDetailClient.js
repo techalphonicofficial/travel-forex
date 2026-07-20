@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { getStoredToken, getMediaUrl, getTripInquiryById, getTripInquiryReviews, submitTripInquiryReview } from '@/utils/api';
