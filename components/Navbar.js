@@ -438,11 +438,12 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
       >
         {label}
         <svg
-          viewBox="0 0 24 24" fill="currentColor" width="14" height="14"
+          viewBox="0 0 24 24" fill="currentColor" width="18" height="18"
           style={{
             transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
             transition: 'transform 0.25s',
-            opacity: 0.7,
+            opacity: 0.9,
+            color: '#ffffff'
           }}
         >
           <path d="M7 10l5 5 5-5z" />

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { getStoredAuth, getStoredToken } from '@/utils/api';
+import TrustedPartners from '@/components/TrustedPartners';
 
 const getInputType = (fieldType) => {
   const typeMap = { phone: 'tel', mobile: 'tel', integer: 'number', decimal: 'number', datetime: 'datetime-local' };
@@ -164,13 +165,7 @@ const faqs = [
   { q: 'Is an interview mandatory for all visa applications?', a: 'No, most countries (like Thailand, Dubai, Singapore, Malaysia) do not require physical interviews. Interviews are generally mandatory only for Schengen, US, UK, and Canadian visa streams.' }
 ];
 
-const trustedPartners = [
-  { id: 'vfs', name: 'VFS Global', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/4f/VFS_Global_logo.svg' },
-  { id: 'bls', name: 'BLS International', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/ec/BLS_International_Logo.jpg' },
-  { id: 'emirates', name: 'Emirates', logo: 'https://upload.wikimedia.org/wikipedia/commons/d/d0/Emirates_logo.svg' },
-  { id: 'indigo', name: 'IndiGo', logo: 'https://upload.wikimedia.org/wikipedia/commons/6/69/IndiGo_Airlines_logo.svg' },
-  { id: 'airindia', name: 'Air India', logo: 'https://upload.wikimedia.org/wikipedia/en/9/9b/Air_India_Logo.svg' },
-];
+// trustedPartners array removed and delegated to components/TrustedPartners.js
 
 export default function VisaClient({ formConfig }) {
   const searchParams = useSearchParams();
@@ -273,16 +268,7 @@ export default function VisaClient({ formConfig }) {
       </section>
 
       {/* 2. TRUSTED PARTNERS */}
-      <section className="container" style={{ marginTop: 40, marginBottom: 40 }}>
-        <h3 style={{ textAlign: 'center', fontSize: 16, color: 'var(--color-text-secondary)', marginBottom: 28, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.5 }}>Our Trusted Travel Partners</h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '30px 50px', alignItems: 'center', opacity: 0.65 }}>
-          {trustedPartners.map(partner => (
-            <div key={partner.id} style={{ height: 35, display: 'flex', alignItems: 'center' }}>
-              <img src={partner.logo} alt={partner.name} style={{ maxHeight: '100%', maxWidth: 140, objectFit: 'contain', filter: 'grayscale(100%)' }} />
-            </div>
-          ))}
-        </div>
-      </section>
+      <TrustedPartners />
 
       {/* 3. VISA DESTINATIONS (TABBED) */}
       <section className="visa-section container" id="destinations">
@@ -886,13 +872,54 @@ export default function VisaClient({ formConfig }) {
         
         .visa-faq-list {
           display: grid;
-          gap: 12px;
+          gap: 16px;
         }
         .visa-faq-item {
           background: white;
-          border: 1px solid #cbd5e1;
+          border: 1px solid #e2e8f0;
           border-radius: 12px;
           overflow: hidden;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .visa-faq-item:hover {
+          box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+          border-color: #cbd5e1;
+        }
+        .faq-question-btn {
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 20px 24px;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          font-size: 16px;
+          font-weight: 700;
+          color: #1e293b;
+          text-align: left;
+          transition: background 0.2s;
+        }
+        .faq-question-btn:hover {
+          background: #f8fafc;
+        }
+        .faq-arrow {
+          font-size: 14px;
+          color: var(--color-primary);
+          transition: transform 0.3s ease;
+          display: inline-block;
+        }
+        .faq-answer-panel {
+          padding: 0 24px 20px;
+          color: #475569;
+          line-height: 1.7;
+          font-size: 15px;
+          animation: slideDown 0.3s ease-out forwards;
+        }
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
         
         @media (max-width: 991px) {

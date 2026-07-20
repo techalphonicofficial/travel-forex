@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { getStoredAuth, getStoredToken } from '@/utils/api';
+import TrustedPartners from '@/components/TrustedPartners';
 
 const getInputType = (fieldType) => {
   const typeMap = { phone: 'tel', mobile: 'tel', integer: 'number', decimal: 'number', datetime: 'datetime-local' };
@@ -223,22 +224,8 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig }) {
       </section>
 
 
-      {/* 3. AIRLINE PARTNERS */}
-      <section className="flights-partners-section">
-        <div className="container">
-          <div className="flights-section-head text-center">
-            <h2>Our Partner Airlines</h2>
-            <p>We work directly with major domestic and international carriers to secure discount seat blockings.</p>
-          </div>
-          <div className="airline-logos-grid">
-            {airlinePartners.map((airline, idx) => (
-              <div key={idx} className="airline-logo-box" title={airline.name}>
-                <img src={airline.logo} alt={airline.name} style={{ maxHeight: '42px', objectFit: 'contain' }} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* 3. AIRLINE PARTNERS (REPLACED WITH TRUSTED PARTNERS MARQUEE) */}
+      <TrustedPartners />
 
       {/* 4. WHY BOOK WITH US */}
       <section className="flights-section container">
