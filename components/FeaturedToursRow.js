@@ -617,6 +617,7 @@ export default function RecommendedPackages() {
         .recent-booking-card {
           flex-shrink: 0;
           width: 310px;
+          max-width: 85vw;
           overflow: hidden;
           border: 1px solid var(--color-border);
           border-radius: 12px;

@@ -142,7 +142,7 @@ export default function FooterClient({ brand, companyInfo }) {
   }
 
   return (
-    <footer className="footer" style={{ background: '#e5fcff', color: '#1f2937' }}>
+    <footer className="footer" style={{ background: '#081221', color: '#ffffff' }}>
       <div className="section-sm">
         <div className="container">
           <div className="row g-5 align-items-start">
@@ -155,7 +155,7 @@ export default function FooterClient({ brand, companyInfo }) {
                     fontWeight: 900,
                     fontSize: '20px',
                     letterSpacing: '1.5px',
-                    color: '#0f172a',
+                    color: '#ffffff',
                     textTransform: 'uppercase'
                   }}>
                     IT'S
@@ -165,7 +165,7 @@ export default function FooterClient({ brand, companyInfo }) {
                     fontStyle: 'italic',
                     fontWeight: 600,
                     fontSize: '13px',
-                    color: '#334155',
+                    color: '#cbd5e1',
                     whiteSpace: 'nowrap',
                     letterSpacing: '0.2px'
                   }}>
@@ -173,13 +173,13 @@ export default function FooterClient({ brand, companyInfo }) {
                   </span>
                 </div>
               </div>
-              <p className="mobile-mx-auto" style={{ color: '#334155', fontSize: 15, lineHeight: 1.8, maxWidth: 320, marginBottom: 24 }}>
+              <p className="mobile-mx-auto" style={{ color: '#cbd5e1', fontSize: 15, lineHeight: 1.8, maxWidth: 320, marginBottom: 24 }}>
                 {brandDescription}
               </p>
 
               <div className="d-flex flex-column gap-2 mb-4">
                 {phone && (
-                  <a href={`tel:${phone}`} className="d-flex align-items-center gap-2 mobile-center-flex" style={{ color: '#334155', fontSize: 14, textDecoration: 'none' }}>
+                  <a href={`tel:${phone}`} className="d-flex align-items-center gap-2 mobile-center-flex" style={{ color: '#cbd5e1', fontSize: 14, textDecoration: 'none' }}>
                     <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
                       <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
                     </svg>
@@ -187,7 +187,7 @@ export default function FooterClient({ brand, companyInfo }) {
                   </a>
                 )}
                 {email && (
-                  <a href={`mailto:${email}`} className="d-flex align-items-center gap-2 mobile-center-flex" style={{ color: '#334155', fontSize: 14, textDecoration: 'none' }}>
+                  <a href={`mailto:${email}`} className="d-flex align-items-center gap-2 mobile-center-flex" style={{ color: '#cbd5e1', fontSize: 14, textDecoration: 'none' }}>
                     <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
                       <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
                     </svg>
@@ -208,11 +208,11 @@ export default function FooterClient({ brand, companyInfo }) {
             {Object.entries(footerLinks).map(([section, links]) => (
               <div key={section} className="col-12 col-sm-6 col-lg-2 text-lg-start mobile-text-center mb-4 mb-lg-0">
               
-                <h4 className="footer-heading mt-0" style={{ color: '#0f172a' }}>{section}</h4>
+                <h4 className="footer-heading mt-0" style={{ color: '#ffffff' }}>{section}</h4>
                 <ul className="list-unstyled mb-0">
                   {links.map(({ label, href }) => (
                     <li key={`${section}-${label}`}>
-                      <Link href={href} className="footer-link" style={{ color: '#334155' }}>{label}</Link>
+                      <Link href={href} className="footer-link" style={{ color: '#cbd5e1' }}>{label}</Link>
                     </li>
                   ))}
                 </ul>
@@ -221,10 +221,10 @@ export default function FooterClient({ brand, companyInfo }) {
 
            
             <div className="col-12 col-sm-6 col-lg-2 text-lg-start mobile-text-center mb-4 mb-lg-0">
-              <h4 className="footer-heading mt-0" style={{ color: '#0f172a' }}>Trust & Safety</h4>
+              <h4 className="footer-heading mt-0" style={{ color: '#ffffff' }}>Trust & Safety</h4>
               <div className="d-flex flex-column gap-3">
                 {trustItems.map(({ icon, text }) => (
-                  <div key={text} className="d-flex align-items-center gap-2 mobile-center-flex" style={{ color: '#334155', fontSize: 13 }}>
+                  <div key={text} className="d-flex align-items-center gap-2 mobile-center-flex" style={{ color: '#cbd5e1', fontSize: 13 }}>
                     <TrustIcon icon={icon} />
                     <span>{text}</span>
                   </div>
@@ -238,7 +238,7 @@ export default function FooterClient({ brand, companyInfo }) {
       <div style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}>
         <div className="container">
           <div className="py-4 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
-            <p className="mobile-text-center" style={{ color: '#475569', fontSize: 14, margin: 0, whiteSpace: 'pre-line' }}>
+            <p className="mobile-text-center" style={{ color: '#94a3b8', fontSize: 14, margin: 0, whiteSpace: 'pre-line' }}>
               {footerContent}
             </p>
             <div className="d-flex gap-4 flex-wrap mobile-center-flex">
@@ -252,13 +252,13 @@ export default function FooterClient({ brand, companyInfo }) {
 
       <style jsx>{`
         .footer-bottom-link {
-          color: #475569;
+          color: #94a3b8;
           font-size: 13px;
           text-decoration: none;
           transition: color 0.2s;
         }
         .footer-bottom-link:hover {
-          color: #0f172a;
+          color: #ffffff;
         }
 
         .footer-social-btn {
@@ -274,7 +274,7 @@ export default function FooterClient({ brand, companyInfo }) {
         .footer-social-btn-li { color: #0A66C2; }
 
         .footer-link:hover {
-          color: #0f172a !important;
+          color: #ffffff !important;
         }
 
         /* Responsive Mobile Centering Rules */

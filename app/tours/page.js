@@ -119,20 +119,20 @@ const formatHeadingValue = (value) =>
 const normalizeFilterOptions = (data) => {
   const tourTypes = Array.isArray(data?.tour_types) && data.tour_types.length
     ? data.tour_types.map((item) => ({
-        key: item.key || item.slug || item.name || String(item.id || ''),
-        label: item.label || item.name || item.key || 'Type',
-        count: Number(item.count) || 0,
-      }))
+      key: item.key || item.slug || item.name || String(item.id || ''),
+      label: item.label || item.name || item.key || 'Type',
+      count: Number(item.count) || 0,
+    }))
     : DEFAULT_TOUR_TYPES;
 
   const durations = Array.isArray(data?.durations) && data.durations.length
     ? data.durations.map((item) => ({
-        key: item.key || item.label,
-        label: item.label || item.key,
-        min: item.min,
-        max: item.max,
-        count: Number(item.count) || 0,
-      }))
+      key: item.key || item.label,
+      label: item.label || item.key,
+      min: item.min,
+      max: item.max,
+      count: Number(item.count) || 0,
+    }))
     : DEFAULT_DURATIONS;
 
   const priceRange = data?.price_range || {};
@@ -476,120 +476,120 @@ function ToursContent() {
       </div>
 
       <div className="container" style={{ paddingTop: 32, paddingBottom: 80 }}>
-      <div className="d-lg-none mb-4">
-        <button
-          className="btn-secondary w-100 d-flex align-items-center justify-content-center gap-2"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-        >
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-            <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
-          </svg>
-          {sidebarOpen ? 'Hide Filters' : 'Show Filters'}
-        </button>
-        {sidebarOpen && (
-          <div className="mt-3">
-            <FilterSidebar filters={filters} setFilters={setFilters} resetFilters={resetFilters} filterOptions={filterOptions} />
-          </div>
-        )}
-      </div>
-
-      <div className="row g-5">
-        <div className="col-lg-3 d-none d-lg-block">
-          <div style={{ position: 'sticky', top: 100 }}>
-            <FilterSidebar filters={filters} setFilters={setFilters} resetFilters={resetFilters} filterOptions={filterOptions} />
-          </div>
-        </div>
-
-        <div className="col-lg-9">
-          <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
-            <div>
-              <span style={{ fontWeight: 700, fontSize: 17, color: 'var(--color-text-primary)' }}>
-                {filteredTours.length} Tours Found
-              </span>
-              {filters.type !== 'all' && (
-                <span style={{ color: 'var(--color-text-muted)', fontSize: 14, marginLeft: 8 }}>
-                  in {getTourTypeLabel(filterOptions, filters.type)}
-                </span>
-              )}
-            </div>
-            <div className="d-flex align-items-center gap-2">
-              <label style={{ fontSize: 13, color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>Sort by:</label>
-              <select
-                className="form-input"
-                style={{ width: 'auto', padding: '8px 14px', fontSize: 14 }}
-                value={filters.sort}
-                onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
-              >
-                {SORT_OPTIONS.map(({ value, label }) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {(filters.type !== 'all' || filters.search || filters.minRating > 0 || filters.maxPrice < (filterOptions.priceRange.max || MAX_PRICE) || filters.duration !== 'any') && (
-            <div className="d-flex flex-wrap gap-2 mb-4">
-              {filters.type !== 'all' && (
-                <span className="badge badge-primary" style={{ padding: '6px 12px', fontSize: 13 }}>
-                  {getTourTypeLabel(filterOptions, filters.type)}
-                  <button onClick={() => setFilters({ ...filters, type: 'all' })} style={{ border: 'none', background: 'none', cursor: 'pointer', marginLeft: 4, color: 'inherit' }}>x</button>
-                </span>
-              )}
-              {filters.search && (
-                <span className="badge badge-primary" style={{ padding: '6px 12px', fontSize: 13 }}>
-                  {filters.search}
-                  <button onClick={() => setFilters({ ...filters, search: '' })} style={{ border: 'none', background: 'none', cursor: 'pointer', marginLeft: 4, color: 'inherit' }}>x</button>
-                </span>
-              )}
-              {filters.maxPrice < (filterOptions.priceRange.max || MAX_PRICE) && (
-                <span className="badge badge-primary" style={{ padding: '6px 12px', fontSize: 13 }}>
-                  Max Rs {formatPriceNumber(filters.maxPrice)}
-                  <button onClick={() => setFilters({ ...filters, maxPrice: filterOptions.priceRange.max || MAX_PRICE })} style={{ border: 'none', background: 'none', cursor: 'pointer', marginLeft: 4, color: 'inherit' }}>x</button>
-                </span>
-              )}
-              {filters.duration !== 'any' && (
-                <span className="badge badge-primary" style={{ padding: '6px 12px', fontSize: 13 }}>
-                  {getDurationMeta(filterOptions, filters.duration).label}
-                  <button onClick={() => setFilters({ ...filters, duration: 'any' })} style={{ border: 'none', background: 'none', cursor: 'pointer', marginLeft: 4, color: 'inherit' }}>x</button>
-                </span>
-              )}
-              {filters.minRating > 0 && (
-                <span className="badge badge-primary" style={{ padding: '6px 12px', fontSize: 13 }}>
-                  Rating {filters.minRating}+
-                  <button onClick={() => setFilters({ ...filters, minRating: 0 })} style={{ border: 'none', background: 'none', cursor: 'pointer', marginLeft: 4, color: 'inherit' }}>x</button>
-                </span>
-              )}
+        <div className="d-lg-none mb-4">
+          <button
+            className="btn-secondary w-100 d-flex align-items-center justify-content-center gap-2"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+              <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+            </svg>
+            {sidebarOpen ? 'Hide Filters' : 'Show Filters'}
+          </button>
+          {sidebarOpen && (
+            <div className="mt-3">
+              <FilterSidebar filters={filters} setFilters={setFilters} resetFilters={resetFilters} filterOptions={filterOptions} />
             </div>
           )}
+        </div>
 
-          <div className="row g-4">
-            {loading
-              ? Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="col-xl-4 col-lg-6 col-md-6 d-flex">
-                  <TourCardSkeleton />
-                </div>
-              ))
-              : filteredTours.length > 0
-                ? filteredTours.map((tour) => (
-                  <div key={tour.id} className="col-xl-4 col-lg-6 col-md-6 d-flex">
-                    <TourCard tour={tour} />
+        <div className="row g-5">
+          <div className="col-lg-3 d-none d-lg-block">
+            <div style={{ position: 'sticky', top: 100 }}>
+              <FilterSidebar filters={filters} setFilters={setFilters} resetFilters={resetFilters} filterOptions={filterOptions} />
+            </div>
+          </div>
+
+          <div className="col-lg-9">
+            <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+              <div>
+                <span style={{ fontWeight: 700, fontSize: 17, color: 'var(--color-text-primary)' }}>
+                  {filteredTours.length} Tours Found
+                </span>
+                {filters.type !== 'all' && (
+                  <span style={{ color: 'var(--color-text-muted)', fontSize: 14, marginLeft: 8 }}>
+                    in {getTourTypeLabel(filterOptions, filters.type)}
+                  </span>
+                )}
+              </div>
+              <div className="d-flex align-items-center gap-2">
+                <label style={{ fontSize: 13, color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>Sort by:</label>
+                <select
+                  className="form-input"
+                  style={{ width: 'auto', padding: '8px 14px', fontSize: 14 }}
+                  value={filters.sort}
+                  onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
+                >
+                  {SORT_OPTIONS.map(({ value, label }) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {(filters.type !== 'all' || filters.search || filters.minRating > 0 || filters.maxPrice < (filterOptions.priceRange.max || MAX_PRICE) || filters.duration !== 'any') && (
+              <div className="d-flex flex-wrap gap-2 mb-4">
+                {filters.type !== 'all' && (
+                  <span className="badge badge-primary" style={{ padding: '6px 12px', fontSize: 13 }}>
+                    {getTourTypeLabel(filterOptions, filters.type)}
+                    <button onClick={() => setFilters({ ...filters, type: 'all' })} style={{ border: 'none', background: 'none', cursor: 'pointer', marginLeft: 4, color: 'inherit' }}>x</button>
+                  </span>
+                )}
+                {filters.search && (
+                  <span className="badge badge-primary" style={{ padding: '6px 12px', fontSize: 13 }}>
+                    {filters.search}
+                    <button onClick={() => setFilters({ ...filters, search: '' })} style={{ border: 'none', background: 'none', cursor: 'pointer', marginLeft: 4, color: 'inherit' }}>x</button>
+                  </span>
+                )}
+                {filters.maxPrice < (filterOptions.priceRange.max || MAX_PRICE) && (
+                  <span className="badge badge-primary" style={{ padding: '6px 12px', fontSize: 13 }}>
+                    Max Rs {formatPriceNumber(filters.maxPrice)}
+                    <button onClick={() => setFilters({ ...filters, maxPrice: filterOptions.priceRange.max || MAX_PRICE })} style={{ border: 'none', background: 'none', cursor: 'pointer', marginLeft: 4, color: 'inherit' }}>x</button>
+                  </span>
+                )}
+                {filters.duration !== 'any' && (
+                  <span className="badge badge-primary" style={{ padding: '6px 12px', fontSize: 13 }}>
+                    {getDurationMeta(filterOptions, filters.duration).label}
+                    <button onClick={() => setFilters({ ...filters, duration: 'any' })} style={{ border: 'none', background: 'none', cursor: 'pointer', marginLeft: 4, color: 'inherit' }}>x</button>
+                  </span>
+                )}
+                {filters.minRating > 0 && (
+                  <span className="badge badge-primary" style={{ padding: '6px 12px', fontSize: 13 }}>
+                    Rating {filters.minRating}+
+                    <button onClick={() => setFilters({ ...filters, minRating: 0 })} style={{ border: 'none', background: 'none', cursor: 'pointer', marginLeft: 4, color: 'inherit' }}>x</button>
+                  </span>
+                )}
+              </div>
+            )}
+
+            <div className="row g-4">
+              {loading
+                ? Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="col-xl-4 col-lg-6 col-md-6 d-flex">
+                    <TourCardSkeleton />
                   </div>
                 ))
-                : (
-                  <div className="col-12 text-center py-5">
-                    <div style={{ fontSize: 48, marginBottom: 16 }}>No results</div>
-                    <h3 style={{ color: 'var(--color-text-primary)', fontWeight: 700 }}>No tours found</h3>
-                    <p style={{ color: 'var(--color-text-muted)', marginBottom: 24 }}>
-                      Try adjusting your filters or search term
-                    </p>
-                    <button className="btn-primary" onClick={resetFilters}>
-                      Clear All Filters
-                    </button>
-                  </div>
-                )}
+                : filteredTours.length > 0
+                  ? filteredTours.map((tour) => (
+                    <div key={tour.id} className="col-xl-4 col-lg-6 col-md-6 d-flex">
+                      <TourCard tour={tour} />
+                    </div>
+                  ))
+                  : (
+                    <div className="col-12 text-center py-5">
+                      <div style={{ fontSize: 48, marginBottom: 16 }}>No results</div>
+                      <h3 style={{ color: 'var(--color-text-primary)', fontWeight: 700 }}>No tours found</h3>
+                      <p style={{ color: 'var(--color-text-muted)', marginBottom: 24 }}>
+                        Try adjusting your filters or search term
+                      </p>
+                      <button className="btn-primary" onClick={resetFilters}>
+                        Clear All Filters
+                      </button>
+                    </div>
+                  )}
+            </div>
           </div>
         </div>
-      </div>
       </div>
     </>
   );
@@ -598,17 +598,17 @@ function ToursContent() {
 export default function ToursPage() {
   return (
     <Suspense fallback={
-        <div style={{ padding: '80px 0' }}>
-          <div className="container">
-            <div className="row g-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="col-xl-4 col-lg-6 col-md-6 d-flex"><TourCardSkeleton /></div>
-              ))}
-            </div>
+      <div style={{ padding: '80px 0' }}>
+        <div className="container">
+          <div className="row g-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="col-xl-4 col-lg-6 col-md-6 d-flex"><TourCardSkeleton /></div>
+            ))}
           </div>
         </div>
-      }>
-        <ToursContent />
-      </Suspense>
+      </div>
+    }>
+      <ToursContent />
+    </Suspense>
   );
 }

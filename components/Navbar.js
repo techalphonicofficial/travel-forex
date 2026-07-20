@@ -44,22 +44,8 @@ const destinationCols = [
 
 const packageCols = [
   [
-    { name: 'Honeymoon Packages', href: '/packages?type=COUPLE' },
-    { name: 'Family Packages', href: '/packages?type=FAMILY' },
-    { name: 'Group Packages', href: '/packages?type=GROUP' },
-    { name: 'Solo Packages', href: '/packages?type=SOLO' },
-  ],
-  [
-    { name: 'Adventure Tours', href: '/packages?type=ADVENTURE' },
-    { name: 'Luxury Tours', href: '/packages?type=LUXURY' },
-    { name: 'Budget Tours', href: '/packages?dest=All&price=under50' },
-    { name: 'Weekend Getaways', href: '/packages' },
-  ],
-  [
-    { name: 'Beach Holidays', href: '/packages?type=BEACH' },
-    { name: 'Wildlife Safaris', href: '/packages?dest=Safari' },
-    { name: 'Cultural Tours', href: '/packages?type=CULTURAL' },
-    { name: 'View All Packages →', href: '/packages', isExplore: true },
+    { name: 'Domestic', href: '/packages?type=DOMESTIC' },
+    { name: 'International', href: '/packages?type=INTERNATIONAL' },
   ],
 ];
 
@@ -468,29 +454,38 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
         <div
           style={{
             position: 'absolute',
-            top: 'calc(100% + 14px)',
+            top: 'calc(100% + 16px)',
             left: '50%',
             transform: 'translateX(-50%)',
             background: 'white',
-            borderRadius: 14,
-            boxShadow: '0 8px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08)',
-            border: '1px solid #f0f0f0',
-            padding: '20px 24px',
+            borderRadius: 16,
+            boxShadow: '0 12px 48px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06)',
+            border: '1px solid rgba(0,0,0,0.04)',
+            padding: '16px',
             display: 'flex',
-            gap: 0,
+            gap: 16,
             zIndex: 999,
-            animation: 'dropIn 0.2s ease',
-            minWidth: 540,
+            animation: 'dropIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+            minWidth: cols.length === 1 ? 240 : Math.max(cols.length * 220, 320),
           }}
         >
+          {/* Caret pointing to label */}
+          <div style={{
+            position: 'absolute', top: -6, left: '50%', transform: 'translateX(-50%) rotate(45deg)',
+            width: 12, height: 12, background: 'white', borderLeft: '1px solid rgba(0,0,0,0.04)', borderTop: '1px solid rgba(0,0,0,0.04)',
+            zIndex: -1
+          }} />
+
           {cols.map((col, ci) => (
             <div
               key={ci}
               style={{
                 flex: 1,
-                paddingRight: ci < cols.length - 1 ? 20 : 0,
-                marginRight: ci < cols.length - 1 ? 20 : 0,
-                borderRight: ci < cols.length - 1 ? '1px solid #f3f4f6' : 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4,
+                borderRight: ci < cols.length - 1 ? '1px solid #f1f5f9' : 'none',
+                paddingRight: ci < cols.length - 1 ? 16 : 0,
               }}
             >
               {col.map((item) => {
@@ -504,26 +499,25 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
                         if (typeof onFlightOpen === 'function') onFlightOpen();
                       }}
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        width: '100%',
-                        textAlign: 'left',
-                        padding: '8px 0',
-                        borderBottom: '1px solid #f9fafb',
-                        background: 'transparent',
-                        border: 'none',
-                        color: '#1f2937',
-                        fontWeight: 500,
-                        fontSize: 13.5,
-                        transition: 'color 0.15s',
-                        lineHeight: 1.5,
-                        whiteSpace: 'nowrap',
-                        cursor: 'pointer'
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        width: '100%', textAlign: 'left',
+                        padding: '10px 14px', borderRadius: 8,
+                        background: 'transparent', border: 'none',
+                        color: '#1e293b', fontWeight: 600, fontSize: 13.5,
+                        transition: 'all 0.2s', cursor: 'pointer'
                       }}
-                      onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-primary)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.color = '#1f2937'; }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = '#f8fafc';
+                        e.currentTarget.style.color = 'var(--color-primary)';
+                        e.currentTarget.style.transform = 'translateX(4px)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.color = '#1e293b';
+                        e.currentTarget.style.transform = 'translateX(0)';
+                      }}
                     >
-                      {item.name}
+                      <span>{item.name}</span>
                       {item.tag && (
                         <Tag label={item.tag} color={item.tagClr} bg={item.tagBg} />
                       )}
@@ -537,22 +531,27 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
                     href={item.href}
                     onClick={() => setOpen(false)}
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '8px 0',
-                      borderBottom: '1px solid #f9fafb',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '10px 14px', borderRadius: 8,
                       textDecoration: 'none',
-                      color: item.isExplore ? 'var(--color-primary)' : '#1f2937',
+                      color: item.isExplore ? 'var(--color-primary)' : '#1e293b',
                       fontWeight: item.isExplore ? 700 : 500,
                       fontSize: 13.5,
-                      transition: 'color 0.15s',
-                      lineHeight: 1.5,
-                      whiteSpace: 'nowrap',
+                      transition: 'all 0.2s',
+                      background: item.isExplore ? '#f0f9ff' : 'transparent',
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-primary)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.color = item.isExplore ? 'var(--color-primary)' : '#1f2937'; }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = item.isExplore ? '#e0f2fe' : '#f8fafc';
+                      e.currentTarget.style.color = 'var(--color-primary)';
+                      e.currentTarget.style.transform = 'translateX(4px)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = item.isExplore ? '#f0f9ff' : 'transparent';
+                      e.currentTarget.style.color = item.isExplore ? 'var(--color-primary)' : '#1e293b';
+                      e.currentTarget.style.transform = 'translateX(0)';
+                    }}
                   >
-                    {item.name}
+                    <span>{item.name}</span>
                     {item.tag && (
                       <Tag label={item.tag} color={item.tagClr} bg={item.tagBg} />
                     )}
@@ -568,7 +567,7 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
 }
 
 /* ── Side Drawer ───────────────────────────────────────── */
-function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, onLogout, onForexOpen, onFlightOpen, companyInfo }) {
+function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, onLogout, onForexOpen, onFlightOpen, companyInfo, dynamicPackageCols }) {
   const [expanded, setExpanded] = useState(null);
   const displayPhone = companyInfo?.contact?.phone || '+91 8031274154';
   const firstName = isLoggedIn ? currentUser?.name?.split(' ')[0] || 'Traveler' : 'Guest';
@@ -609,7 +608,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
     {
       label: 'Holiday Tour Packages',
       hasSub: true,
-      subItems: packageCols.flat().map((item) => ({
+      subItems: (dynamicPackageCols || []).flat().map((item) => ({
         label: item.name,
         href: item.href,
       })),
@@ -640,28 +639,28 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
   return (
     <>
       <div
-       onClick={onClose}
-    style={{
-    position: 'fixed', inset: 0,
-    background: 'rgba(0,0,0,0.4)',
-    zIndex: 99998,
-    opacity: isOpen ? 1 : 0,
-    visibility: isOpen ? 'visible' : 'hidden',
-    transition: 'opacity 0.3s ease, visibility 0.3s ease',
-    backdropFilter: 'blur(4px)',
+        onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0,
+          background: 'rgba(0,0,0,0.4)',
+          zIndex: 99998,
+          opacity: isOpen ? 1 : 0,
+          visibility: isOpen ? 'visible' : 'hidden',
+          transition: 'opacity 0.3s ease, visibility 0.3s ease',
+          backdropFilter: 'blur(4px)',
         }}
       />
       <div
-        
-          style={{
-       position: 'fixed', top: 0, right: 0,
-       width: '100%', maxWidth: 360, height: '100vh',
-        background: 'linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)', zIndex: 99999,
-        transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
-        visibility: isOpen ? 'visible' : 'hidden',
-        transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),visibility 0.4s',
-        display: 'flex', flexDirection: 'column',
-        boxShadow: '-18px 0 50px rgba(15,23,42,0.22)',
+
+        style={{
+          position: 'fixed', top: 0, right: 0,
+          width: '100%', maxWidth: 360, height: '100vh',
+          background: 'linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)', zIndex: 99999,
+          transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
+          visibility: isOpen ? 'visible' : 'hidden',
+          transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),visibility 0.4s',
+          display: 'flex', flexDirection: 'column',
+          boxShadow: '-18px 0 50px rgba(15,23,42,0.22)',
         }}
       >
         {/* Header */}
@@ -987,7 +986,7 @@ function HeaderSearch({ isLightHeader }) {
           }}
           style={{
             border: 'none', background: 'transparent', outline: 'none',
-            color: isLightHeader ? 'white' : '#1f2937', fontSize: 14,
+            color: isLightHeader ? 'white' : '#ffffff', fontSize: 14,
             width: '100%', marginLeft: 8, fontFamily: 'Inter, sans-serif'
           }}
         />
@@ -1068,6 +1067,38 @@ export default function Navbar({ brand, companyInfo }) {
   const isHeroPage = pathname === '/' || pathname === '/packages' || pathname.startsWith('/package') || pathname.startsWith('/tours') || pathname.startsWith('/hotels') || pathname.startsWith('/about') || pathname.startsWith('/blog') || pathname.startsWith('/contact');
 
   useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 60);
+      setAtHero(y < 80);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const dynamicPackageCols = [
+    [
+      { name: 'Domestic Packages', href: '/tours?type=DOMESTIC', isExplore: true },
+      { name: 'Solo', href: '/tours?type=DOMESTIC&category=solo' },
+      { name: 'Family', href: '/tours?type=DOMESTIC&category=family' },
+      { name: 'Beach', href: '/tours?type=DOMESTIC&category=beach' },
+      { name: 'Group', href: '/tours?type=DOMESTIC&category=group' },
+      { name: 'Religious', href: '/tours?type=DOMESTIC&category=religious' },
+      { name: 'Honeymoon', href: '/tours?type=DOMESTIC&category=honeymoon' },
+      { name: 'Couple', href: '/tours?type=DOMESTIC&category=couple' },
+    ],
+    [
+      { name: 'International Packages', href: '/tours?type=INTERNATIONAL', isExplore: true },
+      { name: 'Solo', href: '/tours?type=INTERNATIONAL&category=solo' },
+      { name: 'Family', href: '/tours?type=INTERNATIONAL&category=family' },
+      { name: 'Beach', href: '/tours?type=INTERNATIONAL&category=beach' },
+      { name: 'Group', href: '/tours?type=INTERNATIONAL&category=group' },
+      { name: 'Honeymoon', href: '/tours?type=INTERNATIONAL&category=honeymoon' },
+      { name: 'Couple', href: '/tours?type=INTERNATIONAL&category=couple' },
+    ],
+  ];
+
+  useEffect(() => {
     const fetchNavbarCategoriesAndDests = async () => {
       const allCats = await getCategories();
 
@@ -1136,16 +1167,6 @@ export default function Navbar({ brand, companyInfo }) {
       window.removeEventListener(AUTH_CHANGED_EVENT, syncAuthState);
     };
   }, [pathname]);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY;
-      setScrolled(y > 60);
-      setAtHero(y < 80);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => setDrawerOpen(false));
@@ -2035,7 +2056,7 @@ export default function Navbar({ brand, companyInfo }) {
 
       <header
         className="navbar-custom scrolled"
-        style={{ background: '#e5fcff', borderBottom: '1px solid rgba(0,0,0,0.05)', zIndex: 2100 }}
+        style={{ background: '#081221', borderBottom: '1px solid rgba(0,0,0,0.05)', zIndex: 2100 }}
       >
         <div className="container" style={{ display: 'flex', alignItems: 'center', height: '110px' }}>
           {/* Logo */}
@@ -2070,7 +2091,7 @@ export default function Navbar({ brand, companyInfo }) {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
               </Link>
               <Link href="https://linkedin.com" target="_blank" aria-label="LinkedIn" style={{ color: '#0A66C2', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" /><circle cx="4" cy="4" r="2" /></svg>
               </Link>
             </div>
 
@@ -2084,51 +2105,52 @@ export default function Navbar({ brand, companyInfo }) {
               }}
                 className="d-none d-lg-flex"
               >
-                <Link href="/flights" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1f2937', textDecoration: 'none', fontWeight: 600, fontSize: 16, transition: 'color 0.2s' }}>
-                  <svg style={{ color: '#1f2937' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.5 5.5L6 17l-3-1-1.5 1.5 4 2.5 2.5 4 1.5-1.5-1-3 3.5-3.5 5.5 6.5l1.2-.7c.4-.2.7-.6.6-1.1z" /></svg>
+                <Link href="/flights" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff', textDecoration: 'none', fontWeight: 600, fontSize: 16, transition: 'color 0.2s' }}>
+                  <svg style={{ color: '#ffffff' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.5 5.5L6 17l-3-1-1.5 1.5 4 2.5 2.5 4 1.5-1.5-1-3 3.5-3.5 5.5 6.5l1.2-.7c.4-.2.7-.6.6-1.1z" /></svg>
                   Flights
                 </Link>
-                <span style={{ color: '#1f2937', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#ffffff', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
-                <Link href={HOTEL_HREF} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1f2937', textDecoration: 'none', fontWeight: 600, fontSize: 16, transition: 'color 0.2s' }}>
-                  <svg style={{ color: '#1f2937' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 21h18M5 21V7l8-4v18M13 21V3l8 4v14M9 11v.01M9 15v.01M17 11v.01M17 15v.01" /></svg>
+                <Link href={HOTEL_HREF} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff', textDecoration: 'none', fontWeight: 600, fontSize: 16, transition: 'color 0.2s' }}>
+                  <svg style={{ color: '#ffffff' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 21h18M5 21V7l8-4v18M13 21V3l8 4v14M9 11v.01M9 15v.01M17 11v.01M17 15v.01" /></svg>
                   Hotels
                 </Link>
-                <span style={{ color: '#1f2937', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#ffffff', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
                   label={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#1f2937' }}>
-                      <svg style={{ color: '#1f2937' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 12V22M12 2v10M12 12c-5 0-9-4-9-9h18c0 5-4 9-9 9z" /></svg>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#ffffff' }}>
+                      <svg style={{ color: '#ffffff' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 12V22M12 2v10M12 12c-5 0-9-4-9-9h18c0 5-4 9-9 9z" /></svg>
                       Holidays
                     </span>
                   }
-                  cols={packageCols}
+                  cols={dynamicPackageCols}
                   isTransparent={false}
                 />
-                <span style={{ color: '#1f2937', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#ffffff', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
                   label={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#1f2937' }}>
-                      <svg style={{ color: '#1f2937' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#ffffff' }}>
+                      <svg style={{ color: '#ffffff' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg>
                       Visa
                     </span>
                   }
                   cols={[
                     [
                       { name: 'Visa Free Countries', href: '/visa?type=free' },
+                      { name: 'On Arrival & E-Visa', href: '/visa?type=on-arrival' },
                       { name: 'Paid Visa Countries', href: '/visa?type=paid' },
                     ]
                   ]}
                   isTransparent={false}
                 />
-                <span style={{ color: '#1f2937', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#ffffff', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
                   label={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#1f2937' }}>
-                      <svg style={{ color: '#1f2937' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8M12 6v2M12 16v2" /></svg>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#ffffff' }}>
+                      <svg style={{ color: '#ffffff' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8M12 6v2M12 16v2" /></svg>
                       Forex
                     </span>
                   }
@@ -2141,12 +2163,12 @@ export default function Navbar({ brand, companyInfo }) {
                   ]}
                   isTransparent={false}
                 />
-                <span style={{ color: '#1f2937', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#ffffff', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
                   label={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#1f2937' }}>
-                      <svg style={{ color: '#1f2937' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /><circle cx="5" cy="12" r="2" /></svg>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#ffffff' }}>
+                      <svg style={{ color: '#ffffff' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /><circle cx="5" cy="12" r="2" /></svg>
                       More
                     </span>
                   }
@@ -2203,7 +2225,7 @@ export default function Navbar({ brand, companyInfo }) {
                     padding: 0,
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#1f2937',
+                    color: '#ffffff',
                     cursor: 'pointer',
                     flexShrink: 0,
                     transition: 'all 0.2s'
@@ -2225,7 +2247,7 @@ export default function Navbar({ brand, companyInfo }) {
                     border: '1.5px solid rgba(0,0,0,0.1)',
                     borderRadius: 8, padding: '7px 10px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#1f2937',
+                    color: '#ffffff',
                     cursor: 'pointer',
                   }}
                 >
@@ -2542,6 +2564,7 @@ export default function Navbar({ brand, companyInfo }) {
         onFlightOpen={() => setFlightOpen(true)}
         onLogout={clearAuthSession}
         companyInfo={companyInfo}
+        dynamicPackageCols={dynamicPackageCols}
       />
     </>
   );

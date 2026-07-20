@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { getStoredAuth, getStoredToken } from '@/utils/api';
 
@@ -91,13 +92,62 @@ function VisaDynamicField({ field, defaultValue }) {
 }
 
 
-const visaDestinations = [
-  { id: 'thailand', name: 'Thailand', price: '₹ 2,500', time: '3-4 Days', docCount: 6, image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=400&q=80&auto=format&fit=crop', link: '/visa/thailand' },
-  { id: 'dubai', name: 'Dubai (UAE)', price: '₹ 6,900', time: '2-3 Days', docCount: 4, image: 'https://images.unsplash.com/photo-1582672060674-bc2bd808a8b5?w=400&q=80&auto=format&fit=crop', link: '#inquiry' },
-  { id: 'singapore', name: 'Singapore', price: '₹ 2,900', time: '4-5 Days', docCount: 5, image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=400&q=80&auto=format&fit=crop', link: '#inquiry' },
-  { id: 'schengen', name: 'Schengen (Europe)', price: '₹ 11,500', time: '10-15 Days', docCount: 9, image: 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=400&q=80&auto=format&fit=crop', link: '#inquiry' },
-  { id: 'malaysia', name: 'Malaysia', price: '₹ 1,800', time: '2-3 Days', docCount: 4, image: 'https://images.unsplash.com/photo-1595818973612-4cf3cfc23b2e?w=400&q=80&auto=format&fit=crop', link: '#inquiry' },
-  { id: 'srilanka', name: 'Sri Lanka', price: '₹ 2,100', time: '1-2 Days', docCount: 3, image: 'https://images.unsplash.com/photo-1546708973-b339540b5162?w=400&q=80&auto=format&fit=crop', link: '#inquiry' }
+const visaFreeCountries = [
+  { id: 'nepal', name: 'Nepal', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'bhutan', name: 'Bhutan', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'mauritius', name: 'Mauritius', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'seychelles', name: 'Seychelles', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'senegal', name: 'Senegal', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'rwanda', name: 'Rwanda', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'gambia', name: 'Gambia', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'barbados', name: 'Barbados', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'jamaica', name: 'Jamaica', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'dominica', name: 'Dominica', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'haiti', name: 'Haiti', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'st-vincent', name: 'Saint Vincent', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'grenadines', name: 'Grenadines', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'fiji', name: 'Fiji', category: 'free', image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=500&q=80' },
+  { id: 'vanuatu', name: 'Vanuatu', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'micronesia', name: 'Micronesia', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'kiribati', name: 'Kiribati', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'cook-islands', name: 'Cook Islands', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+];
+
+const onArrivalCountries = [
+  { id: 'maldives', name: 'Maldives', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=500&q=80' },
+  { id: 'thailand', name: 'Thailand', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=500&q=80' },
+  { id: 'indonesia', name: 'Indonesia', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'sri-lanka', name: 'Sri Lanka', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1546708973-b339540b5162?w=500&q=80' },
+  { id: 'ethiopia', name: 'Ethiopia', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'azerbaijan', name: 'Azerbaijan', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'vietnam', name: 'Vietnam', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=500&q=80' },
+  { id: 'kenya', name: 'Kenya', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1523805009345-7448845a9e53?w=500&q=80' },
+  { id: 'cambodia', name: 'Cambodia', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'tanzania', name: 'Tanzania', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=500&q=80' },
+  { id: 'cameroon', name: 'Cameroon', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'burkina-faso', name: 'Burkina Faso', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'zimbabwe', name: 'Zimbabwe', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'dubai', name: 'Dubai (UAE)', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1582672060674-bc2bd808a8b5?w=500&q=80' },
+  { id: 'philippines', name: 'Philippines', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=500&q=80' },
+  { id: 'georgia', name: 'Georgia', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'kazakhstan', name: 'Kazakhstan', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+];
+
+const requiredVisaCountries = [
+  { id: 'usa', name: 'USA', category: 'required', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'canada', name: 'CANADA', category: 'required', image: 'https://images.unsplash.com/photo-1503614472-8c93d56e92ce?w=500&q=80' },
+  { id: 'europe', name: 'EUROPEAN COUNTRIES', category: 'required', image: 'https://images.unsplash.com/photo-1491557345352-5929e343eb89?w=500&q=80' },
+  { id: 'australia', name: 'AUSTRALIA', category: 'required', image: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=500&q=80' },
+  { id: 'bangladesh', name: 'BANGLADESH', category: 'required', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'china', name: 'CHINA', category: 'required', image: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=500&q=80' },
+  { id: 'turkey', name: 'TURKEY', category: 'required', image: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=500&q=80' },
+  { id: 'singapore', name: 'SINGAPORE', category: 'required', image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=500&q=80' },
+  { id: 'korea', name: 'KOREA', category: 'required', image: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=500&q=80' },
+  { id: 'south-africa', name: 'SOUTH AFRICA', category: 'required', image: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=500&q=80' },
+  { id: 'japan', name: 'JAPAN', category: 'required', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500&q=80' },
+  { id: 'uk', name: 'UNITED KINGDOM', category: 'required', image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=500&q=80' },
+  { id: 'ireland', name: 'IRELAND', category: 'required', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'new-zealand', name: 'NEW ZEALAND', category: 'required', image: 'https://images.unsplash.com/photo-1469521669194-babb45599def?w=500&q=80' },
 ];
 
 const steps = [
@@ -114,14 +164,43 @@ const faqs = [
   { q: 'Is an interview mandatory for all visa applications?', a: 'No, most countries (like Thailand, Dubai, Singapore, Malaysia) do not require physical interviews. Interviews are generally mandatory only for Schengen, US, UK, and Canadian visa streams.' }
 ];
 
+const trustedPartners = [
+  { id: 'vfs', name: 'VFS Global', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/4f/VFS_Global_logo.svg' },
+  { id: 'bls', name: 'BLS International', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/ec/BLS_International_Logo.jpg' },
+  { id: 'emirates', name: 'Emirates', logo: 'https://upload.wikimedia.org/wikipedia/commons/d/d0/Emirates_logo.svg' },
+  { id: 'indigo', name: 'IndiGo', logo: 'https://upload.wikimedia.org/wikipedia/commons/6/69/IndiGo_Airlines_logo.svg' },
+  { id: 'airindia', name: 'Air India', logo: 'https://upload.wikimedia.org/wikipedia/en/9/9b/Air_India_Logo.svg' },
+];
+
 export default function VisaClient({ formConfig }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
+  const initialType = searchParams?.get('type') || 'free';
+  const mappedType = initialType === 'paid' ? 'required' : initialType;
+  const validInitialType = ['free', 'on-arrival', 'required'].includes(mappedType) ? mappedType : 'free';
+
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  const [activeCategory, setActiveCategory] = useState(validInitialType);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(null);
 
   const fields = useMemo(() => (formConfig?.fields?.length ? formConfig.fields : []), [formConfig]);
+
+  useEffect(() => {
+    const type = searchParams?.get('type');
+    if (type) {
+      const mapped = type === 'paid' ? 'required' : type;
+      if (['free', 'on-arrival', 'required'].includes(mapped)) {
+        setActiveCategory(mapped);
+      }
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const token = getStoredToken();
@@ -158,62 +237,88 @@ export default function VisaClient({ formConfig }) {
     }
   };
 
-  const handleSelectCountry = (countryName) => {
-    setTargetCountry(countryName);
-    document.getElementById('visa-inquiry-form')?.scrollIntoView({ behavior: 'smooth' });
-    toast.success(`Selected country for visa details: ${countryName}`);
+  const handleSelectCountry = (country) => {
+    setSelectedCountry(country);
+    setIsModalOpen(true);
   };
 
-  const filteredDestinations = visaDestinations.filter(d => 
-    d.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const currentList = useMemo(() => {
+    let list = [];
+    if (activeCategory === 'free') list = visaFreeCountries;
+    if (activeCategory === 'on-arrival') list = onArrivalCountries;
+    if (activeCategory === 'required') list = requiredVisaCountries;
+    
+    if (searchTerm) {
+      list = list.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+    return list;
+  }, [activeCategory, searchTerm]);
 
   return (
     <main className="visa-page">
       {/* 1. HERO SECTION */}
-      <section className="visa-hero">
+      <section className="visa-hero" style={{ padding: '80px 0', textAlign: 'center' }}>
         <div className="container">
-          <div className="visa-hero-grid">
-            <div className="visa-hero-copy">
-              <span>🖎 Expert Visa Assistance</span>
-              <h1>Tourist Visas Made <span style={{ color: 'var(--color-secondary)' }}>Easy</span></h1>
-              <p>Apply for international tourist visas with complete peace of mind. Our experienced visa document officers review checklists, draft travel plans, and guide you through consulate submissions to guarantee success.</p>
-              <div className="visa-hero-badges">
-                <span className="visa-tag-badge">✓ 99% Approval Rate</span>
-                <span className="visa-tag-badge">✓ Document Pre-screening</span>
-                <span className="visa-tag-badge">✓ Home Pick-up Available</span>
-              </div>
-            </div>
-
-            {/* INQUIRY FORM WIDGET */}
-            <div className="visa-search-card" id="visa-search-widget">
-              <h3 style={{ margin: '0 0 12px', fontWeight: 800, fontSize: 18, color: 'var(--color-primary)' }}>Free Visa Assessment</h3>
-              <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 20 }}>Fill out this form and our visa experts will get in touch with you shortly.</p>
-              
-              <form onSubmit={handleInquirySubmit} className="visa-form">
-                {fields.length > 0 ? (
-                  fields.map(field => (
-                    <VisaDynamicField
-                      key={field.id || field.fieldKey}
-                      field={field}
-                      defaultValue={currentUser ? currentUser[field.fieldKey] || '' : ''}
-                    />
-                  ))
-                ) : (
-                  <p style={{ gridColumn: '1 / -1', textAlign: 'center', opacity: 0.7 }}>Form is unavailable right now.</p>
-                )}
-
-                <button type="submit" className="visa-search-submit" disabled={loading} style={{ gridColumn: '1 / -1' }}>
-                  {loading ? 'Submitting...' : 'Request Call Back'}
-                </button>
-              </form>
+          <div className="visa-hero-copy" style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <span>🖎 Expert Visa Assistance</span>
+            <h1>Tourist Visas Made <span style={{ color: 'var(--color-secondary)' }}>Easy</span></h1>
+            <p style={{ margin: '0 auto 32px' }}>Apply for international tourist visas with complete peace of mind. Select your destination below to view requirements and apply instantly.</p>
+            <div className="visa-hero-badges" style={{ justifyContent: 'center' }}>
+              <span className="visa-tag-badge">✓ 99% Approval Rate</span>
+              <span className="visa-tag-badge">✓ Document Pre-screening</span>
+              <span className="visa-tag-badge">✓ Home Pick-up Available</span>
             </div>
           </div>
         </div>
       </section>
 
+      {/* 2. TRUSTED PARTNERS */}
+      <section className="container" style={{ marginTop: 40, marginBottom: 40 }}>
+        <h3 style={{ textAlign: 'center', fontSize: 16, color: 'var(--color-text-secondary)', marginBottom: 28, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.5 }}>Our Trusted Travel Partners</h3>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '30px 50px', alignItems: 'center', opacity: 0.65 }}>
+          {trustedPartners.map(partner => (
+            <div key={partner.id} style={{ height: 35, display: 'flex', alignItems: 'center' }}>
+              <img src={partner.logo} alt={partner.name} style={{ maxHeight: '100%', maxWidth: 140, objectFit: 'contain', filter: 'grayscale(100%)' }} />
+            </div>
+          ))}
+        </div>
+      </section>
 
+      {/* 3. VISA DESTINATIONS (TABBED) */}
+      <section className="visa-section container" id="destinations">
+        <div className="visa-section-head text-center">
+          <h2>Select Your Destination</h2>
+          <p>Click on any country to check visa requirements and apply.</p>
+        </div>
+        
+        <div className="visa-tabs" style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 40, flexWrap: 'wrap' }}>
+          <button className={`visa-tab-btn ${activeCategory === 'free' ? 'active' : ''}`} onClick={() => { setActiveCategory('free'); router.push('/visa?type=free', { scroll: false }); }}>Visa Free Countries</button>
+          <button className={`visa-tab-btn ${activeCategory === 'on-arrival' ? 'active' : ''}`} onClick={() => { setActiveCategory('on-arrival'); router.push('/visa?type=on-arrival', { scroll: false }); }}>On Arrival & E-Visa</button>
+          <button className={`visa-tab-btn ${activeCategory === 'required' ? 'active' : ''}`} onClick={() => { setActiveCategory('required'); router.push('/visa?type=required', { scroll: false }); }}>Required Visa</button>
+        </div>
 
+        <div className="visa-grid-deals">
+          {currentList.map(country => (
+            <div key={country.id} className="visa-deal-card" onClick={() => handleSelectCountry(country.name)} style={{ cursor: 'pointer' }}>
+              <div className="visa-card-img-wrap" style={{ height: 200, width: '100%', position: 'relative' }}>
+                <Image src={country.image} alt={country.name} fill style={{ objectFit: 'cover' }} />
+                <span style={{ position: 'absolute', textTransform: 'uppercase', background: activeCategory === 'free' ? '#10b981' : activeCategory === 'on-arrival' ? '#f59e0b' : '#ef4444', color: 'white', padding: '6px 14px', fontSize: 11, bottom: 12, left: 12, right: 'auto', borderRadius: 8, fontWeight: 800 }}>
+                  {activeCategory === 'free' ? 'VISA FREE' : activeCategory === 'on-arrival' ? 'ON ARRIVAL / E-VISA' : 'VISA REQUIRED'}
+                </span>
+              </div>
+              <div className="visa-card-body" style={{ padding: '20px 24px' }}>
+                <h3 style={{ margin: 0, fontSize: 22 }}>{country.name}</h3>
+                <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: 'var(--color-primary)', fontWeight: 800, fontSize: 14 }}>Apply Now &rarr;</span>
+                </div>
+              </div>
+            </div>
+          ))}
+          {currentList.length === 0 && (
+             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 40, color: '#64748b' }}>No countries found.</div>
+          )}
+        </div>
+      </section>
       {/* 3. APPLICATION STEPS */}
       <section className="visa-steps-section">
         <div className="container">
@@ -326,8 +431,125 @@ export default function VisaClient({ formConfig }) {
         </div>
       </section>
 
+      {/* VISA INQUIRY MODAL */}
+      {isModalOpen && (
+        <div className="visa-modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="visa-modal-content" onClick={e => e.stopPropagation()}>
+            <button className="visa-modal-close" onClick={() => setIsModalOpen(false)}>✕</button>
+            <div className="visa-inquiry-card" style={{ border: 'none', boxShadow: 'none', padding: 0 }}>
+              <h3 style={{ margin: '0 0 8px', fontWeight: 900, fontSize: 24, color: 'var(--color-primary)' }}>Apply for {selectedCountry} Visa</h3>
+              <p style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginBottom: 24 }}>Fill out this form and our senior visa advisor will call you to walk you through documentation and pricing for {selectedCountry}.</p>
+              
+              <form onSubmit={handleInquirySubmit} className="visa-form">
+                <input type="hidden" name="target_country" value={selectedCountry || ''} />
+                {fields.length > 0 ? (
+                  fields.map(field => {
+                    let defaultVal = currentUser ? currentUser[field.fieldKey] || '' : '';
+                    if (
+                      field.fieldKey === 'destination_country' || 
+                      field.label.toLowerCase().includes('country') || 
+                      field.fieldKey.toLowerCase().includes('country')
+                    ) {
+                      defaultVal = selectedCountry || defaultVal;
+                    }
+                    return (
+                      <VisaDynamicField
+                        key={field.id || field.fieldKey}
+                        field={field}
+                        defaultValue={defaultVal}
+                      />
+                    );
+                  })
+                ) : (
+                  <p style={{ gridColumn: '1 / -1', textAlign: 'center', opacity: 0.7 }}>Form is unavailable right now.</p>
+                )}
+
+                <button type="submit" className="visa-search-submit" disabled={loading} style={{ gridColumn: '1 / -1' }}>
+                  {loading ? 'Submitting Request...' : 'Get Visa Assistance'}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* VISA PAGE CSS STYLES */}
       <style jsx global>{`
+        .visa-tab-btn {
+          padding: 12px 24px;
+          border-radius: 99px;
+          border: 2px solid transparent;
+          background: white;
+          color: var(--color-text-secondary);
+          font-size: 15px;
+          font-weight: 700;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+          transition: all 0.2s;
+        }
+        .visa-tab-btn:hover {
+          background: #f8fafc;
+          transform: translateY(-2px);
+        }
+        .visa-tab-btn.active {
+          background: var(--color-primary);
+          color: white;
+          box-shadow: 0 8px 24px color-mix(in srgb, var(--color-primary) 30%, transparent);
+        }
+        .visa-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(15,23,42,0.6);
+          backdrop-filter: blur(4px);
+          z-index: 99999;
+          display: grid;
+          place-items: center;
+          padding: 20px;
+        }
+        .visa-modal-content {
+          background: white;
+          width: 100%;
+          max-width: 600px;
+          border-radius: 24px;
+          padding: 32px;
+          position: relative;
+          max-height: 90vh;
+          overflow-y: auto;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+          animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modalIn {
+          from { opacity: 0; transform: scale(0.95) translateY(10px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .visa-modal-close {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: #f1f5f9;
+          border: none;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          cursor: pointer;
+          font-size: 14px;
+          color: #64748b;
+          display: grid;
+          place-items: center;
+          transition: background 0.2s;
+        }
+        .visa-modal-close:hover {
+          background: #e2e8f0;
+          color: #0f172a;
+        }
+        .visa-deal-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+          border-color: var(--brand-primary-border);
+        }
+        .visa-deal-card {
+          transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+        }
         .visa-page {
           background: linear-gradient(135deg, #e0f2fe 0%, #ede9fe 40%, #fce7f3 100%);
           min-height: 100vh;

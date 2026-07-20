@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import VisaClient from './VisaClient';
 
 export const dynamic = 'force-dynamic';
@@ -81,5 +82,9 @@ export const metadata = {
 export default async function VisaPage() {
   const pipelineForm = await getPipelineForm();
   const formConfig = normalizeFormConfig(pipelineForm);
-  return <VisaClient formConfig={formConfig} />;
+  return (
+    <Suspense fallback={<div>Loading Visa Information...</div>}>
+      <VisaClient formConfig={formConfig} />
+    </Suspense>
+  );
 }
