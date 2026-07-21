@@ -276,7 +276,7 @@ export default function HomeHero() {
                     position: 'absolute',
                     inset: 0,
                     backgroundImage: `url(${imgUrl})`,
-                    backgroundSize: 'cover',
+                    backgroundSize: '100% 100%',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
                     opacity: i === currentImgIdx ? 1 : 0,

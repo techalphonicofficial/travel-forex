@@ -142,7 +142,7 @@ export default function FooterClient({ brand, companyInfo }) {
   }
 
   return (
-    <footer className="footer" style={{ background: '#081221', color: '#ffffff' }}>
+    <footer className="footer" style={{ background: '#0f3a75', color: '#ffffff' }}>
       <div className="section-sm">
         <div className="container">
           <div className="row g-5 align-items-start">

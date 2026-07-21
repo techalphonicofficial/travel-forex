@@ -2041,7 +2041,7 @@ export default function Navbar({ brand, companyInfo }) {
 
       <header
         className="navbar-custom scrolled"
-        style={{ background: '#081221', borderBottom: '1px solid rgba(0,0,0,0.05)', zIndex: 2100 }}
+        style={{ background: '#0f3a75', borderBottom: '1px solid rgba(0,0,0,0.05)', zIndex: 2100 }}
       >
         <div className="container" style={{ display: 'flex', alignItems: 'center', height: '110px' }}>
           {/* Logo */}
