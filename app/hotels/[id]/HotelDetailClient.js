@@ -5,16 +5,17 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
-import { getStoredToken, getStoredAuth } from '@/utils/api';
+import { getStoredToken, getStoredAuth, getMediaUrl } from '@/utils/api';
+import ReadMoreText from '@/components/ReadMoreText';
 
 const fallbackImage = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
 
 const formatMoney = (value) => `Rs ${Number(value || 0).toLocaleString('en-IN')}`;
 
 const getImages = (hotel) => {
-  const gallery = Array.isArray(hotel?.gallery) ? hotel.gallery : [];
+  const gallery = Array.isArray(hotel?.gallery) ? hotel.gallery.map(g => ({ ...g, url: getMediaUrl(g.url) })) : [];
   const images = [
-    hotel?.image_url ? { id: 'main', url: hotel.image_url, alt_text: hotel.name } : null,
+    hotel?.image_url ? { id: 'main', url: getMediaUrl(hotel.image_url), alt_text: hotel.name } : null,
     ...gallery,
   ].filter(Boolean);
 
@@ -162,7 +163,7 @@ export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, 
         <div className="hotel-detail-content">
           <section className="hotel-detail-card">
             <h2>About this hotel</h2>
-            <p>{hotel.description}</p>
+            <ReadMoreText text={hotel.description} lines={3} />
             <div className="hotel-detail-facts">
               <div><strong>{hotel.total_rooms}</strong><span>Total rooms</span></div>
             </div>

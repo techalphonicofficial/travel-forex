@@ -108,7 +108,7 @@ export default async function HomePage() {
       {/* ═══════════════════════════════════════════
           WARM IVORY SECTIONS — cream luxury theme
           ═══════════════════════════════════════════ */}
-      <div className="hp-ivory section-padding">
+      <div className="hp-ivory section-padding" style={{ display: 'flex', flexDirection: 'column', gap: '60px' }}>
         <FadeInSection>
           <CategoriesCarousel />
         </FadeInSection>
@@ -143,6 +143,7 @@ export default async function HomePage() {
       </div>
 
       {/* Dark-themed sections — own explicit backgrounds, unaffected */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '60px', paddingBottom: '60px' }}>
       <FadeInSection delay={100}>
         <ForexSection />
       </FadeInSection>
@@ -154,6 +155,7 @@ export default async function HomePage() {
       <FadeInSection delay={100}>
         <GramSection />
       </FadeInSection>
+      </div>
 
       <section style={{ background: 'var(--color-primary)', padding: '48px 0' }}>
         <div className="container" style={{ textAlign: 'center', maxWidth: 420, width: '40%' }}>

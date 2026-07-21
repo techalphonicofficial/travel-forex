@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
+import { getMediaUrl } from '@/utils/api';
+import ReadMoreText from '@/components/ReadMoreText';
 
 const getHotelImage = (hotel) =>
-  hotel?.image_url ||
-  hotel?.gallery?.find((item) => item.is_primary)?.url ||
-  hotel?.gallery?.[0]?.url ||
+  getMediaUrl(hotel?.image_url) ||
+  getMediaUrl(hotel?.gallery?.find((item) => item.is_primary)?.url) ||
+  getMediaUrl(hotel?.gallery?.[0]?.url) ||
   'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
 
 export default function HotelInquiryModal() {
@@ -203,6 +205,14 @@ export default function HotelInquiryModal() {
           </button>
 
           <div className="mb-4">
+            {hotel?.description ? (
+              <div style={{ marginBottom: '24px', paddingBottom: '20px', borderBottom: '1px solid #e5e7eb' }}>
+                <h3 style={{ fontWeight: 700, fontSize: '18px', color: '#111827', marginBottom: '8px' }}>About this hotel</h3>
+                <div style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.5 }}>
+                  <ReadMoreText text={hotel.description} lines={3} />
+                </div>
+              </div>
+            ) : null}
             <h3 style={{ fontWeight: 800, fontSize: '24px', color: '#111827', marginBottom: '8px' }}>Send Booking Inquiry</h3>
             <p style={{ color: '#6b7280', fontSize: '15px' }}>Fill in your details and we will get back to you with the best rates.</p>
           </div>

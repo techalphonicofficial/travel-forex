@@ -219,7 +219,7 @@ function Activity({ activity, destinationImage }) {
           ) : (
             <>
               <strong>{activity?.name || 'Planned activity'}</strong>
-              {activity?.description ? <em>{activity.description}</em> : null}
+              {activity?.description ? <div className="activity-desc" dangerouslySetInnerHTML={{ __html: processHtmlMedia(activity.description) }} /> : null}
             </>
           )}
         </p>
@@ -248,6 +248,14 @@ function DayRow({ day, activities, destinationImage }) {
     </div>
   );
 }
+
+const processHtmlMedia = (htmlString) => {
+  if (!htmlString || typeof htmlString !== 'string') return '';
+  // Use getMediaUrl for any /uploads/ paths inside HTML src attributes
+  return htmlString.replace(/src=["'](\/uploads\/[^"']+)["']/gi, (match, path) => {
+    return `src="${getMediaUrl(path)}"`;
+  });
+};
 
 function DestinationCard({ item, startDay, showTemperature, remainingDays }) {
   const destinationName = item?.destination?.name || 'Destination';
@@ -1772,11 +1780,11 @@ export default function TourItineraryView({ destination, packageSlug }) {
         <header className="itn-title">
           <p>{getDurationLabel(pkg.duration_days)} handcrafted itinerary</p>
           <h1>{pkg.name}</h1>
-          {pkg.description ? <div className="itn-title-summary">{pkg.description}</div> : null}
+          {pkg.description ? <div className="itn-title-summary" dangerouslySetInnerHTML={{ __html: processHtmlMedia(pkg.description.replace(/\n/g, '<br/>')) }} /> : null}
           {destinationNames.length ? (
             <div className="itn-route-ribbon" aria-label="Trip route">
               {destinationNames.map((name, index) => (
-                <span key={`${name}-ribbon`}>
+                <span key={`${name}-${index}-ribbon`}>
                   {name}
                   {index < destinationNames.length - 1 ? <i /> : null}
                 </span>

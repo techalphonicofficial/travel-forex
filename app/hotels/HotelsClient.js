@@ -4,16 +4,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getStoredToken, getHotels } from '@/utils/api';
+import { getStoredToken, getHotels, getMediaUrl } from '@/utils/api';
 import InquiryForm from '@/components/InquiryForm';
 import HotelInquiryModal from '@/components/HotelInquiryModal';
+import ReadMoreText from '@/components/ReadMoreText';
 
 const formatMoney = (value) => `Rs ${Number(value || 0).toLocaleString('en-IN')}`;
 
 const getHotelImage = (hotel) =>
-  hotel?.image_url ||
-  hotel?.gallery?.find((item) => item.is_primary)?.url ||
-  hotel?.gallery?.[0]?.url ||
+  getMediaUrl(hotel?.image_url) ||
+  getMediaUrl(hotel?.gallery?.find((item) => item.is_primary)?.url) ||
+  getMediaUrl(hotel?.gallery?.[0]?.url) ||
   'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
 
 const getDiscountedPrice = (hotel) => {
@@ -93,7 +94,9 @@ function HotelCard({ hotel, city, country }) {
             </div>
           </div>
           <div className="hotel-stars"><GoldStars rating={hotel.star_rating} /> <span>{hotel.star_rating || 0}-star property</span></div>
-          <p className="hotel-desc">{hotel.description}</p>
+          <div className="hotel-desc">
+            <ReadMoreText text={hotel.description} lines={3} />
+          </div>
           <div className="hotel-amenities">
             {(hotel.amenities || []).slice(0, 5).map((amenity) => <span key={amenity}>{amenity}</span>)}
             {(hotel.amenities || []).length > 5 ? <span>+{hotel.amenities.length - 5} more</span> : null}
@@ -369,8 +372,8 @@ function HotelStyles() {
       .hotels-result-head strong { display: block; font-size: 18px; font-weight: 900; }
       .hotels-result-head span { color: #64748b; font-size: 13px; font-weight: 700; text-transform: capitalize; }
       .hotel-loading { padding: 30px; text-align: center; color: #64748b; font-weight: 800; }
-      .hotel-card { display: grid; grid-template-columns: 250px minmax(0, 1fr); overflow: hidden; }
-      .hotel-card-media { position: relative; min-height: 220px; display: block; overflow: hidden; }
+      .hotel-card { display: grid; grid-template-columns: 250px minmax(0, 1fr); overflow: hidden; align-items: start; }
+      .hotel-card-media { position: relative; height: 260px; display: block; overflow: hidden; border-radius: 8px 0 0 8px; }
       .hotel-card-media img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
       .hotel-card:hover .hotel-card-media img { transform: scale(1.04); }
       .hotel-card-media span { position: absolute; left: 12px; top: 12px; padding: 5px 9px; border-radius: 999px; background: #16a34a; color: #fff; font-size: 11px; font-weight: 900; }

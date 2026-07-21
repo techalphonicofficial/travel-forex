@@ -81,7 +81,9 @@ export default function SideDrawer({ isOpen, onClose, companyInfo }) {
       >
         {/* Header */}
         <div style={{ padding: '24px', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#111827' }}>Hello, Guest</h2>
+          <Link href="/profile" onClick={onClose} style={{ textDecoration: 'none' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#111827' }}>Hello, Guest</h2>
+          </Link>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 5, color: '#6b7280' }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
               <path d="M18 6L6 18M6 6l12 12" />

@@ -235,7 +235,11 @@ export const getMediaUrl = (path) => {
   if (!path) return '';
   if (/^https?:\/\//i.test(path)) return path;
 
-  const base = BASE_IMAGE_URL || DEFAULT_MEDIA_BASE_URL;
+  let base = typeof BASE_IMAGE_URL === 'string' ? BASE_IMAGE_URL.trim() : '';
+  if (!base || base === '/') {
+    base = DEFAULT_MEDIA_BASE_URL;
+  }
+  
   return `${base.replace(/\/$/, '')}/${String(path).replace(/^\//, '')}`;
 };
 
@@ -593,6 +597,19 @@ export const getHomeCategories = async ({ force = false } = {}) => {
     return normalizeApiData(response) || [];
   } catch (error) {
     console.warn('Home categories unavailable:', error?.message || error);
+    return [];
+  }
+};
+
+export const getPackageCategories = async () => {
+  try {
+    const response = await axios.get('/api/package-categories', {
+      params: { _t: Date.now() },
+      validateStatus: () => true,
+    });
+    return normalizeApiData(response) || [];
+  } catch (error) {
+    console.warn('Package categories unavailable:', error?.message || error);
     return [];
   }
 };
