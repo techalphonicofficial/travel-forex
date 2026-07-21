@@ -608,11 +608,14 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
       label: 'Services',
       hasSub: true,
       subItems: [
-        { label: 'Hotels Booking', href: '/hotels' },
+        { label: 'Hotels Booking', href: HOTEL_HREF || '/hotels' },
         { label: 'Flight Booking', action: onFlightOpen },
         { label: 'Domestic Trips', href: '/packages?type=DOMESTIC' },
         { label: 'International Trips', href: '/packages?type=INTERNATIONAL' },
-        { label: 'Customize Packages', href: '/customize' }
+        { label: 'Customize Packages', href: '/customize' },
+        { label: 'Forex Currency', href: '/forex/currency' },
+        { label: 'Forex Card', href: '/forex/card' },
+        { label: 'Forex Transfer', href: '/forex/transfer' }
       ]
     },
     {
@@ -623,24 +626,12 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
         href: item.href,
       })),
     },
-    { label: 'Hotels', href: HOTEL_HREF },
-    {
-      label: 'Forex',
-      hasSub: true,
-      subItems: [
-        { label: 'Currency', href: '/forex/currency' },
-        { label: 'Forex Card', href: '/forex/card' },
-        { label: 'International Transfer', href: '/forex/transfer' }
-      ]
-    },
+
     { label: 'Testimonial', href: '/testimonials' },
     { label: 'FAQ', href: '/contact#faq' },
     { label: 'Contact us', href: '/contact' },
     { label: 'Blog', href: '/blog' },
-    { label: 'About us', href: '/about' },
-    ...(isLoggedIn
-      ? [{ label: 'My Profile', href: '/profile' }]
-      : [{ label: 'Login', href: `/auth/login?redirect=${encodeURIComponent(pathname)}` }]),
+    { label: 'About us', href: '/about' }
   ];
 
   return (

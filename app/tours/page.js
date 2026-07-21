@@ -7,6 +7,8 @@ import TourCard from '@/components/TourCard';
 import { TourCardSkeleton } from '@/components/SkeletonLoader';
 import { getMediaUrl, getPackageFilters, getPackages } from '@/utils/api';
 import TourItineraryView from './TourItineraryView';
+import InternationalDestinationSelector from '@/components/InternationalDestinationSelector';
+import DomesticDestinationSelector from '@/components/DomesticDestinationSelector';
 
 const DEFAULT_TOUR_TYPES = [{ key: 'all', label: 'All', count: 0 }];
 const DEFAULT_DURATIONS = [
@@ -531,6 +533,20 @@ function ToursContent() {
           </div>
 
           <div className="col-lg-9">
+            {filters.type === 'INTERNATIONAL' && (
+              <InternationalDestinationSelector 
+                selectedCity={filters.search} 
+                onSelectCity={(city) => setFilters({ ...filters, search: city, package_category_slug: '' })} 
+              />
+            )}
+            
+            {filters.type === 'DOMESTIC' && (
+              <DomesticDestinationSelector 
+                selectedCity={filters.search} 
+                onSelectCity={(city) => setFilters({ ...filters, search: city, package_category_slug: '' })} 
+              />
+            )}
+            
             <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
               <div>
                 <span style={{ fontWeight: 700, fontSize: 17, color: 'var(--color-text-primary)' }}>

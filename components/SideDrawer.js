@@ -40,8 +40,7 @@ const navGroups = [
   { label: 'FAQ', href: '/contact#faq' },
   { label: 'Contact us', href: '/contact' },
   { label: 'Blog', href: '/blog' },
-  { label: 'About us', href: '/about' },
-  { label: 'Login', href: '/login' },
+  { label: 'About us', href: '/about' }
 ];
 
 export default function SideDrawer({ isOpen, onClose, companyInfo }) {
