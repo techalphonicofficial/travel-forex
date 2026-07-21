@@ -4,46 +4,32 @@ import React from 'react';
 
 const partnersMap = {
   default: [
-    { id: 'vfs', name: 'VFS Global', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/4f/VFS_Global_logo.svg' },
-    { id: 'bls', name: 'BLS International', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/BLS_International_Logo.svg/1024px-BLS_International_Logo.svg.png' },
     { id: 'emirates', name: 'Emirates', logo: 'https://upload.wikimedia.org/wikipedia/commons/d/d0/Emirates_logo.svg' },
     { id: 'indigo', name: 'IndiGo', logo: 'https://upload.wikimedia.org/wikipedia/commons/6/69/IndiGo_Airlines_logo.svg' },
-    { id: 'airindia', name: 'Air India', logo: 'https://upload.wikimedia.org/wikipedia/en/9/9b/Air_India_Logo.svg' }
+    { id: 'airindia', name: 'Air India', logo: 'https://upload.wikimedia.org/wikipedia/en/9/9b/Air_India_Logo.svg' },
+    { id: 'tataaig', name: 'TATA AIG', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Tata_AIG_General_Insurance_Logo.svg/1024px-Tata_AIG_General_Insurance_Logo.svg.png' },
+    { id: 'singapore', name: 'Singapore Airlines', logo: 'https://upload.wikimedia.org/wikipedia/en/1/18/Singapore_Airlines_logo.svg' },
+    { id: 'bajaj', name: 'BAJAJ ALLIANZ', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Bajaj_Allianz_Life_Insurance_Company_Limited_Logo.svg' },
+    { id: 'vistara', name: 'Vistara', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Vistara_Logo.svg' }
   ],
   insurance: [
-    { id: 'bajaj', name: 'BAJAJ ALLIANZ', logo: 'https://logo.clearbit.com/bajajallianz.com' },
-    { id: 'icici', name: 'ICICI', logo: 'https://logo.clearbit.com/icicilombard.com' },
-    { id: 'tataaig', name: 'TATA AIG', logo: 'https://logo.clearbit.com/tataaig.com' },
-    { id: 'reliance', name: 'RELIANCE', logo: 'https://logo.clearbit.com/reliancegeneral.co.in' }
+    { id: 'bajaj', name: 'BAJAJ ALLIANZ', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Bajaj_Allianz_Life_Insurance_Company_Limited_Logo.svg' },
+    { id: 'icici', name: 'ICICI', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/07/ICICI_Lombard_logo.svg' },
+    { id: 'tataaig', name: 'TATA AIG', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Tata_AIG_General_Insurance_Logo.svg/1024px-Tata_AIG_General_Insurance_Logo.svg.png' },
+    { id: 'reliance', name: 'RELIANCE', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Reliance_General_Insurance_Logo.svg/1024px-Reliance_General_Insurance_Logo.svg.png' }
   ],
   airlines: [
-    { id: 'airindia', name: 'Air India', logo: 'https://logo.clearbit.com/airindia.in' },
-    { id: 'indigo', name: 'IndiGo', logo: 'https://logo.clearbit.com/goindigo.in' },
-    { id: 'vistara', name: 'Vistara', logo: 'https://logo.clearbit.com/airvistara.com' },
-    { id: 'spicejet', name: 'SpiceJet', logo: 'https://logo.clearbit.com/spicejet.com' },
-    { id: 'akasa', name: 'Akasa Air', logo: 'https://logo.clearbit.com/akasaair.com' },
-    { id: 'emirates', name: 'Emirates', logo: 'https://logo.clearbit.com/emirates.com' },
-    { id: 'singapore', name: 'Singapore Airlines', logo: 'https://logo.clearbit.com/singaporeair.com' },
-    { id: 'qatar', name: 'Qatar Airways', logo: 'https://logo.clearbit.com/qatarairways.com' },
-    { id: 'etihad', name: 'Etihad Airways', logo: 'https://logo.clearbit.com/etihad.com' },
-    { id: 'lufthansa', name: 'Lufthansa', logo: 'https://logo.clearbit.com/lufthansa.com' },
-    { id: 'british', name: 'British Airways', logo: 'https://logo.clearbit.com/britishairways.com' },
-    { id: 'thai', name: 'Thai Airways', logo: 'https://logo.clearbit.com/thaiairways.com' },
-    { id: 'cathay', name: 'Cathay Pacific', logo: 'https://logo.clearbit.com/cathaypacific.com' },
-    { id: 'turkish', name: 'Turkish Airlines', logo: 'https://logo.clearbit.com/turkishairlines.com' },
-    { id: 'malaysia', name: 'Malaysia Airlines', logo: 'https://logo.clearbit.com/malaysiaairlines.com' },
-    { id: 'airfrance', name: 'Air France', logo: 'https://logo.clearbit.com/airfrance.com' },
-    { id: 'klm', name: 'KLM Royal Dutch', logo: 'https://logo.clearbit.com/klm.com' },
-    { id: 'virgin', name: 'Virgin Atlantic', logo: 'https://logo.clearbit.com/virginatlantic.com' },
-    { id: 'ryanair', name: 'Ryanair', logo: 'https://logo.clearbit.com/ryanair.com' },
-    { id: 'easyjet', name: 'EasyJet', logo: 'https://logo.clearbit.com/easyjet.com' },
-    { id: 'ana', name: 'All Nippon Airways (ANA)', logo: 'https://logo.clearbit.com/ana.co.jp' },
-    { id: 'vietnam', name: 'Vietnam Airlines', logo: 'https://logo.clearbit.com/vietnamairlines.com' },
-    { id: 'philippine', name: 'Philippine Airlines', logo: 'https://logo.clearbit.com/philippineairlines.com' },
-    { id: 'egyptair', name: 'EgyptAir', logo: 'https://logo.clearbit.com/egyptair.com' },
-    { id: 'ethiopian', name: 'Ethiopian Airlines', logo: 'https://logo.clearbit.com/ethiopianairlines.com' },
-    { id: 'airindiaexpress', name: 'Air India Express', logo: 'https://logo.clearbit.com/airindiaexpress.in' },
-    { id: 'allianceair', name: 'Alliance Air', logo: 'https://logo.clearbit.com/allianceair.in' }
+    { id: 'airindia', name: 'Air India', logo: 'https://upload.wikimedia.org/wikipedia/en/9/9b/Air_India_Logo.svg' },
+    { id: 'indigo', name: 'IndiGo', logo: 'https://upload.wikimedia.org/wikipedia/commons/6/69/IndiGo_Airlines_logo.svg' },
+    { id: 'vistara', name: 'Vistara', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Vistara_Logo.svg' },
+    { id: 'spicejet', name: 'SpiceJet', logo: 'https://upload.wikimedia.org/wikipedia/commons/3/36/SpiceJet_logo.svg' },
+    { id: 'akasa', name: 'Akasa Air', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Akasa_Air_logo.svg/1024px-Akasa_Air_logo.svg.png' },
+    { id: 'emirates', name: 'Emirates', logo: 'https://upload.wikimedia.org/wikipedia/commons/d/d0/Emirates_logo.svg' },
+    { id: 'singapore', name: 'Singapore Airlines', logo: 'https://upload.wikimedia.org/wikipedia/en/1/18/Singapore_Airlines_logo.svg' },
+    { id: 'qatar', name: 'Qatar Airways', logo: 'https://upload.wikimedia.org/wikipedia/en/9/9b/Qatar_Airways_Logo.svg' },
+    { id: 'etihad', name: 'Etihad Airways', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a2/Etihad_Airways_logo.svg' },
+    { id: 'lufthansa', name: 'Lufthansa', logo: 'https://upload.wikimedia.org/wikipedia/commons/b/b8/Lufthansa_Logo_2018.svg' },
+    { id: 'british', name: 'British Airways', logo: 'https://upload.wikimedia.org/wikipedia/en/4/42/British_Airways_Logo.svg' }
   ]
 };
 
