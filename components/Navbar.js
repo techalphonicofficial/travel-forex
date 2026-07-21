@@ -673,7 +673,11 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
               </svg>
             </button>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16, background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%)', color: 'white', boxShadow: '0 14px 30px color-mix(in srgb, var(--color-primary) 24%, transparent)' }}>
+          <Link
+            href={isLoggedIn ? '/profile' : `/auth/login?redirect=${encodeURIComponent(pathname)}`}
+            onClick={onClose}
+            style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16, background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%)', color: 'white', boxShadow: '0 14px 30px color-mix(in srgb, var(--color-primary) 24%, transparent)' }}
+          >
             <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.28)', display: 'grid', placeItems: 'center', fontSize: 15, fontWeight: 900 }}>
               {userInitial}
             </div>
@@ -685,7 +689,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                 {isLoggedIn ? 'Manage your travel faster' : 'Sign in for saved trips'}
               </p>
             </div>
-          </div>
+          </Link>
           <div className="d-lg-none mt-3">
             <HeaderSearch isLightHeader={false} />
           </div>
