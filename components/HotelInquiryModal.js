@@ -14,7 +14,7 @@ export default function HotelInquiryModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [hotel, setHotel] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ name: '', phone: '', email: '', date: '', guests: '2', message: '' });
+  const [form, setForm] = useState({ name: '', phone: '', email: '', date: '', checkoutDate: '', guests: '2', message: '' });
 
   useEffect(() => {
     const handleTrigger = (e) => {
@@ -50,11 +50,12 @@ export default function HotelInquiryModal() {
     setLoading(true);
     const hotelName = hotel?.name || 'Hotel';
     const location = [hotel?.destination?.name, hotel?.destination?.country].filter(Boolean).join(', ') || 'Unknown Location';
-    
+
     const noteLines = [
       `Service Interest: Hotel Booking`,
       `Hotel: ${hotelName} (${location})`,
       form.date ? `Check-in Date: ${form.date}` : '',
+      form.checkoutDate ? `Check-out Date: ${form.checkoutDate}` : '',
       form.guests ? `Guests: ${form.guests}` : '',
       form.message.trim() ? `Message: ${form.message.trim()}` : '',
     ].filter(Boolean).join('\n');
@@ -137,11 +138,11 @@ export default function HotelInquiryModal() {
         >
           {hotel ? (
             <>
-              <Image 
-                src={getHotelImage(hotel)} 
-                alt={hotel.name || 'Hotel'} 
-                fill 
-                style={{ objectFit: 'cover' }} 
+              <Image
+                src={getHotelImage(hotel)}
+                alt={hotel.name || 'Hotel'}
+                fill
+                style={{ objectFit: 'cover' }}
               />
               <div style={{
                 position: 'absolute',
@@ -189,7 +190,7 @@ export default function HotelInquiryModal() {
           <button
             onClick={handleClose}
             style={{
-              position: 'absolute', top: '24px', right: '24px',
+              position: 'absolute', top: '24px', right: '48px',
               background: '#f9fafb', border: 'none', borderRadius: '50%',
               width: '36px', height: '36px', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -208,12 +209,12 @@ export default function HotelInquiryModal() {
 
           <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
             <div className="form-floating">
-              <input 
-                type="text" 
-                className="form-control" 
-                placeholder="Name" 
-                style={formInputStyle} 
-                required 
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Name"
+                style={formInputStyle}
+                required
                 value={form.name}
                 onChange={e => update('name', e.target.value)}
               />
@@ -221,12 +222,12 @@ export default function HotelInquiryModal() {
             </div>
 
             <div className="form-floating">
-              <input 
-                type="email" 
-                className="form-control" 
-                placeholder="Email" 
-                style={formInputStyle} 
-                required 
+              <input
+                type="email"
+                className="form-control"
+                placeholder="Email"
+                style={formInputStyle}
+                required
                 value={form.email}
                 onChange={e => update('email', e.target.value)}
               />
@@ -239,12 +240,12 @@ export default function HotelInquiryModal() {
                 <label>Code</label>
               </div>
               <div className="form-floating flex-grow-1">
-                <input 
-                  type="tel" 
-                  className="form-control" 
-                  placeholder="Phone" 
-                  style={formInputStyle} 
-                  required 
+                <input
+                  type="tel"
+                  className="form-control"
+                  placeholder="Phone"
+                  style={formInputStyle}
+                  required
                   value={form.phone}
                   onChange={e => update('phone', e.target.value)}
                 />
@@ -254,18 +255,28 @@ export default function HotelInquiryModal() {
 
             <div className="d-flex gap-2">
               <div className="form-floating flex-grow-1">
-                <input 
-                  type="date" 
-                  className="form-control" 
-                  style={formInputStyle} 
+                <input
+                  type="date"
+                  className="form-control"
+                  style={formInputStyle}
                   value={form.date}
                   onChange={e => update('date', e.target.value)}
                 />
                 <label>Check-in Date (Optional)</label>
               </div>
-              <div className="form-floating" style={{ width: '120px' }}>
-                <select 
-                  className="form-select" 
+              <div className="form-floating flex-grow-1">
+                <input
+                  type="date"
+                  className="form-control"
+                  style={formInputStyle}
+                  value={form.checkoutDate}
+                  onChange={e => update('checkoutDate', e.target.value)}
+                />
+                <label>Check-out (Optional)</label>
+              </div>
+              <div className="form-floating" style={{ width: '100px' }}>
+                <select
+                  className="form-select"
                   style={formInputStyle}
                   value={form.guests}
                   onChange={e => update('guests', e.target.value)}
@@ -279,12 +290,12 @@ export default function HotelInquiryModal() {
                 <label>Guests</label>
               </div>
             </div>
-            
+
             <div className="form-floating">
-              <textarea 
-                className="form-control" 
-                placeholder="Message" 
-                style={{ ...formInputStyle, height: '80px', resize: 'none' }} 
+              <textarea
+                className="form-control"
+                placeholder="Message"
+                style={{ ...formInputStyle, height: '80px', resize: 'none' }}
                 value={form.message}
                 onChange={e => update('message', e.target.value)}
               ></textarea>
@@ -307,8 +318,8 @@ export default function HotelInquiryModal() {
                 opacity: loading ? 0.75 : 1,
                 cursor: loading ? 'wait' : 'pointer'
               }}
-              onMouseEnter={e => { if(!loading) e.currentTarget.style.transform = 'scale(1.02)' }}
-              onMouseLeave={e => { if(!loading) e.currentTarget.style.transform = 'scale(1)' }}
+              onMouseEnter={e => { if (!loading) e.currentTarget.style.transform = 'scale(1.02)' }}
+              onMouseLeave={e => { if (!loading) e.currentTarget.style.transform = 'scale(1)' }}
             >
               {loading ? 'Submitting...' : 'Send Inquiry'}
             </button>

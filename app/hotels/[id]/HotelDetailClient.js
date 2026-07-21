@@ -66,7 +66,7 @@ export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, 
       return null;
     }
   });
-  const [form, setForm] = useState({ name: '', phone: '', email: '', date: '', guests: '2', message: '' });
+  const [form, setForm] = useState({ name: '', phone: '', email: '', date: '', checkoutDate: '', guests: '2', message: '' });
   const [submitting, setSubmitting] = useState(false);
 
   const images = useMemo(() => getImages(hotel), [hotel]);
@@ -88,6 +88,7 @@ export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, 
       `Service Interest: Hotel Booking`,
       `Hotel: ${hotelName} (${location})`,
       form.date ? `Check-in Date: ${form.date}` : '',
+      form.checkoutDate ? `Check-out Date: ${form.checkoutDate}` : '',
       form.guests ? `Guests: ${form.guests}` : '',
       form.message.trim() ? `Message: ${form.message.trim()}` : '',
     ].filter(Boolean).join('\n');
@@ -237,6 +238,16 @@ export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, 
                   onChange={e => update('date', e.target.value)}
                 />
                 <label>Check-in Date (Optional)</label>
+              </div>
+              <div className="form-floating flex-grow-1">
+                <input 
+                  type="date" 
+                  className="form-control" 
+                  style={formInputStyle} 
+                  value={form.checkoutDate}
+                  onChange={e => update('checkoutDate', e.target.value)}
+                />
+                <label>Check-out (Optional)</label>
               </div>
               <div className="form-floating" style={{ width: '100px' }}>
                 <select 
