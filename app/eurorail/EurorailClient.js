@@ -109,7 +109,8 @@ export default function EurorailClient({ formConfig }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
-
+  const [activeTab, setActiveTab] = useState('passes');
+  const [ticketType, setTicketType] = useState('oneway');
   const fields = useMemo(() => (formConfig?.fields?.length ? formConfig.fields : []), [formConfig]);
 
   useEffect(() => {
@@ -189,31 +190,110 @@ export default function EurorailClient({ formConfig }) {
               </div>
             </div>
 
-            {/* SEARCH WIDGET CARD */}
+            {/* NEW TABS WIDGET */}
             <div className="eurorail-search-card" id="eurorail-search-widget">
-              <h3 style={{ margin: '0 0 12px', fontWeight: 900, fontSize: 19, color: 'var(--color-primary)' }}>Find Rail Passes & Tickets</h3>
-              <form onSubmit={handleSearchSubmit} className="eurorail-form">
-                {fields.length > 0 ? (
-                  fields.map(field => (
-                    <EurorailDynamicField
-                      key={field.id || field.fieldKey}
-                      field={field}
-                      defaultValue={currentUser ? currentUser[field.fieldKey] || '' : ''}
-                    />
-                  ))
-                ) : (
-                  <p style={{ gridColumn: '1 / -1', textAlign: 'center', opacity: 0.7 }}>Form is unavailable right now.</p>
-                )}
 
-                <button type="submit" className="eurorail-search-submit" disabled={loading} style={{ gridColumn: '1 / -1' }}>
-                  {loading ? 'Submitting Request...' : 'Get Rail Quote & Book'}
-                </button>
-              </form>
+              {/* Tabs */}
+              <div className="eurorail-tabs">
+                <button type="button" className={activeTab === 'passes' ? 'active' : ''} onClick={() => setActiveTab('passes')}>Passes</button>
+                <button type="button" className={activeTab === 'tickets' ? 'active' : ''} onClick={() => setActiveTab('tickets')}>Tickets</button>
+              </div>
+
+              {/* Form Container */}
+              <div className="eurorail-form-container">
+                <form onSubmit={handleSearchSubmit}>
+                  {activeTab === 'passes' && (
+                    <div className="eurorail-tab-content passes-grid">
+                      <div className="input-group icon-input">
+                        <i>📍</i>
+                        <input type="text" name="country_region" placeholder="Country / Region (e.g. Switzerland)" required />
+                      </div>
+                      <div className="input-group icon-input">
+                        <i>📅</i>
+                        <input type="date" name="valid_from" placeholder="Valid from" required />
+                      </div>
+                      <div className="input-group">
+                        <label>Adult (28-59 Yrs)</label>
+                        <input type="number" name="adults" min="1" defaultValue="1" required />
+                      </div>
+                      <div className="input-group">
+                        <label>Youth &lt; 28 Yrs</label>
+                        <input type="number" name="youth" min="0" defaultValue="0" />
+                      </div>
+                      <div className="input-group">
+                        <label>Senior (60+ Yrs)</label>
+                        <input type="number" name="senior" min="0" defaultValue="0" />
+                      </div>
+                      <div className="input-group icon-input">
+                        <i>👥</i>
+                        <input type="text" name="country_of_residence" placeholder="Country Of Residence" defaultValue="India" required />
+                      </div>
+                      <button type="submit" className="eurorail-search-submit">Search</button>
+                    </div>
+                  )}
+
+                  {activeTab === 'tickets' && (
+                    <div className="eurorail-tab-content tickets-grid">
+                      <div className="ticket-type-toggles">
+                        <label><input type="radio" name="ticketType" checked={ticketType === 'oneway'} onChange={() => setTicketType('oneway')} /> Oneway</label>
+                        <label><input type="radio" name="ticketType" checked={ticketType === 'roundtrip'} onChange={() => setTicketType('roundtrip')} /> Roundtrip</label>
+                      </div>
+
+                      <div className="tickets-inputs-row">
+                        <div className="input-group icon-input">
+                          <i>📍</i>
+                          <input type="text" name="from_city" placeholder="From City" required />
+                        </div>
+                        <div className="input-group icon-input">
+                          <i>📍</i>
+                          <input type="text" name="to_city" placeholder="To City" required />
+                        </div>
+                        <div className="input-group">
+                          <label>Adult (30-59 years)</label>
+                          <input type="number" name="adults" min="1" defaultValue="1" required />
+                        </div>
+                        <div className="input-group">
+                          <label>Youth (Under 30 years)</label>
+                          <input type="number" name="youth" min="0" defaultValue="0" />
+                        </div>
+                        <div className="input-group">
+                          <label>Senior (60+ years)</label>
+                          <input type="number" name="senior" min="0" defaultValue="0" />
+                        </div>
+                        <div className="tickets-inputs-row dates-row">
+                          <div className="input-group icon-input">
+                            <i>📅</i>
+                            <input type="date" name="departure_date" required />
+                          </div>
+                          <div className="input-group icon-input">
+                            <i>🕒</i>
+                            <input type="time" name="departure_time" placeholder="Any Time" />
+                          </div>
+                          {ticketType === 'roundtrip' && (
+                            <>
+                              <div className="input-group icon-input">
+                                <i>📅</i>
+                                <input type="date" name="return_date" required />
+                              </div>
+                              <div className="input-group icon-input">
+                                <i>🕒</i>
+                                <input type="time" name="return_time" placeholder="Any Time" />
+                              </div>
+                            </>
+                          )}
+                        </div>
+                        <button type="submit" className="eurorail-search-submit align-bottom">Search</button>
+                      </div>
+
+
+                    </div>
+                  )}
+                </form>
+              </div>
             </div>
           </div>
         </div>
       </section>
-
 
 
       {/* 3. KEY FEATURES */}
@@ -602,6 +682,127 @@ export default function EurorailClient({ formConfig }) {
           .eurorail-form {
             grid-template-columns: 1fr;
           }
+        }
+        .eurorail-tabs {
+          display: flex;
+          gap: 4px;
+          margin-bottom: 16px;
+        }
+        .eurorail-tabs button {
+          background: #f1f5f9;
+          border: none;
+          padding: 12px 20px;
+          border-radius: 8px;
+          font-weight: 700;
+          color: #64748b;
+          cursor: pointer;
+          font-size: 13px;
+          flex-grow: 1;
+        }
+        .eurorail-tabs button.active {
+          background: var(--color-primary);
+          color: white;
+        }
+        
+        .eurorail-form-container {
+          background: white;
+          padding: 0;
+        }
+
+        .eurorail-tab-content .input-group {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .eurorail-tab-content .input-group label {
+          font-size: 11px;
+          font-weight: 850;
+          text-transform: uppercase;
+          color: var(--color-text-secondary);
+        }
+        .eurorail-tab-content .input-group input {
+          width: 100%;
+          background: #f8fafc;
+          border: 1.5px solid #cbd5e1;
+          border-radius: 10px;
+          color: var(--color-text-primary);
+          font-size: 14px;
+          font-weight: 600;
+          padding: 10px 14px;
+          outline: none;
+          min-height: 42px;
+        }
+        .eurorail-tab-content .input-group input:focus {
+          border-color: var(--color-primary);
+          box-shadow: 0 0 0 3px var(--color-primary-light);
+        }
+        
+        .eurorail-tab-content .icon-input {
+          position: relative;
+          justify-content: flex-end;
+        }
+        .eurorail-tab-content .icon-input i {
+          position: absolute;
+          left: 14px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-style: normal;
+          color: #94a3b8;
+          font-size: 14px;
+        }
+        .eurorail-tab-content .icon-input input {
+          padding-left: 38px;
+        }
+
+        .passes-grid, .tickets-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+        
+        .ticket-type-toggles {
+          display: flex;
+          gap: 16px;
+          font-size: 14px;
+          font-weight: 700;
+          color: #334155;
+          margin-bottom: 8px;
+        }
+        .ticket-type-toggles label {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          cursor: pointer;
+        }
+        
+        .tickets-inputs-row {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+        .dates-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+
+        .eurorail-tab-content .eurorail-search-submit {
+          background: var(--gradient-primary);
+          color: white;
+          font-weight: 900;
+          font-size: 15px;
+          border-radius: 12px;
+          padding: 14px;
+          border: none;
+          cursor: pointer;
+          width: 100%;
+          box-shadow: 0 8px 24px rgba(2, 110, 181, 0.22);
+          transition: transform 0.2s, opacity 0.2s;
+          margin-top: 8px;
+        }
+        .eurorail-tab-content .eurorail-search-submit:hover {
+          transform: translateY(-1px);
+          opacity: 0.95;
         }
       `}</style>
     </main>

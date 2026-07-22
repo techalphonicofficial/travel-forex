@@ -175,7 +175,7 @@ function CityItinerary({ city, startDay, trip, showTemperature }) {
       <div className="bi-city-head">
         <strong>{titleCase(city?.name || trip?.destination)}</strong>
         <span>- {nightCount} {nightCount === 1 ? 'Night' : 'Nights'}</span>
-        {showTemperature || city?.temperature || city?.high_temperature || city?.low_temperature ? (
+        {/* {showTemperature || city?.temperature || city?.high_temperature || city?.low_temperature ? (
           <>
             <span>- Temperature</span>
             <span className="bi-temp">
@@ -184,7 +184,7 @@ function CityItinerary({ city, startDay, trip, showTemperature }) {
               Low: {city?.low_temperature || city?.temperature?.low || '26'}&deg;C
             </span>
           </>
-        ) : null}
+        ) : null} */}
       </div>
       {Array.from({ length: rowCount }).map((_, index) => {
         const entry = activities.find((item) => Number(item.dayNumber) === index + 1) || activities[index];
@@ -636,7 +636,7 @@ export default function TripInquiryDetailClient({ id, formConfig }) {
     email: inquiryForm.email || trip.customer_email || trip.raw_payload?.customer?.email || '',
     phone: inquiryForm.phone || trip.customer_phone || trip.raw_payload?.customer?.phone || '',
     custom_package_title: inquiryForm.custom_package_title || `${titleCase(trip.destination)} itinerary`,
-    custom_package_id: currentUrl || inquiryForm.custom_package_id ,
+    custom_package_id: currentUrl || inquiryForm.custom_package_id,
     itenary: inquiryForm.itenary || itinerarySummary,
   });
   const openInquiryForm = async () => {

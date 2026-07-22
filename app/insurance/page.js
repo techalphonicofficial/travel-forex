@@ -49,15 +49,15 @@ export default function InsurancePage() {
               }}>
                 <h2 style={{ fontSize: '22px', fontWeight: 900, marginBottom: '24px' }}>Get Overseas Travel Insurance Quote</h2>
 
-                <form onSubmit={(e) => { 
-                  e.preventDefault(); 
+                <form onSubmit={(e) => {
+                  e.preventDefault();
                   const token = getStoredToken();
                   if (!token) {
                     toast.error('Please login first to continue.');
                     router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`);
                     return;
                   }
-                  alert('Inquiry submitted!'); 
+                  alert('Inquiry submitted!');
                 }}>
                   <div className="row">
 
@@ -70,6 +70,12 @@ export default function InsurancePage() {
                     {/* Departure Date */}
                     <div className="col-12 col-md-6 mb-3">
                       <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', marginBottom: '8px', textTransform: 'uppercase' }}>Departure Date *</label>
+                      <input type="date" required style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', color: '#1e293b' }} />
+                    </div>
+
+                    {/* Arrival Date */}
+                    <div className="col-12 col-md-6 mb-3">
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', marginBottom: '8px', textTransform: 'uppercase' }}>Arrival Date *</label>
                       <input type="date" required style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', color: '#1e293b' }} />
                     </div>
 
@@ -86,10 +92,10 @@ export default function InsurancePage() {
                     </div>
 
                     {/* Traveler Ages */}
-                    <div className="col-12 col-md-6 mb-3">
+                    {/* <div className="col-12 col-md-6 mb-3">
                       <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', marginBottom: '8px', textTransform: 'uppercase' }}>Traveler Ages *</label>
                       <input type="text" placeholder="E.g., 34, 32, 5" required style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', color: '#1e293b' }} />
-                    </div>
+                    </div> */}
 
                     {/* Name */}
                     <div className="col-12 col-md-6 mb-3">
@@ -105,7 +111,7 @@ export default function InsurancePage() {
 
                     {/* Email */}
                     <div className="col-12 mb-3">
-                      <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', marginBottom: '8px', textTransform: 'uppercase' }}>Email Address *</label>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', marginBottom: '8px', textTransform: 'uppercase' }}>Email Address </label>
                       <input type="email" placeholder="Enter email address" required style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', color: '#1e293b' }} />
                     </div>
 

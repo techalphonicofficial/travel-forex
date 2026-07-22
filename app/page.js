@@ -1,6 +1,5 @@
 import HomeHero from '@/components/HomeHero';
 import BannerCarousel from '@/components/BannerCarousel';
-import RecommendedPackages from '@/components/FeaturedToursRow';
 import WhyChooseSection from '@/components/WhyChooseSection';
 import PopularDestinationRows from '@/components/PopularDestinationRows';
 import GramSection from '@/components/GramSection';
@@ -131,10 +130,6 @@ export default async function HomePage() {
 
         <FadeInSection delay={100}>
           <WhyChooseSection />
-        </FadeInSection>
-
-        <FadeInSection delay={100}>
-          <RecommendedPackages />
         </FadeInSection>
 
         <FadeInSection delay={100}>

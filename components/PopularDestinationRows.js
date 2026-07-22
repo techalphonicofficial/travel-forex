@@ -124,7 +124,7 @@ export default function PopularDestinationRows() {
   return (
     <section style={{
       background: 'transparent',
-      padding: '0',
+      padding: '60px 0 0 0',
     }}>
       <style>{`
         .dest-grid {

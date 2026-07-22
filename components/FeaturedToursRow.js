@@ -542,10 +542,83 @@ export default function RecommendedPackages() {
   return (
     <section className="recent-bookings-section">
       <style>{`
-        @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
+
+           .recent-bookings-section .th-section-copy p {
+             font-size: 13.5px;
+           }
+           .recent-bookings-section .th-soft-badge {
+             max-width: 100%;
+             white-space: normal;
+             line-height: 1.25;
+           }
+           .recent-filters {
+             gap: 7px;
+           }
+           .recent-filters > * {
+             flex: 0 0 auto;
+           }
+           .recent-booking-card {
+             width: calc(100vw - 28px);
+           }
+           @media (min-width: 421px) {
+           .recent-bookings-section { padding: 20px 0 24px; }
+           .recent-bookings-section .th-section-intro {
+             width: 100%;
+             min-width: 0;
+             margin-bottom: 22px;
+           }
+           .recent-bookings-section .th-section-copy,
+           .recent-bookings-section .th-section-actions {
+             width: 100%;
+             min-width: 0;
+           }
+           .recent-bookings-section .th-section-copy h2 {
+             font-size: clamp(25px, 8.2vw, 32px);
+             line-height: 1.08;
+           }
+           .recent-bookings-section .th-section-copy p {
+             max-width: 100%;
+             font-size: 14px;
+             line-height: 1.55;
+             overflow-wrap: normal;
+             word-break: normal;
+           }
+           .recent-bookings-section .th-section-actions {
+             display: grid;
+             gap: 12px;
+             justify-content: stretch;
+           }
+           .recent-filters {
+             width: 100%;
+             max-width: 100%;
+             overflow-x: auto;
+             flex-wrap: nowrap;
+             padding: 1px 2px 8px;
+             margin: 0 -2px;
+             scrollbar-width: none;
+             -webkit-overflow-scrolling: touch;
+           }
+           .recent-filters::-webkit-scrollbar { display: none; }
+           .recent-scroll-actions { display: none; }
+           .recent-booking-card { width: calc(100vw - 36px); }
+           .responsive-header-row {
+             flex-direction: column;
+             align-items: flex-start !important;
+             gap: 24px !important;
+           }
+           .filters-container {
+             width: 100%;
+             order: 2;
+           }
+           .arrows-container {
+             order: 3;
+             margin-top: 8px;
+           }
+           .heading-container {
+             order: 1;
+           }
+}
+           @media (min-width: 769px) {
         .booking-cards-wrap {
           display: flex;
           gap: 20px;
@@ -763,85 +836,8 @@ export default function RecommendedPackages() {
           font-size: 11px;
           font-weight: 600;
         }
-
-        @media (max-width: 768px) {
-           .recent-bookings-section { padding: 20px 0 24px; }
-           .recent-bookings-section .th-section-intro {
-             width: 100%;
-             min-width: 0;
-             margin-bottom: 22px;
-           }
-           .recent-bookings-section .th-section-copy,
-           .recent-bookings-section .th-section-actions {
-             width: 100%;
-             min-width: 0;
-           }
-           .recent-bookings-section .th-section-copy h2 {
-             font-size: clamp(25px, 8.2vw, 32px);
-             line-height: 1.08;
-           }
-           .recent-bookings-section .th-section-copy p {
-             max-width: 100%;
-             font-size: 14px;
-             line-height: 1.55;
-             overflow-wrap: normal;
-             word-break: normal;
-           }
-           .recent-bookings-section .th-section-actions {
-             display: grid;
-             gap: 12px;
-             justify-content: stretch;
-           }
-           .recent-filters {
-             width: 100%;
-             max-width: 100%;
-             overflow-x: auto;
-             flex-wrap: nowrap;
-             padding: 1px 2px 8px;
-             margin: 0 -2px;
-             scrollbar-width: none;
-             -webkit-overflow-scrolling: touch;
-           }
-           .recent-filters::-webkit-scrollbar { display: none; }
-           .recent-scroll-actions { display: none; }
-           .recent-booking-card { width: calc(100vw - 36px); }
-           .responsive-header-row {
-             flex-direction: column;
-             align-items: flex-start !important;
-             gap: 24px !important;
-           }
-           .filters-container {
-             width: 100%;
-             order: 2;
-           }
-           .arrows-container {
-             order: 3;
-             margin-top: 8px;
-           }
-           .heading-container {
-             order: 1;
-           }
-        }
-
-        @media (max-width: 420px) {
-           .recent-bookings-section .th-section-copy p {
-             font-size: 13.5px;
-           }
-           .recent-bookings-section .th-soft-badge {
-             max-width: 100%;
-             white-space: normal;
-             line-height: 1.25;
-           }
-           .recent-filters {
-             gap: 7px;
-           }
-           .recent-filters > * {
-             flex: 0 0 auto;
-           }
-           .recent-booking-card {
-             width: calc(100vw - 28px);
-           }
-        }
+}
+      
       `}</style>
 
       <div className="container">

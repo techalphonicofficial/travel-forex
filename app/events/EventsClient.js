@@ -19,7 +19,7 @@ const getInputType = (fieldType) => {
 const getFormPayload = (formElement, fields, pipelineId) => {
   const data = new FormData(formElement);
   const payload = {
-    pipeline_id: pipelineId || 13,
+    pipeline_id: pipelineId || 11,
     name: '',
     email: '',
     phone: '',
@@ -61,7 +61,7 @@ function EventsDynamicField({ field, defaultValue }) {
   const isTextarea = field.fieldType === 'textarea' || field.fieldKey.includes('describe');
   const isSelect = field.fieldType === 'select';
   const isMultiSelect = field.fieldType === 'multiselect';
-  const isWideField = isTextarea || field.fieldKey.includes('notes') || field.fieldKey.includes('address') || field.fieldKey.includes('request');
+  const isWideField = isTextarea || field.fieldKey.includes('notes') || (field.fieldKey.includes('address') && !field.fieldKey.includes('email')) || field.fieldKey.includes('request');
   const requiredMark = field.isRequired ? ' *' : '';
   const commonProps = {
     id: field.fieldKey,

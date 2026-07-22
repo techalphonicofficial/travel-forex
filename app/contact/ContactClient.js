@@ -152,19 +152,6 @@ export default function ContactClient({ hero = fallbackHero, faqContent = fallba
   return (
     <>
       <div className="page-header" style={{ position: 'relative', overflow: 'hidden' }}>
-        {heroImage && (
-          <>
-            <Image
-              src={heroImage}
-              alt={hero.title}
-              fill
-              priority
-              sizes="100vw"
-              style={{ objectFit: 'cover', opacity: 0.35 }}
-            />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(0,10,40,0.78), rgba(0,82,204,0.46))' }} />
-          </>
-        )}
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <span className="section-label" style={{ color: 'rgba(255,255,255,0.7)' }}>{hero.label}</span>
           <h1 className="section-title" style={{ color: 'white' }}>{hero.title}</h1>

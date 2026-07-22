@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { createPackageBooking, createRazorpayOrder, getMediaUrl, getPackageReviews, getPartialBookingSettings, getStoredAuth, getStoredToken, submitTripInquiry, validateBookingCoupon, verifyRazorpayPayment } from '@/utils/api';
+import { createPackageBooking, createRazorpayOrder, getMediaUrl, getPackageReviews, getPartialBookingSettings, getStoredAuth, getStoredToken, validateBookingCoupon, verifyRazorpayPayment } from '@/utils/api';
 
 const DEFAULT_PACKAGE_SLUGS = {
   paris: 'paris-honeymoon-special-6n7d',
@@ -232,7 +232,7 @@ function Activity({ activity, destinationImage }) {
                           <h4>{hotel.name}</h4>
                           <div className="itn-activity-hotel-stars" aria-label={`${stars} star hotel`}>
                             {Array.from({ length: 5 }).map((_, i) => (
-                              <i key={i} className={i < stars ? 'is-filled' : ''}>★</i>
+                              <i key={i} className={i < stars ? 'is-filled' : ''}>â˜…</i>
                             ))}
                           </div>
                         </div>
@@ -346,7 +346,7 @@ function HotelStayCard({ hotel }) {
         <h3>{hotel.name}</h3>
         <div className="itn-hotel-stars" aria-label={`${starRating} star hotel`}>
           {Array.from({ length: 5 }).map((_, index) => (
-            <i key={`hotel-star-${hotel.key}-${index}`} className={index < starRating ? 'is-filled' : ''}>★</i>
+            <i key={`hotel-star-${hotel.key}-${index}`} className={index < starRating ? 'is-filled' : ''}>â˜…</i>
           ))}
           {guestRating > 0 ? <strong>{guestRating.toFixed(1)} guest rating</strong> : null}
         </div>
@@ -465,20 +465,6 @@ function ItineraryStyles() {
       .itn-sidebar { position: sticky; top: 92px; display: grid; gap: 20px; }
       .itn-card, .itn-rating, .itn-whatsapp { border: 1px solid var(--color-border); border-radius: 8px; background: #fff; box-shadow: var(--shadow-sm); }
       .itn-price-card { position: relative; overflow: hidden; display: grid; gap: 16px; padding: 18px; border-color: color-mix(in srgb, var(--color-primary) 24%, var(--color-border)); background: linear-gradient(135deg, #fff 0%, #f3faff 62%, color-mix(in srgb, var(--color-primary-light) 42%, #fff) 100%); }
-      .itn-inquiry-form-wrapper { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; border-top: 1px dashed var(--color-border); padding-top: 16px; }
-      .itn-inquiry-title h4 { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: var(--color-text); }
-      .itn-inquiry-title p { font-size: 13px; color: var(--color-text-light); }
-      .itn-inquiry-form { display: flex; flex-direction: column; gap: 12px; }
-      .itn-form-group { display: flex; flex-direction: column; gap: 4px; }
-      .itn-form-group label { font-size: 12px; font-weight: 600; color: var(--color-text); text-transform: uppercase; letter-spacing: 0.5px; }
-      .itn-form-group input, .itn-form-group textarea { padding: 10px 14px; border: 1px solid var(--color-border); border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; background: #fff; }
-      .itn-form-group input:focus, .itn-form-group textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 20%, transparent); }
-      .itn-inquiry-submit { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; background: linear-gradient(135deg, var(--color-primary) 0%, #1d4ed8 100%); color: #fff; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary) 30%, transparent); }
-      .itn-inquiry-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px color-mix(in srgb, var(--color-primary) 40%, transparent); }
-      .itn-inquiry-submit:disabled { opacity: 0.7; cursor: not-allowed; }
-      .itn-inquiry-success { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 12px; padding: 24px; background: color-mix(in srgb, #22c55e 10%, transparent); border-radius: 12px; }
-      .itn-success-icon { width: 48px; height: 48px; border-radius: 50%; background: #22c55e; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; }
-      .itn-inquiry-error { font-size: 13px; color: #ef4444; background: color-mix(in srgb, #ef4444 10%, transparent); padding: 8px 12px; border-radius: 6px; }
       .itn-price-card::before { content: ''; position: absolute; right: -38px; top: -48px; width: 128px; height: 128px; border-radius: 50%; background: color-mix(in srgb, var(--color-primary) 12%, transparent); }
       .itn-price-card::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--gradient-primary); }
       .itn-price-card > div { position: relative; z-index: 1; display: grid; gap: 4px; }
@@ -1114,9 +1100,6 @@ export default function TourItineraryView({ destination, packageSlug }) {
   const [paymentMode, setPaymentMode] = useState('partial');
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [bookingForm, setBookingForm] = useState({ name: '', email: '', phone: '', couponCode: '', notes: '' });
-  const [inquiryForm, setInquiryForm] = useState({ name: '', email: '', phone: '', travelDate: '', notes: '' });
-  const [inquiryStatus, setInquiryStatus] = useState('idle');
-  const [inquiryMessage, setInquiryMessage] = useState('');
   const [travellerCount, setTravellerCount] = useState(1);
   const [guestTravellers, setGuestTravellers] = useState([]);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
@@ -1356,14 +1339,14 @@ export default function TourItineraryView({ destination, packageSlug }) {
       ? Math.round((packageBaseAmount * taxPercent) / 100)
       : 0;
   const packageTotal = activeCouponAmounts ? Number(activeCouponAmounts.package_total) || 0 : packageBaseAmount + taxAmount;
-  const priceLabel = packageDisplayBaseAmount > 0 ? `Rs ${packageDisplayBaseAmount.toLocaleString('en-IN')}` : 'Get Quote';
-  const originalPriceLabel = packageBaseAmount > 0 ? `Rs ${packageBaseAmount.toLocaleString('en-IN')}` : 'Get Quote';
-  const unitPriceLabel = packageUnitAmount > 0 ? `Rs ${packageUnitAmount.toLocaleString('en-IN')}` : 'Get Quote';
+  const priceLabel = packageDisplayBaseAmount > 0 ? `Rs ${packageDisplayBaseAmount.toLocaleString('en-IN')}` : 'On req';
+  const originalPriceLabel = packageBaseAmount > 0 ? `Rs ${packageBaseAmount.toLocaleString('en-IN')}` : 'On req';
+  const unitPriceLabel = packageUnitAmount > 0 ? `Rs ${packageUnitAmount.toLocaleString('en-IN')}` : 'On req';
   const travellerLabel = `${travellerCount} ${travellerCount === 1 ? 'traveller' : 'travellers'}`;
   const taxLabel = taxPercent > 0 ? `${taxType || 'Tax'} ${formatTaxPercent(taxPercent)}%` : taxType || 'Tax';
   const taxAmountLabel = taxAmount > 0 ? `Rs ${taxAmount.toLocaleString('en-IN')}` : 'Rs 0';
   const couponDiscountLabel = couponDiscountAmount > 0 ? `- Rs ${couponDiscountAmount.toLocaleString('en-IN')}` : 'Rs 0';
-  const packageTotalLabel = packageTotal > 0 ? `Rs ${packageTotal.toLocaleString('en-IN')}` : 'Get Quote';
+  const packageTotalLabel = packageTotal > 0 ? `Rs ${packageTotal.toLocaleString('en-IN')}` : 'On request';
   const partialBookingPercentage = Math.max(0, Math.min(100, Number(partialBooking?.partial_booking_percentage) || 0));
   const partialBookingEnabled = Boolean(partialBooking?.partial_booking_enabled) && partialBookingPercentage > 0 && packageTotal > 0;
   const bookingAmount = partialBookingEnabled ? Math.round((packageTotal * partialBookingPercentage) / 100) : 0;
@@ -1496,49 +1479,6 @@ export default function TourItineraryView({ destination, packageSlug }) {
   const openCancellationPolicy = () => {
     window.location.assign('/cancellation');
   };
-  const updateInquiryField = (field, value) => {
-    setInquiryForm((prev) => ({ ...prev, [field]: value }));
-    setInquiryStatus('idle');
-  };
-
-  const handleInquirySubmit = async (e) => {
-    e.preventDefault();
-    if (!inquiryForm.name.trim() || !inquiryForm.email.trim() || !inquiryForm.phone.trim()) {
-      setInquiryStatus('error');
-      setInquiryMessage('Please fill in your name, email, and phone number.');
-      return;
-    }
-    
-    setInquiryStatus('loading');
-    setInquiryMessage('');
-
-    const payload = {
-      package_id: pkg.id || null,
-      package_slug: pkg.slug || null,
-      package_name: pkg.name,
-      traveller_count: travellerCount,
-      customer_name: inquiryForm.name,
-      customer_email: inquiryForm.email,
-      customer_phone: inquiryForm.phone,
-      travel_date: inquiryForm.travelDate,
-      message: inquiryForm.notes,
-    };
-
-    try {
-      const response = await submitTripInquiry(payload);
-      if (response && response.success) {
-        setInquiryStatus('success');
-        setInquiryMessage('Thank you! Your inquiry has been sent. We will contact you shortly.');
-      } else {
-        setInquiryStatus('error');
-        setInquiryMessage(response?.message || 'Unable to submit inquiry. Please try again.');
-      }
-    } catch (err) {
-      setInquiryStatus('error');
-      setInquiryMessage('An unexpected error occurred. Please try again.');
-    }
-  };
-
   const openBookingModal = () => {
     if (!hasLoggedInUser()) {
       writePackageBookingDraft(buildBookingDraft({ status: 'login_required' }));
@@ -2108,7 +2048,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
                 {travellerCount > 1 ? <em className="itn-price-tax">Group base {priceLabel}</em> : null}
                 {taxAmount > 0 ? <em className="itn-price-tax">+ {taxAmountLabel} {taxLabel}</em> : null}
                 {taxAmount > 0 ? <em className="itn-price-tax">Total {packageTotalLabel}</em> : null}
-                <small>{getDurationLabel(pkg.duration_days)} · {destinationNames.join(' + ') || 'Custom route'}</small>
+                <small>{getDurationLabel(pkg.duration_days)} Â· {destinationNames.join(' + ') || 'Custom route'}</small>
               </div>
               <div className="itn-price-travellers" aria-label="Travellers for this booking">
                 <span>Travellers</span>
@@ -2126,82 +2066,38 @@ export default function TourItineraryView({ destination, packageSlug }) {
                 </div>
                 <small>{travellerLabel} selected</small>
               </div>
-              {(!amountToPay || amountToPay <= 0) ? (
-                <div className="itn-inquiry-form-wrapper">
-                  <div className="itn-inquiry-title">
-                    <h4>Request a Quote</h4>
-                    <p>Fill out the details below to receive a custom itinerary and pricing.</p>
-                  </div>
-                  {inquiryStatus === 'success' ? (
-                    <div className="itn-inquiry-success">
-                      <div className="itn-success-icon">✓</div>
-                      <p>{inquiryMessage}</p>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleInquirySubmit} className="itn-inquiry-form">
-                      <div className="itn-form-group">
-                        <label>Full Name *</label>
-                        <input type="text" placeholder="John Doe" value={inquiryForm.name} onChange={(e) => updateInquiryField('name', e.target.value)} required />
-                      </div>
-                      <div className="itn-form-group">
-                        <label>Email Address *</label>
-                        <input type="email" placeholder="john@example.com" value={inquiryForm.email} onChange={(e) => updateInquiryField('email', e.target.value)} required />
-                      </div>
-                      <div className="itn-form-group">
-                        <label>Phone Number *</label>
-                        <input type="tel" placeholder="+91 98765 43210" value={inquiryForm.phone} onChange={(e) => updateInquiryField('phone', e.target.value)} required />
-                      </div>
-                      <div className="itn-form-group">
-                        <label>Travel Date (Optional)</label>
-                        <input type="date" value={inquiryForm.travelDate} onChange={(e) => updateInquiryField('travelDate', e.target.value)} />
-                      </div>
-                      <div className="itn-form-group">
-                        <label>Message (Optional)</label>
-                        <textarea placeholder="Any special requests or preferences?" rows="2" value={inquiryForm.notes} onChange={(e) => updateInquiryField('notes', e.target.value)} />
-                      </div>
-                      {inquiryStatus === 'error' && <div className="itn-inquiry-error">{inquiryMessage}</div>}
-                      <button type="submit" disabled={inquiryStatus === 'loading'} className="itn-inquiry-submit">
-                        {inquiryStatus === 'loading' ? 'Sending...' : 'Send Inquiry'}
-                      </button>
-                    </form>
-                  )}
+              {partialBookingEnabled ? (
+                <div className="itn-payment-options" role="radiogroup" aria-label="Choose payment amount">
+                  <label className={isPartialPayment ? 'is-selected' : ''}>
+                    <input
+                      type="radio"
+                      name="sidebar-payment-mode"
+                      value="partial"
+                      checked={isPartialPayment}
+                      onChange={() => updatePaymentMode('partial')}
+                    />
+                    <span>Pay {partialBookingPercentage}% now</span>
+                    <strong>{bookingAmountLabel}</strong>
+                    <small>Balance {partialRemainingAmountLabel}</small>
+                  </label>
+                  <label className={!isPartialPayment ? 'is-selected' : ''}>
+                    <input
+                      type="radio"
+                      name="sidebar-payment-mode"
+                      value="full"
+                      checked={!isPartialPayment}
+                      onChange={() => updatePaymentMode('full')}
+                    />
+                    <span>Pay full amount</span>
+                    <strong>{packageTotalLabel}</strong>
+                    <small>No remaining balance</small>
+                  </label>
                 </div>
-              ) : (
-                <>
-                  {partialBookingEnabled ? (
-                    <div className="itn-payment-options" role="radiogroup" aria-label="Choose payment amount">
-                      <label className={isPartialPayment ? 'is-selected' : ''}>
-                        <input
-                          type="radio"
-                          name="sidebar-payment-mode"
-                          value="partial"
-                          checked={isPartialPayment}
-                          onChange={() => updatePaymentMode('partial')}
-                        />
-                        <span>Pay {partialBookingPercentage}% now</span>
-                        <strong>{bookingAmountLabel}</strong>
-                        <small>Balance {partialRemainingAmountLabel}</small>
-                      </label>
-                      <label className={!isPartialPayment ? 'is-selected' : ''}>
-                        <input
-                          type="radio"
-                          name="sidebar-payment-mode"
-                          value="full"
-                          checked={!isPartialPayment}
-                          onChange={() => updatePaymentMode('full')}
-                        />
-                        <span>Pay full amount</span>
-                        <strong>{packageTotalLabel}</strong>
-                        <small>No remaining balance</small>
-                      </label>
-                    </div>
-                  ) : null}
-                  <button type="button" onClick={openBookingModal}>
-                    <span>{amountToPay > 0 ? `Book Now - Pay ${amountToPayLabel}` : 'Book Now'}</span>
-                    {partialBookingEnabled ? <small>{isPartialPayment ? `${partialBookingPercentage}% of total booking amount` : '100% of total booking amount'}</small> : null}
-                  </button>
-                </>
-              )}
+              ) : null}
+              <button type="button" onClick={openBookingModal}>
+                <span>{amountToPay > 0 ? `Book Now - Pay ${amountToPayLabel}` : 'Book Now'}</span>
+                {partialBookingEnabled ? <small>{isPartialPayment ? `${partialBookingPercentage}% of total booking amount` : '100% of total booking amount'}</small> : null}
+              </button>
             </div>
             <button
               type="button"
@@ -2475,7 +2371,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
                           <span>{hotel.destinationName}</span>
                           <strong>{hotel.name}</strong>
                           <p>
-                            <b>{'★'.repeat(hotelStars) || 'No star rating'}</b>
+                            <b>{'â˜…'.repeat(hotelStars) || 'No star rating'}</b>
                             {Number(hotel?.guestRating) ? ` ${Number(hotel.guestRating).toFixed(1)} guest rating` : ''}
                           </p>
                         </div>

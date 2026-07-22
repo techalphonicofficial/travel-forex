@@ -251,6 +251,18 @@ export default function FooterClient({ brand, companyInfo }) {
       </div>
 
       <style jsx>{`
+
+          .mobile-text-center {
+            text-align: center !important;
+          }
+          .mobile-center-flex {
+            justify-content: center !important;
+          }
+          .mobile-mx-auto {
+            margin-left: auto !important;
+            margin-right: auto !important;
+          }
+          @media (min-width: 992px) {
         .footer-bottom-link {
           color: #94a3b8;
           font-size: 13px;
@@ -278,18 +290,8 @@ export default function FooterClient({ brand, companyInfo }) {
         }
 
         /* Responsive Mobile Centering Rules */
-        @media (max-width: 991px) {
-          .mobile-text-center {
-            text-align: center !important;
-          }
-          .mobile-center-flex {
-            justify-content: center !important;
-          }
-          .mobile-mx-auto {
-            margin-left: auto !important;
-            margin-right: auto !important;
-          }
-        }
+}
+      
       `}</style>
     </footer>
   );

@@ -70,8 +70,8 @@ export default function CategoriesCarousel() {
         }
         
         .theme-card {
-          width: 360px;
-          height: 260px;
+          width: 280px;
+          height: 340px;
           border-radius: 24px;
           overflow: hidden;
           text-decoration: none;
@@ -121,7 +121,7 @@ export default function CategoriesCarousel() {
         }
         
         .theme-title { 
-          font-size: 26px; 
+          font-size: 22px; 
           font-weight: 800; 
           color: #ffffff; 
           line-height: 1.2; 
@@ -178,12 +178,12 @@ export default function CategoriesCarousel() {
           transform: translateX(4px);
         }
 
-        @media (max-width: 768px) {
+        @media (min-width: 769px) {
           .theme-card {
-            width: 280px;
-            height: 340px;
+            width: 360px;
+            height: 260px;
           }
-          .theme-title { font-size: 22px; }
+          .theme-title { font-size: 26px; }
         }
       `}</style>
 

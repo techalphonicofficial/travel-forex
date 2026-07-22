@@ -93,62 +93,37 @@ function VisaDynamicField({ field, defaultValue }) {
 }
 
 
-const visaFreeCountries = [
-  { id: 'nepal', name: 'Nepal', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'bhutan', name: 'Bhutan', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'mauritius', name: 'Mauritius', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'seychelles', name: 'Seychelles', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'senegal', name: 'Senegal', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'rwanda', name: 'Rwanda', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'gambia', name: 'Gambia', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'barbados', name: 'Barbados', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'jamaica', name: 'Jamaica', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'dominica', name: 'Dominica', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'haiti', name: 'Haiti', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'st-vincent', name: 'Saint Vincent', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'grenadines', name: 'Grenadines', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'fiji', name: 'Fiji', category: 'free', image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=500&q=80' },
-  { id: 'vanuatu', name: 'Vanuatu', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'micronesia', name: 'Micronesia', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'kiribati', name: 'Kiribati', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'cook-islands', name: 'Cook Islands', category: 'free', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+const freeAndOnArrivalCountries = [
+  { id: 'nepal', name: 'Nepal', category: 'free-on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'bhutan', name: 'Bhutan', category: 'free-on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'mauritius', name: 'Mauritius', category: 'free-on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'seychelles', name: 'Seychelles', category: 'free-on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'maldives', name: 'Maldives', category: 'free-on-arrival', image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=500&q=80' },
+  { id: 'thailand', name: 'Thailand', category: 'free-on-arrival', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=500&q=80' },
+  { id: 'indonesia', name: 'Indonesia', category: 'free-on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'fiji', name: 'Fiji', category: 'free-on-arrival', image: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=500&q=80' },
+  { id: 'macau', name: 'Macau', category: 'free-on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
 ];
 
-const onArrivalCountries = [
-  { id: 'maldives', name: 'Maldives', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=500&q=80' },
-  { id: 'thailand', name: 'Thailand', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=500&q=80' },
-  { id: 'indonesia', name: 'Indonesia', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'sri-lanka', name: 'Sri Lanka', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1546708973-b339540b5162?w=500&q=80' },
-  { id: 'ethiopia', name: 'Ethiopia', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'azerbaijan', name: 'Azerbaijan', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'vietnam', name: 'Vietnam', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=500&q=80' },
-  { id: 'kenya', name: 'Kenya', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1523805009345-7448845a9e53?w=500&q=80' },
-  { id: 'cambodia', name: 'Cambodia', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'tanzania', name: 'Tanzania', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=500&q=80' },
-  { id: 'cameroon', name: 'Cameroon', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'burkina-faso', name: 'Burkina Faso', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'zimbabwe', name: 'Zimbabwe', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'dubai', name: 'Dubai (UAE)', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1582672060674-bc2bd808a8b5?w=500&q=80' },
-  { id: 'philippines', name: 'Philippines', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=500&q=80' },
-  { id: 'georgia', name: 'Georgia', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'kazakhstan', name: 'Kazakhstan', category: 'on-arrival', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+const eVisaCountries = [
+  { id: 'dubai', name: 'Dubai (UAE)', category: 'e-visa', image: 'https://images.unsplash.com/photo-1582672060674-bc2bd808a8b5?w=500&q=80' },
+  { id: 'sri-lanka', name: 'Sri Lanka', category: 'e-visa', image: 'https://images.unsplash.com/photo-1546708973-b339540b5162?w=500&q=80' },
+  { id: 'vietnam', name: 'Vietnam', category: 'e-visa', image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=500&q=80' },
+  { id: 'cambodia', name: 'Cambodia', category: 'e-visa', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'azerbaijan', name: 'Azerbaijan', category: 'e-visa', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'kenya', name: 'Kenya', category: 'e-visa', image: 'https://images.unsplash.com/photo-1523805009345-7448845a9e53?w=500&q=80' },
+  { id: 'georgia', name: 'Georgia', category: 'e-visa', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'philippines', name: 'Philippines', category: 'e-visa', image: 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=500&q=80' },
 ];
 
-const requiredVisaCountries = [
-  { id: 'usa', name: 'USA', category: 'required', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'canada', name: 'CANADA', category: 'required', image: 'https://images.unsplash.com/photo-1503614472-8c93d56e92ce?w=500&q=80' },
-  { id: 'europe', name: 'EUROPEAN COUNTRIES', category: 'required', image: 'https://images.unsplash.com/photo-1491557345352-5929e343eb89?w=500&q=80' },
-  { id: 'australia', name: 'AUSTRALIA', category: 'required', image: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=500&q=80' },
-  { id: 'bangladesh', name: 'BANGLADESH', category: 'required', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'china', name: 'CHINA', category: 'required', image: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=500&q=80' },
-  { id: 'turkey', name: 'TURKEY', category: 'required', image: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=500&q=80' },
-  { id: 'singapore', name: 'SINGAPORE', category: 'required', image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=500&q=80' },
-  { id: 'korea', name: 'KOREA', category: 'required', image: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=500&q=80' },
-  { id: 'south-africa', name: 'SOUTH AFRICA', category: 'required', image: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=500&q=80' },
-  { id: 'japan', name: 'JAPAN', category: 'required', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500&q=80' },
-  { id: 'uk', name: 'UNITED KINGDOM', category: 'required', image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=500&q=80' },
-  { id: 'ireland', name: 'IRELAND', category: 'required', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
-  { id: 'new-zealand', name: 'NEW ZEALAND', category: 'required', image: 'https://images.unsplash.com/photo-1469521669194-babb45599def?w=500&q=80' },
+const stampedVisaCountries = [
+  { id: 'usa', name: 'USA', category: 'stamped', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=500&q=80' },
+  { id: 'canada', name: 'CANADA', category: 'stamped', image: 'https://images.unsplash.com/photo-1503614472-8c93d56e92ce?w=500&q=80' },
+  { id: 'europe', name: 'EUROPEAN COUNTRIES', category: 'stamped', image: 'https://images.unsplash.com/photo-1491557345352-5929e343eb89?w=500&q=80' },
+  { id: 'australia', name: 'AUSTRALIA', category: 'stamped', image: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=500&q=80' },
+  { id: 'china', name: 'CHINA', category: 'stamped', image: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=500&q=80' },
+  { id: 'uk', name: 'UNITED KINGDOM', category: 'stamped', image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=500&q=80' },
+  { id: 'japan', name: 'JAPAN', category: 'stamped', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500&q=80' },
 ];
 
 const steps = [
@@ -170,28 +145,45 @@ const faqs = [
 export default function VisaClient({ formConfig }) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  
-  const initialType = searchParams?.get('type') || 'free';
-  const mappedType = initialType === 'paid' ? 'required' : initialType;
-  const validInitialType = ['free', 'on-arrival', 'required'].includes(mappedType) ? mappedType : 'free';
+
+  const initialType = searchParams?.get('type') || 'free-on-arrival';
+  const mappedType = initialType === 'paid' ? 'stamped' : initialType === 'free' ? 'free-on-arrival' : initialType === 'required' ? 'stamped' : initialType;
+  const validInitialType = ['free-on-arrival', 'e-visa', 'stamped'].includes(mappedType) ? mappedType : 'free-on-arrival';
 
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   const [activeCategory, setActiveCategory] = useState(validInitialType);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(null);
 
-  const fields = useMemo(() => (formConfig?.fields?.length ? formConfig.fields : []), [formConfig]);
+  const fields = useMemo(() => {
+    let list = formConfig?.fields?.length ? [...formConfig.fields] : [];
+    list.push({
+      id: 'visa_category',
+      fieldKey: 'visa_category',
+      label: 'Visa Category',
+      fieldType: 'text',
+      isRequired: true
+    });
+    list.push({
+      id: 'special_request',
+      fieldKey: 'special_request',
+      label: 'Special Request',
+      fieldType: 'textarea',
+      isRequired: false
+    });
+    return list;
+  }, [formConfig]);
 
   useEffect(() => {
     const type = searchParams?.get('type');
     if (type) {
-      const mapped = type === 'paid' ? 'required' : type;
-      if (['free', 'on-arrival', 'required'].includes(mapped)) {
+      const mapped = type === 'paid' ? 'stamped' : type === 'free' ? 'free-on-arrival' : type === 'required' ? 'stamped' : type;
+      if (['free-on-arrival', 'e-visa', 'stamped'].includes(mapped)) {
         setActiveCategory(mapped);
       }
     }
@@ -246,10 +238,10 @@ export default function VisaClient({ formConfig }) {
 
   const currentList = useMemo(() => {
     let list = [];
-    if (activeCategory === 'free') list = visaFreeCountries;
-    if (activeCategory === 'on-arrival') list = onArrivalCountries;
-    if (activeCategory === 'required') list = requiredVisaCountries;
-    
+    if (activeCategory === 'free-on-arrival') list = freeAndOnArrivalCountries;
+    if (activeCategory === 'e-visa') list = eVisaCountries;
+    if (activeCategory === 'stamped') list = stampedVisaCountries;
+
     if (searchTerm) {
       list = list.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
     }
@@ -258,24 +250,7 @@ export default function VisaClient({ formConfig }) {
 
   return (
     <main className="visa-page">
-      {/* 1. HERO SECTION */}
-      <section className="visa-hero" style={{ padding: '80px 0', textAlign: 'center' }}>
-        <div className="container">
-          <div className="visa-hero-copy" style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <span>🖎 Expert Visa Assistance</span>
-            <h1>Tourist Visas Made <span style={{ color: 'var(--color-secondary)' }}>Easy</span></h1>
-            <p style={{ margin: '0 auto 32px' }}>Apply for international tourist visas with complete peace of mind. Select your destination below to view requirements and apply instantly.</p>
-            <div className="visa-hero-badges" style={{ justifyContent: 'center' }}>
-              <span className="visa-tag-badge">✓ 99% Approval Rate</span>
-              <span className="visa-tag-badge">✓ Document Pre-screening</span>
-              <span className="visa-tag-badge">✓ Home Pick-up Available</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. TRUSTED PARTNERS */}
-      <TrustedPartners />
+      {/* 3. VISA DESTINATIONS (TABBED) */}
 
       {/* 3. VISA DESTINATIONS (TABBED) */}
       <section className="visa-section container" id="destinations">
@@ -283,11 +258,11 @@ export default function VisaClient({ formConfig }) {
           <h2>Select Your Destination</h2>
           <p>Click on any country to check visa requirements and apply.</p>
         </div>
-        
+
         <div className="visa-tabs" style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 40, flexWrap: 'wrap' }}>
-          <button className={`visa-tab-btn ${activeCategory === 'free' ? 'active' : ''}`} onClick={() => { setActiveCategory('free'); router.push('/visa?type=free', { scroll: false }); }}>Visa Free Countries</button>
-          <button className={`visa-tab-btn ${activeCategory === 'on-arrival' ? 'active' : ''}`} onClick={() => { setActiveCategory('on-arrival'); router.push('/visa?type=on-arrival', { scroll: false }); }}>On Arrival & E-Visa</button>
-          <button className={`visa-tab-btn ${activeCategory === 'required' ? 'active' : ''}`} onClick={() => { setActiveCategory('required'); router.push('/visa?type=required', { scroll: false }); }}>Required Visa</button>
+          <button className={`visa-tab-btn ${activeCategory === 'free-on-arrival' ? 'active' : ''}`} onClick={() => { setActiveCategory('free-on-arrival'); router.push('/visa?type=free-on-arrival', { scroll: false }); }}>Visa Free & On Arrival</button>
+          <button className={`visa-tab-btn ${activeCategory === 'e-visa' ? 'active' : ''}`} onClick={() => { setActiveCategory('e-visa'); router.push('/visa?type=e-visa', { scroll: false }); }}>E-Visa</button>
+          <button className={`visa-tab-btn ${activeCategory === 'stamped' ? 'active' : ''}`} onClick={() => { setActiveCategory('stamped'); router.push('/visa?type=stamped', { scroll: false }); }}>Stamped Visa</button>
         </div>
 
         <div className="visa-grid-deals">
@@ -308,7 +283,7 @@ export default function VisaClient({ formConfig }) {
             </div>
           ))}
           {currentList.length === 0 && (
-             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 40, color: '#64748b' }}>No countries found.</div>
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 40, color: '#64748b' }}>No countries found.</div>
           )}
         </div>
       </section>
@@ -337,13 +312,20 @@ export default function VisaClient({ formConfig }) {
           <div className="col-12 col-lg-6">
             <h2 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '18px' }}>Standard Documents Checklist</h2>
             <p style={{ color: 'var(--color-text-secondary)', marginBottom: '32px', lineHeight: 1.6 }}>While requirements differ slightly based on your destination country, these core documents are required for almost all tourist applications:</p>
-            
+
             <ul className="visa-checklist-ul">
               <li>
                 <span className="chk-icon">✔</span>
                 <div>
-                  <h4>Valid Indian Passport</h4>
+                  <h4>Valid Passport</h4>
                   <p>Must have at least 6 months validity remaining from your return date and 2 blank pages.</p>
+                </div>
+              </li>
+              <li>
+                <span className="chk-icon">✔</span>
+                <div>
+                  <h4>Employment Details</h4>
+                  <p>Recent salary slips or a No Objection Certificate (NOC) from your current employer.</p>
                 </div>
               </li>
               <li>
@@ -372,10 +354,10 @@ export default function VisaClient({ formConfig }) {
 
           {/* INQUIRY FORM */}
           <div className="col-12 col-lg-6" id="visa-inquiry-form">
-            <div className="visa-inquiry-card">
+            <div className="visa-inquiry-card" style={{ margin: '48px 32px' }}>
               <h3 style={{ margin: '0 0 8px', fontWeight: 900, fontSize: 22, color: 'var(--color-primary)' }}>Speak to a Visa Expert</h3>
               <p style={{ fontSize: 13.5, color: 'var(--color-text-secondary)', marginBottom: 24 }}>Fill out this form and our senior visa advisor will call you to walk you through documentation and pricing.</p>
-              
+
               <form onSubmit={handleInquirySubmit} className="visa-form">
                 {fields.length > 0 ? (
                   fields.map(field => (
@@ -432,15 +414,15 @@ export default function VisaClient({ formConfig }) {
             <div className="visa-inquiry-card" style={{ border: 'none', boxShadow: 'none', padding: 0 }}>
               <h3 style={{ margin: '0 0 8px', fontWeight: 900, fontSize: 24, color: 'var(--color-primary)' }}>Apply for {selectedCountry} Visa</h3>
               <p style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginBottom: 24 }}>Fill out this form and our senior visa advisor will call you to walk you through documentation and pricing for {selectedCountry}.</p>
-              
+
               <form onSubmit={handleInquirySubmit} className="visa-form">
                 <input type="hidden" name="target_country" value={selectedCountry || ''} />
                 {fields.length > 0 ? (
                   fields.map(field => {
                     let defaultVal = currentUser ? currentUser[field.fieldKey] || '' : '';
                     if (
-                      field.fieldKey === 'destination_country' || 
-                      field.label.toLowerCase().includes('country') || 
+                      field.fieldKey === 'destination_country' ||
+                      field.label.toLowerCase().includes('country') ||
                       field.fieldKey.toLowerCase().includes('country')
                     ) {
                       defaultVal = selectedCountry || defaultVal;
@@ -547,6 +529,7 @@ export default function VisaClient({ formConfig }) {
           background: linear-gradient(135deg, #e0f2fe 0%, #ede9fe 40%, #fce7f3 100%);
           min-height: 100vh;
           color: var(--color-text-primary);
+          padding-top: 40px;
           padding-bottom: 80px;
         }
         .visa-hero {
@@ -631,7 +614,7 @@ export default function VisaClient({ formConfig }) {
         }
         
         .visa-section {
-          margin-top: 80px;
+          margin-top: 0;
         }
         .visa-section-head {
           margin-bottom: 36px;
@@ -821,6 +804,8 @@ export default function VisaClient({ formConfig }) {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 16px 12px;
+          padding: 20px 0;
+          margin: 20px 0;
         }
         .visa-field.full-width {
           grid-column: 1 / -1;

@@ -124,7 +124,21 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig }) {
   const [tripType, setTripType] = useState('Round-trip');
 
   const activeConfig = tripType === 'Round-trip' ? roundTripConfig : oneWayConfig;
-  const fields = useMemo(() => (activeConfig?.fields?.length ? activeConfig.fields : []), [activeConfig]);
+    const fields = useMemo(() => {
+    return [
+      { id: 'full_name', fieldKey: 'full_name', label: 'Full Name', fieldType: 'text', isRequired: true },
+      { id: 'email', fieldKey: 'email', label: 'Email Address', fieldType: 'email', isRequired: true },
+      { id: 'phone', fieldKey: 'phone', label: 'Mobile Number', fieldType: 'tel', isRequired: true },
+      { id: 'departure_city', fieldKey: 'departure_city', label: 'Departure City', fieldType: 'text', isRequired: true },
+      { id: 'destination_city', fieldKey: 'destination_city', label: 'Destination City', fieldType: 'text', isRequired: true },
+      { id: 'departure_date', fieldKey: 'departure_date', label: 'Departure Date', fieldType: 'date', isRequired: true },
+      ...(tripType === 'One-way' ? [] : [{ id: 'arrival_date', fieldKey: 'arrival_date', label: 'Arrival Date', fieldType: 'date', isRequired: false }]),
+      { id: 'passengers', fieldKey: 'passengers', label: 'No. of Passengers', fieldType: 'number', isRequired: true },
+      { id: 'fare_type', fieldKey: 'fare_type', label: 'Fare Type', fieldType: 'select', options: [{label: 'Regular', value: 'Regular'}, {label: 'Student', value: 'Student'}], isRequired: true },
+      { id: 'class', fieldKey: 'class', label: 'Class', fieldType: 'select', options: [{label: 'Economy', value: 'Economy'}, {label: 'Premium Economy', value: 'Premium Economy'}, {label: 'Business', value: 'Business'}, {label: 'First Class', value: 'First Class'}], isRequired: true },
+      { id: 'flight_preference', fieldKey: 'flight_preference', label: 'Flight Preference / Special Request', fieldType: 'textarea', isRequired: false },
+    ];
+  }, [tripType]);
 
   useEffect(() => {
     const token = getStoredToken();
@@ -198,7 +212,7 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig }) {
             <div className="flights-search-card" id="flights-search-widget">
               {/* Trip type selectors */}
               <div className="flights-trip-toggle">
-                {['Round-trip', 'One-way'].map(type => (
+                {['Round-trip', 'One-way', 'Multi-city'].map(type => (
                   <button
                     key={type}
                     type="button"

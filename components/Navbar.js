@@ -353,7 +353,7 @@ function CurrencyCombobox({ id, label, value, onChange, currencies = currencyOpt
           autoComplete="off"
         />
         <button type="button" aria-label={`Open ${label} currency list`} onClick={() => setOpen((current) => !current)}>
-          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
             <path d="M7 10l5 5 5-5z" />
           </svg>
         </button>
@@ -438,12 +438,12 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
       >
         {label}
         <svg
-          viewBox="0 0 24 24" fill="currentColor" width="18" height="18"
+          viewBox="0 0 24 24" fill="currentColor" width="22" height="22"
           style={{
             transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
             transition: 'transform 0.25s',
             opacity: 0.9,
-            color: '#ffffff'
+            color: '#FFD700'
           }}
         >
           <path d="M7 10l5 5 5-5z" />
@@ -1413,10 +1413,41 @@ export default function Navbar({ brand, companyInfo }) {
     <>
       {/* Inject keyframe for dropdown animation */}
       <style>{`
-        @keyframes dropIn {
-          from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
-          to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
+
+          .forex-modal-grid { grid-template-columns: 1fr; }
+          .forex-conversion-row {
+            grid-template-columns: 1fr;
+          }
+          .forex-swap-button {
+            justify-self: center;
+            margin: 0;
+            transform: rotate(90deg);
+          }
+          .forex-swap-button:hover {
+            transform: rotate(270deg);
+          }
+          .forex-modal-head { padding: 20px; }
+          .forex-modal-form { padding: 18px; }
+          .forex-rate-preview {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+          .forex-rate-preview small {
+            text-align: left;
+          }
+          .forex-result-grid {
+            grid-template-columns: 1fr;
+          }
+          @media (min-width: 641px) {
+          .flight-modal-grid { grid-template-columns: 1fr; }
+          .flight-modal-head { padding: 20px; }
+          .flight-modal-form { padding: 20px; } }
+          @media (min-width: 641px) {
+          .top-bar-announcement {
+            height: 40px;
+            font-size: 14px;
+          } }
+          @media (min-width: 768px) {
         .nav-plain-link {
           font-size: 14px;
           font-weight: 600;
@@ -1825,32 +1856,6 @@ export default function Navbar({ brand, companyInfo }) {
           font-size: 14px;
           line-height: 1.55;
         }
-        @media (max-width: 640px) {
-          .forex-modal-grid { grid-template-columns: 1fr; }
-          .forex-conversion-row {
-            grid-template-columns: 1fr;
-          }
-          .forex-swap-button {
-            justify-self: center;
-            margin: 0;
-            transform: rotate(90deg);
-          }
-          .forex-swap-button:hover {
-            transform: rotate(270deg);
-          }
-          .forex-modal-head { padding: 20px; }
-          .forex-modal-form { padding: 18px; }
-          .forex-rate-preview {
-            align-items: flex-start;
-            flex-direction: column;
-          }
-          .forex-rate-preview small {
-            text-align: left;
-          }
-          .forex-result-grid {
-            grid-template-columns: 1fr;
-          }
-        }
 
         .flight-modal-backdrop {
           position: fixed;
@@ -2014,11 +2019,6 @@ export default function Navbar({ brand, companyInfo }) {
           cursor: not-allowed;
           opacity: 0.72;
         }
-        @media (max-width: 640px) {
-          .flight-modal-grid { grid-template-columns: 1fr; }
-          .flight-modal-head { padding: 20px; }
-          .flight-modal-form { padding: 20px; }
-        }
         .top-bar-announcement {
           position: relative;
           width: 100%;
@@ -2032,13 +2032,8 @@ export default function Navbar({ brand, companyInfo }) {
           font-size: 24px;
           font-weight: 800;
           letter-spacing: 0.5px;
-        }
-        @media (max-width: 767px) {
-          .top-bar-announcement {
-            height: 40px;
-            font-size: 14px;
-          }
-        }
+        } }
+      
       `}</style>
 
 
@@ -2070,16 +2065,16 @@ export default function Navbar({ brand, companyInfo }) {
 
             {/* Social Icons (Top Right) */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 24, marginBottom: 14, paddingRight: 4 }}>
-              <Link href="https://facebook.com" target="_blank" aria-label="Facebook" style={{ color: '#1877F2', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
+              <Link href="https://facebook.com" target="_blank" aria-label="Facebook" style={{ color: '#FFD700', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /></svg>
               </Link>
-              <Link href="https://instagram.com" target="_blank" aria-label="Instagram" style={{ color: '#E4405F', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
+              <Link href="https://instagram.com" target="_blank" aria-label="Instagram" style={{ color: '#FFD700', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
               </Link>
-              <Link href="https://twitter.com" target="_blank" aria-label="X (Twitter)" style={{ color: '#000000', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
+              <Link href="https://twitter.com" target="_blank" aria-label="X (Twitter)" style={{ color: '#FFD700', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
               </Link>
-              <Link href="https://linkedin.com" target="_blank" aria-label="LinkedIn" style={{ color: '#0A66C2', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
+              <Link href="https://linkedin.com" target="_blank" aria-label="LinkedIn" style={{ color: '#FFD700', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" /><circle cx="4" cy="4" r="2" /></svg>
               </Link>
             </div>
@@ -2094,52 +2089,52 @@ export default function Navbar({ brand, companyInfo }) {
               }}
                 className="d-none d-lg-flex"
               >
-                <Link href="/flights" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff', textDecoration: 'none', fontWeight: 600, fontSize: 16, transition: 'color 0.2s' }}>
-                  <svg style={{ color: '#ffffff' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L3 8l6.5 5.5L6 17l-3-1-1.5 1.5 4 2.5 2.5 4 1.5-1.5-1-3 3.5-3.5 5.5 6.5l1.2-.7c.4-.2.7-.6.6-1.1z" /></svg>
+                <Link href="/flights" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s' }}>
+                  <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
                   Flights
                 </Link>
-                <span style={{ color: '#ffffff', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#FFD700', fontSize: 24, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
-                <Link href={HOTEL_HREF} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff', textDecoration: 'none', fontWeight: 600, fontSize: 16, transition: 'color 0.2s' }}>
-                  <svg style={{ color: '#ffffff' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 21h18M5 21V7l8-4v18M13 21V3l8 4v14M9 11v.01M9 15v.01M17 11v.01M17 15v.01" /></svg>
+                <Link href={HOTEL_HREF} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s' }}>
+                  <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/></svg>
                   Hotels
                 </Link>
-                <span style={{ color: '#ffffff', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#FFD700', fontSize: 24, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
                   label={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#ffffff' }}>
-                      <svg style={{ color: '#ffffff' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 12V22M12 2v10M12 12c-5 0-9-4-9-9h18c0 5-4 9-9 9z" /></svg>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 18, fontWeight: 600, color: '#FFD700' }}>
+                      <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
                       Holidays
                     </span>
                   }
                   cols={dynamicPackageCols}
                   isTransparent={false}
                 />
-                <span style={{ color: '#ffffff', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#FFD700', fontSize: 24, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
                   label={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#ffffff' }}>
-                      <svg style={{ color: '#ffffff' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 18, fontWeight: 600, color: '#FFD700' }}>
+                      <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                       Visa
                     </span>
                   }
                   cols={[
                     [
-                      { name: 'Visa Free Countries', href: '/visa?type=free' },
-                      { name: 'On Arrival & E-Visa', href: '/visa?type=on-arrival' },
-                      { name: 'Paid Visa Countries', href: '/visa?type=paid' },
+                      { name: 'Visa Free & On Arrival', href: '/visa?type=free-on-arrival' },
+                      { name: 'E-Visa', href: '/visa?type=e-visa' },
+                      { name: 'Stamped Visa', href: '/visa?type=stamped' },
                     ]
                   ]}
                   isTransparent={false}
                 />
-                <span style={{ color: '#ffffff', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#FFD700', fontSize: 24, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
                   label={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#ffffff' }}>
-                      <svg style={{ color: '#ffffff' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8M12 6v2M12 16v2" /></svg>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 18, fontWeight: 600, color: '#FFD700' }}>
+                      <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12h2"/></svg>
                       Forex
                     </span>
                   }
@@ -2152,12 +2147,12 @@ export default function Navbar({ brand, companyInfo }) {
                   ]}
                   isTransparent={false}
                 />
-                <span style={{ color: '#ffffff', fontSize: 20, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#FFD700', fontSize: 24, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
                   label={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 16, fontWeight: 600, color: '#ffffff' }}>
-                      <svg style={{ color: '#ffffff' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /><circle cx="5" cy="12" r="2" /></svg>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 18, fontWeight: 600, color: '#FFD700' }}>
+                      <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                       More
                     </span>
                   }
@@ -2214,7 +2209,7 @@ export default function Navbar({ brand, companyInfo }) {
                     padding: 0,
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#ffffff',
+                    color: '#FFD700',
                     cursor: 'pointer',
                     flexShrink: 0,
                     transition: 'all 0.2s'
@@ -2236,7 +2231,7 @@ export default function Navbar({ brand, companyInfo }) {
                     border: '1.5px solid rgba(0,0,0,0.1)',
                     borderRadius: 8, padding: '7px 10px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#ffffff',
+                    color: '#FFD700',
                     cursor: 'pointer',
                   }}
                 >
@@ -2260,7 +2255,7 @@ export default function Navbar({ brand, companyInfo }) {
                 <p>Select currencies to check active forex rates and prepare an inquiry for confirmation.</p>
               </div>
               <button type="button" className="forex-modal-close" aria-label="Close Forex inquiry" onClick={() => setForexOpen(false)}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" strokeWidth="2.5" strokeLinecap="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" strokeWidth="2.5" strokeLinecap="round">
                   <path d="M18 6 6 18M6 6l12 12" />
                 </svg>
               </button>
@@ -2277,7 +2272,7 @@ export default function Navbar({ brand, companyInfo }) {
                     loading={forexRatesLoading}
                   />
                   <button type="button" className="forex-swap-button" aria-label="Swap currencies" onClick={swapForexCurrencies}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M7 7h11l-3-3" />
                       <path d="M17 17H6l3 3" />
                     </svg>
@@ -2386,7 +2381,7 @@ export default function Navbar({ brand, companyInfo }) {
                 <p>Send your trip requirements and our team will custom-build options for your journey.</p>
               </div>
               <button type="button" className="flight-modal-close" aria-label="Close Flight inquiry" onClick={() => setFlightOpen(false)}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" strokeWidth="2.5" strokeLinecap="round">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" strokeWidth="2.5" strokeLinecap="round">
                   <path d="M18 6 6 18M6 6l12 12" />
                 </svg>
               </button>

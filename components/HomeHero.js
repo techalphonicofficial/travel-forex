@@ -316,13 +316,9 @@ export default function HomeHero() {
           {heroLoading && (
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#041a0c', zIndex: 2 }}>
               <style>{`
-                @keyframes plane-fly {
-                  0% { transform: translate(-30px, 30px) scale(0.8); opacity: 0; }
-                  20% { opacity: 1; }
-                  80% { opacity: 1; }
-                  100% { transform: translate(30px, -30px) scale(1.1); opacity: 0; }
-                }
-              `}</style>
+
+              
+      `}</style>
               <svg
                 width="64"
                 height="64"
