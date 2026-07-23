@@ -201,7 +201,7 @@ export default function CategoriesCarousel() {
       <div className="marquee-wrapper">
         <div className="marquee-track">
           {marqueeItems.map((category, index) => (
-            <Link key={`${category.id}-${index}`} href={`/tours?category=${category.slug || category.id}`} className="theme-card">
+            <Link key={`${category.id}-${index}`} href={`/themes/${category.slug || category.id}`} className="theme-card">
               <div className="theme-card-img-wrap">
                 <Image 
                   src={category.image} 

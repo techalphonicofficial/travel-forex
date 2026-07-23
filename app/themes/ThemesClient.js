@@ -128,7 +128,7 @@ export default function ThemesClient() {
           {categories.map((category) => (
             <Link
               key={category.id}
-              href={`/tours?category=${category.slug || category.id}`}
+              href={`/themes/${category.slug || category.id}`}
               className="theme-card-full"
             >
               <div className="theme-card-img-wrap">

@@ -128,7 +128,7 @@ export default async function BlogArticle({ params }) {
           dangerouslySetInnerHTML={{ __html: schemaMarkup }}
         />
       )}
-      <Navbar />
+      {/* <Navbar /> */}
 
       <section className="blog-hero">
         <div className="blog-hero-bg" />

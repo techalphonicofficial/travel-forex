@@ -20,7 +20,7 @@ const baseFieldKeys = ['name', 'email', 'phone'];
 const getFormPayload = (formElement, fields, pipelineId) => {
   const data = new FormData(formElement);
   const payload = {
-    pipeline_id: pipelineId || 12,
+    pipeline_id: pipelineId || 17,
     name: '',
     email: '',
     phone: '',
@@ -161,22 +161,7 @@ export default function VisaClient({ formConfig }) {
   const [selectedCountry, setSelectedCountry] = useState(null);
 
   const fields = useMemo(() => {
-    let list = formConfig?.fields?.length ? [...formConfig.fields] : [];
-    list.push({
-      id: 'visa_category',
-      fieldKey: 'visa_category',
-      label: 'Visa Category',
-      fieldType: 'text',
-      isRequired: true
-    });
-    list.push({
-      id: 'special_request',
-      fieldKey: 'special_request',
-      label: 'Special Request',
-      fieldType: 'textarea',
-      isRequired: false
-    });
-    return list;
+    return formConfig?.fields?.length ? [...formConfig.fields] : [];
   }, [formConfig]);
 
   useEffect(() => {

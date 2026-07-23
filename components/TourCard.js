@@ -97,12 +97,14 @@ export default function TourCard({ tour, className = '' }) {
         </button>
 
         {/* Price Tag on image */}
-        <div className="tour-card-price-tag">
-          <div style={{ fontSize: 11, color: 'var(--color-text-muted)', fontWeight: 600 }}>From</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-primary)', fontFamily: 'Poppins, sans-serif', lineHeight: 1.1 }}>
-            Rs {formatPriceNumber(tour.price)}
+        {tour.price > 0 && (
+          <div className="tour-card-price-tag">
+            <div style={{ fontSize: 11, color: 'var(--color-text-muted)', fontWeight: 600 }}>From</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-primary)', fontFamily: 'Poppins, sans-serif', lineHeight: 1.1 }}>
+              {formatPriceNumber(tour.price)}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Body */}
@@ -140,12 +142,16 @@ export default function TourCard({ tour, className = '' }) {
         {/* Footer */}
         <div className="tour-card-footer">
           <div>
-            {tour.originalPrice && (
+            {tour.originalPrice > 0 && (
               <div style={{ fontSize: 13, color: 'var(--color-text-muted)', textDecoration: 'line-through' }}>
-                Rs {formatPriceNumber(tour.originalPrice)}
+                {formatPriceNumber(tour.originalPrice)}
               </div>
             )}
-            <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>per person</div>
+            {tour.price > 0 ? (
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>per person</div>
+            ) : (
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary)' }}>On Request</div>
+            )}
           </div>
           <Link href={getTourViewHref(tour)} className="btn-primary btn-sm">
             View Tour

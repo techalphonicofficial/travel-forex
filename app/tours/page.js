@@ -239,7 +239,7 @@ function FilterSidebar({ filters, setFilters, resetFilters, filterOptions }) {
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div className="filter-group-title" style={{ marginBottom: 0 }}>Price Range</div>
           <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-primary)' }}>
-            Rs {formatPriceNumber(filters.minPrice)} - Rs {formatPriceNumber(filters.maxPrice)}
+            {formatPriceNumber(filters.minPrice)} - {formatPriceNumber(filters.maxPrice)}
           </span>
         </div>
         <input
@@ -253,8 +253,8 @@ function FilterSidebar({ filters, setFilters, resetFilters, filterOptions }) {
           style={{ '--value': `${priceMax ? (filters.maxPrice / priceMax) * 100 : 0}%` }}
         />
         <div className="d-flex justify-content-between mt-1" style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-          <span>Rs {formatPriceNumber(filterOptions.priceRange.min)}</span>
-          <span>Rs {formatPriceNumber(priceMax)}</span>
+          <span>{formatPriceNumber(filterOptions.priceRange.min)}</span>
+          <span>{formatPriceNumber(priceMax)}</span>
         </div>
       </div>
 
@@ -583,7 +583,7 @@ function ToursContent() {
                 )}
                 {filters.maxPrice < (filterOptions.priceRange.max || MAX_PRICE) && (
                   <span className="badge badge-primary" style={{ padding: '6px 12px', fontSize: 13 }}>
-                    Max Rs {formatPriceNumber(filters.maxPrice)}
+                    Max {formatPriceNumber(filters.maxPrice)}
                     <button onClick={() => setFilters({ ...filters, maxPrice: filterOptions.priceRange.max || MAX_PRICE })} style={{ border: 'none', background: 'none', cursor: 'pointer', marginLeft: 4, color: 'inherit' }}>x</button>
                   </span>
                 )}
