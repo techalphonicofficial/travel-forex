@@ -47,9 +47,11 @@ const normalizePackageToTour = (pkg) => {
   const price = Number(pkg?.price) || 0;
   const duration = Number(pkg?.duration_days) || 1;
   
-  // Determine if it's International or Domestic by looking at all destinations
+  // Determine if it's International or Domestic by looking at all destinations or travel_type
   const isInternational = destinationsArr.some(d => d.type?.toLowerCase() === 'international');
-  const computedType = isInternational ? 'International' : 'Domestic';
+  const computedType = pkg?.travel_type 
+    ? (pkg.travel_type.toLowerCase() === 'international' ? 'International' : 'Domestic') 
+    : (isInternational ? 'International' : 'Domestic');
 
   return {
     id: pkg?.id,
@@ -76,7 +78,9 @@ const buildApiQueryFromFilters = (filters) => {
   const query = {};
 
   if (filters.search) query.search = filters.search;
-  if (filters.type && filters.type !== 'all') query.tour_type = filters.type;
+  if (filters.type && filters.type !== 'all') {
+    query.package_type = filters.type.toLowerCase();
+  }
   if (Number(filters.minPrice) > 0) query.minPrice = filters.minPrice;
   if (Number(filters.maxPrice) > 0 && Number(filters.maxPrice) < MAX_PRICE) query.maxPrice = filters.maxPrice;
   if (filters.duration && filters.duration !== 'any') query.duration = filters.duration;

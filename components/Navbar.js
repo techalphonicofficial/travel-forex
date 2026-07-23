@@ -2054,10 +2054,9 @@ export default function Navbar({ brand, companyInfo }) {
         } }
       
         /* HEADER LINKS HOVER EFFECT */
-        header.navbar-custom a:hover,
-        header.navbar-custom a:hover svg,
-        header.navbar-custom button:hover span,
-        header.navbar-custom button:hover svg {
+        header.navbar-custom .header-nav-link:hover,
+        header.navbar-custom .header-nav-link:hover svg,
+        header.navbar-custom .header-nav-link:hover span {
           color: #ffffff !important;
         }
       `}</style>
@@ -2115,13 +2114,13 @@ export default function Navbar({ brand, companyInfo }) {
               }}
                 className="d-none d-lg-flex"
               >
-                <Link href="/flights" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s' }}>
+                <Link href="/flights" className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s' }}>
                   <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
                   Flights
                 </Link>
                 <span style={{ color: '#FFD700', fontSize: 24, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
-                <Link href={HOTEL_HREF} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s' }}>
+                <Link href={HOTEL_HREF} className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s' }}>
                   <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/></svg>
                   Hotels
                 </Link>
