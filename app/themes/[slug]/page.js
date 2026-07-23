@@ -4,7 +4,7 @@ import ThemeDetailClient from './ThemeDetailClient';
 export const dynamic = 'force-dynamic';
 
 export default async function ThemeDetailPage({ params }) {
-  const { slug } = params;
+  const { slug } = await params;
 
   // Fetch all categories to find the current one for its title and banner image
   const allCategories = await getPackageCategories();

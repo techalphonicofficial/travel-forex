@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { getStoredAuth, getStoredToken } from '@/utils/api';
+import { getStoredAuth, getStoredToken, getMediaUrl } from '@/utils/api';
 import TrustedPartners from '@/components/TrustedPartners';
 
 const getInputType = (fieldType) => {
@@ -142,7 +142,7 @@ const faqs = [
 
 // trustedPartners array removed and delegated to components/TrustedPartners.js
 
-export default function VisaClient({ formConfig }) {
+export default function VisaClient({ formConfig, pageData }) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -209,6 +209,7 @@ export default function VisaClient({ formConfig }) {
 
       toast.success('Your Visa inquiry has been submitted! Our visa expert will call you shortly to assist with your document requirements.');
       form.reset();
+      setIsModalOpen(false);
     } catch (err) {
       toast.error(err.message || 'Unable to process request. Please try again.');
     } finally {
@@ -221,11 +222,16 @@ export default function VisaClient({ formConfig }) {
     setIsModalOpen(true);
   };
 
+  const destinationTabs = pageData?.details?.find(d => d.section === 'destination_tabs')?.json_data?.tabs || [];
+  const apiFreeCountries = destinationTabs[0]?.destinations?.map(d => ({ id: d.slug, name: d.name, category: 'free-on-arrival', image: getMediaUrl(d.image) })) || freeAndOnArrivalCountries;
+  const apiEVisaCountries = destinationTabs[1]?.destinations?.map(d => ({ id: d.slug, name: d.name, category: 'e-visa', image: getMediaUrl(d.image) })) || eVisaCountries;
+  const apiStampedCountries = destinationTabs[2]?.destinations?.map(d => ({ id: d.slug, name: d.name, category: 'stamped', image: getMediaUrl(d.image) })) || stampedVisaCountries;
+
   const currentList = useMemo(() => {
     let list = [];
-    if (activeCategory === 'free-on-arrival') list = freeAndOnArrivalCountries;
-    if (activeCategory === 'e-visa') list = eVisaCountries;
-    if (activeCategory === 'stamped') list = stampedVisaCountries;
+    if (activeCategory === 'free-on-arrival') list = apiFreeCountries;
+    if (activeCategory === 'e-visa') list = apiEVisaCountries;
+    if (activeCategory === 'stamped') list = apiStampedCountries;
 
     if (searchTerm) {
       list = list.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));

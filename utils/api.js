@@ -167,6 +167,8 @@ export const getCategories = async () => {
   }
 };
 
+
+
 let destinationsCache = {};
 
 let allDestinationsCache = null;
@@ -722,14 +724,16 @@ export const getPackages = async (filters = {}) => {
     const params = Object.fromEntries(
       Object.entries(filters).filter(([, value]) => value !== undefined && value !== null && value !== '')
     );
-    const response = await axios.get('/api/packages', {
-      params: { ...params, _t: Date.now() },
-      headers: {
-        'Cache-Control': 'no-cache',
-        Pragma: 'no-cache',
-      },
-      validateStatus: () => true,
-    });
+    const response = typeof window === 'undefined'
+      ? await apiClient.get('/packages', { params })
+      : await axios.get('/api/packages', {
+          params: { ...params, _t: Date.now() },
+          headers: {
+            'Cache-Control': 'no-cache',
+            Pragma: 'no-cache',
+          },
+          validateStatus: () => true,
+        });
     return normalizeApiData(response) || [];
   } catch (error) {
     console.error('Error fetching packages:', error);

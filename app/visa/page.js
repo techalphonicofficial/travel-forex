@@ -24,6 +24,21 @@ const getPipelineForm = async () => {
   }
 };
 
+const getVisaPageData = async () => {
+  try {
+    const res = await fetch('https://tourtravel.yber.in/api/v1/pages/slug/visa', {
+      headers: { accept: 'application/json' },
+      next: { revalidate: 60 }
+    });
+    if (!res.ok) return null;
+    const payload = await res.json();
+    return payload?.success ? payload.data : null;
+  } catch (error) {
+    console.error('Error fetching visa page data:', error);
+    return null;
+  }
+};
+
 const normalizeFieldOptions = (options) => {
   if (!Array.isArray(options)) return [];
   return options
@@ -80,11 +95,14 @@ export const metadata = {
 };
 
 export default async function VisaPage() {
-  const pipelineForm = await getPipelineForm();
+  const [pipelineForm, pageData] = await Promise.all([
+    getPipelineForm(),
+    getVisaPageData()
+  ]);
   const formConfig = normalizeFormConfig(pipelineForm);
   return (
     <Suspense fallback={<div>Loading Visa Information...</div>}>
-      <VisaClient formConfig={formConfig} />
+      <VisaClient formConfig={formConfig} pageData={pageData} />
     </Suspense>
   );
 }

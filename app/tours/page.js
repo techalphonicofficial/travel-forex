@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import TourCard from '@/components/TourCard';
 import { TourCardSkeleton } from '@/components/SkeletonLoader';
-import { getMediaUrl, getPackageFilters, getPackages } from '@/utils/api';
+import { getMediaUrl, getPackageFilters, getPackages, getCategories } from '@/utils/api';
 import TourItineraryView from './TourItineraryView';
 
 const DEFAULT_TOUR_TYPES = [{ key: 'all', label: 'All', count: 0 }];
@@ -46,11 +46,11 @@ const normalizePackageToTour = (pkg) => {
   const location = destinationNames.length ? destinationNames.join(', ') : city || country || 'Destination';
   const price = Number(pkg?.price) || 0;
   const duration = Number(pkg?.duration_days) || 1;
-  
+
   // Determine if it's International or Domestic by looking at all destinations or travel_type
   const isInternational = destinationsArr.some(d => d.type?.toLowerCase() === 'international');
-  const computedType = pkg?.travel_type 
-    ? (pkg.travel_type.toLowerCase() === 'international' ? 'International' : 'Domestic') 
+  const computedType = pkg?.travel_type
+    ? (pkg.travel_type.toLowerCase() === 'international' ? 'International' : 'Domestic')
     : (isInternational ? 'International' : 'Domestic');
 
   return {
@@ -84,7 +84,7 @@ const buildApiQueryFromFilters = (filters) => {
   if (Number(filters.minPrice) > 0) query.minPrice = filters.minPrice;
   if (Number(filters.maxPrice) > 0 && Number(filters.maxPrice) < MAX_PRICE) query.maxPrice = filters.maxPrice;
   if (filters.duration && filters.duration !== 'any') query.duration = filters.duration;
-  if (filters.package_category_slug) query.package_category_slug = filters.package_category_slug;
+  if (filters.package_category_slug) query.category = filters.package_category_slug;
 
   return query;
 };
@@ -343,13 +343,24 @@ function ToursContent() {
     package_category_slug: searchParams.get('package_category_slug') || searchParams.get('category') || '',
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [categoryList, setCategoryList] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    getCategories().then(cats => {
+      if (isMounted && cats && Array.isArray(cats)) {
+        setCategoryList(cats);
+      }
+    });
+    return () => { isMounted = false; };
+  }, []);
 
   useEffect(() => {
     setFilters((prev) => {
       const newType = searchParams.get('tour_type') || searchParams.get('type') || 'all';
       const newSearch = getUrlSearchValue(searchParams);
       const newCategory = searchParams.get('package_category_slug') || searchParams.get('category') || '';
-      
+
       if (prev.type !== newType || prev.search !== newSearch || prev.package_category_slug !== newCategory) {
         return {
           ...prev,
@@ -429,13 +440,7 @@ function ToursContent() {
       result = result.filter(t => t.type?.toUpperCase() === filters.type);
     }
 
-    if (filters.package_category_slug) {
-      const catSearch = filters.package_category_slug.toLowerCase();
-      result = result.filter(t => 
-        t.title.toLowerCase().includes(catSearch) || 
-        t.description?.toLowerCase().includes(catSearch)
-      );
-    }
+
 
     result = result.filter(
       (t) => t.price >= filters.minPrice && t.price <= filters.maxPrice
@@ -535,6 +540,48 @@ function ToursContent() {
           </div>
 
           <div className="col-lg-9">
+            {categoryList && categoryList.length > 0 && (
+              <div className="d-flex overflow-auto gap-2 mb-4 pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                <style>{`
+                  .category-pill {
+                    white-space: nowrap;
+                    padding: 8px 16px;
+                    border-radius: 99px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    border: 1px solid var(--color-border);
+                    background: white;
+                    color: var(--color-text-secondary);
+                  }
+                  .category-pill:hover {
+                    background: var(--color-bg-soft);
+                  }
+                  .category-pill.active {
+                    background: var(--color-primary);
+                    color: white;
+                    border-color: var(--color-primary);
+                  }
+                `}</style>
+                <button
+                  className={`category-pill ${!filters.package_category_slug ? 'active' : ''}`}
+                  onClick={() => setFilters({ ...filters, package_category_slug: '' })}
+                >
+                  All Categories
+                </button>
+                {categoryList.map(cat => (
+                  <button
+                    key={cat.slug}
+                    className={`category-pill ${filters.package_category_slug === cat.slug ? 'active' : ''}`}
+                    onClick={() => setFilters({ ...filters, package_category_slug: cat.slug })}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
               <div>
                 <span style={{ fontWeight: 700, fontSize: 17, color: 'var(--color-text-primary)' }}>

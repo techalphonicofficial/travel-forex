@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getHomeCategories, getMediaUrl } from '@/utils/api';
+import { getPackageCategories, getMediaUrl } from '@/utils/api';
 
 export default function ThemesClient() {
   const [categories, setCategories] = useState([]);
@@ -13,11 +13,11 @@ export default function ThemesClient() {
     let mounted = true;
     const fetchCategories = async () => {
       try {
-        const res = await getHomeCategories();
+        const res = await getPackageCategories();
         if (mounted && Array.isArray(res)) {
           setCategories(res.map(c => ({
             id: c.id,
-            label: c.name,
+            label: c.title,
             image: getMediaUrl(c.feature_image) || '/images/banners/banner1.png',
             slug: c.slug
           })));
