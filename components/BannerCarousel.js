@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { getMediaUrl } from '@/utils/api';
 
 const DEFAULT_BANNERS = [
   '/images/banners/banner1.png',
@@ -8,37 +9,34 @@ const DEFAULT_BANNERS = [
   '/images/banners/banner3.png'
 ];
 
-export default function BannerCarousel({ banners = DEFAULT_BANNERS }) {
+export default function BannerCarousel({ banners = [] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const timerRef = useRef(null);
 
-  // console.log("banners------->>>", banners);
+  const displayBanners = banners?.length > 0 ? banners : DEFAULT_BANNERS;
 
   useEffect(() => {
-    if (banners.length <= 1) return;
+    if (displayBanners.length <= 1) return;
 
     if (!isHovered) {
       timerRef.current = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % banners.length);
+        setCurrentIndex((prev) => (prev + 1) % displayBanners.length);
       }, 4000);
     }
 
     return () => clearInterval(timerRef.current);
-  }, [banners.length, isHovered]);
-
-
-
+  }, [displayBanners.length, isHovered]);
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
+    setCurrentIndex((prev) => (prev === 0 ? displayBanners.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % banners.length);
+    setCurrentIndex((prev) => (prev + 1) % displayBanners.length);
   };
 
-  if (!banners || banners.length === 0) return null;
+  if (!displayBanners || displayBanners.length === 0) return null;
 
   return (
     <div className="banner-carousel-section container">
@@ -51,18 +49,22 @@ export default function BannerCarousel({ banners = DEFAULT_BANNERS }) {
           className="banner-carousel-track"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
-          {banners.map((src, idx) => (
-            <div className="banner-slide" key={`banner-${idx}`}>
-              <Image
-                src={src}
-                alt={`Banner ${idx + 1}`}
-                fill
-                sizes="100vw"
-                style={{ objectFit: 'cover', objectPosition: 'center' }}
-                priority={idx === 0}
-              />
-            </div>
-          ))}
+          {displayBanners.map((banner, idx) => {
+            const imgSrc = typeof banner === 'string' ? banner : getMediaUrl(banner?.img || banner);
+            const altText = banner?.lbl || `Banner ${idx + 1}`;
+            return (
+              <div className="banner-slide" key={`banner-${idx}`}>
+                <Image
+                  src={imgSrc}
+                  alt={altText}
+                  fill
+                  sizes="100vw"
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  priority={idx === 0}
+                />
+              </div>
+            );
+          })}
         </div>
 
         {banners.length > 1 && (

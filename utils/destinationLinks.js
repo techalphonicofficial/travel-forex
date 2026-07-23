@@ -26,5 +26,5 @@ export const getDestinationHref = (destination, { traveller } = {}) => {
   if (value) params.set('destination', value);
 
   const query = params.toString();
-  return query ? `/tours?${query}` : '/tours';
+  return query ? `/packages?${query}` : '/packages';
 };

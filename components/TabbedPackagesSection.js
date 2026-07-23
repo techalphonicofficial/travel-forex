@@ -25,9 +25,11 @@ const normalizePackage = (pkg) => {
   const price = Number(pkg.price) || 0;
   const image = getMediaUrl(pkg.main_image) || getMediaUrl(firstDestination?.feature_image) || FALLBACK_PACKAGE_IMAGE;
 
-  const isDomestic = String(firstDestination?.type || '').toLowerCase() === 'domestic' || 
-                     String(firstDestination?.name || '').toLowerCase() === 'india' ||
-                     String(firstMapping?.city?.country?.name || '').toLowerCase() === 'india';
+  const isDomestic = pkg.travel_type 
+    ? String(pkg.travel_type).toLowerCase() === 'domestic'
+    : (String(firstDestination?.type || '').toLowerCase() === 'domestic' || 
+       String(firstDestination?.name || '').toLowerCase() === 'india' ||
+       String(firstMapping?.city?.country?.name || '').toLowerCase() === 'india');
 
   return {
     id: pkg.id,
@@ -50,8 +52,6 @@ export default function TabbedPackagesSection({ formConfig }) {
   
   // Primary Tabs: 'domestic' | 'international'
   const [activeRegion, setActiveRegion] = useState('domestic');
-  // Secondary Tabs: destination names
-  const [activeSubTab, setActiveSubTab] = useState('');
   
   useEffect(() => {
     let mounted = true;
@@ -77,20 +77,7 @@ export default function TabbedPackagesSection({ formConfig }) {
 
   const regionPackages = activeRegion === 'domestic' ? domesticList : internationalList;
   
-  // Extract unique destinations for sub-tabs
-  const subTabs = Array.from(new Set(regionPackages.map(p => p.destination))).filter(Boolean).slice(0, 10); // Top 10 destinations
-
-  useEffect(() => {
-    if (subTabs.length > 0 && !subTabs.includes(activeSubTab)) {
-      setActiveSubTab(subTabs[0]);
-    } else if (subTabs.length === 0) {
-      setActiveSubTab('');
-    }
-  }, [activeRegion, subTabs, activeSubTab]);
-
-  const displayedPackages = activeSubTab 
-    ? regionPackages.filter(p => p.destination === activeSubTab).slice(0, 6)
-    : regionPackages.slice(0, 6);
+  const displayedPackages = regionPackages.slice(0, 5);
 
   return (
     <section style={{ padding: '40px 0', background: 'transparent' }}>
@@ -149,35 +136,6 @@ export default function TabbedPackagesSection({ formConfig }) {
           </div>
         </div>
 
-        {/* Secondary Sub-tabs */}
-        {subTabs.length > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 10, overflowX: 'auto', paddingBottom: 16, scrollbarWidth: 'none', marginBottom: 32 }}>
-            {subTabs.map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveSubTab(tab)}
-                className="secondary-tab-btn"
-                style={{
-                  padding: '10px 24px', 
-                  borderRadius: 999, 
-                  border: '1px solid', 
-                  fontSize: 14, 
-                  fontWeight: 600, 
-                  cursor: 'pointer', 
-                  whiteSpace: 'nowrap',
-                  textTransform: 'capitalize',
-                  borderColor: activeSubTab === tab ? 'transparent' : '#cbd5e1',
-                  background: activeSubTab === tab ? 'var(--color-primary)' : '#ffffff',
-                  color: activeSubTab === tab ? 'white' : '#475569',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: activeSubTab === tab ? '0 6px 14px rgba(2, 110, 181, 0.25)' : '0 2px 4px rgba(0,0,0,0.02)',
-                }}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        )}
 
         {/* Packages Grid */}
         {loading ? (
@@ -187,7 +145,7 @@ export default function TabbedPackagesSection({ formConfig }) {
             ))}
           </div>
         ) : displayedPackages.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>No packages found for {activeSubTab || 'this region'}.</div>
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>No packages found for {activeRegion === 'domestic' ? 'India' : 'International'}.</div>
         ) : (
           <div className="magazine-grid">
             <style>{`
@@ -370,9 +328,7 @@ export default function TabbedPackagesSection({ formConfig }) {
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                         {pkg.nights}N / {pkg.nights + 1}D
                       </div>
-                      <div className="mag-price">
-                        ₹{pkg.price.toLocaleString('en-IN')}
-                      </div>
+
                     </div>
                   </div>
                   <div className="explore-btn">
@@ -383,6 +339,30 @@ export default function TabbedPackagesSection({ formConfig }) {
             })}
           </div>
         )}
+
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px' }}>
+          <Link href={`/tours?type=${activeRegion.toUpperCase()}`} style={{
+            background: 'var(--color-primary)',
+            color: 'white',
+            padding: '12px 28px',
+            borderRadius: '8px',
+            fontWeight: 600,
+            fontSize: '15px',
+            textDecoration: 'none',
+            boxShadow: '0 4px 14px color-mix(in srgb, var(--color-primary) 30%, transparent)',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 6px 20px color-mix(in srgb, var(--color-primary) 40%, transparent)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 14px color-mix(in srgb, var(--color-primary) 30%, transparent)';
+          }}>
+            View All {activeRegion.charAt(0).toUpperCase() + activeRegion.slice(1)} Packages
+          </Link>
+        </div>
       </div>
 
       <InquiryForm

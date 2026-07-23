@@ -30,14 +30,10 @@ const mapDestination = (destination, index) => ({
 });
 
 function DestinationMosaicCard({ item, type, index, isMirrored }) {
-  // Pattern 1 (Trending): Large on Left (index 0 is large)
-  // Pattern 2 (Visa Free): Large on Right (index 4 is large)
-  const isLarge = isMirrored ? index === 4 : index === 0;
-
   return (
     <Link
       href={item.href || getDestinationHref(item)}
-      className={`dest-card ${isLarge ? 'dest-large' : 'dest-small'}`}
+      className="dest-card"
     >
       <div className="dest-img-wrap">
         <img
@@ -93,12 +89,12 @@ export default function PopularDestinationRows() {
         {
           id: 'trending',
           title: 'TRENDING DESTINATIONS',
-          items: trending?.length ? trending.slice(0, 5).map(mapDestination) : [],
+          items: trending?.length ? trending.slice(0, 6).map(mapDestination) : [],
         },
         {
           id: 'visafree',
           title: 'VISA FREE DESTINATIONS',
-          items: visaFree?.length ? visaFree.slice(0, 5).map(mapDestination) : [],
+          items: visaFree?.length ? visaFree.slice(0, 6).map(mapDestination) : [],
         },
       ]);
       setLoading(false);
@@ -129,18 +125,10 @@ export default function PopularDestinationRows() {
       <style>{`
         .dest-grid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          grid-auto-rows: 200px;
+          grid-template-columns: repeat(3, 1fr);
+          grid-auto-rows: 220px;
           gap: 16px;
         }
-
-        .dest-grid.mirrored .dest-large {
-          grid-column: span 2;
-          grid-row: span 2;
-          order: 10; /* Force it to the end logically if needed, but CSS Grid places by source order. We'll rely on source order handling or explicit placement. */
-        }
-        
-        /* If mirrored, we want index 4 to be large, and it's at the end. It naturally falls into the last 2x2 cells. */
 
         .dest-card {
           border-radius: 16px;
@@ -152,21 +140,13 @@ export default function PopularDestinationRows() {
           text-decoration: none;
           transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+          grid-column: span 1;
+          grid-row: span 1;
         }
 
         .dest-card:hover {
           transform: translateY(-6px);
           box-shadow: 0 16px 32px rgba(0,0,0,0.15);
-        }
-
-        .dest-large {
-          grid-column: span 2;
-          grid-row: span 2;
-        }
-
-        .dest-small {
-          grid-column: span 1;
-          grid-row: span 1;
         }
 
         .dest-img-wrap {
@@ -247,13 +227,8 @@ export default function PopularDestinationRows() {
             grid-template-columns: repeat(2, 1fr);
             grid-template-rows: auto;
           }
-          .dest-large, .dest-small {
-            grid-column: span 1;
-            grid-row: span 1;
+          .dest-card {
             height: 220px;
-          }
-          .dest-large .dest-title {
-            font-size: 24px;
           }
         }
 
@@ -317,6 +292,30 @@ export default function PopularDestinationRows() {
                   We are refreshing these destinations. Please check back soon.
                 </div>
               )}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px' }}>
+              <Link href={`/destinations?type=${row.id}`} style={{
+                background: 'var(--color-primary)',
+                color: 'white',
+                padding: '12px 28px',
+                borderRadius: '8px',
+                fontWeight: 600,
+                fontSize: '15px',
+                textDecoration: 'none',
+                boxShadow: '0 4px 14px color-mix(in srgb, var(--color-primary) 30%, transparent)',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 20px color-mix(in srgb, var(--color-primary) 40%, transparent)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 14px color-mix(in srgb, var(--color-primary) 30%, transparent)';
+              }}>
+                View All Destinations
+              </Link>
             </div>
           </div>
         ))}

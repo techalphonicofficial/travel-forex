@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { getMediaUrl } from '@/utils/api';
 
 const mockOffers = [
   {
@@ -37,7 +38,20 @@ const mockOffers = [
   },
 ];
 
-export default function OffersCarousel() {
+export default function OffersCarousel({ offersData = null }) {
+  const dynamicOffers = offersData?.offers?.map((offer, idx) => ({
+    id: idx + 1,
+    title: offer.title,
+    code: offer.code,
+    validity: offer.validity,
+    image: getMediaUrl(offer.image),
+    tag: offer.type || 'Offer',
+  })) || [];
+
+  const displayOffers = dynamicOffers.length > 0 ? dynamicOffers : mockOffers;
+  const displayTitle = offersData?.heading_content || "Exclusive Offers";
+  const displayDescription = offersData?.description || "Grab the best deals on flights, hotels, and holiday packages.";
+
   return (
     <section style={{ padding: '0', background: 'transparent' }}>
       <style>{`
@@ -184,16 +198,16 @@ export default function OffersCarousel() {
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 20, marginBottom: 20, paddingBottom: 20, paddingTop: 20 }}>
           <div style={{ textAlign: 'center' }}>
             <h2 style={{ fontSize: 32, fontWeight: 900, color: 'var(--color-text-primary)', margin: 0, letterSpacing: '-0.5px' }}>
-              Exclusive Offers
+              {displayTitle}
             </h2>
             <p style={{ margin: '8px 0 0', color: 'var(--color-text-secondary)', fontSize: 16 }}>
-              Grab the best deals on flights, hotels, and holiday packages.
+              {displayDescription}
             </p>
           </div>
         </div>
 
         <div className="offers-grid">
-          {mockOffers.map((offer, index) => (
+          {displayOffers.map((offer, index) => (
             <div key={offer.id} className={`offer-card offer-card-${index}`}>
               <div className="offer-card-img-wrap">
                 <Image 

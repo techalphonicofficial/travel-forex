@@ -1,17 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { registerCustomer } from '@/utils/api';
+import { registerCustomer, getMediaUrl } from '@/utils/api';
 
 export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [logo, setLogo] = useState('https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp');
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
   const password = watch('password');
+
+  useEffect(() => {
+    fetch('/api/company-info')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.company_logo_url) {
+          setLogo(getMediaUrl(data.company_logo_url));
+        }
+      })
+      .catch(err => console.error('Error fetching logo:', err));
+  }, []);
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -49,7 +61,7 @@ export default function RegisterPage() {
 
         {/* Top Logo overlaid on image */}
         <Link href="/" style={{ position: 'absolute', top: 40, left: 60, zIndex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <img src="https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp" alt="Logo" style={{ width: 80, height: 80, objectFit: 'contain' }} />
+          <img src={logo} alt="Logo" style={{ width: 80, height: 80, objectFit: 'contain' }} />
         </Link>
 
         {/* Bottom Text overlaid on image */}
@@ -64,12 +76,7 @@ export default function RegisterPage() {
 
         {/* Mobile Header (only visible on small screens) */}
         <Link href="/" className="d-lg-none" style={{ position: 'absolute', top: 30, left: 24, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg viewBox="0 0 24 24" fill="white" width="18" height="18">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-            </svg>
-          </div>
-          <span style={{ fontSize: 22, fontWeight: 800, color: '#111827', letterSpacing: -0.5 }}>ITS TRAVELS AND TOURS</span>
+          <img src={logo} alt="Logo" style={{ width: 80, height: 80, objectFit: 'contain' }} />
         </Link>
 
         <div style={{ width: '100%', maxWidth: 460 }}>

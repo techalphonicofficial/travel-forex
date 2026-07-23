@@ -1,16 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { forgotCustomerPassword, loginCustomer, resetCustomerPassword } from '@/utils/api';
+import { forgotCustomerPassword, loginCustomer, resetCustomerPassword, getMediaUrl } from '@/utils/api';
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const [logo, setLogo] = useState('https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp');
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotStep, setForgotStep] = useState('email');
   const [forgotLoading, setForgotLoading] = useState(false);
@@ -20,6 +21,17 @@ export default function LoginPage() {
   const [forgotPassword, setForgotPassword] = useState('');
   const [forgotConfirmPassword, setForgotConfirmPassword] = useState('');
   const { register, handleSubmit, setValue, formState: { errors } } = useForm();
+
+  useEffect(() => {
+    fetch('/api/company-info')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.company_logo_url) {
+          setLogo(getMediaUrl(data.company_logo_url));
+        }
+      })
+      .catch(err => console.error('Error fetching logo:', err));
+  }, []);
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -140,7 +152,7 @@ export default function LoginPage() {
 
         {/* Top Logo overlaid on image */}
         <Link href="/" style={{ position: 'absolute', top: 40, left: 60, zIndex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <img src="https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp" alt="Logo" style={{ width: 80, height: 80, objectFit: 'contain' }} />
+          <img src={logo} alt="Logo" style={{ width: 80, height: 80, objectFit: 'contain' }} />
         </Link>
 
         {/* Bottom Text overlaid on image */}
@@ -155,7 +167,7 @@ export default function LoginPage() {
 
         {/* Mobile Header (only visible on small screens) */}
         <Link href="/" className="d-lg-none" style={{ position: 'absolute', top: 30, left: 24, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <img src="https://i.ibb.co/6cV4xWbm/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy.webp" alt="Logo" style={{ width: 80, height: 80 }} />
+          <img src={logo} alt="Logo" style={{ width: 80, height: 80, objectFit: 'contain' }} />
         </Link>
 
         <div style={{ width: '100%', maxWidth: 420 }}>

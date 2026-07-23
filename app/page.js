@@ -99,6 +99,16 @@ export default async function HomePage() {
     (detail) => detail?.section === 'gallery' && detail?.key === 'our_trusted_partner'
   );
 
+  const bannerSection = homePage?.details?.find(
+    (detail) => detail?.section === 'gallery' && detail?.key === 'banner_key'
+  );
+  const banners = bannerSection?.json_data?.images || [];
+
+  const offerSection = homePage?.details?.find(
+    (detail) => detail?.section === 'offer_grid' && detail?.key === 'offer_key'
+  );
+  const offersData = offerSection?.json_data || null;
+
   return (
     <>
       {/* Dark video hero — outside warm ivory wrapper */}
@@ -113,7 +123,7 @@ export default async function HomePage() {
         </FadeInSection>
         
         <FadeInSection delay={100}>
-          <OffersCarousel />
+          <OffersCarousel offersData={offersData} />
         </FadeInSection>
 
         <FadeInSection delay={100}>
@@ -125,7 +135,7 @@ export default async function HomePage() {
         </FadeInSection>
 
         <FadeInSection delay={100}>
-          <BannerCarousel />
+          <BannerCarousel banners={banners} />
         </FadeInSection>
 
         <FadeInSection delay={100}>
