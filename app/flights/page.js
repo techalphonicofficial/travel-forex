@@ -70,6 +70,22 @@ const normalizeFormConfig = (formConfig) => {
   };
 };
 
+
+const fetchPage = async () => {
+  try {
+    const res = await fetch('https://tourtravel.yber.in/api/v1/pages/slug/Flights', {
+      headers: { accept: '*/*' },
+      cache: 'no-store'
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.success ? json.data : null;
+  } catch (error) {
+    console.error('Error fetching Flights page:', error);
+    return null;
+  }
+};
+
 export const metadata = {
   title: 'Book International & Domestic Flights | Best Flight Deals & Airline Tickets',
   description:
@@ -79,11 +95,13 @@ export const metadata = {
 };
 
 export default async function FlightsPage() {
+  const pageData = await fetchPage();
   const roundTripData = await fetchPipeline(PIPELINE_ROUND_TRIP);
   const oneWayData = await fetchPipeline(PIPELINE_ONE_WAY);
   
   return (
-    <FlightsClient 
+    <FlightsClient
+      pageData={pageData} 
       roundTripConfig={normalizeFormConfig(roundTripData)}
       oneWayConfig={normalizeFormConfig(oneWayData)}
     />

@@ -411,20 +411,41 @@ function Tag({ label, color, bg }) {
 function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+  const timeoutRef = useRef(null);
 
   // close on outside click
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
     document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, []);
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setOpen(false);
+    }, 150);
+  };
 
   const linkColor = isTransparent ? 'rgba(255,255,255,0.92)' : '#374151';
 
   return (
-    <li ref={ref} style={{ position: 'relative', listStyle: 'none' }}>
+    <li 
+      ref={ref} 
+      style={{ position: 'relative', listStyle: 'none' }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <button
         onClick={() => setOpen(!open)}
+        className="header-nav-link"
         style={{
           display: 'flex', alignItems: 'center', gap: 5,
           background: 'none', border: 'none', cursor: 'pointer',
@@ -433,8 +454,6 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
           transition: 'color 0.2s',
           whiteSpace: 'nowrap',
         }}
-        onMouseEnter={e => { if (!isTransparent) e.currentTarget.style.color = 'var(--color-primary)'; }}
-        onMouseLeave={e => { if (!isTransparent) e.currentTarget.style.color = '#374151'; }}
       >
         {label}
         <svg
@@ -2034,6 +2053,13 @@ export default function Navbar({ brand, companyInfo }) {
           letter-spacing: 0.5px;
         } }
       
+        /* HEADER LINKS HOVER EFFECT */
+        header.navbar-custom a:hover,
+        header.navbar-custom a:hover svg,
+        header.navbar-custom button:hover span,
+        header.navbar-custom button:hover svg {
+          color: #ffffff !important;
+        }
       `}</style>
 
 

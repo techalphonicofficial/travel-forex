@@ -115,7 +115,29 @@ const faqs = [
   { q: 'Are ticket cancellation or rescheduling charges applicable?', a: 'Yes, cancellations and rescheduling are subject to individual airline policies plus a nominal agency processing fee. We recommend selecting flexible fare options if your travel plans are tentative.' }
 ];
 
-export default function FlightsClient({ roundTripConfig, oneWayConfig }) {
+export default function FlightsClient({ roundTripConfig, oneWayConfig, pageData }) {
+
+  const heroSection = pageData?.details?.find(d => d.section === 'image_text' && d.key === 'hero_key');
+  const whyBookSection = pageData?.details?.find(d => d.section === 'team_grid' && d.key === 'book-key');
+  const faqSection = pageData?.details?.find(d => d.section === 'faq_accordion');
+  
+  const heroTitle = heroSection?.title || '✈ Global Airline Tickets';
+  const heroHeading = heroSection?.json_data?.heading_content || 'Fly Anywhere, For Less';
+  const heroDesc = heroSection?.json_data?.body || 'Book international and domestic flight tickets at exclusive discount rates. We compare corporate fares and group discounts to give you lower prices than major travel portals.';
+  const heroPoints = heroSection?.json_data?.points || [{ title: '✔ Zero Booking Fees' }, { title: '✔ Instant Confirmation' }, { title: '✔ 24/7 Ticketing Support' }];
+
+  const whyBookTitle = whyBookSection?.title || 'Why Book Flights with Us?';
+  const whyBookDesc = whyBookSection?.json_data?.heading_content || 'Experience seamless ticketing and premium post-booking customer assistance.';
+  const whyBookPoints = whyBookSection?.json_data?.team || [
+    { name: 'Exclusive Corporate Fares', bio: 'Access special contract fares and companion discounts not listed on online booking engines, helping you save up to 15% on tickets.', img: '🛡' },
+    { name: 'No Hidden Conveniences Fees', bio: 'Unlike OTA portals that add hefty convenience fees at checkout, our quotation lists clean, final pricing with no surprises.', img: '💼' },
+    { name: '24/7 Schedule Monitoring', bio: 'Our helpdesk monitors flights round the clock to immediately support you with alternative routes, rescheduling, or refunds in case of airline delays.', img: '📢' }
+  ];
+
+  const faqTitle = faqSection?.title || 'Frequently Asked Questions';
+  const faqDesc = faqSection?.json_data?.heading_content || 'Get answers to common flight booking questions.';
+  const dynamicFaqs = faqSection?.json_data?.faqs || faqs;
+
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -198,13 +220,13 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig }) {
         <div className="container">
           <div className="flights-hero-grid">
             <div className="flights-hero-copy">
-              <span>✈ Global Airline Tickets</span>
-              <h1>Fly Anywhere, For <span style={{ color: 'var(--color-secondary)' }}>Less</span></h1>
-              <p>Book international and domestic flight tickets at exclusive discount rates. We compare corporate fares and group discounts to give you lower prices than major travel portals.</p>
+              <span>{heroTitle}</span>
+              <h1>{heroHeading.split('Less')[0]} <span style={{ color: 'var(--color-secondary)' }}>Less</span></h1>
+              <p>{heroDesc}</p>
               <div className="flights-hero-badges">
-                <span className="flights-tag-badge">✔ Zero Booking Fees</span>
-                <span className="flights-tag-badge">✔ Instant Confirmation</span>
-                <span className="flights-tag-badge">✔ 24/7 Ticketing Support</span>
+                {heroPoints.map((pt, idx) => (
+                  <span key={idx} className="flights-tag-badge">{pt.title}</span>
+                ))}
               </div>
             </div>
 
@@ -253,36 +275,32 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig }) {
       {/* 4. WHY BOOK WITH US */}
       <section className="flights-section container">
         <div className="flights-section-head text-center">
-          <h2>Why Book Flights with Us?</h2>
-          <p>Experience seamless ticketing and premium post-booking customer assistance.</p>
+          <h2>{whyBookTitle}</h2>
+          <p>{whyBookDesc}</p>
         </div>
         <div className="flights-features-grid">
-          <div className="flights-feature-box">
-            <div className="feature-icon">🛡</div>
-            <h3>Exclusive Corporate Fares</h3>
-            <p>Access special contract fares and companion discounts not listed on online booking engines, helping you save up to 15% on tickets.</p>
-          </div>
-          <div className="flights-feature-box">
-            <div className="feature-icon">💼</div>
-            <h3>No Hidden Conveniences Fees</h3>
-            <p>Unlike OTA portals that add hefty convenience fees at checkout, our quotation lists clean, final pricing with no surprises.</p>
-          </div>
-          <div className="flights-feature-box">
-            <div className="feature-icon">📢</div>
-            <h3>24/7 Schedule Monitoring</h3>
-            <p>Our helpdesk monitors flights round the clock to immediately support you with alternative routes, rescheduling, or refunds in case of airline delays.</p>
-          </div>
+          {whyBookPoints.map((pt, idx) => {
+            const icons = ['🛡', '💼', '📢', '⭐', '✈️'];
+            const icon = pt.img || icons[idx % icons.length];
+            return (
+              <div key={idx} className="flights-feature-box">
+                <div className="feature-icon">{icon}</div>
+                <h3>{pt.name}</h3>
+                <p>{pt.bio}</p>
+              </div>
+            );
+          })}
         </div>
       </section>
 
       {/* 5. FAQS */}
       <section className="flights-section container" style={{ maxWidth: '800px' }}>
         <div className="flights-section-head text-center">
-          <h2>Frequently Asked Questions</h2>
-          <p>Get answers to common flight booking questions.</p>
+          <h2>{faqTitle}</h2>
+          <p>{faqDesc}</p>
         </div>
         <div className="flights-faq-list">
-          {faqs.map((faq, idx) => {
+          {dynamicFaqs.map((faq, idx) => {
             const isOpen = activeFaqIndex === idx;
             return (
               <div key={idx} className="flights-faq-item">
