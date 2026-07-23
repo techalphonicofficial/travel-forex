@@ -647,7 +647,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
     },
 
     { label: 'Testimonial', href: '/testimonials' },
-    { label: 'FAQ', href: '/contact#faq' },
+    // { label: 'FAQ', href: '/contact#faq' },
     { label: 'Contact us', href: '/contact' },
     { label: 'Blog', href: '/blog' },
     { label: 'About us', href: '/about' }
