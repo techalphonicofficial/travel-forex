@@ -98,7 +98,7 @@ export default async function BlogPage({ searchParams }) {
 
   return (
     <main style={{ background: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Navbar />
+      {/* <Navbar /> */}
 
       <div style={{ position: 'relative', overflow: 'hidden', padding: '112px 24px 72px', textAlign: 'center', background: '#111827' }}>
         <Image
