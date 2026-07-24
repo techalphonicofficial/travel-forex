@@ -167,8 +167,6 @@ export const getCategories = async () => {
   }
 };
 
-
-
 let destinationsCache = {};
 
 let allDestinationsCache = null;
@@ -1125,6 +1123,19 @@ export const getPackagesByDestination = async (slug) => {
   } catch (error) {
     console.error(`Error fetching destinations for category ${slug}:`, error);
     return [];
+  }
+};
+
+export const getPipelineForm = async (pipelineId) => {
+  try {
+    const response = await axios.get(`/api/pipelines/${pipelineId}/form`);
+    if (response.data && response.data.success) {
+      return response.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error(`Error fetching pipeline form for ${pipelineId}:`, error);
+    return null;
   }
 };
 

@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import TourCard from '@/components/TourCard';
 import { TourCardSkeleton } from '@/components/SkeletonLoader';
-import { getMediaUrl, getPackageFilters, getPackages, getCategories } from '@/utils/api';
+import { getMediaUrl, getPackageFilters, getPackages, getCategories, getPackageCategories } from '@/utils/api';
 import TourItineraryView from './TourItineraryView';
 
 const DEFAULT_TOUR_TYPES = [{ key: 'all', label: 'All', count: 0 }];
@@ -84,7 +84,8 @@ const buildApiQueryFromFilters = (filters) => {
   if (Number(filters.minPrice) > 0) query.minPrice = filters.minPrice;
   if (Number(filters.maxPrice) > 0 && Number(filters.maxPrice) < MAX_PRICE) query.maxPrice = filters.maxPrice;
   if (filters.duration && filters.duration !== 'any') query.duration = filters.duration;
-  if (filters.package_category_slug) query.category = filters.package_category_slug;
+  if (filters.category) query.category = filters.category;
+  if (filters.package_category_slug) query.package_category_slug = filters.package_category_slug;
 
   return query;
 };
@@ -165,7 +166,7 @@ const getTourTypeLabel = (filterOptions, selectedKey) =>
 const getDurationMeta = (filterOptions, selectedKey) =>
   filterOptions.durations.find((item) => item.key === selectedKey) || DEFAULT_DURATIONS[0];
 
-function FilterSidebar({ filters, setFilters, resetFilters, filterOptions }) {
+function FilterSidebar({ filters, setFilters, resetFilters, filterOptions, sidebarCategoryList = [] }) {
   const priceMax = filterOptions.priceRange.max || MAX_PRICE;
 
   return (
@@ -207,57 +208,27 @@ function FilterSidebar({ filters, setFilters, resetFilters, filterOptions }) {
       <div className="filter-group">
         <div className="filter-group-title">Categories</div>
         <div className="d-flex flex-column gap-2">
-          {[
-            { key: '', label: 'All Categories' },
-            { key: 'solo', label: 'Solo Tour' },
-            { key: 'family', label: 'Family Tour' },
-            { key: 'beach', label: 'Beach Tour' },
-            { key: 'group', label: 'Group Tour' },
-            ...(filters.type === 'DOMESTIC' ? [{ key: 'religious', label: 'Religious Tour' }] : []),
-            { key: 'honeymoon', label: 'Honeymoon Tour' },
-            { key: 'couple', label: 'Couple Tour' },
-          ].map((cat) => (
+          {[{ slug: '', title: 'All Categories' }, ...sidebarCategoryList.map(cat => ({ slug: cat.slug, title: cat.title || cat.name }))].map((cat) => (
             <label
-              key={cat.key}
+              key={cat.slug}
               className="d-flex align-items-center gap-2"
               style={{ cursor: 'pointer', fontSize: 14, color: 'var(--color-text-secondary)' }}
             >
               <input
                 type="radio"
                 name="category"
-                value={cat.key}
-                checked={filters.package_category_slug === cat.key || (cat.key === '' && !filters.package_category_slug)}
-                onChange={() => setFilters({ ...filters, package_category_slug: cat.key })}
+                value={cat.slug}
+                checked={filters.package_category_slug === cat.slug || (cat.slug === '' && !filters.package_category_slug)}
+                onChange={() => setFilters({ ...filters, package_category_slug: cat.slug })}
                 style={{ accentColor: 'var(--color-primary)' }}
               />
-              {cat.label}
+              {cat.title}
             </label>
           ))}
         </div>
       </div>
 
-      <div className="filter-group">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <div className="filter-group-title" style={{ marginBottom: 0 }}>Price Range</div>
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-primary)' }}>
-            {formatPriceNumber(filters.minPrice)} - {formatPriceNumber(filters.maxPrice)}
-          </span>
-        </div>
-        <input
-          type="range"
-          className="range-slider"
-          min={filterOptions.priceRange.min}
-          max={priceMax}
-          step={5000}
-          value={filters.maxPrice}
-          onChange={(e) => setFilters({ ...filters, maxPrice: Number(e.target.value) })}
-          style={{ '--value': `${priceMax ? (filters.maxPrice / priceMax) * 100 : 0}%` }}
-        />
-        <div className="d-flex justify-content-between mt-1" style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-          <span>{formatPriceNumber(filterOptions.priceRange.min)}</span>
-          <span>{formatPriceNumber(priceMax)}</span>
-        </div>
-      </div>
+
 
       <div className="filter-group">
         <div className="filter-group-title">Duration</div>
@@ -341,16 +312,23 @@ function ToursContent() {
     minRating: 0,
     sort: 'featured',
     search: initialSearch,
-    package_category_slug: searchParams.get('package_category_slug') || searchParams.get('category') || '',
+    category: searchParams.get('category') || '',
+    package_category_slug: searchParams.get('package_category_slug') || '',
   });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [categoryList, setCategoryList] = useState([]);
+  const [sidebarCategoryList, setSidebarCategoryList] = useState([]);
 
   useEffect(() => {
     let isMounted = true;
     getCategories().then(cats => {
       if (isMounted && cats && Array.isArray(cats)) {
         setCategoryList(cats);
+      }
+    });
+    getPackageCategories().then(cats => {
+      if (isMounted && cats && Array.isArray(cats)) {
+        setSidebarCategoryList(cats);
       }
     });
     return () => { isMounted = false; };
@@ -360,24 +338,26 @@ function ToursContent() {
     setFilters((prev) => {
       const newType = searchParams.get('tour_type') || searchParams.get('type') || 'all';
       const newSearch = getUrlSearchValue(searchParams);
-      const newCategory = searchParams.get('package_category_slug') || searchParams.get('category') || '';
+      const newCategory = searchParams.get('category') || '';
+      const newPackageCategory = searchParams.get('package_category_slug') || '';
 
-      if (prev.type !== newType || prev.search !== newSearch || prev.package_category_slug !== newCategory) {
+      if (prev.type !== newType || prev.search !== newSearch || prev.category !== newCategory || prev.package_category_slug !== newPackageCategory) {
         return {
           ...prev,
           type: newType,
           search: newSearch,
-          package_category_slug: newCategory
+          category: newCategory,
+          package_category_slug: newPackageCategory
         };
       }
       return prev;
     });
   }, [searchParams]);
 
-  const { search, type, minPrice, maxPrice, duration, package_category_slug } = filters;
+  const { search, type, minPrice, maxPrice, duration, category, package_category_slug } = filters;
   const activePackageQuery = useMemo(
-    () => buildApiQueryFromFilters({ search, type, minPrice, maxPrice, duration, package_category_slug }),
-    [search, type, minPrice, maxPrice, duration, package_category_slug]
+    () => buildApiQueryFromFilters({ search, type, minPrice, maxPrice, duration, category, package_category_slug }),
+    [search, type, minPrice, maxPrice, duration, category, package_category_slug]
   );
 
   useEffect(() => {
@@ -487,7 +467,8 @@ function ToursContent() {
       minRating: 0,
       sort: 'featured',
       search: '',
-      package_category_slug: searchParams.get('package_category_slug') || searchParams.get('category') || '',
+      category: searchParams.get('category') || '',
+      package_category_slug: searchParams.get('package_category_slug') || '',
     });
   };
 
@@ -528,7 +509,7 @@ function ToursContent() {
           </button>
           {sidebarOpen && (
             <div className="mt-3">
-              <FilterSidebar filters={filters} setFilters={setFilters} resetFilters={resetFilters} filterOptions={filterOptions} />
+              <FilterSidebar filters={filters} setFilters={setFilters} resetFilters={resetFilters} filterOptions={filterOptions} sidebarCategoryList={sidebarCategoryList} />
             </div>
           )}
         </div>
@@ -536,7 +517,7 @@ function ToursContent() {
         <div className="row g-5">
           <div className="col-lg-3 d-none d-lg-block">
             <div style={{ position: 'sticky', top: 100 }}>
-              <FilterSidebar filters={filters} setFilters={setFilters} resetFilters={resetFilters} filterOptions={filterOptions} />
+              <FilterSidebar filters={filters} setFilters={setFilters} resetFilters={resetFilters} filterOptions={filterOptions} sidebarCategoryList={sidebarCategoryList} />
             </div>
           </div>
 
@@ -566,16 +547,16 @@ function ToursContent() {
                   }
                 `}</style>
                 <button
-                  className={`category-pill ${!filters.package_category_slug ? 'active' : ''}`}
-                  onClick={() => setFilters({ ...filters, package_category_slug: '' })}
+                  className={`category-pill ${!filters.category ? 'active' : ''}`}
+                  onClick={() => setFilters({ ...filters, category: '' })}
                 >
                   All Categories
                 </button>
                 {categoryList.map(cat => (
                   <button
                     key={cat.slug}
-                    className={`category-pill ${filters.package_category_slug === cat.slug ? 'active' : ''}`}
-                    onClick={() => setFilters({ ...filters, package_category_slug: cat.slug })}
+                    className={`category-pill ${filters.category === cat.slug ? 'active' : ''}`}
+                    onClick={() => setFilters({ ...filters, category: cat.slug })}
                   >
                     {cat.name}
                   </button>
@@ -593,19 +574,6 @@ function ToursContent() {
                     in {getTourTypeLabel(filterOptions, filters.type)}
                   </span>
                 )}
-              </div>
-              <div className="d-flex align-items-center gap-2">
-                <label style={{ fontSize: 13, color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>Sort by:</label>
-                <select
-                  className="form-input"
-                  style={{ width: 'auto', padding: '8px 14px', fontSize: 14 }}
-                  value={filters.sort}
-                  onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
-                >
-                  {SORT_OPTIONS.map(({ value, label }) => (
-                    <option key={value} value={value}>{label}</option>
-                  ))}
-                </select>
               </div>
             </div>
 

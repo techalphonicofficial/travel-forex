@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getStoredToken, getHotels, getMediaUrl, searchCountryCityLocations } from '@/utils/api';
+import { getStoredToken, getHotels, getMediaUrl, searchCountryCityLocations, getPipelineForm } from '@/utils/api';
 import InquiryForm from '@/components/InquiryForm';
 import HotelInquiryModal from '@/components/HotelInquiryModal';
 import ReadMoreText from '@/components/ReadMoreText';
@@ -158,6 +158,17 @@ export default function HotelsClient() {
     maxPrice: 0,
     discountedOnly: false,
   });
+  const [formConfig, setFormConfig] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    getPipelineForm(20).then(config => {
+      if (mounted && config) {
+        setFormConfig(config);
+      }
+    });
+    return () => { mounted = false; };
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -465,6 +476,7 @@ const searchHotels = (event) => {
         variant="strip"
         showDate
         showMessage
+        formConfig={formConfig}
       />
 
       <HotelInquiryModal />
