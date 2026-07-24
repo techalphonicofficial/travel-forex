@@ -83,9 +83,9 @@ const buildApiQueryFromFilters = (filters) => {
   }
   if (Number(filters.minPrice) > 0) query.minPrice = filters.minPrice;
   if (Number(filters.maxPrice) > 0 && Number(filters.maxPrice) < MAX_PRICE) query.maxPrice = filters.maxPrice;
-  if (filters.duration && filters.duration !== 'any') query.duration = filters.duration;
   if (filters.category) query.category = filters.category;
   if (filters.package_category_slug) query.package_category_slug = filters.package_category_slug;
+  if (Number(filters.minRating) > 0) query.minRating = filters.minRating;
 
   return query;
 };
@@ -354,10 +354,10 @@ function ToursContent() {
     });
   }, [searchParams]);
 
-  const { search, type, minPrice, maxPrice, duration, category, package_category_slug } = filters;
+  const { search, type, minPrice, maxPrice, duration, category, package_category_slug, minRating } = filters;
   const activePackageQuery = useMemo(
-    () => buildApiQueryFromFilters({ search, type, minPrice, maxPrice, duration, category, package_category_slug }),
-    [search, type, minPrice, maxPrice, duration, category, package_category_slug]
+    () => buildApiQueryFromFilters({ search, type, minPrice, maxPrice, duration, category, package_category_slug, minRating }),
+    [search, type, minPrice, maxPrice, duration, category, package_category_slug, minRating]
   );
 
   useEffect(() => {
