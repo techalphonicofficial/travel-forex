@@ -57,9 +57,6 @@ const serviceCols = [
   [
     { name: 'Domestic Trips', tag: 'EXPLORE', tagClr: '#d97706', tagBg: '#fffbeb', href: '/packages?type=DOMESTIC' },
     { name: 'International Trips', tag: 'POPULAR', tagClr: '#8b5cf6', tagBg: '#f5f3ff', href: '/packages?type=INTERNATIONAL' },
-  ],
-  [
-    { name: 'Customize Packages', tag: 'RECOMMENDED', tagClr: '#ec4899', tagBg: '#fdf2f8', href: '/customize' }
   ]
 ];
 
@@ -631,7 +628,12 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
         { label: 'Flight Booking', action: onFlightOpen },
         { label: 'Domestic Trips', href: '/packages?type=DOMESTIC' },
         { label: 'International Trips', href: '/packages?type=INTERNATIONAL' },
-        { label: 'Customize Packages', href: '/customize' },
+        { label: 'Visa', href: '/visa' },
+        { label: 'Cruise', href: '/cruise' },
+        { label: 'Overseas Insurance', href: '/insurance' },
+        { label: 'Euro Rails', href: '/eurorail' },
+        { label: 'Events & Weddings', href: '/events' },
+        { label: 'Conference', href: '/conferences' },
         { label: 'Forex Currency', href: '/forex/currency' },
         { label: 'Forex Card', href: '/forex/card' },
         { label: 'Forex Transfer', href: '/forex/transfer' }

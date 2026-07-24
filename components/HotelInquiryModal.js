@@ -67,15 +67,18 @@ export default function HotelInquiryModal() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          pipeline_id: 1, // Default pipeline
+          pipeline_id: 18,
           name: form.name.trim(),
           phone: form.phone.trim(),
           email: form.email.trim(),
           source: 'Website - Hotel Inquiry',
           notes: noteLines,
           custom_fields: {
-            subject: `Hotel Booking Inquiry: ${hotelName}`,
-            message: noteLines,
+            check_in: form.date,
+            hotel_name: hotelName,
+            check_out: form.checkoutDate,
+            guest: form.guests,
+            any_special_request: form.message.trim(),
           },
         }),
       });

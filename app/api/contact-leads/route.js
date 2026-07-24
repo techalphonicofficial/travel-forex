@@ -1,5 +1,5 @@
 const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://tourtravel.yber.in/api/v1';
-const CRM_API_KEY = process.env.CRM_LEADS_API_KEY || process.env.CRM_COMPANY_INFO_API_KEY || 'pt_4135380196590f3b81d68d8b5acbc883b3ee46ccbb77e73e';
+const CRM_API_KEY = process.env.CRM_LEADS_API_KEY || process.env.CRM_COMPANY_INFO_API_KEY || 'pt_dc9eae82075b27c1408392fa7d7e0e632ef9e846f6e4e33e';
 
 export const dynamic = 'force-dynamic';
 

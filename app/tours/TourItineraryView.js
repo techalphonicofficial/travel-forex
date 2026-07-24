@@ -1512,26 +1512,41 @@ export default function TourItineraryView({ destination, packageSlug }) {
     setInquiryStatus('loading');
     setInquiryMessage('');
 
-    const payload = {
-      package_id: pkg.id || null,
-      package_slug: pkg.slug || null,
-      package_name: pkg.name,
-      traveller_count: travellerCount,
-      customer_name: inquiryForm.name,
-      customer_email: inquiryForm.email,
-      customer_phone: inquiryForm.phone,
-      travel_date: inquiryForm.travelDate,
-      message: inquiryForm.notes,
-    };
+    const noteLines = [
+      `Service Interest: Tour Package Booking`,
+      `Package: ${pkg.name}`,
+      `Route: ${destinationNames.join(' -> ') || 'Custom route'}`,
+      inquiryForm.travelDate ? `Travel Date: ${inquiryForm.travelDate}` : '',
+      `Travellers: ${travellerCount}`,
+      inquiryForm.notes.trim() ? `Message: ${inquiryForm.notes.trim()}` : '',
+    ].filter(Boolean).join('\n');
 
     try {
-      const response = await submitTripInquiry(payload);
-      if (response && response.success) {
+      const response = await fetch('/api/contact-leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pipeline_id: 19,
+          name: inquiryForm.name.trim(),
+          phone: inquiryForm.phone.trim(),
+          email: inquiryForm.email.trim(),
+          source: 'Website - Package Itinerary Quote',
+          notes: noteLines,
+          custom_fields: {
+            travel_date__optional_: inquiryForm.travelDate,
+            travellers: Number(travellerCount),
+          },
+        }),
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (response.ok && data?.success) {
         setInquiryStatus('success');
         setInquiryMessage('Thank you! Your inquiry has been sent. We will contact you shortly.');
       } else {
         setInquiryStatus('error');
-        setInquiryMessage(response?.message || 'Unable to submit inquiry. Please try again.');
+        setInquiryMessage(data?.message || 'Unable to submit inquiry. Please try again.');
       }
     } catch (err) {
       setInquiryStatus('error');

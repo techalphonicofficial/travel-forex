@@ -1362,9 +1362,6 @@ export default function ProfilePage() {
                   <button type="button" className={bookingView === 'package' ? 'active' : ''} onClick={() => setBookingView('package')}>
                     My Booking
                   </button>
-                  <button type="button" className={bookingView === 'customized' ? 'active' : ''} onClick={() => setBookingView('customized')}>
-                    Customized Booking
-                  </button>
                   <button type="button" className={bookingView === 'returns' ? 'active' : ''} onClick={() => setBookingView('returns')}>
                     Return Requests
                   </button>

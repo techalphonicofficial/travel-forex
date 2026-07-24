@@ -24,8 +24,11 @@ const getDestinationSubtitle = (destination) => {
 const mapDestination = (destination, index) => ({
   name: destination.name,
   subtitle: getDestinationSubtitle(destination),
-  image: getMediaUrl(destination.feature_image) || fallbackImages[index % fallbackImages.length],
-  alt: destination.feature_image_alt || destination.name,
+  image: getMediaUrl(destination.feature_image) || 
+         getMediaUrl(destination.gallery?.find((item) => item.is_primary)?.url) || 
+         getMediaUrl(destination.gallery?.[0]?.url) || 
+         fallbackImages[index % fallbackImages.length],
+  alt: destination.feature_image_alt || destination.gallery?.[0]?.alt_text || destination.name,
   href: getDestinationHref(destination),
 });
 
