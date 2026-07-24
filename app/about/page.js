@@ -265,16 +265,6 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* Inquiry CTA */}
-      <section style={{ background: 'var(--color-bg-soft, #f8fafc)', padding: '0 0 60px' }}>
-        <InquiryForm
-          title="27 Years of Crafting Perfect Holidays — Let Us Plan Yours"
-          subtitle="Speak to a travel expert today. No commitment, just great advice."
-          serviceName="Holiday Planning"
-          variant="strip"
-          showMessage
-        />
-      </section>
     </>
   );
 }

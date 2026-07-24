@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BootstrapClient from '@/components/BootstrapClient';
 import GlobalInquiryModal from '@/components/GlobalInquiryModal';
+import FloatingContactWidget from '@/components/FloatingContactWidget';
 import ThemeColoursClient from '@/components/ThemeColoursClient';
 import ToastProvider from '@/components/ToastProvider';
 import { WishlistProvider } from '@/components/WishlistProvider';
@@ -159,6 +160,7 @@ export default async function RootLayout({ children }) {
         <WishlistProvider>
           <Navbar brand={projectConfig} companyInfo={companyInfo} roundTripConfig={roundTripConfig} oneWayConfig={oneWayConfig} />
           <GlobalInquiryModal brand={projectConfig} companyInfo={companyInfo} />
+          <FloatingContactWidget />
           <main>{children}</main>
           <Footer brand={projectConfig} companyInfo={companyInfo} />
           <ToastProvider />
