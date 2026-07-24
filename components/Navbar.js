@@ -434,8 +434,8 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
   const linkColor = isTransparent ? 'rgba(255,255,255,0.92)' : '#374151';
 
   return (
-    <li 
-      ref={ref} 
+    <li
+      ref={ref}
       style={{ position: 'relative', listStyle: 'none' }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -955,18 +955,21 @@ function HeaderSearch({ isLightHeader }) {
   const handleSearch = (locToSearch = selectedLocation) => {
     setLocationOpen(false);
     if (locToSearch) {
+      const searchValue = encodeURIComponent(locToSearch.label || locToSearch.name);
       if (locToSearch.type === 'country') {
-        router.push(`/packages?country=${locToSearch.id}`);
+        router.push(`/tours?country=${searchValue}`);
+      } else if (locToSearch.type === 'continent') {
+        router.push(`/tours?continent=${searchValue}`);
       } else {
-        router.push(`/packages?city=${locToSearch.id}`);
+        router.push(`/tours?city=${searchValue}`);
       }
       return;
     }
     const q = destination.trim();
     if (q) {
-      router.push(`/packages?search=${encodeURIComponent(q)}`);
+      router.push(`/tours?search=${encodeURIComponent(q)}`);
     } else {
-      router.push('/packages');
+      router.push('/tours');
     }
   };
 
@@ -1009,7 +1012,7 @@ function HeaderSearch({ isLightHeader }) {
           }}
           style={{
             border: 'none', background: 'transparent', outline: 'none',
-            color: isLightHeader ? 'white' : '#ffffff', fontSize: 14,
+            color: isLightHeader ? 'white' : '#1f2937', fontSize: 14,
             width: '100%', marginLeft: 8, fontFamily: 'Inter, sans-serif'
           }}
         />
@@ -2117,13 +2120,13 @@ export default function Navbar({ brand, companyInfo }) {
                 className="d-none d-lg-flex"
               >
                 <Link href="/flights" className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s' }}>
-                  <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                  <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
                   Flights
                 </Link>
                 <span style={{ color: '#FFD700', fontSize: 24, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <Link href={HOTEL_HREF} className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s' }}>
-                  <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/></svg>
+                  <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9" /></svg>
                   Hotels
                 </Link>
                 <span style={{ color: '#FFD700', fontSize: 24, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
@@ -2131,7 +2134,7 @@ export default function Navbar({ brand, companyInfo }) {
                 <MegaDropdown
                   label={
                     <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 18, fontWeight: 600, color: '#FFD700' }}>
-                      <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                      <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>
                       Holidays
                     </span>
                   }
@@ -2143,7 +2146,7 @@ export default function Navbar({ brand, companyInfo }) {
                 <MegaDropdown
                   label={
                     <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 18, fontWeight: 600, color: '#FFD700' }}>
-                      <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                      <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
                       Visa
                     </span>
                   }
@@ -2161,7 +2164,7 @@ export default function Navbar({ brand, companyInfo }) {
                 <MegaDropdown
                   label={
                     <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 18, fontWeight: 600, color: '#FFD700' }}>
-                      <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12h2"/></svg>
+                      <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" /><path d="M3 5v14a2 2 0 0 0 2 2h16v-5" /><path d="M18 12h2" /></svg>
                       Forex
                     </span>
                   }
@@ -2179,7 +2182,7 @@ export default function Navbar({ brand, companyInfo }) {
                 <MegaDropdown
                   label={
                     <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 18, fontWeight: 600, color: '#FFD700' }}>
-                      <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                      <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
                       More
                     </span>
                   }

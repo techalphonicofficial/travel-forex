@@ -300,7 +300,7 @@ export default function PopularDestinationRows() {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px' }}>
-              <Link href={`/destinations?type=${row.id}`} style={{
+              <Link href={`/destinations?type=${row.id === 'visafree' ? 'visa-free' : row.id}`} style={{
                 background: 'var(--color-primary)',
                 color: 'white',
                 padding: '12px 28px',

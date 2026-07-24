@@ -32,9 +32,9 @@ const getFirstDestination = (pkg) => pkg?.destinations?.[0]?.destination || null
 const getLocationParts = (pkg) => {
   const destination = getFirstDestination(pkg);
   const mapping = destination?.mappings?.[0];
-  const city = mapping?.city?.name || destination?.name || '';
-  const country = mapping?.city?.country?.name || '';
-  const continent = mapping?.city?.country?.continent?.name || '';
+  const city = destination?.city?.name || mapping?.city?.name || destination?.name || '';
+  const country = destination?.country || mapping?.city?.country?.name || '';
+  const continent = destination?.continent || mapping?.city?.country?.continent?.name || '';
 
   return { city, country, continent, destination };
 };
@@ -92,14 +92,15 @@ const buildApiQueryFromFilters = (filters) => {
 const fetchPackagesFromQuery = async (query) => {
   const packages = await getPackages(query);
   const search = query.search;
-  const usedPlainSearch = search && Object.keys(query).length === 1 && query.search === search;
 
-  if (packages.length || !usedPlainSearch) {
+  if (packages.length || !search) {
     return packages;
   }
 
+  const { search: _discard, ...otherFilters } = query;
+
   for (const key of ['country', 'city', 'continent', 'category']) {
-    const fallbackPackages = await getPackages({ [key]: search });
+    const fallbackPackages = await getPackages({ ...otherFilters, [key]: search });
     if (fallbackPackages.length) {
       return fallbackPackages;
     }
