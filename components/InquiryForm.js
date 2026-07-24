@@ -125,14 +125,16 @@ export default function InquiryForm({
   };
 
   const renderDynamicField = (field, customStyle) => {
-    const isRequired = field.isRequired;
+    const isRequired = field.isRequired || field.is_required;
+    const fieldType = field.fieldType || field.field_type;
+    const fieldKey = field.fieldKey || field.field_key;
     
-    if (field.fieldType === 'select') {
+    if (fieldType === 'select') {
       return (
         <select
           key={field.id}
-          value={dynamicForm[field.fieldKey] || ''}
-          onChange={(e) => updateDynamic(field.fieldKey, e.target.value)}
+          value={dynamicForm[fieldKey] || ''}
+          onChange={(e) => updateDynamic(fieldKey, e.target.value)}
           required={isRequired}
           style={customStyle}
         >
@@ -143,13 +145,13 @@ export default function InquiryForm({
         </select>
       );
     }
-    if (field.fieldType === 'textarea') {
+    if (fieldType === 'textarea') {
       return (
         <textarea
           key={field.id}
           placeholder={`${field.label} ${isRequired ? '*' : ''}`}
-          value={dynamicForm[field.fieldKey] || ''}
-          onChange={(e) => updateDynamic(field.fieldKey, e.target.value)}
+          value={dynamicForm[fieldKey] || ''}
+          onChange={(e) => updateDynamic(fieldKey, e.target.value)}
           required={isRequired}
           rows={3}
           style={{ ...customStyle, flex: '1 1 100%', resize: 'vertical' }}
@@ -159,10 +161,10 @@ export default function InquiryForm({
     return (
       <input
         key={field.id}
-        type={field.fieldType === 'email' ? 'email' : field.fieldType === 'date' ? 'date' : 'text'}
+        type={fieldType === 'email' ? 'email' : fieldType === 'date' ? 'date' : 'text'}
         placeholder={`${field.label} ${isRequired ? '*' : ''}`}
-        value={dynamicForm[field.fieldKey] || ''}
-        onChange={(e) => updateDynamic(field.fieldKey, e.target.value)}
+        value={dynamicForm[fieldKey] || ''}
+        onChange={(e) => updateDynamic(fieldKey, e.target.value)}
         required={isRequired}
         style={customStyle}
       />
