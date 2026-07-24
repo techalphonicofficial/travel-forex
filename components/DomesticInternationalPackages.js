@@ -800,7 +800,7 @@ export default function DomesticInternationalPackages() {
                 className="packages-scroll-container"
               >
                 {displayedPackages.map(pkg => {
-                  const packageHref = `/tours?destination=${encodeURIComponent(pkg.destination)}`;
+                  const packageHref = `/tours?destination=${encodeURIComponent(pkg.destination || 'destination')}&view=itinerary&package=${encodeURIComponent(pkg.slug)}`;
                   return (
                     <div key={pkg.id} style={{ flex: '0 0 350px', scrollSnapAlign: 'start' }}>
                       <article style={{
