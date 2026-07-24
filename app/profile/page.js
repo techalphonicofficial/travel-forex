@@ -975,6 +975,11 @@ export default function ProfilePage() {
             <div><span>Paid</span><strong>{formatMoney(amounts.paid_amount)}</strong></div>
             <div><span>Balance</span><strong>{formatMoney(amounts.remaining_amount)}</strong></div>
           </div>
+          <div className="dashboard-booking-meta" style={{ marginTop: 8, gridTemplateColumns: 'repeat(3, 1fr)' }}>
+            <div><span>Departure</span><strong>{booking.departure_date || booking.travel_dates?.departure_date ? formatBookingDate(booking.departure_date || booking.travel_dates?.departure_date) : 'N/A'}</strong></div>
+            <div><span>From Date</span><strong>{booking.from_date || booking.travel_dates?.from_date ? formatBookingDate(booking.from_date || booking.travel_dates?.from_date) : 'N/A'}</strong></div>
+            <div><span>To Date</span><strong>{booking.to_date || booking.travel_dates?.to_date ? formatBookingDate(booking.to_date || booking.travel_dates?.to_date) : 'N/A'}</strong></div>
+          </div>
           {booking.hotels?.length ? (
             <div className="dashboard-booking-hotels">
               {booking.hotels.slice(0, 3).map((hotel) => <span key={hotel.id || hotel.name}>{hotel.name}</span>)}
