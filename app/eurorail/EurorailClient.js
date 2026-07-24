@@ -204,31 +204,10 @@ export default function EurorailClient({ formConfig }) {
                 <form onSubmit={handleSearchSubmit}>
                   {activeTab === 'passes' && (
                     <div className="eurorail-tab-content passes-grid">
-                      <div className="input-group icon-input">
-                        <i>📍</i>
-                        <input type="text" name="country_region" placeholder="Country / Region (e.g. Switzerland)" required />
-                      </div>
-                      <div className="input-group icon-input">
-                        <i>📅</i>
-                        <input type="date" name="valid_from" placeholder="Valid from" required />
-                      </div>
-                      <div className="input-group">
-                        <label>Adult (28-59 Yrs)</label>
-                        <input type="number" name="adults" min="1" defaultValue="1" required />
-                      </div>
-                      <div className="input-group">
-                        <label>Youth &lt; 28 Yrs</label>
-                        <input type="number" name="youth" min="0" defaultValue="0" />
-                      </div>
-                      <div className="input-group">
-                        <label>Senior (60+ Yrs)</label>
-                        <input type="number" name="senior" min="0" defaultValue="0" />
-                      </div>
-                      <div className="input-group icon-input">
-                        <i>👥</i>
-                        <input type="text" name="country_of_residence" placeholder="Country Of Residence" defaultValue="India" required />
-                      </div>
-                      <button type="submit" className="eurorail-search-submit">Search</button>
+                      {fields.map(field => (
+                        <EurorailDynamicField key={field.id} field={field} />
+                      ))}
+                      <button type="submit" className="eurorail-search-submit" style={{ gridColumn: '1 / -1' }}>Search</button>
                     </div>
                   )}
 
