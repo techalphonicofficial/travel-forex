@@ -2045,6 +2045,22 @@ export default function TourItineraryView({ destination, packageSlug }) {
               </div>
             </section>
 
+            {pkg.highlights && pkg.highlights.length > 0 && (
+              <section className="itn-section" id="highlights">
+                <h2>Tour Highlights</h2>
+                <ul style={{ listStyle: 'none', paddingLeft: 0, marginBottom: 24, fontSize: 15, lineHeight: 1.6, color: 'var(--text-secondary)' }}>
+                  {pkg.highlights.map((h, i) => (
+                    <li key={i} style={{ marginBottom: 12, position: 'relative', paddingLeft: 24 }}>
+                      <span style={{ position: 'absolute', left: 0, top: 4, color: 'var(--color-primary)' }}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                      </span>
+                      {h.content || h.text || h}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
             <section className="itn-section">
               <h2>Itinerary</h2>
               <p className="itn-print-note">Your day-wise travel plan, prepared for a clean print copy.</p>

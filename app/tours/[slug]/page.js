@@ -1,49 +1,132 @@
 import { notFound } from 'next/navigation';
-import tours from '@/data/tours.json';
-import { packageData } from '@/data/packages';
 import TourDetailClient from './TourDetailClient';
 
-const transformPackage = (pkg) => ({
-  ...pkg,
-  gallery: [pkg.image, pkg.image, pkg.image, pkg.image],
-  highlights: ["Inclusive Breakfast", "Expert Local Guide", "Airport Transfers", "Premium Stay", "Taxes & Fees"],
-  included: ["3-star/4-star Accommodation", "Daily Breakfast", "Sightseeing as per itinerary", "Round-trip airport transfers"],
-  excluded: ["Round-trip airfare", "Travel insurance", "Tips and gratuities", "Personal expenses"],
-  itinerary: [
-    { day: 1, title: "Arrival", description: "Arrive and check in." },
-    { day: 2, title: "Sightseeing", description: "Explore the city." },
-    { day: 3, title: "Culture", description: "Learn traditions." },
-    { day: 4, title: "Leisure", description: "Relax." },
-    { day: 5, title: "Departure", description: "Transfer to airport." }
-  ],
-  groupSize: 12,
-  duration: (pkg.nights || 0) + 1,
-  location: pkg.destination,
-});
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://tourtravel.yber.in/api/v1';
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80';
 
-const findEntity = (slug) => {
-  // 1. Try in standard tours by SLUG
-  const tourBySlug = tours.find((t) => t.slug === slug);
-  if (tourBySlug) return tourBySlug;
+const getMediaUrl = (path) => {
+  if (!path) return null;
+  if (path.startsWith('http')) return path;
+  return `https://tourtravel.yber.in${path.startsWith('/') ? '' : '/'}${path}`;
+};
 
-  // 2. Try in standard tours by ID
-  const tourById = tours.find((t) => String(t.id) === String(slug));
-  if (tourById) return tourById;
+const transformApiPackageToTourDetail = (pkg) => {
+  const mainImage = getMediaUrl(pkg.main_image) || FALLBACK_IMAGE;
+  const gallery = [mainImage, ...(pkg.gallery || []).map(g => getMediaUrl(g.image))];
 
-  // 3. Try in packages by SLUG
-  const pkgBySlug = packageData.find((p) => p.slug === slug);
-  if (pkgBySlug) return transformPackage(pkgBySlug);
+  const highlights = pkg.highlights && pkg.highlights.length > 0 
+    ? pkg.highlights.map(h => h.content || h.text || h)
+    : (pkg.inclusions || []).map(inc => inc.text);
+  const included = (pkg.inclusions || []).map(inc => inc.text);
+  const excluded = (pkg.exclusions || []).map(exc => exc.text);
 
-  // 4. Try in packages by ID
-  const pkgById = packageData.find((p) => String(p.id) === String(slug));
-  if (pkgById) return transformPackage(pkgById);
+  let itinerary = [];
+  if (pkg.destinations && Array.isArray(pkg.destinations)) {
+    pkg.destinations.forEach(d => {
+      const activities = d.activities ? Object.values(d.activities).flat() : [];
+      activities.forEach(act => {
+        itinerary.push({
+          day: d.order, // or you can use a running counter if you want unique days
+          title: act.name,
+          description: act.description?.replace(/<[^>]+>/g, '') || '', // strip HTML tags for simple view
+        });
+      });
+    });
+  }
 
+  if (itinerary.length === 0) {
+    itinerary = [
+      { day: 1, title: "Arrival", description: "Arrive and check in." },
+      { day: 2, title: "Sightseeing", description: "Explore the destination." },
+    ];
+  }
+
+  const location = pkg.destinations?.[0]?.destination?.name || 'Multiple Destinations';
+  const country = pkg.destinations?.[0]?.destination?.country || '';
+
+  return {
+    id: pkg.id,
+    slug: pkg.slug,
+    title: pkg.name,
+    description: pkg.description || pkg.name,
+    price: Number(pkg.price) || 0,
+    gallery,
+    highlights: highlights.length > 0 ? highlights : ["Inclusive Breakfast", "Expert Local Guide", "Airport Transfers"],
+    included: included.length > 0 ? included : ["Accommodation", "Daily Breakfast"],
+    excluded: excluded.length > 0 ? excluded : ["Round-trip airfare", "Personal expenses"],
+    itinerary,
+    groupSize: 12,
+    duration: pkg.duration_days || 1,
+    location,
+    country,
+    type: pkg.travel_type ? (pkg.travel_type.toLowerCase() === 'international' ? 'International' : 'Domestic') : 'Domestic'
+  };
+};
+
+const transformApiPackageToCard = (pkg) => {
+  const mainImage = getMediaUrl(pkg.main_image) || FALLBACK_IMAGE;
+  const location = pkg.destinations?.[0]?.destination?.name || 'Multiple Destinations';
+  const country = pkg.destinations?.[0]?.destination?.country || '';
+
+  return {
+    id: pkg.id,
+    slug: pkg.slug,
+    title: pkg.name,
+    location,
+    country,
+    type: pkg.travel_type ? (pkg.travel_type.toLowerCase() === 'international' ? 'International' : 'Domestic') : 'Domestic',
+    duration: pkg.duration_days || 1,
+    groupSize: 12,
+    rating: Number(pkg.rating) || 4.6,
+    reviews: Number(pkg.reviews_count) || 0,
+    price: Number(pkg.price) || 0,
+    originalPrice: Number(pkg.price) ? Math.round(Number(pkg.price) * 1.18) : 0,
+    image: mainImage,
+    featured: Boolean(pkg.show_in_home_page),
+    trending: Boolean(pkg.show_in_home_page),
+    description: pkg.description || ''
+  };
+};
+
+const fetchPackage = async (slug) => {
+  try {
+    const res = await fetch(`${BACKEND_BASE_URL}/packages/${slug}`, {
+      headers: { 'accept': '*/*', 'ngrok-skip-browser-warning': 'true' },
+      cache: 'no-store'
+    });
+    const data = await res.json();
+    if (data && data.success && data.data) {
+      return transformApiPackageToTourDetail(data.data);
+    }
+  } catch (e) {
+    console.error("Error fetching package:", e);
+  }
   return null;
+};
+
+const fetchRelatedPackages = async (country, currentSlug) => {
+  if (!country) return [];
+  try {
+    const res = await fetch(`${BACKEND_BASE_URL}/packages?country=${encodeURIComponent(country)}`, {
+      headers: { 'accept': '*/*', 'ngrok-skip-browser-warning': 'true' },
+      cache: 'no-store'
+    });
+    const data = await res.json();
+    if (data && data.success && Array.isArray(data.data)) {
+      return data.data
+        .filter(p => p.slug !== currentSlug)
+        .slice(0, 3)
+        .map(transformApiPackageToCard);
+    }
+  } catch (e) {
+    console.error("Error fetching related packages:", e);
+  }
+  return [];
 };
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const entity = findEntity(slug);
+  const entity = await fetchPackage(slug);
   if (!entity) return { title: 'Tour Not Found' };
 
   return {
@@ -57,38 +140,16 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export function generateStaticParams() {
-  const tourSlugs = tours.map((t) => ({ slug: t.slug }));
-  const pkgSlugs = packageData.map((p) => ({ slug: p.slug }));
-  return [...tourSlugs, ...pkgSlugs];
-}
-
 export default async function TourDetailPage({ params }) {
   const { slug } = await params;
-  console.log("TourDetailPage - Received Slug:", slug);
-  const entity = findEntity(slug);
-  console.log("TourDetailPage - Found Entity:", entity ? entity.title : "NULL");
+  const entity = await fetchPackage(slug);
+  
   if (!entity) notFound();
 
-  const similarEntities = tours
-    .filter((t) => t.slug !== slug && (t.type === entity.type || t.country === entity.country))
-    .slice(0, 3);
+  const similarEntities = await fetchRelatedPackages(entity.country, slug);
 
   return (
     <>
-      {/* Breadcrumb */}
-      {/* <div style={{ background: 'var(--color-bg-soft)', borderBottom: '1px solid var(--color-border)', marginTop: 140 }}>
-        <div className="container py-3">
-          <nav aria-label="breadcrumb">
-            <ol className="breadcrumb mb-0" style={{ fontSize: 14 }}>
-              <li className="breadcrumb-item"><a href="/" style={{ color: 'var(--color-primary)' }}>Home</a></li>
-              <li className="breadcrumb-item"><a href="/tours" style={{ color: 'var(--color-primary)' }}>Tours</a></li>
-              <li className="breadcrumb-item active" style={{ color: 'var(--color-text-muted)' }}>{entity.title}</li>
-            </ol>
-          </nav>
-        </div>
-      </div> */}
-
       <TourDetailClient tour={entity} similarTours={similarEntities} />
     </>
   );
