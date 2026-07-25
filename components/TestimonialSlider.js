@@ -56,7 +56,7 @@ export default function TestimonialSlider() {
             Happy Travelers
           </p>
           <h2 style={{ fontSize: 32, fontWeight: 900, color: 'var(--color-text-primary)' }}>
-            Why Customers Love IT'S Travels And Tours Private Limited !
+            Why Customers Love ITS Travels And Tours Private Limited !
           </h2>
         </div>
 
