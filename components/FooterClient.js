@@ -104,17 +104,13 @@ const normalizeTrustItems = (columns) => {
 
 const normalizeSocialLinks = (social = {}) => {
   const entries = [
-    { key: 'facebook', icon: 'fb', label: 'Facebook' },
-    { key: 'twitter', icon: 'tw', label: 'X' },
-    { key: 'instagram', icon: 'ig', label: 'Instagram' },
-    { key: 'linkedin', icon: 'li', label: 'LinkedIn' },
-    { key: 'youtube', icon: 'yt', label: 'YouTube' },
+    { icon: 'fb', label: 'Facebook', href: social.facebook },
+    { icon: 'tw', label: 'X', href: social.twitter },
+    { icon: 'ig', label: 'Instagram', href: social.instagram },
+    { icon: 'li', label: 'LinkedIn', href: social.linkedin || social.youtube || 'https://linkedin.com' },
   ];
 
-  const links = entries
-    .map(({ key, icon, label }) => ({ icon, label, href: social[key] }))
-    .filter((item) => item.href);
-
+  const links = entries.filter((item) => item.href);
   return links.length ? links : fallbackSocialLinks;
 };
 
