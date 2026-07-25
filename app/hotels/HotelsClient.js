@@ -9,6 +9,7 @@ import InquiryForm from '@/components/InquiryForm';
 import HotelInquiryModal from '@/components/HotelInquiryModal';
 import ReadMoreText from '@/components/ReadMoreText';
 import { useDebounce } from '@/hooks/useDebounce';
+import HotDealsMarquee from '@/components/HotDealsMarquee';
 
 const formatMoney = (value) => `Rs ${Number(value || 0).toLocaleString('en-IN')}`;
 
@@ -163,7 +164,7 @@ export default function HotelsClient() {
 
   useEffect(() => {
     let mounted = true;
-    getPipelineForm(20).then(config => {
+    getPipelineForm(23).then(config => {
       if (mounted && config) {
         setFormConfig(config);
       }
@@ -352,72 +353,21 @@ const searchHotels = (event) => {
     <main className="hotels-page">
       <section className="hotels-hero">
         <div className="hotels-container">
-          <div>
-            <span>Hotel stays</span>
-            <h1>{query.city ? `${query.city} Hotels` : 'Explore Hotels'}</h1>
-            <p>{pagination?.total || hotels.length || 0} stays from verified hotel partners</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+            <div>
+              <span>Hotel stays</span>
+              <h1>{query.city ? `${query.city} Hotels` : 'Explore Hotels'}</h1>
+              <p>{pagination?.total || hotels.length || 0} stays from verified hotel partners</p>
+            </div>
+            <div>
+              <button 
+                className="get-inquiry-hero-btn" 
+                onClick={() => window.dispatchEvent(new CustomEvent('openHotelInquiry', { detail: { hotel: null } }))}
+              >
+                Get Inquiry
+              </button>
+            </div>
           </div>
-          
-          <form className="hotel-search-bar" onSubmit={searchHotels} ref={dropdownRef} style={{ position: 'relative', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', flex: 1, minWidth: '150px' }}>
-              <input 
-                value={draftQuery.country} 
-                onChange={(event) => setDraftQuery((current) => ({ ...current, country: event.target.value }))} 
-                onFocus={() => setActiveDropdown('country')}
-                placeholder="Country" 
-                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', color: '#000' }}
-              />
-              {activeDropdown === 'country' && suggestions.length > 0 && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #ddd', borderRadius: '4px', zIndex: 50, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', color: '#000' }}>
-                  {suggestions.map((s, idx) => (
-                    <div key={idx} onClick={() => handleSuggestionClick(s)} style={{ padding: '10px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0' }}>
-                      <strong>{s.text}</strong>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div style={{ position: 'relative', flex: 1, minWidth: '150px' }}>
-              <input 
-                value={draftQuery.city} 
-                onChange={(event) => setDraftQuery((current) => ({ ...current, city: event.target.value }))} 
-                onFocus={() => setActiveDropdown('city')}
-                placeholder="City" 
-                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', color: '#000' }}
-              />
-              {activeDropdown === 'city' && suggestions.length > 0 && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #ddd', borderRadius: '4px', zIndex: 50, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', color: '#000' }}>
-                  {suggestions.map((s, idx) => (
-                    <div key={idx} onClick={() => handleSuggestionClick(s)} style={{ padding: '10px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0' }}>
-                      <strong>{s.text}</strong> {s.data?.country?.name && <small style={{ color: '#666', marginLeft: 8 }}>{s.data.country.name}</small>}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
-              <input 
-                value={draftQuery.search} 
-                onChange={(event) => setDraftQuery((current) => ({ ...current, search: event.target.value }))} 
-                onFocus={() => setActiveDropdown('hotel')}
-                placeholder="Hotel Name" 
-                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
-              />
-              {activeDropdown === 'hotel' && suggestions.length > 0 && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #ddd', borderRadius: '4px', zIndex: 50, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', color: '#000' }}>
-                  {suggestions.map((s, idx) => (
-                    <div key={idx} onClick={() => handleSuggestionClick(s)} style={{ padding: '10px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0' }}>
-                      <strong>{s.text}</strong> {s.data?.city?.name && <small style={{ color: '#666', marginLeft: 8 }}>{s.data.city.name}, {s.data.city?.country?.name}</small>}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            
-            <button type="submit" style={{ padding: '10px 20px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600 }}>Search</button>
-          </form>
         </div>
       </section>
 
@@ -484,6 +434,8 @@ const searchHotels = (event) => {
             <div className="hotel-loading">No hotels match the selected filters.</div>
           )}
         </div>
+
+        <HotDealsMarquee />
       </section>
 
       <InquiryForm
@@ -496,7 +448,7 @@ const searchHotels = (event) => {
         formConfig={formConfig}
       />
 
-      <HotelInquiryModal />
+      <HotelInquiryModal formConfig={formConfig} />
 
       <HotelStyles />
     </main>
@@ -507,16 +459,18 @@ function HotelStyles() {
   return (
     <style jsx global>{`
       .hotels-page { background: #f4f6f8; min-height: 100vh; color: #172033; padding-bottom: 70px; }
-      .hotels-container { width: min(100%, 1180px); margin: 0 auto; padding: 0 22px; }
+      .hotels-container { width: min(100%, 1600px); margin: 0 auto; padding: 0 20px; }
       .hotels-hero { padding: 48px 0 30px; background: linear-gradient(rgba(15, 23, 42, 0.55), rgba(15, 23, 42, 0.55)), url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=80'); background-size: cover; background-position: center; color: #fff; }
       .hotels-hero .hotels-container { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; }
       .hotels-hero span { color: #b7ddff; font-size: 12px; font-weight: 900; letter-spacing: .8px; text-transform: uppercase; }
       .hotels-hero h1 { margin: 8px 0 6px; font-family: var(--font-poppins), Poppins, sans-serif; font-size: clamp(32px, 5vw, 52px); font-weight: 900; }
       .hotels-hero p { margin: 0; color: rgba(255,255,255,.78); }
+      .get-inquiry-hero-btn { background: #0A3D84; color: white; border: none; padding: 12px 28px; border-radius: 8px; font-weight: 800; font-size: 16px; cursor: pointer; transition: transform 0.2s, background 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+      .get-inquiry-hero-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
       .hotel-search-bar { display: grid; grid-template-columns: 1.4fr .7fr .7fr auto; gap: 10px; padding: 12px; border-radius: 8px; background: #fff; box-shadow: 0 18px 45px rgba(7, 18, 34, .25); }
       .hotel-search-bar input { min-height: 46px; border: 1px solid #d8dee8; border-radius: 8px; padding: 0 13px; color: #111827; font-size: 14px; outline: none; }
       .hotel-search-bar button { border-radius: 8px; padding: 0 22px; background: var(--color-primary); color: #fff; font-weight: 900; }
-      .hotels-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 22px; align-items: start; margin-top: 24px; }
+      .hotels-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr) 350px; gap: 24px; align-items: start; margin-top: 24px; }
       .hotels-filters, .hotel-card, .hotel-loading, .hotels-result-head { border: 1px solid #e1e7ef; border-radius: 8px; background: #fff; box-shadow: 0 8px 24px rgba(15, 23, 42, .05); }
       .hotels-filters { position: sticky; top: 92px; padding: 18px; }
       .hotel-filter-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid #edf1f5; }
@@ -539,11 +493,11 @@ function HotelStyles() {
       .hotel-card-media img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
       .hotel-card:hover .hotel-card-media img { transform: scale(1.04); }
       .hotel-card-media span { position: absolute; left: 12px; top: 12px; padding: 5px 9px; border-radius: 999px; background: #16a34a; color: #fff; font-size: 11px; font-weight: 900; }
-      .hotel-card-body { display: grid; grid-template-columns: minmax(0, 1fr) 178px; gap: 16px; padding: 18px; }
-      .hotel-card-title-row { display: flex; justify-content: space-between; gap: 16px; }
+      .hotel-card-body { display: flex; flex-direction: column; gap: 16px; padding: 18px; }
+      .hotel-card-title-row { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
       .hotel-card h2 { margin: 0 0 5px; color: #111827; font-family: var(--font-poppins), Poppins, sans-serif; font-size: 21px; font-weight: 900; line-height: 1.2; }
       .hotel-card p { margin: 0; color: #64748b; font-size: 13px; font-weight: 700; }
-      .hotel-rating-badge { min-width: 58px; align-self: start; border-radius: 8px; padding: 7px; background: #0f7b4f; color: #fff; text-align: center; }
+      .hotel-rating-badge { min-width: 58px; align-self: start; border-radius: 8px; padding: 7px; background: #0f7b4f; color: #fff; text-align: center; flex-shrink: 0; }
       .hotel-rating-badge strong { display: block; font-size: 17px; line-height: 1; }
       .hotel-rating-badge span { font-size: 10px; font-weight: 800; }
       .hotel-stars { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-weight: 900; }
@@ -551,12 +505,12 @@ function HotelStyles() {
       .gold-stars .is-filled { color: #f6b51e; text-shadow: 0 1px 0 rgba(120, 74, 0, .12); }
       .hotel-stars > span:not(.gold-stars) { color: #475569; font-size: 12px; margin-left: 0; }
       .hotel-desc { margin-top: 12px !important; color: #3f4f63 !important; font-weight: 500 !important; line-height: 1.55; }
-      .hotel-amenities { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+      .hotel-amenities { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
       .hotel-amenities span { padding: 5px 8px; border-radius: 999px; background: #f1f5f9; color: #334155; font-size: 11px; font-weight: 800; }
-      .hotel-price-panel { border-left: 1px solid #edf1f5; padding-left: 16px; display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 10px; }
-      .send-inquiry-btn { width: 100%; padding: 12px 16px; border-radius: 8px; background: var(--color-primary); color: #fff; font-size: 14px; font-weight: 900; border: none; cursor: pointer; transition: background 0.2s; }
-      .send-inquiry-btn:hover { background: var(--color-primary-dark, #0d5c9e); }
-      .view-details-link { width: 100%; text-align: center; padding: 10px 16px; border-radius: 8px; background: #f1f5f9; color: #334155; font-size: 13px; font-weight: 800; text-decoration: none; transition: background 0.2s; }
+      .hotel-price-panel { border-top: 1px solid #edf1f5; padding-top: 16px; display: flex; flex-direction: row; align-items: center; justify-content: flex-end; gap: 12px; margin-top: auto; }
+      .send-inquiry-btn { padding: 10px 24px; border-radius: 8px; background: #111827; color: #fff; font-size: 14px; font-weight: 900; border: none; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+      .send-inquiry-btn:hover { background: #000; }
+      .view-details-link { padding: 10px 24px; border-radius: 8px; background: #f1f5f9; color: #334155; font-size: 13px; font-weight: 800; text-decoration: none; transition: background 0.2s; white-space: nowrap; }
       .view-details-link:hover { background: #e2e8f0; }
       @media (max-width: 991px) {
         .hotels-hero { padding: 36px 0 20px; }

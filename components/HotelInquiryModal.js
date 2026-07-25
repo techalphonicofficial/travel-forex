@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import Image from 'next/image';
 import { getMediaUrl } from '@/utils/api';
 import ReadMoreText from '@/components/ReadMoreText';
+import InquiryForm from '@/components/InquiryForm';
 
 const getHotelImage = (hotel) =>
   getMediaUrl(hotel?.image_url) ||
@@ -12,7 +13,7 @@ const getHotelImage = (hotel) =>
   getMediaUrl(hotel?.gallery?.[0]?.url) ||
   'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
 
-export default function HotelInquiryModal() {
+export default function HotelInquiryModal({ formConfig }) {
   const [isOpen, setIsOpen] = useState(false);
   const [hotel, setHotel] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -216,127 +217,135 @@ export default function HotelInquiryModal() {
                 </div>
               </div>
             ) : null}
-            <h3 style={{ fontWeight: 800, fontSize: '24px', color: '#111827', marginBottom: '8px' }}>Send Booking Inquiry</h3>
-            <p style={{ color: '#6b7280', fontSize: '15px' }}>Fill in your details and we will get back to you with the best rates.</p>
+            {!formConfig && (
+              <>
+                <h3 style={{ fontWeight: 800, fontSize: '24px', color: '#111827', marginBottom: '8px' }}>Send Booking Inquiry</h3>
+                <p style={{ color: '#6b7280', fontSize: '15px' }}>Fill in your details and we will get back to you with the best rates.</p>
+              </>
+            )}
           </div>
 
-          <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
-            <div className="form-floating">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Name"
-                style={formInputStyle}
-                required
-                value={form.name}
-                onChange={e => update('name', e.target.value)}
-              />
-              <label>Full Name</label>
-            </div>
-
-            <div className="form-floating">
-              <input
-                type="email"
-                className="form-control"
-                placeholder="Email"
-                style={formInputStyle}
-                required
-                value={form.email}
-                onChange={e => update('email', e.target.value)}
-              />
-              <label>Email Address</label>
-            </div>
-
-            <div className="d-flex gap-2">
-              <div className="form-floating" style={{ width: '100px' }}>
-                <input type="text" className="form-control" defaultValue="+91" style={formInputStyle} />
-                <label>Code</label>
-              </div>
-              <div className="form-floating flex-grow-1">
+          {formConfig ? (
+            <InquiryForm 
+              variant="inline" 
+              formConfig={formConfig} 
+              title="Send Booking Inquiry"
+              subtitle="Fill in your details and we will get back to you with the best rates."
+              pipelineId={23}
+              serviceName="Hotel Booking"
+              prefillNote={hotel ? `Hotel: ${hotel.name} (${[hotel.destination?.name, hotel.destination?.country].filter(Boolean).join(', ')})` : ''}
+            />
+          ) : (
+            <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
+              <div className="form-floating">
                 <input
-                  type="tel"
+                  type="text"
                   className="form-control"
-                  placeholder="Phone"
+                  placeholder="Name"
                   style={formInputStyle}
                   required
-                  value={form.phone}
-                  onChange={e => update('phone', e.target.value)}
+                  value={form.name}
+                  onChange={e => update('name', e.target.value)}
                 />
-                <label>Mobile Number</label>
+                <label>Full Name</label>
               </div>
-            </div>
 
-            <div className="d-flex gap-2">
-              <div className="form-floating flex-grow-1">
+              <div className="form-floating">
                 <input
-                  type="date"
+                  type="email"
                   className="form-control"
+                  placeholder="Email"
                   style={formInputStyle}
-                  value={form.date}
-                  onChange={e => update('date', e.target.value)}
+                  required
+                  value={form.email}
+                  onChange={e => update('email', e.target.value)}
                 />
-                <label>Check-in Date (Optional)</label>
+                <label>Email Address</label>
               </div>
-              <div className="form-floating flex-grow-1">
+
+              <div className="d-flex gap-2">
+                <div className="form-floating flex-grow-1">
+                  <input
+                    type="tel"
+                    className="form-control"
+                    placeholder="Phone"
+                    style={formInputStyle}
+                    required
+                    value={form.phone}
+                    onChange={e => update('phone', e.target.value)}
+                  />
+                  <label>Phone Number</label>
+                </div>
+              </div>
+
+              <div className="d-flex gap-2">
+                <div className="form-floating" style={{ flex: 1 }}>
+                  <input
+                    type="date"
+                    className="form-control"
+                    style={formInputStyle}
+                    value={form.date}
+                    onChange={e => update('date', e.target.value)}
+                  />
+                  <label>Check In</label>
+                </div>
+                <div className="form-floating" style={{ flex: 1 }}>
+                  <input
+                    type="date"
+                    className="form-control"
+                    style={formInputStyle}
+                    value={form.checkoutDate}
+                    onChange={e => update('checkoutDate', e.target.value)}
+                  />
+                  <label>Check Out</label>
+                </div>
+              </div>
+
+              <div className="form-floating">
                 <input
-                  type="date"
+                  type="number"
                   className="form-control"
-                  style={formInputStyle}
-                  value={form.checkoutDate}
-                  onChange={e => update('checkoutDate', e.target.value)}
-                />
-                <label>Check-out (Optional)</label>
-              </div>
-              <div className="form-floating" style={{ width: '100px' }}>
-                <select
-                  className="form-select"
+                  placeholder="Guests"
                   style={formInputStyle}
                   value={form.guests}
+                  min="1"
                   onChange={e => update('guests', e.target.value)}
-                >
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5+">5+</option>
-                </select>
-                <label>Guests</label>
+                />
+                <label>Number of Guests</label>
               </div>
-            </div>
 
-            <div className="form-floating">
-              <textarea
-                className="form-control"
-                placeholder="Message"
-                style={{ ...formInputStyle, height: '80px', resize: 'none' }}
-                value={form.message}
-                onChange={e => update('message', e.target.value)}
-              ></textarea>
-              <label>Any special requests?</label>
-            </div>
+              <div className="form-floating">
+                <textarea
+                  className="form-control"
+                  placeholder="Message"
+                  style={{ ...formInputStyle, height: '90px' }}
+                  value={form.message}
+                  onChange={e => update('message', e.target.value)}
+                />
+                <label>Special Requests (Optional)</label>
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn py-3 mt-2"
-              style={{
-                background: 'var(--color-primary)',
-                color: 'white',
-                fontWeight: 750,
-                borderRadius: '14px',
-                fontSize: '16px',
-                border: 'none',
-                boxShadow: '0 15px 30px -5px color-mix(in srgb, var(--color-primary) 30%, transparent)',
-                transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                opacity: loading ? 0.75 : 1,
-                cursor: loading ? 'wait' : 'pointer'
-              }}
-              onMouseEnter={e => { if (!loading) e.currentTarget.style.transform = 'scale(1.02)' }}
-              onMouseLeave={e => { if (!loading) e.currentTarget.style.transform = 'scale(1)' }}
-            >
-              {loading ? 'Submitting...' : 'Send Inquiry'}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  background: 'var(--color-primary)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '16px',
+                  borderRadius: '12px',
+                  fontWeight: 800,
+                  fontSize: '16px',
+                  marginTop: '8px',
+                  cursor: loading ? 'wait' : 'pointer',
+                  opacity: loading ? 0.7 : 1,
+                  transition: 'opacity 0.2s'
+                }}
+              >
+                {loading ? 'Sending Inquiry...' : 'Submit Inquiry'}
+              </button>
+            </form>
+          )}
         </div>
 
         <style jsx>{`
