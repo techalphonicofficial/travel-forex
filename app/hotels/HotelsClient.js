@@ -8,6 +8,7 @@ import { getStoredToken, getHotels, getMediaUrl, searchCountryCityLocations, get
 import InquiryForm from '@/components/InquiryForm';
 import HotelInquiryModal from '@/components/HotelInquiryModal';
 import ReadMoreText from '@/components/ReadMoreText';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const formatMoney = (value) => `Rs ${Number(value || 0).toLocaleString('en-IN')}`;
 
@@ -265,6 +266,10 @@ export default function HotelsClient() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const debouncedSearch = useDebounce(draftQuery.search, 300);
+  const debouncedCity = useDebounce(draftQuery.city, 300);
+  const debouncedCountry = useDebounce(draftQuery.country, 300);
+
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (!activeDropdown) {
@@ -273,8 +278,8 @@ export default function HotelsClient() {
       }
       
       try {
-        if (activeDropdown === 'hotel' && draftQuery.search.length >= 2) {
-          const res = await getHotels({ search: draftQuery.search, limit: 5 });
+        if (activeDropdown === 'hotel' && debouncedSearch.length >= 2) {
+          const res = await getHotels({ search: debouncedSearch, limit: 5 });
           // Get unique hotel names up to 3
           const uniqueHotels = [];
           const seen = new Set();
@@ -284,15 +289,27 @@ export default function HotelsClient() {
               uniqueHotels.push(h);
             }
           }
-          setSuggestions(uniqueHotels.map(h => ({ type: 'hotel', text: h.name, data: h })));
+          if (uniqueHotels.length > 0) {
+            setSuggestions(uniqueHotels.map(h => ({ type: 'hotel', text: h.name, data: h })));
+          } else {
+            setSuggestions([{ type: 'none', text: 'No hotels found' }]);
+          }
         } 
-        else if (activeDropdown === 'city' && draftQuery.city.length >= 2) {
-          const { cities } = await searchCountryCityLocations({ search: draftQuery.city, limit: 3 });
-          setSuggestions((cities || []).slice(0, 3).map(c => ({ type: 'city', text: c.name, data: c })));
+        else if (activeDropdown === 'city' && debouncedCity.length >= 2) {
+          const { cities } = await searchCountryCityLocations({ search: debouncedCity, limit: 3 });
+          if (cities && cities.length > 0) {
+            setSuggestions(cities.slice(0, 3).map(c => ({ type: 'city', text: c.name, data: c })));
+          } else {
+            setSuggestions([{ type: 'none', text: 'No cities found' }]);
+          }
         } 
-        else if (activeDropdown === 'country' && draftQuery.country.length >= 2) {
-          const { countries } = await searchCountryCityLocations({ search: draftQuery.country, limit: 3 });
-          setSuggestions((countries || []).slice(0, 3).map(c => ({ type: 'country', text: c.name, data: c })));
+        else if (activeDropdown === 'country' && debouncedCountry.length >= 2) {
+          const { countries } = await searchCountryCityLocations({ search: debouncedCountry, limit: 3 });
+          if (countries && countries.length > 0) {
+            setSuggestions(countries.slice(0, 3).map(c => ({ type: 'country', text: c.name, data: c })));
+          } else {
+            setSuggestions([{ type: 'none', text: 'No countries found' }]);
+          }
         } else {
           setSuggestions([]);
         }
@@ -301,11 +318,11 @@ export default function HotelsClient() {
       }
     };
     
-    const timeout = setTimeout(fetchSuggestions, 300);
-    return () => clearTimeout(timeout);
-  }, [draftQuery.search, draftQuery.city, draftQuery.country, activeDropdown]);
+    fetchSuggestions();
+  }, [debouncedSearch, debouncedCity, debouncedCountry, activeDropdown]);
 
   const handleSuggestionClick = (suggestion) => {
+    if (suggestion.type === 'none') return;
     if (suggestion.type === 'hotel') {
       const h = suggestion.data;
       setDraftQuery((curr) => ({
@@ -342,25 +359,25 @@ const searchHotels = (event) => {
           </div>
           
           <form className="hotel-search-bar" onSubmit={searchHotels} ref={dropdownRef} style={{ position: 'relative', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
+            <div style={{ position: 'relative', flex: 1, minWidth: '150px' }}>
               <input 
-                value={draftQuery.search} 
-                onChange={(event) => setDraftQuery((current) => ({ ...current, search: event.target.value }))} 
-                onFocus={() => setActiveDropdown('hotel')}
-                placeholder="Hotel Name" 
-                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+                value={draftQuery.country} 
+                onChange={(event) => setDraftQuery((current) => ({ ...current, country: event.target.value }))} 
+                onFocus={() => setActiveDropdown('country')}
+                placeholder="Country" 
+                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', color: '#000' }}
               />
-              {activeDropdown === 'hotel' && suggestions.length > 0 && (
+              {activeDropdown === 'country' && suggestions.length > 0 && (
                 <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #ddd', borderRadius: '4px', zIndex: 50, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', color: '#000' }}>
                   {suggestions.map((s, idx) => (
                     <div key={idx} onClick={() => handleSuggestionClick(s)} style={{ padding: '10px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0' }}>
-                      <strong>{s.text}</strong> {s.data?.city?.name && <small style={{ color: '#666', marginLeft: 8 }}>{s.data.city.name}, {s.data.city?.country?.name}</small>}
+                      <strong>{s.text}</strong>
                     </div>
                   ))}
                 </div>
               )}
             </div>
-            
+
             <div style={{ position: 'relative', flex: 1, minWidth: '150px' }}>
               <input 
                 value={draftQuery.city} 
@@ -380,19 +397,19 @@ const searchHotels = (event) => {
               )}
             </div>
 
-            <div style={{ position: 'relative', flex: 1, minWidth: '150px' }}>
+            <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
               <input 
-                value={draftQuery.country} 
-                onChange={(event) => setDraftQuery((current) => ({ ...current, country: event.target.value }))} 
-                onFocus={() => setActiveDropdown('country')}
-                placeholder="Country" 
-                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', color: '#000' }}
+                value={draftQuery.search} 
+                onChange={(event) => setDraftQuery((current) => ({ ...current, search: event.target.value }))} 
+                onFocus={() => setActiveDropdown('hotel')}
+                placeholder="Hotel Name" 
+                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
               />
-              {activeDropdown === 'country' && suggestions.length > 0 && (
+              {activeDropdown === 'hotel' && suggestions.length > 0 && (
                 <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #ddd', borderRadius: '4px', zIndex: 50, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', color: '#000' }}>
                   {suggestions.map((s, idx) => (
                     <div key={idx} onClick={() => handleSuggestionClick(s)} style={{ padding: '10px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0' }}>
-                      <strong>{s.text}</strong>
+                      <strong>{s.text}</strong> {s.data?.city?.name && <small style={{ color: '#666', marginLeft: 8 }}>{s.data.city.name}, {s.data.city?.country?.name}</small>}
                     </div>
                   ))}
                 </div>

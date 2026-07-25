@@ -63,7 +63,7 @@ const normalizeFormConfig = (formConfig) => {
         fieldKey: field.field_key,
         fieldType: String(field.field_type || 'text').toLowerCase(),
         options: normalizeFieldOptions(field.options),
-        isRequired: Boolean(field.is_required),
+        isRequired: Boolean(field.is_required) || ['phone', 'mobile_number', 'contact_number'].includes(field.field_key),
         order: field.order,
       }))
       .filter((field) => field.label && field.fieldKey),

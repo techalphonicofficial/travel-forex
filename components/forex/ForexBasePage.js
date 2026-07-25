@@ -91,7 +91,7 @@ const findForexRateMatch = (rates = [], fromCode, toCode) => {
   return { rate: 1 };
 };
 
-export default function ForexBasePage({ pageType = 'currency' }) {
+export default function ForexBasePage({ pageType = 'currency', pageData }) {
   const router = useRouter();
   const [rates, setRates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -445,11 +445,74 @@ export default function ForexBasePage({ pageType = 'currency' }) {
     }
   ];
 
+  const parseJSON = (data) => {
+    if (typeof data === 'string') {
+      try { return JSON.parse(data); } catch(e) { return {}; }
+    }
+    return data || {};
+  };
+
+  const heroCMS = pageData?.details?.find(d => d.key === 'hero_key');
+  const heroJson = parseJSON(heroCMS?.json_data);
+  const heroTitleTop = heroCMS?.title || '✦ RBI Authorized Partner';
+  const heroTitleMain = heroJson?.heading_content;
+  const heroDesc = heroJson?.body;
+  const heroBgImage = heroJson?.media_url;
+
+  const heroCurrencyCMS = pageData?.details?.find(d => d.key === 'hero_key_curency');
+  const heroCurrencyJson = parseJSON(heroCurrencyCMS?.json_data);
+  const heroCurrencyHTML = heroCurrencyJson?.body;
+
+  const [displayRates, setDisplayRates] = useState(liveRatesData);
+
+  useEffect(() => {
+    if (heroCurrencyHTML) {
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(heroCurrencyHTML, 'text/html');
+        const rows = Array.from(doc.querySelectorAll('tbody tr'));
+        const parsedRates = rows.map(row => {
+          const tds = row.querySelectorAll('td');
+          if (tds.length < 3) return null;
+          
+          const ps = tds[0].querySelectorAll('p');
+          let parts = [];
+          if (ps.length >= 3) {
+            parts = Array.from(ps).map(p => p.textContent.trim());
+          } else {
+            parts = Array.from(tds[0].querySelectorAll('strong')).map(s => s.textContent.trim());
+          }
+          
+          const symbol = parts[0] || '';
+          const code = parts[1] || '';
+          const name = parts[2] || '';
+          
+          const buyRateStr = tds[1].textContent.replace(/[^\d.]/g, '');
+          const sellRateStr = tds[2].textContent.replace(/[^\d.]/g, '');
+          
+          return {
+            code,
+            name,
+            symbol,
+            buyRate: Number(buyRateStr),
+            sellRate: Number(sellRateStr)
+          };
+        }).filter(r => r && r.code);
+        
+        if (parsedRates.length > 0) {
+          setDisplayRates(parsedRates);
+        }
+      } catch (e) {
+        console.error('Failed to parse CMS table', e);
+      }
+    }
+  }, [heroCurrencyHTML]);
+
   return (
     <div style={{ background: 'var(--color-bg)', color: 'var(--color-text-primary)', minHeight: '100vh', fontFamily: 'var(--font-inter), sans-serif' }}>
 
       {/* 1. HERO SECTION (Dynamic Dark Blue Theme Banner matching Flights/Hotels) */}
-      <section className="forex-hero">
+      <section className="forex-hero" style={heroBgImage ? { backgroundImage: `url(${heroBgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
         {/* Decorative elements */}
         <div style={{ position: 'absolute', top: '10%', right: '-15%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(253,206,46,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '10%', left: '-15%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
@@ -467,7 +530,7 @@ export default function ForexBasePage({ pageType = 'currency' }) {
                 display: 'block',
                 marginBottom: 12
               }}>
-                ✦ RBI Authorized Partner
+                {heroTitleTop}
               </span>
               <h1 style={{
                 fontFamily: 'var(--font-poppins), sans-serif',
@@ -477,14 +540,26 @@ export default function ForexBasePage({ pageType = 'currency' }) {
                 marginBottom: 20,
                 color: 'white'
               }}>
-                {pageType === 'currency' && <>Buy/Sell <span style={{ color: 'var(--color-secondary)' }}>Foreign Currency</span></>}
-                {pageType === 'card' && <>Get Your Multi-Currency <span style={{ color: 'var(--color-secondary)' }}>Forex Card</span></>}
-                {pageType === 'transfer' && <>Fast & Secure <span style={{ color: 'var(--color-secondary)' }}>International Transfer</span></>}
+                {heroTitleMain ? (
+                  <span dangerouslySetInnerHTML={{ __html: heroTitleMain }} />
+                ) : (
+                  <>
+                    {pageType === 'currency' && <>Buy/Sell <span style={{ color: 'var(--color-secondary)' }}>Foreign Currency</span></>}
+                    {pageType === 'card' && <>Get Your Multi-Currency <span style={{ color: 'var(--color-secondary)' }}>Forex Card</span></>}
+                    {pageType === 'transfer' && <>Fast & Secure <span style={{ color: 'var(--color-secondary)' }}>International Transfer</span></>}
+                  </>
+                )}
               </h1>
               <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 16, lineHeight: 1.6, marginBottom: 30, maxWidth: '520px' }}>
-                {pageType === 'currency' && "Get genuine currency notes in major global denominations delivered to your doorstep at the best live exchange rates."}
-                {pageType === 'card' && "Secure and load multiple currencies. Accepted worldwide at offline stores, ATMs and online websites with zero markup fees."}
-                {pageType === 'transfer' && "Secure instant international tuition remittances, medical payments, and business transfers. Lock in competitive live rates today."}
+                {heroDesc ? (
+                  <span dangerouslySetInnerHTML={{ __html: heroDesc }} />
+                ) : (
+                  <>
+                    {pageType === 'currency' && "Get genuine currency notes in major global denominations delivered to your doorstep at the best live exchange rates."}
+                    {pageType === 'card' && "Secure and load multiple currencies. Accepted worldwide at offline stores, ATMs and online websites with zero markup fees."}
+                    {pageType === 'transfer' && "Secure instant international tuition remittances, medical payments, and business transfers. Lock in competitive live rates today."}
+                  </>
+                )}
               </p>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 15 }}>
@@ -509,89 +584,89 @@ export default function ForexBasePage({ pageType = 'currency' }) {
 
             {/* Converter Panel Card (White Container for high contrast against dark background) */}
             <div className="col-12 col-lg-6">
-          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <div className="table-responsive" style={{
-              background: 'var(--color-bg-card)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 16,
-              overflow: 'hidden',
-              boxShadow: 'var(--shadow-sm)'
-            }}>
-              <table className="table table-hover" style={{ margin: 0, background: 'transparent' }}>
-                <thead>
-                  <tr style={{ background: 'var(--color-bg-soft)' }}>
-                    <th style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border)', color: 'var(--color-primary)', fontWeight: 800 }}>Currency</th>
-                    <th style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border)', color: '#059669', fontWeight: 800 }}>Buy Rate</th>
-                    <th style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border)', color: '#d97706', fontWeight: 800 }}>Sell Rate</th>
-                    <th style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border)', textAlign: 'right', color: 'var(--color-text-secondary)' }}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {liveRatesData.map((row) => (
-                    <tr key={row.code} style={{ verticalAlign: 'middle', borderBottom: '1px solid var(--color-border)' }}>
-                      <td style={{ padding: '18px 24px', color: 'var(--color-text-primary)', fontWeight: 700 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <span style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: '50%',
-                            background: 'var(--color-bg-soft)',
-                            display: 'grid',
-                            placeItems: 'center',
-                            fontSize: 14,
-                            color: 'var(--color-primary)'
-                          }}>
-                            {row.symbol}
-                          </span>
-                          <div>
-                            <div style={{ color: 'var(--color-text-primary)' }}>{row.code}</div>
-                            <small style={{ color: 'var(--color-text-secondary)', fontSize: 11, fontWeight: 500 }}>{row.name}</small>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ padding: '18px 24px', color: '#059669', fontWeight: 800, fontSize: 15 }}>
-                        ₹{row.buyRate}
-                      </td>
-                      <td style={{ padding: '18px 24px', color: '#d97706', fontWeight: 800, fontSize: 15 }}>
-                        ₹{row.sellRate}
-                      </td>
-                      <td style={{ padding: '18px 24px', textAlign: 'right' }}>
-                        <button
-                          type="button"
-                          onClick={() => selectDestination(row.code)}
-                          style={{
-                            padding: '6px 16px',
-                            background: 'var(--color-primary-light)',
-                            border: '1px solid var(--brand-primary-border)',
-                            borderRadius: 8,
-                            color: 'var(--color-primary)',
-                            fontSize: 12,
-                            fontWeight: 800,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={e => {
-                            e.currentTarget.style.background = 'var(--color-primary)';
-                            e.currentTarget.style.color = 'white';
-                          }}
-                          onMouseLeave={e => {
-                            e.currentTarget.style.background = 'var(--color-primary-light)';
-                            e.currentTarget.style.color = 'var(--color-primary)';
-                          }}
-                        >
-                          Lock Rate
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div style={{ marginTop: 15, display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#059669', display: 'inline-block' }} />
-              <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 600 }}>Rates auto-sync active. Interbank standard spread applied.</span>
-            </div>
-          </div>
+              <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                <div className="table-responsive" style={{
+                  background: 'var(--color-bg-card)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 16,
+                  overflow: 'hidden',
+                  boxShadow: 'var(--shadow-sm)'
+                }}>
+                  <table className="table table-hover" style={{ margin: 0, background: 'transparent' }}>
+                    <thead>
+                      <tr style={{ background: 'var(--color-bg-soft)' }}>
+                        <th style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border)', color: 'var(--color-primary)', fontWeight: 800 }}>Currency</th>
+                        <th style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border)', color: '#059669', fontWeight: 800 }}>Buy Rate</th>
+                        <th style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border)', color: '#d97706', fontWeight: 800 }}>Sell Rate</th>
+                        <th style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border)', textAlign: 'right', color: 'var(--color-text-secondary)' }}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {displayRates.map((row) => (
+                        <tr key={row.code} style={{ verticalAlign: 'middle', borderBottom: '1px solid var(--color-border)' }}>
+                          <td style={{ padding: '18px 24px', color: 'var(--color-text-primary)', fontWeight: 700 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <span style={{
+                                width: 32,
+                                height: 32,
+                                borderRadius: '50%',
+                                background: 'var(--color-bg-soft)',
+                                display: 'grid',
+                                placeItems: 'center',
+                                fontSize: 14,
+                                color: 'var(--color-primary)'
+                              }}>
+                                {row.symbol}
+                              </span>
+                              <div>
+                                <div style={{ color: 'var(--color-text-primary)' }}>{row.code}</div>
+                                <small style={{ color: 'var(--color-text-secondary)', fontSize: 11, fontWeight: 500 }}>{row.name}</small>
+                              </div>
+                            </div>
+                          </td>
+                          <td style={{ padding: '18px 24px', color: '#059669', fontWeight: 800, fontSize: 15 }}>
+                            ₹{row.buyRate}
+                          </td>
+                          <td style={{ padding: '18px 24px', color: '#d97706', fontWeight: 800, fontSize: 15 }}>
+                            ₹{row.sellRate}
+                          </td>
+                          <td style={{ padding: '18px 24px', textAlign: 'right' }}>
+                            <button
+                              type="button"
+                              onClick={() => selectDestination(row.code)}
+                              style={{
+                                padding: '6px 16px',
+                                background: 'var(--color-primary-light)',
+                                border: '1px solid var(--brand-primary-border)',
+                                borderRadius: 8,
+                                color: 'var(--color-primary)',
+                                fontSize: 12,
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={e => {
+                                e.currentTarget.style.background = 'var(--color-primary)';
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={e => {
+                                e.currentTarget.style.background = 'var(--color-primary-light)';
+                                e.currentTarget.style.color = 'var(--color-primary)';
+                              }}
+                            >
+                              Lock Rate
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{ marginTop: 15, display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#059669', display: 'inline-block' }} />
+                  <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 600 }}>Rates auto-sync active. Interbank standard spread applied.</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

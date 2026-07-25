@@ -1577,7 +1577,7 @@ nav,
    ============================== */
 .page-header {
   background: linear-gradient(135deg, #0a0f1e 0%, #0d2060 100%);
-  padding: 120px 0 60px;
+  padding: 60px 0 60px;
   color: white;
   position: relative;
   overflow: hidden;
