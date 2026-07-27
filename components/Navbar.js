@@ -553,7 +553,7 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
                       textDecoration: 'none',
                       color: item.isHeaderStyle ? '#FFD700' : (item.isExplore ? 'var(--color-primary)' : '#1e293b'),
                       fontWeight: item.isHeaderStyle ? 600 : (item.isExplore ? 700 : 500),
-                      fontSize: 13.5,
+                      fontSize: item.isHeaderStyle ? 18 : 13.5,
                       transition: 'all 0.2s',
                       background: item.isHeaderStyle ? '#0f3a75' : (item.isExplore ? '#f0f9ff' : 'transparent'),
                     }}
