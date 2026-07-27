@@ -139,9 +139,11 @@ export default function InquiryForm({
           style={customStyle}
         >
           <option value="" disabled>{field.label} {isRequired ? '*' : ''}</option>
-          {field.options?.map((opt, i) => (
-            <option key={i} value={opt.value}>{opt.label}</option>
-          ))}
+          {field.options?.map((opt, i) => {
+            const val = typeof opt === 'string' ? opt : opt.value;
+            const lbl = typeof opt === 'string' ? opt : opt.label;
+            return <option key={i} value={val}>{lbl}</option>;
+          })}
         </select>
       );
     }
