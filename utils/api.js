@@ -516,7 +516,7 @@ export const getPageBySlug = async (slug) => {
     const response = await apiClient.get(`/pages/slug/${slug}`);
     return normalizeApiData(response);
   } catch (error) {
-    console.error(`Error fetching page "${slug}":`, error);
+    console.warn(`Warning: Page CMS for "${slug}" not found or unavailable (${error?.message || 'Unknown error'}).`);
     return null;
   }
 };

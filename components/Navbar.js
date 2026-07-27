@@ -2090,19 +2090,36 @@ export default function Navbar({ brand, companyInfo }) {
         <div className="container" style={{ display: 'flex', alignItems: 'center', height: '110px' }}>
           {/* Logo */}
           <Link href="/" className="animate-fade-up delay-200" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginRight: 24 }}>
-            <Image
-              src={brandLogo}
-              alt={`${brandName} Logo`}
-              width={100}
-              height={100}
-              style={{
-                width: 100,
-                height: 100,
-                objectFit: 'contain',
-                borderRadius: '8px',
-              }}
-              priority
-            />
+            {pathname?.startsWith('/forex') ? (
+              <Image
+                src="/images/forex-logo.jpg"
+                alt="Forex Logo"
+                width={100}
+                height={100}
+                style={{
+                  width: 100,
+                  height: 100,
+                  objectFit: 'cover',
+                  borderRadius: '50%',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+                }}
+                priority
+              />
+            ) : (
+              <Image
+                src={brandLogo}
+                alt={`${brandName} Logo`}
+                width={100}
+                height={100}
+                style={{
+                  width: 100,
+                  height: 100,
+                  objectFit: 'contain',
+                  borderRadius: '8px',
+                }}
+                priority
+              />
+            )}
           </Link>
 
           {/* Right Column */}

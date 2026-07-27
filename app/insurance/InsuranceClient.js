@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { getStoredToken } from '@/utils/api';
@@ -56,11 +56,10 @@ const getFormPayload = (formElement, fields, pipelineId) => {
   return payload;
 };
 
-function InsuranceDynamicField({ field }) {
+function InsuranceDynamicField({ field, totalInRow = 1 }) {
   const isTextarea = field.fieldType === 'textarea';
   const isSelect = field.fieldType === 'select';
   const isMultiSelect = field.fieldType === 'multiselect';
-  const isWideField = isTextarea || field.fieldKey.includes('notes') || field.fieldKey.includes('address') || field.fieldKey.includes('request') || field.fieldKey.includes('destination') || field.fieldKey.includes('country');
   const requiredMark = field.isRequired ? ' *' : '';
   const commonProps = {
     id: field.fieldKey,
@@ -69,8 +68,10 @@ function InsuranceDynamicField({ field }) {
     style: { width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', color: '#1e293b', background: 'white' }
   };
 
+  const colClass = totalInRow === 1 ? "col-12 mb-3" : `col-12 col-md-${Math.floor(12 / totalInRow)} mb-3`;
+
   return (
-    <div className={isWideField ? "col-12 mb-3" : "col-12 col-md-6 mb-3"}>
+    <div className={colClass}>
       <label htmlFor={field.fieldKey} style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', marginBottom: '8px', textTransform: 'uppercase' }}>
         {field.label}{requiredMark}
       </label>
@@ -98,6 +99,18 @@ export default function InsuranceClient({ pageData, formConfig }) {
   const [loading, setLoading] = useState(false);
 
   const fields = formConfig?.fields || [];
+
+  const groupedFields = useMemo(() => {
+    const groups = {};
+    fields.forEach(field => {
+      const order = field.order || 0;
+      if (!groups[order]) groups[order] = [];
+      groups[order].push(field);
+    });
+    return Object.keys(groups)
+      .sort((a, b) => Number(a) - Number(b))
+      .map(k => groups[k]);
+  }, [fields]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -191,9 +204,17 @@ export default function InsuranceClient({ pageData, formConfig }) {
                   }
                 }}>
                   <div className="row">
-                    {fields.length > 0 ? (
-                      fields.map(field => (
-                        <InsuranceDynamicField key={field.id || field.fieldKey} field={field} />
+                    {groupedFields.length > 0 ? (
+                      groupedFields.map((group, groupIdx) => (
+                        <div className="row m-0 p-0" key={`group-${groupIdx}`}>
+                          {group.map(field => (
+                            <InsuranceDynamicField 
+                              key={field.id || field.fieldKey} 
+                              field={field} 
+                              totalInRow={group.length} 
+                            />
+                          ))}
+                        </div>
                       ))
                     ) : (
                       <div className="col-12"><p>Loading form fields...</p></div>

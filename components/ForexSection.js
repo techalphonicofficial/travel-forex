@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import InquiryForm from '@/components/InquiryForm';
 
 export default function ForexSection() {
@@ -8,6 +9,15 @@ export default function ForexSection() {
     <section style={{ padding: '68px 0 76px', background: 'var(--color-bg-soft)', color: 'var(--color-text-primary)', position: 'relative', overflow: 'hidden' }}>
       <div className="container">
         <div style={{ textAlign: 'center', marginBottom: 38 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+            <Image 
+              src="/images/forex-logo.jpg" 
+              alt="Forex Logo" 
+              width={80} 
+              height={80} 
+              style={{ borderRadius: '50%', objectFit: 'cover', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} 
+            />
+          </div>
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--color-primary)', marginBottom: 10 }}>
             TRAVELER'S FIRST CHOICE
           </p>
