@@ -29,7 +29,7 @@ export default function HotDealsMarquee() {
         if (res && res.rows && res.rows.length > 0) {
           // Duplicate items to ensure smooth infinite vertical scrolling
           const items = res.rows;
-          setDeals([...items, ...items, ...items, ...items]); 
+          setDeals([...items, ...items, ...items, ...items]);
         }
       } catch (error) {
         console.error('Failed to fetch hot deals', error);
@@ -37,7 +37,7 @@ export default function HotDealsMarquee() {
         setLoading(false);
       }
     };
-    
+
     fetchHotDeals();
   }, []);
 
@@ -49,46 +49,46 @@ export default function HotDealsMarquee() {
         <h2>🔥 Hot Deals</h2>
         <p>Premium stays</p>
       </div>
-      
+
       <div className="marquee-container">
         <div className="marquee-track">
           {deals.map((hotel, index) => (
-            <a 
-              href={`/hotels/${hotel.id}`} 
-              key={`${hotel.id}-${index}`} 
+            <a
+              href={`/hotels/${hotel.id}`}
+              key={`${hotel.id}-${index}`}
               className="hot-deal-card"
             >
-              <img 
-                src={getHotelImage(hotel)} 
-                alt={hotel.name} 
-                loading="lazy" 
-                className="card-bg" 
+              <img
+                src={getHotelImage(hotel)}
+                alt={hotel.name}
+                loading="lazy"
+                className="card-bg"
                 onError={(e) => {
-                  e.target.onerror = null; 
+                  e.target.onerror = null;
                   e.target.src = '/images/banners/banner1.jpg';
                 }}
               />
               <div className="deal-badge">Hot Deal</div>
-              
+
               <div className="card-overlay">
                 <div className="deal-rating">
-                  ⭐ {hotel.guest_rating || '4.0'} 
+                  ⭐ {hotel.guest_rating || '4.0'}
                   {hotel.star_rating ? <span className="stars">({hotel.star_rating}★)</span> : ''}
                 </div>
                 <h3>{hotel.name}</h3>
                 <div className="deal-location">
                   <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                   </svg>
                   {hotel.city?.name || 'Popular Destination'}
                 </div>
-                <div className="price-info">
+                {/* <div className="price-info">
                   <span className="price-from">From</span>
                   <span className="price-value">{formatMoney(getDiscountedPrice(hotel))}</span>
                   {Number(hotel.discount_percent) > 0 && (
                     <span className="discount-tag">-{hotel.discount_percent}%</span>
                   )}
-                </div>
+                </div> */}
               </div>
             </a>
           ))}
@@ -301,7 +301,8 @@ export default function HotDealsMarquee() {
           100% { transform: translateY(-50%); }
         }
       `}</style>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes scrollMarqueeVertical {
           0% { transform: translateY(0); }
           100% { transform: translateY(-50%); }
