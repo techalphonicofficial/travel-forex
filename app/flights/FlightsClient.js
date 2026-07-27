@@ -120,7 +120,7 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, pageData 
   const heroSection = pageData?.details?.find(d => d.section === 'image_text' && d.key === 'hero_key');
   const whyBookSection = pageData?.details?.find(d => d.section === 'team_grid' && d.key === 'book-key');
   const faqSection = pageData?.details?.find(d => d.section === 'faq_accordion');
-  
+
   const heroTitle = heroSection?.title || '✈ Global Airline Tickets';
   const heroHeading = heroSection?.json_data?.heading_content || 'Fly Anywhere, For Less';
   const heroDesc = heroSection?.json_data?.body || 'Book international and domestic flight tickets at exclusive discount rates. We compare corporate fares and group discounts to give you lower prices than major travel portals.';
@@ -146,18 +146,18 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, pageData 
   const [tripType, setTripType] = useState('Round-trip');
 
   const activeConfig = tripType === 'Round-trip' ? roundTripConfig : oneWayConfig;
-    const fields = useMemo(() => {
+  const fields = useMemo(() => {
     return [
       { id: 'full_name', fieldKey: 'full_name', label: 'Full Name', fieldType: 'text', isRequired: true },
       { id: 'email', fieldKey: 'email', label: 'Email Address', fieldType: 'email', isRequired: true },
       { id: 'phone', fieldKey: 'phone', label: 'Mobile Number', fieldType: 'tel', isRequired: true },
+      { id: 'passengers', fieldKey: 'passengers', label: 'No. of Passengers', fieldType: 'number', isRequired: true },
       { id: 'departure_city', fieldKey: 'departure_city', label: 'Departure City', fieldType: 'text', isRequired: true },
       { id: 'destination_city', fieldKey: 'destination_city', label: 'Destination City', fieldType: 'text', isRequired: true },
       { id: 'departure_date', fieldKey: 'departure_date', label: 'Departure Date', fieldType: 'date', isRequired: true },
       ...(tripType === 'One-way' ? [] : [{ id: 'arrival_date', fieldKey: 'arrival_date', label: 'Arrival Date', fieldType: 'date', isRequired: false }]),
-      { id: 'passengers', fieldKey: 'passengers', label: 'No. of Passengers', fieldType: 'number', isRequired: true },
-      { id: 'fare_type', fieldKey: 'fare_type', label: 'Fare Type', fieldType: 'select', options: [{label: 'Regular', value: 'Regular'}, {label: 'Student', value: 'Student'}], isRequired: true },
-      { id: 'class', fieldKey: 'class', label: 'Class', fieldType: 'select', options: [{label: 'Economy', value: 'Economy'}, {label: 'Premium Economy', value: 'Premium Economy'}, {label: 'Business', value: 'Business'}, {label: 'First Class', value: 'First Class'}], isRequired: true },
+      { id: 'fare_type', fieldKey: 'fare_type', label: 'Fare Type', fieldType: 'select', options: [{ label: 'Regular', value: 'Regular' }, { label: 'Student', value: 'Student' }], isRequired: true },
+      { id: 'class', fieldKey: 'class', label: 'Class', fieldType: 'select', options: [{ label: 'Economy', value: 'Economy' }, { label: 'Premium Economy', value: 'Premium Economy' }, { label: 'Business', value: 'Business' }, { label: 'First Class', value: 'First Class' }], isRequired: true },
       { id: 'flight_preference', fieldKey: 'flight_preference', label: 'Flight Preference / Special Request', fieldType: 'textarea', isRequired: false },
     ];
   }, [tripType]);
@@ -234,7 +234,7 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, pageData 
             <div className="flights-search-card" id="flights-search-widget">
               {/* Trip type selectors */}
               <div className="flights-trip-toggle">
-                {['Round-trip', 'One-way', 'Multi-city'].map(type => (
+                {['One-way', 'Round-trip', 'Multi-city'].map(type => (
                   <button
                     key={type}
                     type="button"

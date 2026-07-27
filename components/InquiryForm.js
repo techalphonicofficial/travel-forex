@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 
 export default function InquiryForm({
@@ -21,6 +21,11 @@ export default function InquiryForm({
   const [dynamicForm, setDynamicForm] = useState({});
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  const sortedFields = useMemo(() => {
+    if (!formConfig?.fields) return null;
+    return [...formConfig.fields].sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+  }, [formConfig]);
 
   const update = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
   const updateDynamic = (key, value) => setDynamicForm((prev) => ({ ...prev, [key]: value }));
@@ -216,8 +221,8 @@ export default function InquiryForm({
             </div>
             <form onSubmit={handleSubmit}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'stretch' }}>
-                {formConfig?.fields ? (
-                  formConfig.fields.map(field => renderDynamicField(field, inputStyle))
+                {sortedFields ? (
+                  sortedFields.map(field => renderDynamicField(field, inputStyle))
                 ) : (
                   <>
                     <input
@@ -301,8 +306,8 @@ export default function InquiryForm({
         }}>{title}</h3>
         <p style={{ margin: '0 0 18px', color: '#6b7280', fontSize: 13, lineHeight: 1.5 }}>{subtitle}</p>
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 10 }}>
-          {formConfig?.fields ? (
-            formConfig.fields.map(field => renderDynamicField(field, { ...inputStyle, flex: 'none', width: '100%' }))
+          {sortedFields ? (
+            sortedFields.map(field => renderDynamicField(field, { ...inputStyle, flex: 'none', width: '100%' }))
           ) : (
             <>
               <input
@@ -380,8 +385,8 @@ export default function InquiryForm({
       )}
       <form onSubmit={handleSubmit}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-          {formConfig?.fields ? (
-            formConfig.fields.map(field => renderDynamicField(field, inputStyle))
+          {sortedFields ? (
+            sortedFields.map(field => renderDynamicField(field, inputStyle))
           ) : (
             <>
               <input
