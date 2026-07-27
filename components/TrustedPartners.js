@@ -92,18 +92,17 @@ export default function TrustedPartners({ category = 'default', customPartners =
           display: flex;
           align-items: center;
           justify-content: center;
-          height: 40px;
-          min-width: 120px;
+          height: 75px;
+          min-width: 180px;
         }
         .marquee-item img {
           max-height: 100%;
-          max-width: 140px;
+          max-width: 180px;
           object-fit: contain;
-          filter: grayscale(100%) opacity(0.65);
-          transition: filter 0.3s ease;
+          transition: opacity 0.3s ease;
         }
         .marquee-item:hover img {
-          filter: grayscale(0%) opacity(1);
+          opacity: 0.8;
         }
         .marquee-fallback {
           display: none;
