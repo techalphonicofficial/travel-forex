@@ -120,6 +120,13 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, pageData 
   const heroSection = pageData?.details?.find(d => d.section === 'image_text' && d.key === 'hero_key');
   const whyBookSection = pageData?.details?.find(d => d.section === 'team_grid' && d.key === 'book-key');
   const faqSection = pageData?.details?.find(d => d.section === 'faq_accordion');
+  const partnersSection = pageData?.details?.find(d => d.section === 'team_grid' && d.key === 'our_trusted_partner');
+
+  const partnersTitle = partnersSection?.title || 'Our Trusted Airline Partners';
+  const dynamicAirlinePartners = partnersSection?.json_data?.team?.map(p => ({
+    name: p.name,
+    logo: p.img?.startsWith('http') ? p.img : `https://tourtravel.yber.in${p.img}`
+  })) || airlinePartners;
 
   const heroTitle = heroSection?.title || '✈ Global Airline Tickets';
   const heroHeading = heroSection?.json_data?.heading_content || 'Fly Anywhere, For Less';
@@ -270,7 +277,11 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, pageData 
 
 
       {/* 3. AIRLINE PARTNERS (REPLACED WITH TRUSTED PARTNERS MARQUEE) */}
-      <TrustedPartners category="airlines" />
+      <TrustedPartners
+        category="airlines"
+        customPartners={dynamicAirlinePartners}
+        title={partnersTitle}
+      />
 
       {/* 4. WHY BOOK WITH US */}
       <section className="flights-section container">

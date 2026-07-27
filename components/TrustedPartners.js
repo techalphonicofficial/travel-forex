@@ -33,14 +33,14 @@ const partnersMap = {
   ]
 };
 
-export default function TrustedPartners({ category = 'default' }) {
-  const currentPartners = partnersMap[category] || partnersMap.default;
+export default function TrustedPartners({ category = 'default', customPartners = null, title = null }) {
+  const currentPartners = customPartners || partnersMap[category] || partnersMap.default;
 
   return (
     <section className="trusted-partners-container" style={{ margin: '60px 0' }}>
       <div className="container">
         <h3 style={{ textAlign: 'center', fontSize: 16, color: '#64748b', marginBottom: 32, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1.5 }}>
-          Our Trusted {category === 'insurance' ? 'Insurance' : category === 'airlines' ? 'Airline' : 'Travel'} Partners
+          {title || `Our Trusted ${category === 'insurance' ? 'Insurance' : category === 'airlines' ? 'Airline' : 'Travel'} Partners`}
         </h3>
       </div>
       
