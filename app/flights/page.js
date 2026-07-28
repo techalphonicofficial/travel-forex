@@ -2,8 +2,9 @@ import FlightsClient from './FlightsClient';
 
 export const dynamic = 'force-dynamic';
 
-const PIPELINE_ROUND_TRIP = 'https://tourtravel.yber.in/api/v1/crm/pipelines/8/form';
+const PIPELINE_ROUND_TRIP = 'https://tourtravel.yber.in/api/v1/crm/pipelines/28/form';
 const PIPELINE_ONE_WAY = 'https://tourtravel.yber.in/api/v1/crm/pipelines/9/form';
+const PIPELINE_MULTI_CITY = 'https://tourtravel.yber.in/api/v1/crm/pipelines/27/form';
 const CRM_API_KEY = process.env.CRM_PIPELINE_FORM_API_KEY || process.env.CRM_COMPANY_INFO_API_KEY || 'pt_dc9eae82075b27c1408392fa7d7e0e632ef9e846f6e4e33e';
 
 const fetchPipeline = async (endpoint) => {
@@ -95,15 +96,19 @@ export const metadata = {
 };
 
 export default async function FlightsPage() {
-  const pageData = await fetchPage();
-  const roundTripData = await fetchPipeline(PIPELINE_ROUND_TRIP);
-  const oneWayData = await fetchPipeline(PIPELINE_ONE_WAY);
+  const [pageData, roundTripData, oneWayData, multiCityData] = await Promise.all([
+    fetchPage(),
+    fetchPipeline(PIPELINE_ROUND_TRIP),
+    fetchPipeline(PIPELINE_ONE_WAY),
+    fetchPipeline(PIPELINE_MULTI_CITY)
+  ]);
   
   return (
     <FlightsClient
       pageData={pageData} 
       roundTripConfig={normalizeFormConfig(roundTripData)}
       oneWayConfig={normalizeFormConfig(oneWayData)}
+      multiCityConfig={normalizeFormConfig(multiCityData)}
     />
   );
 }

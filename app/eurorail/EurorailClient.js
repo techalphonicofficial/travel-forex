@@ -133,7 +133,51 @@ export default function EurorailClient({ formConfig }) {
     setLoading(true);
 
     try {
-      const payload = getFormPayload(form, fields, formConfig?.id);
+      let payload;
+      if (activeTab === 'passes') {
+        payload = getFormPayload(form, fields, formConfig?.id);
+      } else {
+        const formData = new FormData(form);
+        const fromCity = formData.get('from_city') || '';
+        const toCity = formData.get('to_city') || '';
+        const adults = formData.get('adults') || '1';
+        const youth = formData.get('youth') || '0';
+        const senior = formData.get('senior') || '0';
+        const departureDate = formData.get('departure_date') || '';
+        const departureTime = formData.get('departure_time') || '';
+        const returnDate = formData.get('return_date') || '';
+        const returnTime = formData.get('return_time') || '';
+        
+        const details = [
+          `Ticket Type: ${ticketType.toUpperCase()}`,
+          `Route: ${fromCity} to ${toCity}`,
+          `Passengers: Adults: ${adults}, Youth: ${youth}, Senior: ${senior}`,
+          `Departure: ${departureDate} ${departureTime}`,
+          ticketType === 'roundtrip' ? `Return: ${returnDate} ${returnTime}` : ''
+        ].filter(Boolean).join('\n');
+
+        payload = {
+          pipeline_id: ticketType === 'oneway' ? 22 : 25,
+          name: currentUser?.name || 'Euro Rails Ticket Lead',
+          email: currentUser?.email || '',
+          phone: currentUser?.phone || '',
+          source: 'Euro Rails Tickets - ' + ticketType,
+          notes: details,
+          custom_fields: {
+            from_city: fromCity,
+            to_city: toCity,
+            adults,
+            youth,
+            senior,
+            departure_date: departureDate,
+            departure_time: departureTime,
+            ...(ticketType === 'roundtrip' && {
+              return_date: returnDate,
+              return_time: returnTime
+            })
+          }
+        };
+      }
 
       const response = await fetch('/api/contact-leads', {
         method: 'POST',

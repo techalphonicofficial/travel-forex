@@ -115,7 +115,7 @@ const faqs = [
   { q: 'Are ticket cancellation or rescheduling charges applicable?', a: 'Yes, cancellations and rescheduling are subject to individual airline policies plus a nominal agency processing fee. We recommend selecting flexible fare options if your travel plans are tentative.' }
 ];
 
-export default function FlightsClient({ roundTripConfig, oneWayConfig, pageData }) {
+export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCityConfig, pageData }) {
 
   const heroSection = pageData?.details?.find(d => d.section === 'image_text' && d.key === 'hero_key');
   const whyBookSection = pageData?.details?.find(d => d.section === 'team_grid' && d.key === 'book-key');
@@ -150,10 +150,18 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, pageData 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
-  const [tripType, setTripType] = useState('Round-trip');
+  const [tripType, setTripType] = useState('One-way');
 
-  const activeConfig = tripType === 'Round-trip' ? roundTripConfig : oneWayConfig;
+  const activeConfig = useMemo(() => {
+    if (tripType === 'Multi-city') return multiCityConfig;
+    if (tripType === 'Round-trip') return roundTripConfig;
+    return oneWayConfig;
+  }, [tripType, oneWayConfig, roundTripConfig, multiCityConfig]);
+
   const fields = useMemo(() => {
+    if (activeConfig?.fields && activeConfig.fields.length > 0) {
+      return activeConfig.fields;
+    }
     return [
       { id: 'full_name', fieldKey: 'full_name', label: 'Full Name', fieldType: 'text', isRequired: true },
       { id: 'email', fieldKey: 'email', label: 'Email Address', fieldType: 'email', isRequired: true },
@@ -167,7 +175,7 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, pageData 
       { id: 'class', fieldKey: 'class', label: 'Class', fieldType: 'select', options: [{ label: 'Economy', value: 'Economy' }, { label: 'Premium Economy', value: 'Premium Economy' }, { label: 'Business', value: 'Business' }, { label: 'First Class', value: 'First Class' }], isRequired: true },
       { id: 'flight_preference', fieldKey: 'flight_preference', label: 'Flight Preference / Special Request', fieldType: 'textarea', isRequired: false },
     ];
-  }, [tripType]);
+  }, [activeConfig, tripType]);
 
   useEffect(() => {
     const token = getStoredToken();
