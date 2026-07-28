@@ -1337,9 +1337,11 @@ export default function Navbar({ brand, companyInfo }) {
     return null;
   }
 
-  const brandLogo = pathname.startsWith('/forex')
-    ? '/forex-logo-new.png'
-    : (getLogoUrl(companyInfo?.company_logo_url) || brand?.logo || '/logooo.png');
+  const brandLogo = pathname === '/'
+    ? (getLogoUrl(companyInfo?.company_logo_url) || brand?.logo || '/logooo.png')
+    : pathname.startsWith('/forex')
+      ? '/forex-logo-new.png'
+      : '/ITS-new.jpg';
   const brandName = brand?.legalName || 'ITS TRAVELS AND TOURS';
   const isTransparent = false;
   const isLightHeader = false;
@@ -2115,7 +2117,8 @@ export default function Navbar({ brand, companyInfo }) {
                   width: 100,
                   height: 100,
                   objectFit: 'contain',
-                  borderRadius: '8px',
+                  borderRadius: pathname === '/' ? '8px' : '50%',
+                  boxShadow: pathname === '/' ? 'none' : '0 2px 10px rgba(0,0,0,0.1)'
                 }}
                 priority
               />
