@@ -203,13 +203,13 @@ export default function CategoriesCarousel() {
           {marqueeItems.map((category, index) => (
             <Link key={`${category.id}-${index}`} href={`/themes/${category.slug || category.id}`} className="theme-card">
               <div className="theme-card-img-wrap">
-                <Image 
-                  src={category.image} 
-                  alt={category.label} 
-                  fill 
-                  sizes="(max-width: 768px) 280px, 360px" 
-                  style={{ objectFit: 'cover', objectPosition: 'center' }} 
-                  className="theme-card-img" 
+                <Image
+                  src={category.image}
+                  alt={category.label}
+                  fill
+                  sizes="(max-width: 768px) 280px, 360px"
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                  className="theme-card-img"
                 />
                 <div className="theme-overlay" />
               </div>

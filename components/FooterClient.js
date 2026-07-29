@@ -128,7 +128,17 @@ export default function FooterClient({ brand, companyInfo }) {
   const footerLinks = normalizeColumns(companyInfo?.footer_columns);
   const trustItems = normalizeTrustItems(companyInfo?.footer_columns);
   const socialLinks = normalizeSocialLinks(companyInfo?.social);
-  const brandLogo = getLogoUrl(companyInfo?.company_logo_url) || brand?.logo || '/logooo.png';
+  const getDynamicLogo = () => {
+    if (pathname?.startsWith('/forex')) {
+      return getLogoUrl(companyInfo?.currency_logo_url) || brand?.logo || '/forex-logo-new.png';
+    }
+    const itsRoutes = ['/hotels', '/tours', '/visa', '/insurance', '/eurorail', '/events', '/conferences', '/flights'];
+    if (itsRoutes.some(route => pathname?.startsWith(route))) {
+      return getLogoUrl(companyInfo?.its_logo_url) || brand?.logo || '/ITS-new.jpg';
+    }
+    return getLogoUrl(companyInfo?.company_logo_url) || brand?.logo || '/logooo.png';
+  };
+  const brandLogo = getDynamicLogo();
   const brandName = companyInfo?.company_name || brand?.legalName || 'ITS TRAVELS AND TOURS';
   const footerContent = companyInfo?.footer_content || `© ${new Date().getFullYear()} ${brandName}. All rights reserved.`;
   const brandDescription = brand?.description || 'Crafting unforgettable travel experiences since 2015. We believe every journey should be as extraordinary as the destination.';
@@ -197,7 +207,7 @@ export default function FooterClient({ brand, companyInfo }) {
 
             {Object.entries(footerLinks).map(([section, links]) => (
               <div key={section} className="col-12 col-sm-6 col-lg-2 text-lg-start mobile-text-center mb-4 mb-lg-0">
-              
+
                 <h4 className="footer-heading mt-0" style={{ color: '#ffffff' }}>{section}</h4>
                 <ul className="list-unstyled mb-0">
                   {links.map(({ label, href }) => (
@@ -209,7 +219,7 @@ export default function FooterClient({ brand, companyInfo }) {
               </div>
             ))}
 
-           
+
             <div className="col-12 col-sm-6 col-lg-2 text-lg-start mobile-text-center mb-4 mb-lg-0">
               <h4 className="footer-heading mt-0" style={{ color: '#ffffff' }}>Trust & Safety</h4>
               <div className="d-flex flex-column gap-3">

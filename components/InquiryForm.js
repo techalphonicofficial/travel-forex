@@ -130,7 +130,8 @@ export default function InquiryForm({
   };
 
   const renderDynamicField = (field, customStyle) => {
-    const isRequired = field.isRequired || field.is_required;
+    const isPhoneField = ['phone', 'mobile_number', 'contact_number', 'phone_number'].includes(field.fieldKey || field.field_key);
+    const isRequired = field.isRequired || field.is_required || isPhoneField;
     const fieldType = field.fieldType || field.field_type;
     const fieldKey = field.fieldKey || field.field_key;
     const labelText = `${field.label} ${isRequired ? '*' : ''}`;

@@ -63,11 +63,15 @@ function VisaDynamicField({ field, defaultValue }) {
   const isSelect = field.fieldType === 'select';
   const isMultiSelect = field.fieldType === 'multiselect';
   const isWideField = isTextarea || field.fieldKey.includes('notes') || field.fieldKey.includes('message');
-  const requiredMark = field.isRequired ? ' *' : '';
+  
+  const isPhoneField = ['phone', 'mobile_number', 'contact_number', 'phone_number'].includes(field.fieldKey);
+  const isReq = field.isRequired || isPhoneField;
+  const requiredMark = isReq ? ' *' : '';
+  
   const commonProps = {
     id: field.fieldKey,
     name: field.fieldKey,
-    required: field.isRequired,
+    required: isReq,
     defaultValue: defaultValue || '',
   };
 
