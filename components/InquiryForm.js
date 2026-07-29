@@ -133,48 +133,60 @@ export default function InquiryForm({
     const isRequired = field.isRequired || field.is_required;
     const fieldType = field.fieldType || field.field_type;
     const fieldKey = field.fieldKey || field.field_key;
-    
+    const labelText = `${field.label} ${isRequired ? '*' : ''}`;
+
+    const wrapperStyle = { flex: '1 1 160px', minWidth: 0, position: 'relative' };
+
     if (fieldType === 'select') {
       return (
-        <select
-          key={field.id}
-          value={dynamicForm[fieldKey] || ''}
-          onChange={(e) => updateDynamic(fieldKey, e.target.value)}
-          required={isRequired}
-          style={customStyle}
-        >
-          <option value="" disabled>{field.label} {isRequired ? '*' : ''}</option>
-          {field.options?.map((opt, i) => {
-            const val = typeof opt === 'string' ? opt : opt.value;
-            const lbl = typeof opt === 'string' ? opt : opt.label;
-            return <option key={i} value={val}>{lbl}</option>;
-          })}
-        </select>
+        <div key={field.id} className="form-floating" style={wrapperStyle}>
+          <select
+            className="form-select"
+            value={dynamicForm[fieldKey] || ''}
+            onChange={(e) => updateDynamic(fieldKey, e.target.value)}
+            required={isRequired}
+            style={{ ...customStyle, paddingTop: '1.625rem', paddingBottom: '0.625rem' }}
+          >
+            <option value="" disabled>Select {field.label}</option>
+            {field.options?.map((opt, i) => {
+              const val = typeof opt === 'string' ? opt : opt.value;
+              const lbl = typeof opt === 'string' ? opt : opt.label;
+              return <option key={i} value={val}>{lbl}</option>;
+            })}
+          </select>
+          <label style={{ color: '#6b7280' }}>{labelText}</label>
+        </div>
       );
     }
     if (fieldType === 'textarea') {
       return (
-        <textarea
-          key={field.id}
-          placeholder={`${field.label} ${isRequired ? '*' : ''}`}
-          value={dynamicForm[fieldKey] || ''}
-          onChange={(e) => updateDynamic(fieldKey, e.target.value)}
-          required={isRequired}
-          rows={3}
-          style={{ ...customStyle, flex: '1 1 100%', resize: 'vertical' }}
-        />
+        <div key={field.id} className="form-floating" style={{ ...wrapperStyle, flex: '1 1 100%' }}>
+          <textarea
+            className="form-control"
+            placeholder={labelText}
+            value={dynamicForm[fieldKey] || ''}
+            onChange={(e) => updateDynamic(fieldKey, e.target.value)}
+            required={isRequired}
+            rows={3}
+            style={{ ...customStyle, resize: 'vertical', paddingTop: '1.625rem', paddingBottom: '0.625rem' }}
+          />
+          <label style={{ color: '#6b7280' }}>{labelText}</label>
+        </div>
       );
     }
     return (
-      <input
-        key={field.id}
-        type={fieldType === 'email' ? 'email' : fieldType === 'date' ? 'date' : 'text'}
-        placeholder={`${field.label} ${isRequired ? '*' : ''}`}
-        value={dynamicForm[fieldKey] || ''}
-        onChange={(e) => updateDynamic(fieldKey, e.target.value)}
-        required={isRequired}
-        style={customStyle}
-      />
+      <div key={field.id} className="form-floating" style={wrapperStyle}>
+        <input
+          type={fieldType === 'email' ? 'email' : fieldType === 'date' ? 'date' : 'text'}
+          className="form-control"
+          placeholder={labelText}
+          value={dynamicForm[fieldKey] || ''}
+          onChange={(e) => updateDynamic(fieldKey, e.target.value)}
+          required={isRequired}
+          style={{ ...customStyle, paddingTop: '1.625rem', paddingBottom: '0.625rem' }}
+        />
+        <label style={{ color: '#6b7280' }}>{labelText}</label>
+      </div>
     );
   };
 
