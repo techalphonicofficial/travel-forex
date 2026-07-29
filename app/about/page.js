@@ -52,13 +52,18 @@ const splitMilestoneLabel = (label = '') => {
   };
 };
 
+const findSectionByKey = (page, key) => page?.details?.find((item) => item.key === key);
 const findSection = (page, section) => page?.details?.find((item) => item.section === section);
 
 const buildAboutContent = (page) => {
-  const imageText = findSection(page, 'image_text');
-  const storyGrid = findSection(page, 'story_grid');
-  const statsBar = findSection(page, 'stats_bar');
-  const teamGrid = findSection(page, 'team_grid');
+  const imageText = findSectionByKey(page, 'about_key_1') || findSection(page, 'image_text');
+  const storyGrid = findSectionByKey(page, 'our_story_key') || findSection(page, 'story_grid');
+  const statsBar = findSectionByKey(page, 'our_journey_key') || findSection(page, 'stats_bar');
+  const teamGrid = findSectionByKey(page, 'team_key') || findSection(page, 'team_grid');
+  
+  const servicesSection = findSectionByKey(page, 'our_services_key');
+  const promiseSection = findSectionByKey(page, 'why_choose_key');
+  const sisterSection = findSectionByKey(page, 'our_sister_company_key');
 
   const heroImage = getMediaUrl(imageText?.json_data?.media_url || page?.feature_image) || FALLBACK_HERO_IMAGE;
   const storyGallery = storyGrid?.json_data?.gallery?.length
@@ -106,6 +111,26 @@ const buildAboutContent = (page) => {
         })).filter((member) => member.name && member.image)
         : fallbackTeam,
     },
+    services: {
+      label: servicesSection?.title || 'What We Do',
+      title: servicesSection?.json_data?.heading_content || 'Our Services',
+      description: servicesSection?.json_data?.body || 'We offer a comprehensive range of travel solutions under one roof:',
+      items: servicesSection?.json_data?.points?.map(p => p.title) || ['Customized Holiday Packages', 'Visa Assistance', 'Flight Bookings', 'Hotel Reservations', 'Travel Insurance', 'Cruise Bookings', 'Train Bookings', 'Swiss Passes', 'Euro Rail Passes', 'Destination Weddings', 'Events and Conferences', 'Corporate Travel Services']
+    },
+    promise: {
+      label: promiseSection?.title || 'Our Promise',
+      title: promiseSection?.json_data?.heading_content || 'Why Choose Us',
+      html: promiseSection?.json_data?.body?.replace(/\n/g, '<br />') || '<p>At ITS Travels and Tours...</p>',
+      highlight: promiseSection?.json_data?.points?.[0]?.title || 'Our Promise: Trust. Experience. Simplicity.',
+      image: getMediaUrl(promiseSection?.json_data?.media_url) || 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80'
+    },
+    sisterCompany: {
+      label: sisterSection?.title || 'Our Sister Company',
+      title: sisterSection?.json_data?.heading_content || 'Karnation Forex Services',
+      html: sisterSection?.json_data?.body?.replace(/\n/g, '<br />') || '<p>Established in <strong>1995...</strong></p>',
+      highlight: sisterSection?.json_data?.points?.[0]?.title || 'Karnation Forex Services Private Limited — three decades of trusted currency exchange, one relationship at a time.',
+      image: getMediaUrl(sisterSection?.json_data?.media_url) || 'https://images.unsplash.com/photo-1580519542036-ed47f7a78330?w=800&q=80'
+    }
   };
 };
 
@@ -244,7 +269,86 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="section" id="team">
+      <section className="section">
+        <div className="container">
+          <ScrollReveal>
+            <div className="text-center mb-5">
+              <span className="section-label">{content.services.label}</span>
+              <h2 className="section-title">{content.services.title}</h2>
+              <p className="section-subtitle mx-auto">{content.services.description}</p>
+            </div>
+            <div className="d-flex flex-wrap gap-3 justify-content-center" style={{ maxWidth: 900, margin: '0 auto' }}>
+              {content.services.items.map((service, i) => (
+                <div key={i} style={{ background: 'var(--color-bg-card)', padding: '14px 28px', borderRadius: 'var(--radius-full)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-xs)', fontWeight: 600, color: 'var(--color-primary)', fontSize: 15 }}>
+                  {service}
+                </div>
+              ))}
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      <section className="section bg-soft">
+        <div className="container">
+          <div className="row g-5 align-items-center">
+            <div className="col-lg-6 order-lg-2">
+              <ScrollReveal direction="right">
+                <span className="section-label">{content.promise.label}</span>
+                <h2 className="section-title">{content.promise.title}</h2>
+                <div style={{ color: 'var(--color-text-secondary)', fontSize: 16, lineHeight: 1.8 }}>
+                  <div dangerouslySetInnerHTML={{ __html: content.promise.html }} />
+                  {content.promise.highlight && (
+                    <div style={{ background: 'var(--color-primary-light)', padding: '16px 24px', borderRadius: '12px', borderLeft: '4px solid var(--color-primary)', marginTop: 24 }}>
+                      <strong style={{ color: 'var(--color-primary)', fontSize: 16 }}>{content.promise.highlight}</strong>
+                    </div>
+                  )}
+                </div>
+              </ScrollReveal>
+            </div>
+            <div className="col-lg-6 order-lg-1">
+              <ScrollReveal direction="left">
+                <div style={{ position: 'relative', height: 440, borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-md)' }}>
+                  <Image src={content.promise.image} alt={content.promise.title} fill style={{ objectFit: 'cover' }} />
+                </div>
+              </ScrollReveal>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <div className="row g-5 align-items-center">
+            <div className="col-lg-5 order-lg-2">
+              <ScrollReveal direction="right">
+                <div style={{ position: 'relative', height: 500, borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-md)' }}>
+                  <Image src={content.sisterCompany.image} alt={content.sisterCompany.title} fill style={{ objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', bottom: 20, left: 20, background: 'rgba(255,255,255,0.95)', padding: '16px 24px', borderRadius: '12px', backdropFilter: 'blur(10px)', boxShadow: 'var(--shadow-md)' }}>
+                    <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--color-primary)', lineHeight: 1 }}>30+</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text-secondary)' }}>Years of Experience</div>
+                  </div>
+                </div>
+              </ScrollReveal>
+            </div>
+            <div className="col-lg-7 order-lg-1">
+              <ScrollReveal direction="left">
+                <span className="section-label">{content.sisterCompany.label}</span>
+                <h2 className="section-title">{content.sisterCompany.title}</h2>
+                <div style={{ color: 'var(--color-text-secondary)', fontSize: 16, lineHeight: 1.8 }}>
+                  <div dangerouslySetInnerHTML={{ __html: content.sisterCompany.html }} />
+                  {content.sisterCompany.highlight && (
+                    <div style={{ marginTop: 24, padding: '16px 0', borderTop: '1px solid var(--color-border)' }}>
+                      <strong style={{ color: 'var(--color-text-primary)' }}>{content.sisterCompany.highlight}</strong>
+                    </div>
+                  )}
+                </div>
+              </ScrollReveal>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section bg-soft" id="team">
         <div className="container">
           <ScrollReveal>
             <div className="text-center mb-5">
