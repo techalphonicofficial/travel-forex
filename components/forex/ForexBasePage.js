@@ -447,7 +447,7 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
 
   const parseJSON = (data) => {
     if (typeof data === 'string') {
-      try { return JSON.parse(data); } catch(e) { return {}; }
+      try { return JSON.parse(data); } catch (e) { return {}; }
     }
     return data || {};
   };
@@ -474,7 +474,7 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
         const parsedRates = rows.map(row => {
           const tds = row.querySelectorAll('td');
           if (tds.length < 3) return null;
-          
+
           const ps = tds[0].querySelectorAll('p');
           let parts = [];
           if (ps.length >= 3) {
@@ -482,14 +482,14 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
           } else {
             parts = Array.from(tds[0].querySelectorAll('strong')).map(s => s.textContent.trim());
           }
-          
+
           const symbol = parts[0] || '';
           const code = parts[1] || '';
           const name = parts[2] || '';
-          
+
           const buyRateStr = tds[1].textContent.replace(/[^\d.]/g, '');
           const sellRateStr = tds[2].textContent.replace(/[^\d.]/g, '');
-          
+
           return {
             code,
             name,
@@ -498,7 +498,7 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
             sellRate: Number(sellRateStr)
           };
         }).filter(r => r && r.code);
-        
+
         if (parsedRates.length > 0) {
           setDisplayRates(parsedRates);
         }
@@ -688,441 +688,325 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
           </div>
 
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+            <div style={{
+              background: 'var(--color-bg-card)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 24,
+              boxShadow: 'var(--shadow-xl)',
+              padding: '28px',
+              color: 'var(--color-text-primary)'
+            }}>
+
+              {/* Custom Tabs */}
               <div style={{
-                background: 'var(--color-bg-card)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 24,
-                boxShadow: 'var(--shadow-xl)',
-                padding: '28px',
-                color: 'var(--color-text-primary)'
+                display: 'grid',
+                gridTemplateColumns: pageType === 'transfer' ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+                gap: 4,
+                background: 'var(--color-bg-soft)',
+                padding: 4,
+                borderRadius: 12,
+                marginBottom: 24
               }}>
-
-                {/* Custom Tabs */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: pageType === 'transfer' ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
-                  gap: 4,
-                  background: 'var(--color-bg-soft)',
-                  padding: 4,
-                  borderRadius: 12,
-                  marginBottom: 24
-                }}>
-                  {(pageType === 'currency'
+                {(pageType === 'currency'
+                  ? [
+                    { id: 'buy', label: 'Buy Forex' },
+                    { id: 'sell', label: 'Sell Forex' },
+                    { id: 'callback', label: 'Callback' }
+                  ]
+                  : pageType === 'card'
                     ? [
-                        { id: 'buy', label: 'Buy Forex' },
-                        { id: 'sell', label: 'Sell Forex' },
-                        { id: 'callback', label: 'Callback' }
-                      ]
-                    : pageType === 'card'
-                    ? [
-                        { id: 'buy_card', label: 'Buy Card' },
-                        { id: 'reload', label: 'Reload Card' },
-                        { id: 'callback', label: 'Callback' }
-                      ]
+                      { id: 'buy_card', label: 'Buy Card' },
+                      { id: 'reload', label: 'Reload Card' },
+                      { id: 'callback', label: 'Callback' }
+                    ]
                     : [
-                        { id: 'send', label: 'Send Money' },
-                        { id: 'callback', label: 'Callback' }
-                      ]
-                  ).map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setHeroTab(tab.id)}
-                      style={{
-                        padding: '10px 4px',
-                        borderRadius: 9,
-                        fontSize: 12,
-                        fontWeight: 800,
-                        color: heroTab === tab.id ? '#0f172a' : 'var(--color-text-secondary)',
-                        background: heroTab === tab.id ? 'var(--color-secondary)' : 'transparent',
-                        transition: 'all 0.2s',
-                        textAlign: 'center',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.2px'
-                      }}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
+                      { id: 'send', label: 'Send Money' },
+                      { id: 'callback', label: 'Callback' }
+                    ]
+                ).map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setHeroTab(tab.id)}
+                    style={{
+                      padding: '10px 4px',
+                      borderRadius: 9,
+                      fontSize: 12,
+                      fontWeight: 800,
+                      color: heroTab === tab.id ? '#0f172a' : 'var(--color-text-secondary)',
+                      background: heroTab === tab.id ? 'var(--color-secondary)' : 'transparent',
+                      transition: 'all 0.2s',
+                      textAlign: 'center',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.2px'
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
 
-                {/* Tab Render: Calculator */}
-                {['buy', 'sell', 'buy_card', 'reload', 'send'].includes(heroTab) && (
-                  <div>
-                    {/* Amount Input */}
-                    <div style={{ marginBottom: 20 }}>
-                      <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', display: 'block', marginBottom: 8 }}>
-                        Enter Amount
-                      </label>
-                      <div style={{ position: 'relative' }}>
-                        <span style={{ position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', fontWeight: 800, fontSize: 16 }}>
-                          {currencyOptions.find(c => c.code === fromCurrency)?.symbol || fromCurrency}
-                        </span>
-                        <input
-                          type="number"
-                          value={calcAmount}
-                          onChange={(e) => setCalcAmount(e.target.value)}
-                          placeholder="0.00"
-                          style={{
-                            width: '100%',
-                            padding: '14px 18px 14px 44px',
-                            background: 'var(--color-bg-soft)',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: 12,
-                            color: 'var(--color-text-primary)',
-                            fontSize: 18,
-                            fontWeight: 800,
-                            outline: 'none'
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Currencies Dropdown with Swap */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 44px 1fr', gap: 8, alignItems: 'center', marginBottom: 24 }}>
-                      <div>
-                        <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', display: 'block', marginBottom: 6 }}>
-                          {['buy', 'buy_card', 'reload', 'send'].includes(heroTab) ? 'You Pay' : 'You Sell'}
-                        </label>
-                        <select
-                          value={fromCurrency}
-                          onChange={(e) => setFromCurrency(e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '12px 14px',
-                            background: 'var(--color-bg-soft)',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: 12,
-                            color: 'var(--color-text-primary)',
-                            fontWeight: 700,
-                            outline: 'none',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          {currencyOptions.map((c) => (
-                            <option key={c.code} value={c.code}>
-                              {c.code} - {c.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={handleSwap}
-                        style={{
-                          width: 36,
-                          height: 36,
-                          borderRadius: '50%',
-                          background: 'var(--color-primary-light)',
-                          border: '1px solid var(--brand-primary-border)',
-                          color: 'var(--color-primary)',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          marginTop: 18,
-                          alignSelf: 'center',
-                          boxShadow: 'var(--shadow-xs)',
-                          transition: 'transform 0.2s',
-                          fontSize: 14
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.transform = 'rotate(180deg)'}
-                        onMouseLeave={e => e.currentTarget.style.transform = 'none'}
-                        title="Swap Currencies"
-                      >
-                        ⇄
-                      </button>
-
-                      <div>
-                        <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', display: 'block', marginBottom: 6 }}>
-                          {['buy', 'buy_card', 'reload', 'send'].includes(heroTab) ? 'You Get' : 'You Pay'}
-                        </label>
-                        <select
-                          value={toCurrency}
-                          onChange={(e) => setToCurrency(e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '12px 14px',
-                            background: 'var(--color-bg-soft)',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: 12,
-                            color: 'var(--color-text-primary)',
-                            fontWeight: 700,
-                            outline: 'none',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          {currencyOptions.map((c) => (
-                            <option key={c.code} value={c.code}>
-                              {c.code} - {c.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Calc Summary Card */}
-                    <div style={{
-                      background: 'var(--color-bg-soft)',
-                      border: '1px dashed var(--color-border)',
-                      borderRadius: 16,
-                      padding: '16px',
-                      marginBottom: 20
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
-                        <span style={{ color: 'var(--color-text-secondary)' }}>Exchange Rate</span>
-                        <span style={{ fontWeight: 700 }}>
-                          1 {fromCurrency} = {rateMatch.rate.toFixed(4)} {toCurrency}
-                        </span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
-                        <span style={{ color: 'var(--color-text-secondary)' }}>Converted Value</span>
-                        <span style={{ fontWeight: 850, color: 'var(--color-primary)' }}>
-                          {currencyOptions.find(c => c.code === toCurrency)?.symbol || toCurrency} {convertedValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
-                        <span style={{ color: 'var(--color-text-secondary)' }}>Charges & Taxes</span>
-                        <span style={{ color: '#dc2626', fontWeight: 700 }}>
-                          {['buy', 'buy_card', 'reload', 'send'].includes(heroTab) ? '+' : '-'} {currencyOptions.find(c => c.code === toCurrency)?.symbol || toCurrency} {serviceChargeVal}
-                        </span>
-                      </div>
-                      <div style={{ borderTop: '1px solid var(--color-border)', marginTop: 10, paddingTop: 10, display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ fontWeight: 700, fontSize: 14 }}>Net Payable Amount</span>
-                        <span style={{ fontWeight: 900, fontSize: 18, color: '#059669' }}>
-                          {currencyOptions.find(c => c.code === toCurrency)?.symbol || toCurrency} {totalPayable.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Submit Form (Rate Lock Inquiry) */}
-                    <form onSubmit={handleRateLockSubmit}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 15 }}>
-                        <div>
-                          <label style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 4, display: 'block' }}>Purpose</label>
-                          <select
-                            value={lockPurpose}
-                            onChange={e => setLockPurpose(e.target.value)}
-                            style={{
-                              width: '100%',
-                              padding: '10px 12px',
-                              background: 'var(--color-bg-soft)',
-                              border: '1px solid var(--color-border)',
-                              borderRadius: 8,
-                              color: 'var(--color-text-primary)',
-                              fontSize: 13,
-                              fontWeight: 600,
-                              outline: 'none'
-                            }}
-                          >
-                            <option value="Tourism">Leisure Tourism</option>
-                            <option value="Education">Education Remittance</option>
-                            <option value="Business">Business Travel</option>
-                            <option value="Medical">Medical Expenses</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 4, display: 'block' }}>Notes (Optional)</label>
-                          <input
-                            type="text"
-                            value={lockNotes}
-                            onChange={e => setLockNotes(e.target.value)}
-                            placeholder="Eg: Home delivery"
-                            style={{
-                              width: '100%',
-                              padding: '10px 12px',
-                              background: 'var(--color-bg-soft)',
-                              border: '1px solid var(--color-border)',
-                              borderRadius: 8,
-                              color: 'var(--color-text-primary)',
-                              fontSize: 13,
-                              outline: 'none'
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      {isLoggedIn ? (
-                        <button
-                          type="submit"
-                          disabled={submittingLock}
-                          style={{
-                            width: '100%',
-                            padding: '14px',
-                            background: 'var(--gradient-primary)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: 12,
-                            fontWeight: 800,
-                            fontSize: 14,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                            boxShadow: '0 8px 25px rgba(2,110,181,0.25)'
-                          }}
-                          onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                          onMouseLeave={e => e.currentTarget.style.transform = 'none'}
-                        >
-                          {submittingLock ? 'Booking Request...' : 'Book & Lock This Rate'}
-                        </button>
-                      ) : (
-                        <Link
-                          href={`/auth/login?redirect=forex`}
-                          style={{
-                            display: 'block',
-                            width: '100%',
-                            padding: '14px',
-                            background: 'var(--color-bg-soft)',
-                            color: 'var(--color-primary)',
-                            borderRadius: 12,
-                            fontWeight: 800,
-                            fontSize: 14,
-                            textAlign: 'center',
-                            textDecoration: 'none',
-                            border: '1px solid var(--brand-primary-border)',
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'var(--color-primary-light)'}
-                          onMouseLeave={e => e.currentTarget.style.background = 'var(--color-bg-soft)'}
-                        >
-                          🔑 Login to Book Exchange Request
-                        </Link>
-                      )}
-                    </form>
-                  </div>
-                )}
-
-                {/* Tab Render: Rate Alert */}
-                {heroTab === 'alert' && (
-                  <form onSubmit={handleRateAlertSubmit}>
-                    <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 15, color: 'var(--color-primary)' }}>
-                      Set Live Exchange Rate Alert
-                    </h3>
-                    <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 20 }}>
-                      We will scan global exchange rates and alert you immediately via Email/SMS when your target rate is triggered.
-                    </p>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 15 }}>
-                      <div>
-                        <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Currency</label>
-                        <select
-                          value={alertTargetCurrency}
-                          onChange={e => setAlertTargetCurrency(e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '12px',
-                            background: 'var(--color-bg-soft)',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: 10,
-                            color: 'var(--color-text-primary)',
-                            fontWeight: 700,
-                            outline: 'none'
-                          }}
-                        >
-                          {currencyOptions.filter(c => c.code !== 'INR').map(c => (
-                            <option key={c.code} value={c.code}>{c.code} - {c.name}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Target Rate (INR)</label>
-                        <input
-                          type="number"
-                          required
-                          value={alertTargetRate}
-                          onChange={e => setAlertTargetRate(e.target.value)}
-                          placeholder="Eg: 86.50"
-                          style={{
-                            width: '100%',
-                            padding: '12px',
-                            background: 'var(--color-bg-soft)',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: 10,
-                            color: 'var(--color-text-primary)',
-                            fontWeight: 700,
-                            outline: 'none'
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <div style={{ marginBottom: 20 }}>
-                      <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Contact Information</label>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                        <input
-                          type="email"
-                          required
-                          value={alertEmail}
-                          onChange={e => setAlertEmail(e.target.value)}
-                          placeholder="Email Address"
-                          style={{
-                            width: '100%',
-                            padding: '10px 12px',
-                            background: 'var(--color-bg-soft)',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: 8,
-                            color: 'var(--color-text-primary)',
-                            fontSize: 13,
-                            outline: 'none'
-                          }}
-                        />
-                        <input
-                          type="tel"
-                          required
-                          value={alertPhone}
-                          onChange={e => setAlertPhone(e.target.value)}
-                          placeholder="Mobile Number"
-                          style={{
-                            width: '100%',
-                            padding: '10px 12px',
-                            background: 'var(--color-bg-soft)',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: 8,
-                            color: 'var(--color-text-primary)',
-                            fontSize: 13,
-                            outline: 'none'
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={submittingAlert}
-                      style={{
-                        width: '100%',
-                        padding: '14px',
-                        background: 'var(--gradient-primary)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: 12,
-                        fontWeight: 800,
-                        fontSize: 14,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {submittingAlert ? 'Setting Alert...' : 'Set Rate Alert'}
-                    </button>
-                  </form>
-                )}
-
-                {/* Tab Render: Callback */}
-                {heroTab === 'callback' && (
-                  <form onSubmit={handleCallbackSubmit}>
-                    <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 15, color: 'var(--color-primary)' }}>
-                      Request a Callback
-                    </h3>
-                    <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 20 }}>
-                      Leave your details and a dedicated Forex Expert from our team will contact you back under 10 minutes.
-                    </p>
-
-                    <div style={{ marginBottom: 15 }}>
-                      <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Name</label>
+              {/* Tab Render: Calculator */}
+              {['buy', 'sell', 'buy_card', 'reload', 'send'].includes(heroTab) && (
+                <div>
+                  {/* Amount Input */}
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', display: 'block', marginBottom: 8 }}>
+                      Enter Amount
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <span style={{ position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', fontWeight: 800, fontSize: 16 }}>
+                        {currencyOptions.find(c => c.code === fromCurrency)?.symbol || fromCurrency}
+                      </span>
                       <input
-                        type="text"
-                        required
-                        value={cbName}
-                        onChange={e => setCbName(e.target.value)}
-                        placeholder="John Doe"
+                        type="number"
+                        value={calcAmount}
+                        onChange={(e) => setCalcAmount(e.target.value)}
+                        placeholder="0.00"
+                        style={{
+                          width: '100%',
+                          padding: '14px 18px 14px 44px',
+                          background: 'var(--color-bg-soft)',
+                          border: '1px solid var(--color-border)',
+                          borderRadius: 12,
+                          color: 'var(--color-text-primary)',
+                          fontSize: 18,
+                          fontWeight: 800,
+                          outline: 'none'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Currencies Dropdown with Swap */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 44px 1fr', gap: 8, alignItems: 'center', marginBottom: 24 }}>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', display: 'block', marginBottom: 6 }}>
+                        {['buy', 'buy_card', 'reload', 'send'].includes(heroTab) ? 'You Pay' : 'You Sell'}
+                      </label>
+                      <select
+                        value={fromCurrency}
+                        onChange={(e) => setFromCurrency(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '12px 14px',
+                          background: 'var(--color-bg-soft)',
+                          border: '1px solid var(--color-border)',
+                          borderRadius: 12,
+                          color: 'var(--color-text-primary)',
+                          fontWeight: 700,
+                          outline: 'none',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {currencyOptions.map((c) => (
+                          <option key={c.code} value={c.code}>
+                            {c.code} - {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleSwap}
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: '50%',
+                        background: 'var(--color-primary-light)',
+                        border: '1px solid var(--brand-primary-border)',
+                        color: 'var(--color-primary)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginTop: 18,
+                        alignSelf: 'center',
+                        boxShadow: 'var(--shadow-xs)',
+                        transition: 'transform 0.2s',
+                        fontSize: 14
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.transform = 'rotate(180deg)'}
+                      onMouseLeave={e => e.currentTarget.style.transform = 'none'}
+                      title="Swap Currencies"
+                    >
+                      ⇄
+                    </button>
+
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', display: 'block', marginBottom: 6 }}>
+                        {['buy', 'buy_card', 'reload', 'send'].includes(heroTab) ? 'You Get' : 'You Pay'}
+                      </label>
+                      <select
+                        value={toCurrency}
+                        onChange={(e) => setToCurrency(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '12px 14px',
+                          background: 'var(--color-bg-soft)',
+                          border: '1px solid var(--color-border)',
+                          borderRadius: 12,
+                          color: 'var(--color-text-primary)',
+                          fontWeight: 700,
+                          outline: 'none',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {currencyOptions.map((c) => (
+                          <option key={c.code} value={c.code}>
+                            {c.code} - {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Calc Summary Card */}
+                  <div style={{
+                    background: 'var(--color-bg-soft)',
+                    border: '1px dashed var(--color-border)',
+                    borderRadius: 16,
+                    padding: '16px',
+                    marginBottom: 20
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
+                      <span style={{ color: 'var(--color-text-secondary)' }}>Exchange Rate</span>
+                      <span style={{ fontWeight: 700 }}>
+                        1 {fromCurrency} = {rateMatch.rate.toFixed(4)} {toCurrency}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
+                      <span style={{ color: 'var(--color-text-secondary)' }}>Converted Value</span>
+                      <span style={{ fontWeight: 850, color: 'var(--color-primary)' }}>
+                        {currencyOptions.find(c => c.code === toCurrency)?.symbol || toCurrency} {convertedValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
+                      <span style={{ color: 'var(--color-text-secondary)' }}>Charges & Taxes</span>
+                      <span style={{ color: '#dc2626', fontWeight: 700 }}>
+                        {['buy', 'buy_card', 'reload', 'send'].includes(heroTab) ? '+' : '-'} {currencyOptions.find(c => c.code === toCurrency)?.symbol || toCurrency} {serviceChargeVal}
+                      </span>
+                    </div>
+                    <div style={{ borderTop: '1px solid var(--color-border)', marginTop: 10, paddingTop: 10, display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ fontWeight: 700, fontSize: 14 }}>Net Payable Amount</span>
+                      <span style={{ fontWeight: 900, fontSize: 18, color: '#059669' }}>
+                        {currencyOptions.find(c => c.code === toCurrency)?.symbol || toCurrency} {totalPayable.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Submit Form (Rate Lock Inquiry) */}
+                  <form onSubmit={handleRateLockSubmit}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 15 }}>
+                      <div>
+                        <label style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 4, display: 'block' }}>Purpose</label>
+                        <select
+                          value={lockPurpose}
+                          onChange={e => setLockPurpose(e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            background: 'var(--color-bg-soft)',
+                            border: '1px solid var(--color-border)',
+                            borderRadius: 8,
+                            color: 'var(--color-text-primary)',
+                            fontSize: 13,
+                            fontWeight: 600,
+                            outline: 'none'
+                          }}
+                        >
+                          <option value="Tourism">Leisure Tourism</option>
+                          <option value="Education">Education Remittance</option>
+                          <option value="Business">Business Travel</option>
+                          <option value="Medical">Medical Expenses</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 4, display: 'block' }}>Notes (Optional)</label>
+                        <input
+                          type="text"
+                          value={lockNotes}
+                          onChange={e => setLockNotes(e.target.value)}
+                          placeholder="Eg: Home delivery"
+                          style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            background: 'var(--color-bg-soft)',
+                            border: '1px solid var(--color-border)',
+                            borderRadius: 8,
+                            color: 'var(--color-text-primary)',
+                            fontSize: 13,
+                            outline: 'none'
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {isLoggedIn ? (
+                      <button
+                        type="submit"
+                        disabled={submittingLock}
+                        style={{
+                          width: '100%',
+                          padding: '14px',
+                          background: 'var(--gradient-primary)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: 12,
+                          fontWeight: 800,
+                          fontSize: 14,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          boxShadow: '0 8px 25px rgba(2,110,181,0.25)'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                        onMouseLeave={e => e.currentTarget.style.transform = 'none'}
+                      >
+                        {submittingLock ? 'Booking Request...' : 'Book & Lock This Rate'}
+                      </button>
+                    ) : (
+                      <Link
+                        href={`/auth/login?redirect=forex`}
+                        style={{
+                          display: 'block',
+                          width: '100%',
+                          padding: '14px',
+                          background: 'var(--color-bg-soft)',
+                          color: 'var(--color-primary)',
+                          borderRadius: 12,
+                          fontWeight: 800,
+                          fontSize: 14,
+                          textAlign: 'center',
+                          textDecoration: 'none',
+                          border: '1px solid var(--brand-primary-border)',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'var(--color-primary-light)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'var(--color-bg-soft)'}
+                      >
+                        🔑 Login to Book Exchange Request
+                      </Link>
+                    )}
+                  </form>
+                </div>
+              )}
+
+              {/* Tab Render: Rate Alert */}
+              {heroTab === 'alert' && (
+                <form onSubmit={handleRateAlertSubmit}>
+                  <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 15, color: 'var(--color-primary)' }}>
+                    Set Live Exchange Rate Alert
+                  </h3>
+                  <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 20 }}>
+                    We will scan global exchange rates and alert you immediately via Email/SMS when your target rate is triggered.
+                  </p>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 15 }}>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Currency</label>
+                      <select
+                        value={alertTargetCurrency}
+                        onChange={e => setAlertTargetCurrency(e.target.value)}
                         style={{
                           width: '100%',
                           padding: '12px',
@@ -1130,72 +1014,188 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
                           border: '1px solid var(--color-border)',
                           borderRadius: 10,
                           color: 'var(--color-text-primary)',
+                          fontWeight: 700,
+                          outline: 'none'
+                        }}
+                      >
+                        {currencyOptions.filter(c => c.code !== 'INR').map(c => (
+                          <option key={c.code} value={c.code}>{c.code} - {c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Target Rate (INR)</label>
+                      <input
+                        type="number"
+                        required
+                        value={alertTargetRate}
+                        onChange={e => setAlertTargetRate(e.target.value)}
+                        placeholder="Eg: 86.50"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          background: 'var(--color-bg-soft)',
+                          border: '1px solid var(--color-border)',
+                          borderRadius: 10,
+                          color: 'var(--color-text-primary)',
+                          fontWeight: 700,
                           outline: 'none'
                         }}
                       />
                     </div>
+                  </div>
 
-                    <div style={{ marginBottom: 15 }}>
-                      <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Mobile Number</label>
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Contact Information</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                      <input
+                        type="email"
+                        required
+                        value={alertEmail}
+                        onChange={e => setAlertEmail(e.target.value)}
+                        placeholder="Email Address"
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px',
+                          background: 'var(--color-bg-soft)',
+                          border: '1px solid var(--color-border)',
+                          borderRadius: 8,
+                          color: 'var(--color-text-primary)',
+                          fontSize: 13,
+                          outline: 'none'
+                        }}
+                      />
                       <input
                         type="tel"
                         required
-                        value={cbPhone}
-                        onChange={e => setCbPhone(e.target.value)}
-                        placeholder="+91 99999 99999"
+                        value={alertPhone}
+                        onChange={e => setAlertPhone(e.target.value)}
+                        placeholder="Mobile Number"
                         style={{
                           width: '100%',
-                          padding: '12px',
+                          padding: '10px 12px',
                           background: 'var(--color-bg-soft)',
                           border: '1px solid var(--color-border)',
-                          borderRadius: 10,
+                          borderRadius: 8,
                           color: 'var(--color-text-primary)',
+                          fontSize: 13,
                           outline: 'none'
                         }}
                       />
                     </div>
+                  </div>
 
-                    <div style={{ marginBottom: 20 }}>
-                      <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Brief Inquiry Notes</label>
-                      <textarea
-                        value={cbMsg}
-                        onChange={e => setCbMsg(e.target.value)}
-                        placeholder="E.g., Need $5000 in notes and forex card for student travel to Boston."
-                        rows={3}
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          background: 'var(--color-bg-soft)',
-                          border: '1px solid var(--color-border)',
-                          borderRadius: 10,
-                          color: 'var(--color-text-primary)',
-                          outline: 'none',
-                          resize: 'none'
-                        }}
-                      />
-                    </div>
+                  <button
+                    type="submit"
+                    disabled={submittingAlert}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      background: 'var(--gradient-primary)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 12,
+                      fontWeight: 800,
+                      fontSize: 14,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {submittingAlert ? 'Setting Alert...' : 'Set Rate Alert'}
+                  </button>
+                </form>
+              )}
 
-                    <button
-                      type="submit"
-                      disabled={submittingCallback}
+              {/* Tab Render: Callback */}
+              {heroTab === 'callback' && (
+                <form onSubmit={handleCallbackSubmit}>
+                  <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 15, color: 'var(--color-primary)' }}>
+                    Request a Callback
+                  </h3>
+                  <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 20 }}>
+                    Leave your details and a dedicated Forex Expert from our team will contact you back under 10 minutes.
+                  </p>
+
+                  <div style={{ marginBottom: 15 }}>
+                    <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={cbName}
+                      onChange={e => setCbName(e.target.value)}
+                      placeholder="John Doe"
                       style={{
                         width: '100%',
-                        padding: '14px',
-                        background: 'var(--gradient-primary)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: 12,
-                        fontWeight: 800,
-                        fontSize: 14,
-                        cursor: 'pointer'
+                        padding: '12px',
+                        background: 'var(--color-bg-soft)',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: 10,
+                        color: 'var(--color-text-primary)',
+                        outline: 'none'
                       }}
-                    >
-                      {submittingCallback ? 'Submitting...' : 'Request Quote Callback'}
-                    </button>
-                  </form>
-                )}
+                    />
+                  </div>
 
-              </div>
+                  <div style={{ marginBottom: 15 }}>
+                    <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Mobile Number</label>
+                    <input
+                      type="tel"
+                      required
+                      value={cbPhone}
+                      onChange={e => setCbPhone(e.target.value)}
+                      placeholder="+91 99999 99999"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        background: 'var(--color-bg-soft)',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: 10,
+                        color: 'var(--color-text-primary)',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Brief Inquiry Notes</label>
+                    <textarea
+                      value={cbMsg}
+                      onChange={e => setCbMsg(e.target.value)}
+                      placeholder="E.g., Need $5000 in notes and forex card for student travel to Boston."
+                      rows={3}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        background: 'var(--color-bg-soft)',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: 10,
+                        color: 'var(--color-text-primary)',
+                        outline: 'none',
+                        resize: 'none'
+                      }}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={submittingCallback}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      background: 'var(--gradient-primary)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 12,
+                      fontWeight: 800,
+                      fontSize: 14,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {submittingCallback ? 'Submitting...' : 'Request Quote Callback'}
+                  </button>
+                </form>
+              )}
+
+            </div>
           </div>
         </div>
       </section>
