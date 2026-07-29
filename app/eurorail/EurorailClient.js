@@ -263,13 +263,19 @@ export default function EurorailClient({ formConfig }) {
                       </div>
 
                       <div className="tickets-inputs-row">
-                        <div className="input-group icon-input">
-                          <i>📍</i>
-                          <input type="text" name="from_city" placeholder="From City" required />
+                        <div className="input-group">
+                          <label>From City</label>
+                          <div className="icon-input-wrapper">
+                            <i>📍</i>
+                            <input type="text" name="from_city" placeholder="From City" required />
+                          </div>
                         </div>
-                        <div className="input-group icon-input">
-                          <i>📍</i>
-                          <input type="text" name="to_city" placeholder="To City" required />
+                        <div className="input-group">
+                          <label>To City</label>
+                          <div className="icon-input-wrapper">
+                            <i>📍</i>
+                            <input type="text" name="to_city" placeholder="To City" required />
+                          </div>
                         </div>
                         <div className="input-group">
                           <label>Adult (30-59 years)</label>
@@ -284,23 +290,35 @@ export default function EurorailClient({ formConfig }) {
                           <input type="number" name="senior" min="0" defaultValue="0" />
                         </div>
                         <div className="tickets-inputs-row dates-row">
-                          <div className="input-group icon-input">
-                            <i>📅</i>
-                            <input type="date" name="departure_date" required />
+                          <div className="input-group">
+                            <label>Departure Date</label>
+                            <div className="icon-input-wrapper">
+                              <i>📅</i>
+                              <input type="date" name="departure_date" required />
+                            </div>
                           </div>
-                          <div className="input-group icon-input">
-                            <i>🕒</i>
-                            <input type="time" name="departure_time" placeholder="Any Time" />
+                          <div className="input-group">
+                            <label>Departure Time</label>
+                            <div className="icon-input-wrapper">
+                              <i>🕒</i>
+                              <input type="time" name="departure_time" placeholder="Any Time" />
+                            </div>
                           </div>
                           {ticketType === 'roundtrip' && (
                             <>
-                              <div className="input-group icon-input">
-                                <i>📅</i>
-                                <input type="date" name="return_date" required />
+                              <div className="input-group">
+                                <label>Return Date</label>
+                                <div className="icon-input-wrapper">
+                                  <i>📅</i>
+                                  <input type="date" name="return_date" required />
+                                </div>
                               </div>
-                              <div className="input-group icon-input">
-                                <i>🕒</i>
-                                <input type="time" name="return_time" placeholder="Any Time" />
+                              <div className="input-group">
+                                <label>Return Time</label>
+                                <div className="icon-input-wrapper">
+                                  <i>🕒</i>
+                                  <input type="time" name="return_time" placeholder="Any Time" />
+                                </div>
                               </div>
                             </>
                           )}
@@ -760,11 +778,11 @@ export default function EurorailClient({ formConfig }) {
           box-shadow: 0 0 0 3px var(--color-primary-light);
         }
         
-        .eurorail-tab-content .icon-input {
+        .eurorail-tab-content .icon-input-wrapper {
           position: relative;
-          justify-content: flex-end;
+          width: 100%;
         }
-        .eurorail-tab-content .icon-input i {
+        .eurorail-tab-content .icon-input-wrapper i {
           position: absolute;
           left: 14px;
           top: 50%;
@@ -773,7 +791,8 @@ export default function EurorailClient({ formConfig }) {
           color: #94a3b8;
           font-size: 14px;
         }
-        .eurorail-tab-content .icon-input input {
+        .eurorail-tab-content .icon-input-wrapper input {
+          width: 100%;
           padding-left: 38px;
         }
 

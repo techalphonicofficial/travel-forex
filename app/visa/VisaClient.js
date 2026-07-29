@@ -182,13 +182,6 @@ export default function VisaClient({ formConfig, pageData }) {
   }, []);
 
   const handleInquirySubmit = async (e) => {
-    const token = getStoredToken();
-    if (!token) {
-      toast.error('Please login first to continue.');
-      router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`);
-      return;
-    }
-
     e.preventDefault();
     const form = e.currentTarget;
     setLoading(true);
