@@ -199,7 +199,15 @@ export default function CruiseClient({ pageData, formConfig }) {
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
   const [activeCabinTab, setActiveCabinTab] = useState(0);
 
-  const fields = useMemo(() => (formConfig?.fields?.length ? formConfig.fields : []), [formConfig]);
+  const fields = useMemo(() => {
+    if (!formConfig?.fields?.length) return [];
+    return formConfig.fields.map(field => {
+      if (['phone', 'mobile_number', 'contact_number'].includes(field.fieldKey || field.field_key) || field.id === 'base_phone') {
+        return { ...field, is_required: true, isRequired: true };
+      }
+      return field;
+    });
+  }, [formConfig]);
 
   const heroSection = pageData?.details?.find(d => d.section === 'image_text' || d.key === 'hero_key');
   const heroData = heroSection?.json_data || {};

@@ -112,7 +112,15 @@ export default function ConferencesClient({ formConfig }) {
   const [loading, setLoading] = useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
 
-  const fields = useMemo(() => (formConfig?.fields?.length ? formConfig.fields : []), [formConfig]);
+  const fields = useMemo(() => {
+    if (!formConfig?.fields?.length) return [];
+    return formConfig.fields.map(field => {
+      if (['phone', 'mobile_number', 'contact_number'].includes(field.fieldKey || field.field_key) || field.id === 'base_phone') {
+        return { ...field, is_required: true, isRequired: true };
+      }
+      return field;
+    });
+  }, [formConfig]);
 
   useEffect(() => {
     const token = getStoredToken();
