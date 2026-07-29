@@ -164,7 +164,7 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCity
     }
     return [
       { id: 'full_name', fieldKey: 'full_name', label: 'Full Name', fieldType: 'text', isRequired: true },
-      { id: 'email', fieldKey: 'email', label: 'Email Address', fieldType: 'email', isRequired: true },
+      { id: 'email', fieldKey: 'email', label: 'Email Address', fieldType: 'email', isRequired: false },
       { id: 'phone', fieldKey: 'phone', label: 'Mobile Number', fieldType: 'tel', isRequired: true },
       { id: 'passengers', fieldKey: 'passengers', label: 'No. of Passengers', fieldType: 'number', isRequired: true },
       { id: 'departure_city', fieldKey: 'departure_city', label: 'Departure City', fieldType: 'text', isRequired: true },
