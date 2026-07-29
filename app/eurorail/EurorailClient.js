@@ -702,8 +702,8 @@ export default function EurorailClient({ formConfig }) {
           }
         }
         @media (max-width: 640px) {
-          .eurorail-form {
-            grid-template-columns: 1fr;
+          .eurorail-form, .passes-grid, .tickets-inputs-row {
+            grid-template-columns: 1fr !important;
           }
         }
         .eurorail-tabs {
@@ -777,7 +777,12 @@ export default function EurorailClient({ formConfig }) {
           padding-left: 38px;
         }
 
-        .passes-grid, .tickets-grid {
+        .passes-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        .tickets-grid {
           display: grid;
           grid-template-columns: 1fr;
           gap: 16px;
@@ -800,16 +805,18 @@ export default function EurorailClient({ formConfig }) {
         
         .tickets-inputs-row {
           display: grid;
-          grid-template-columns: 1fr;
+          grid-template-columns: 1fr 1fr;
           gap: 16px;
         }
         .dates-row {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 16px;
+          grid-column: 1 / -1;
         }
 
         .eurorail-tab-content .eurorail-search-submit {
+          grid-column: 1 / -1;
           background: var(--gradient-primary);
           color: white;
           font-weight: 900;
