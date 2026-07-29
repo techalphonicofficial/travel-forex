@@ -132,7 +132,7 @@ export default function FooterClient({ brand, companyInfo }) {
     if (pathname?.startsWith('/forex')) {
       return getLogoUrl(companyInfo?.currency_logo_url) || brand?.logo || '/forex-logo-new.png';
     }
-    const itsRoutes = ['/hotels', '/tours', '/visa', '/insurance', '/eurorail', '/events', '/conferences', '/flights'];
+    const itsRoutes = ['/hotels', '/tours', '/visa', '/insurance', '/eurorail', '/events', '/conferences', '/flights', '/destinations', '/packages', '/themes'];
     if (itsRoutes.some(route => pathname?.startsWith(route))) {
       return getLogoUrl(companyInfo?.its_logo_url) || brand?.logo || '/ITS-new.jpg';
     }
