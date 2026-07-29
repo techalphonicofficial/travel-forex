@@ -54,15 +54,20 @@ const normalizeFormConfig = (formConfig) => {
         return true;
       })
       .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
-      .map((field) => ({
-        id: field.id,
-        label: field.label,
-        fieldKey: field.field_key,
-        fieldType: String(field.field_type || 'text').toLowerCase(),
-        options: normalizeFieldOptions(field.options),
-        isRequired: Boolean(field.is_required),
-        order: field.order,
-      }))
+      .map((field) => {
+        let isRequired = Boolean(field.is_required);
+        if (['phone', 'mobile_number', 'contact_number'].includes(field.field_key) || field.id === 'base_phone') isRequired = true;
+        
+        return {
+          id: field.id,
+          label: field.label,
+          fieldKey: field.field_key,
+          fieldType: String(field.field_type || 'text').toLowerCase(),
+          options: normalizeFieldOptions(field.options),
+          isRequired,
+          order: field.order,
+        };
+      })
       .filter((field) => field.label && field.fieldKey),
   };
 };

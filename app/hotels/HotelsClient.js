@@ -166,6 +166,14 @@ export default function HotelsClient() {
     let mounted = true;
     getPipelineForm(23).then(config => {
       if (mounted && config) {
+        if (config.fields) {
+          config.fields = config.fields.map(f => {
+            if (['phone', 'mobile_number', 'contact_number'].includes(f.field_key || f.fieldKey) || f.id === 'base_phone') {
+              return { ...f, is_required: true, isRequired: true };
+            }
+            return f;
+          });
+        }
         setFormConfig(config);
       }
     });
