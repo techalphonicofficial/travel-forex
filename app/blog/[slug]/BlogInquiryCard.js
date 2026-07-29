@@ -15,6 +15,7 @@ export default function BlogInquiryCard({ blogTitle = '' }) {
       prefillNote={blogTitle}
       variant="card"
       showMessage
+      pipelineId={3}
     />
   );
 }

@@ -212,7 +212,7 @@ export default async function BlogArticle({ params }) {
           <div className="planner-card">
             <span>Customise your trip</span>
             <h2>Your perfect holiday starts here</h2>
-            <Link href="/customize">Start Planning</Link>
+            <Link href="/tours">Start Planning</Link>
           </div>
         </aside>
       </div>
