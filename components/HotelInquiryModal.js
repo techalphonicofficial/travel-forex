@@ -186,7 +186,21 @@ export default function HotelInquiryModal({ formConfig }) {
               </div>
             </>
           ) : (
-            <div style={{ background: 'var(--color-primary)', width: '100%', height: '100%' }} />
+            <>
+              <Image
+                src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80"
+                alt="Hotel Inquiry"
+                fill
+                style={{ objectFit: 'cover' }}
+                priority
+              />
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(to right, rgba(0,0,0,0.4), rgba(0,0,0,0.1))',
+                zIndex: 1
+              }} />
+            </>
           )}
         </div>
 
