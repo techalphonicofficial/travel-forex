@@ -141,7 +141,7 @@ export default function FooterClient({ brand, companyInfo }) {
   const brandLogo = getDynamicLogo();
   const brandName = companyInfo?.company_name || brand?.legalName || 'ITS TRAVELS AND TOURS';
   const footerContent = companyInfo?.footer_content || `© ${new Date().getFullYear()} ${brandName}. All rights reserved.`;
-  const brandDescription = brand?.description || 'Crafting unforgettable travel experiences since 2015. We believe every journey should be as extraordinary as the destination.';
+  const brandDescription = brand?.description || 'Crafting unforgettable travel experiences since 1995. We believe every journey should be as extraordinary as the destination.';
   const phone = companyInfo?.contact?.phone || '+91 9999457020';
   const email = companyInfo?.contact?.email || 'itstravels.tours@gmail.com';
   const address = companyInfo?.contact?.office_address;
@@ -169,7 +169,11 @@ export default function FooterClient({ brand, companyInfo }) {
                     whiteSpace: 'nowrap',
                     letterSpacing: '0.2px'
                   }}>
-                    {brandName}
+                    ITS Travels And Tours Private Limited
+                    <br />
+                    &
+                    <br />
+                    Karnation India Forex Services Private Limited
                   </span>
                 </div>
               </div>
