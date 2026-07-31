@@ -22,15 +22,14 @@ export default function TeamCard({ member }) {
       }}
     >
       {/* Image slot passed via children or props */}
-      <div style={{ position: 'relative', height: 220, overflow: 'hidden' }}>
+      <div style={{ position: 'relative', height: 220, overflow: 'hidden', backgroundColor: 'var(--color-bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={member.image}
           alt={member.name}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
           loading="lazy"
         />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.5) 100%)' }} />
       </div>
       <div style={{ padding: '20px' }}>
         <h3 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: 16, color: 'var(--color-text-primary)', marginBottom: 4 }}>{member.name}</h3>
