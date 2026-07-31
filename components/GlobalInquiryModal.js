@@ -153,12 +153,12 @@ export default function GlobalInquiryModal({ brand, companyInfo }) {
           <form onSubmit={e => { e.preventDefault(); handleClose(); }} className="d-flex flex-column gap-3">
             <div className="form-floating">
               <input type="text" className="form-control" placeholder="Name" style={formInputStyle} required />
-              <label>Full Name</label>
+              <label>Full Name *</label>
             </div>
 
             <div className="form-floating">
               <input type="email" className="form-control" placeholder="Email" style={formInputStyle} required />
-              <label>Email Address</label>
+              <label>Email Address *</label>
             </div>
 
             <div className="d-flex gap-2">
@@ -168,7 +168,7 @@ export default function GlobalInquiryModal({ brand, companyInfo }) {
               </div>
               <div className="form-floating flex-grow-1">
                 <input type="tel" className="form-control" placeholder="Phone" style={formInputStyle} required />
-                <label>Mobile Number</label>
+                <label>Mobile Number *</label>
               </div>
             </div>
 
@@ -181,7 +181,7 @@ export default function GlobalInquiryModal({ brand, companyInfo }) {
                 <option value="friends">Group Trekking</option>
                 <option value="corporate">Corporate Retreat</option>
               </select>
-              <label>Select Interest</label>
+              <label>Select Interest *</label>
             </div>
 
             <button
