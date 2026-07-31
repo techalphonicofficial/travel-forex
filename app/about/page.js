@@ -75,7 +75,7 @@ const buildAboutContent = (page) => {
 
   return {
     hero: {
-      label: imageText?.json_data?.heading_content || 'Since 2015',
+      label: imageText?.json_data?.heading_content || 'Since 1995',
       title: imageText?.title || 'We Live & Breathe Travel',
       description: imageText?.json_data?.body || page?.description || 'ITS TRAVELS AND TOURS was born from a simple belief: travel should change you. We craft journeys that get under your skin.',
       image: heroImage,
