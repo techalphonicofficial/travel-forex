@@ -1,4 +1,5 @@
 import EventsClient from './EventsClient';
+import { getPageBySlug } from '@/utils/api';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,16 +71,27 @@ const normalizeFormConfig = (formConfig) => {
   };
 };
 
-export const metadata = {
-  title: 'Destination Weddings, Luxury Themes & Event Management | Events',
-  description:
-    'Plan destination weddings, anniversaries, birthdays, and theme parties. Professional event planners, catering partners, and custom themes with 24/7 service.',
-  keywords:
-    'Destination weddings, luxury event planners, wedding event organizer, corporate gala dinners, theme party management, wedding catering packages',
-};
+export async function generateMetadata() {
+  const pageData = await getPageBySlug('events');
+  if (pageData) {
+    return {
+      title: pageData.meta_title || pageData.title || 'Events',
+      description: pageData.meta_description || pageData.description || 'Events',
+      keywords: pageData.keyword || '',
+    };
+  }
+  return {
+    title: 'Destination Weddings, Luxury Themes & Event Management | Events',
+    description:
+      'Plan destination weddings, anniversaries, birthdays, and theme parties. Professional event planners, catering partners, and custom themes with 24/7 service.',
+    keywords:
+      'Destination weddings, luxury event planners, wedding event organizer, corporate gala dinners, theme party management, wedding catering packages',
+  };
+}
 
 export default async function EventsPage() {
   const pipelineForm = await getPipelineForm();
   const formConfig = normalizeFormConfig(pipelineForm);
-  return <EventsClient formConfig={formConfig} />;
+  const pageData = await getPageBySlug('events');
+  return <EventsClient formConfig={formConfig} pageData={pageData} />;
 }

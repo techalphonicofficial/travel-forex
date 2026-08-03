@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { getStoredAuth, getStoredToken } from '@/utils/api';
+import { getStoredAuth, getStoredToken, getMediaUrl } from '@/utils/api';
 
 import { useMemo } from 'react';
 
@@ -105,12 +105,48 @@ const faqs = [
   { q: 'What is the standard payment layout and cancellation timeline?', a: 'To reserve venues and lock decorators, we require an initial advance booking deposit (usually 25%). Balance payments are structured in installments leading up to the event date. Venue refund policies vary depending on terms and seasons.' }
 ];
 
-export default function EventsClient({ formConfig }) {
+export default function EventsClient({ formConfig, pageData }) {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
+
+  const parseJSON = (data) => {
+    if (typeof data === 'string') {
+      try { return JSON.parse(data); } catch (e) { return {}; }
+    }
+    return data || {};
+  };
+
+  const heroCMS = pageData?.details?.find(d => d.key === 'hero_key');
+  const heroJson = parseJSON(heroCMS?.json_data);
+  const heroTitleTop = heroCMS?.title || '💍 Destination Weddings & Celebrations';
+  const heroTitleMain = heroJson?.heading_content;
+  const heroDesc = heroJson?.body;
+  const rawBgUrl = heroJson?.media_url;
+  const heroBgImage = rawBgUrl ? `url('${getMediaUrl(rawBgUrl)}')` : null;
+  const heroBadges = heroJson?.points || [
+    { title: "✔ Elite Decor Designers" },
+    { title: "✔ Hospitality Managers" },
+    { title: "✔ Curated Guest Experiences" }
+  ];
+
+  const bookCMS = pageData?.details?.find(d => d.key === 'book-key');
+  const bookJson = parseJSON(bookCMS?.json_data);
+  const bookTitle = bookCMS?.title || 'Seamless Celebration Planning';
+  const bookHeading = bookJson?.heading_content || 'Our complete event management systems handle all logistics, letting you enjoy the day.';
+  const bookTeam = bookJson?.team || [
+    { name: '🏨 Discount Group Bookings', bio: 'We leverage hotel partner relationships to book bulk rooms at rates significantly lower than booking platforms, keeping group travel affordable.' },
+    { name: '✨ Premium Themes & Decor', bio: 'From sunset beach lights and boho setups to royal palace floral arches, our design teams customize decor templates to match your family vision.' },
+    { name: '🍽 Gourmet Dining Curation', bio: 'Work with renowned catering groups offering multi-cuisine menus (Punjabi, South Indian, Continental, Jain, and Halal) with strict quality checks.' }
+  ];
+
+  const faqCMS = pageData?.details?.find(d => d.key === 'FAQ');
+  const faqJson = parseJSON(faqCMS?.json_data);
+  const faqTitle = faqCMS?.title || 'Frequently Asked Questions';
+  const faqHeading = faqJson?.heading_content || 'Helpful advice to make your rail holiday hassle-free.';
+  const dynamicFaqs = faqJson?.faqs || faqs;
 
   const fields = useMemo(() => {
     if (!formConfig?.fields?.length) return [];
@@ -176,17 +212,29 @@ export default function EventsClient({ formConfig }) {
   return (
     <main className="events-page">
       {/* 1. HERO SECTION */}
-      <section className="events-hero">
+      <section className="events-hero" style={heroBgImage ? { backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%), ${heroBgImage}` } : {}}>
         <div className="container">
           <div className="events-hero-grid">
             <div className="events-hero-copy">
-              <span>💍 Destination Weddings & Celebrations</span>
-              <h1>Create Unforgettable <span style={{ color: 'var(--color-secondary)' }}>Moments</span></h1>
-              <p>Host destination weddings, anniversary galas, and bespoke parties in stunning venues globally. We handle decorators, luxury hotel bookings, transfers, and gourmet cuisines to turn your dreams into reality.</p>
+              <span className="events-top-subtitle">{heroTitleTop}</span>
+              <h1>
+                {heroTitleMain ? (
+                  <span dangerouslySetInnerHTML={{ __html: heroTitleMain }} />
+                ) : (
+                  <>Create Unforgettable <span style={{ color: 'var(--color-secondary)' }}>Moments</span></>
+                )}
+              </h1>
+              <p>
+                {heroDesc ? (
+                  <span dangerouslySetInnerHTML={{ __html: heroDesc }} />
+                ) : (
+                  'Host destination weddings, anniversary galas, and bespoke parties in stunning venues globally. We handle decorators, luxury hotel bookings, transfers, and gourmet cuisines to turn your dreams into reality.'
+                )}
+              </p>
               <div className="events-hero-badges">
-                <span className="events-tag-badge">✔ Elite Decor Designers</span>
-                <span className="events-tag-badge">✔ Hospitality Managers</span>
-                <span className="events-tag-badge">✔ Curated Guest Experiences</span>
+                {heroBadges.map((badge, idx) => (
+                  <span key={idx} className="events-tag-badge">{badge.title}</span>
+                ))}
               </div>
             </div>
 
@@ -223,25 +271,33 @@ export default function EventsClient({ formConfig }) {
       <section className="events-cabin-section">
         <div className="container">
           <div className="events-section-head text-center">
-            <h2>Seamless Celebration Planning</h2>
-            <p>Our complete event management systems handle all logistics, letting you enjoy the day.</p>
+            <h2>{bookTitle}</h2>
+            <p>{bookHeading}</p>
           </div>
           <div className="events-features-grid">
-            <div className="events-feature-box">
-              <div className="feature-icon">🏨</div>
-              <h3>Discount Group Bookings</h3>
-              <p>We leverage hotel partner relationships to book bulk rooms at rates significantly lower than booking platforms, keeping group travel affordable.</p>
-            </div>
-            <div className="events-feature-box">
-              <div className="feature-icon">✨</div>
-              <h3>Premium Themes & Decor</h3>
-              <p>From sunset beach lights and boho setups to royal palace floral arches, our design teams customize decor templates to match your family vision.</p>
-            </div>
-            <div className="events-feature-box">
-              <div className="feature-icon">🍽</div>
-              <h3>Gourmet Dining Curation</h3>
-              <p>Work with renowned catering groups offering multi-cuisine menus (Punjabi, South Indian, Continental, Jain, and Halal) with strict quality checks.</p>
-            </div>
+            {bookTeam.map((member, idx) => {
+              let icon = member.img;
+              let name = member.name || '';
+              
+              if (!icon) {
+                // Check if the name starts with an emoji (non-ASCII) followed by a space
+                const match = name.match(/^([^\x00-\x7F]+)\s+(.*)/);
+                if (match) {
+                  icon = match[1];
+                  name = match[2];
+                } else {
+                  icon = idx === 0 ? '🏨' : idx === 1 ? '✨' : '🍽';
+                }
+              }
+
+              return (
+                <div key={idx} className="events-feature-box">
+                  <div className="feature-icon">{icon}</div>
+                  <h3>{name}</h3>
+                  <p>{member.bio}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -249,11 +305,11 @@ export default function EventsClient({ formConfig }) {
       {/* 4. FAQS Accordion */}
       <section className="events-section container" style={{ maxWidth: '800px' }}>
         <div className="events-section-head text-center">
-          <h2>Frequently Asked Questions</h2>
-          <p>Helpful advice to make your wedding or event planning stress-free.</p>
+          <h2>{faqTitle}</h2>
+          <p>{faqHeading}</p>
         </div>
         <div className="events-faq-list">
-          {faqs.map((faq, idx) => {
+          {dynamicFaqs.map((faq, idx) => {
             const isOpen = activeFaqIndex === idx;
             return (
               <div key={idx} className="events-faq-item">
@@ -296,12 +352,14 @@ export default function EventsClient({ formConfig }) {
           gap: 40px;
           align-items: center;
         }
-        .events-hero-copy span {
+        .events-hero-copy .events-top-subtitle {
           color: var(--color-secondary);
           font-size: 13px;
           font-weight: 800;
           letter-spacing: 2px;
           text-transform: uppercase;
+          display: block;
+          margin-bottom: 8px;
         }
         .events-hero-copy h1 {
           font-family: var(--font-poppins), Poppins, sans-serif;

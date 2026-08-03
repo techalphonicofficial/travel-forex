@@ -114,6 +114,9 @@ export default function InsuranceClient({ pageData, formConfig }) {
   const heroHeadingSmall = heroSection?.title || 'Peace of Mind Anywhere';
   const heroHeadingLarge = heroSection?.json_data?.heading_content || 'Comprehensive Travel Insurance';
   const heroDesc = heroSection?.json_data?.body || 'Don\'t let unforeseen circumstances ruin your hard-earned vacation. Protect yourself against medical emergencies, flight cancellations, and lost baggage with our top-tier insurance policies.';
+  const heroMediaUrl = heroSection?.json_data?.media_url;
+  const fullHeroMediaUrl = heroMediaUrl ? (heroMediaUrl.startsWith('http') ? heroMediaUrl : `https://tourtravel.yber.in${heroMediaUrl}`) : null;
+  console.log(fullHeroMediaUrl, "fullHeroMediaUrl");
 
   const partnersTitle = partnersSection?.title || 'Our Trusted Insurance Partners';
   const dynamicPartners = partnersSection?.json_data?.team?.map(p => ({
@@ -131,7 +134,13 @@ export default function InsuranceClient({ pageData, formConfig }) {
   return (
     <main style={{ minHeight: '100vh', background: '#ffffff' }}>
       {/* 1. HERO SECTION */}
-      <section style={{ background: 'linear-gradient(135deg, var(--color-primary) 0%, #3b82f6 100%)', color: 'white', padding: '100px 0 80px' }}>
+      <section style={{
+        background: fullHeroMediaUrl
+          ? `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${fullHeroMediaUrl}) center/cover no-repeat`
+          : 'linear-gradient(135deg, var(--color-primary) 0%, #3b82f6 100%)',
+        color: 'white',
+        padding: '100px 0 80px'
+      }}>
         <div className="container">
           <div className="row align-items-center">
 
@@ -174,7 +183,7 @@ export default function InsuranceClient({ pageData, formConfig }) {
 
                   try {
                     const payload = getFormPayload(formElement, fields, formConfig?.id);
-                    
+
                     const response = await fetch('/api/contact-leads', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
@@ -197,9 +206,9 @@ export default function InsuranceClient({ pageData, formConfig }) {
                   <div className="row">
                     {fields.length > 0 ? (
                       fields.map(field => (
-                        <InsuranceDynamicField 
-                          key={field.id || field.fieldKey} 
-                          field={field} 
+                        <InsuranceDynamicField
+                          key={field.id || field.fieldKey}
+                          field={field}
                         />
                       ))
                     ) : (
@@ -207,7 +216,7 @@ export default function InsuranceClient({ pageData, formConfig }) {
                     )}
                   </div>
 
-                  <button type="submit" disabled={loading} style={{ width: '100%', padding: '16px', background: '#111827', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 800, cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 0.2s', opacity: loading ? 0.7 : 1 }} onMouseEnter={e => { if(!loading) e.currentTarget.style.background = '#000000' }} onMouseLeave={e => { if(!loading) e.currentTarget.style.background = '#111827' }}>
+                  <button type="submit" disabled={loading} style={{ width: '100%', padding: '16px', background: '#111827', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 800, cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 0.2s', opacity: loading ? 0.7 : 1 }} onMouseEnter={e => { if (!loading) e.currentTarget.style.background = '#000000' }} onMouseLeave={e => { if (!loading) e.currentTarget.style.background = '#111827' }}>
                     {loading ? 'Submitting...' : 'Get Insurance Quote'}
                   </button>
                 </form>
@@ -218,8 +227,8 @@ export default function InsuranceClient({ pageData, formConfig }) {
       </section>
 
       {/* 2. TRUSTED PARTNERS MARQUEE */}
-      <TrustedPartners 
-        category="insurance" 
+      <TrustedPartners
+        category="insurance"
         customPartners={dynamicPartners}
         title={partnersTitle}
       />

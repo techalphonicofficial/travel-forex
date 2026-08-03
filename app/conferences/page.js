@@ -1,4 +1,5 @@
 import ConferencesClient from './ConferencesClient';
+import { getPageBySlug } from '@/utils/api';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,16 +71,27 @@ const normalizeFormConfig = (formConfig) => {
   };
 };
 
-export const metadata = {
-  title: 'Corporate Conferences, Seminars & Business Events | Conferences',
-  description:
-    'Plan corporate conferences, AGM meetings, executive summits, and business seminars. Complete logistics support, audio-visual equipment, and bulk bookings with 24/7 service.',
-  keywords:
-    'Corporate conferences, business event management, AGM planners, corporate summit organizers, conference audio visual hire, business seminar venues',
-};
+export async function generateMetadata() {
+  const pageData = await getPageBySlug('conferences');
+  if (pageData) {
+    return {
+      title: pageData.meta_title || pageData.title || 'Conferences',
+      description: pageData.meta_description || pageData.description || 'Conferences',
+      keywords: pageData.keyword || '',
+    };
+  }
+  return {
+    title: 'Corporate Conferences, Seminars & Business Events | Conferences',
+    description:
+      'Plan corporate conferences, AGM meetings, executive summits, and business seminars. Complete logistics support, audio-visual equipment, and bulk bookings with 24/7 service.',
+    keywords:
+      'Corporate conferences, business event management, AGM planners, corporate summit organizers, conference audio visual hire, business seminar venues',
+  };
+}
 
 export default async function ConferencesPage() {
   const pipelineForm = await getPipelineForm();
   const formConfig = normalizeFormConfig(pipelineForm);
-  return <ConferencesClient formConfig={formConfig} />;
+  const pageData = await getPageBySlug('conferences');
+  return <ConferencesClient formConfig={formConfig} pageData={pageData} />;
 }

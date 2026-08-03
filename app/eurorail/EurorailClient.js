@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { getStoredAuth, getStoredToken } from '@/utils/api';
+import { getStoredAuth, getStoredToken, getMediaUrl } from '@/utils/api';
 
 const getInputType = (fieldType) => {
   const typeMap = { phone: 'tel', mobile: 'tel', integer: 'number', decimal: 'number', datetime: 'datetime-local' };
@@ -103,7 +103,7 @@ const faqs = [
   { q: 'Can I cancel or refund my point-to-point train tickets?', a: 'Points-to-point ticket refundability depends on the fare class (e.g. Super Economy, Economy, Base). Base fares are usually modifiable or refundable up to departure, whereas promo/economy fares are non-refundable.' }
 ];
 
-export default function EurorailClient({ formConfig }) {
+export default function EurorailClient({ formConfig, pageData }) {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -112,6 +112,42 @@ export default function EurorailClient({ formConfig }) {
   const [activeTab, setActiveTab] = useState('passes');
   const [ticketType, setTicketType] = useState('oneway');
   const fields = useMemo(() => (formConfig?.fields?.length ? formConfig.fields : []), [formConfig]);
+
+  const parseJSON = (data) => {
+    if (typeof data === 'string') {
+      try { return JSON.parse(data); } catch (e) { return {}; }
+    }
+    return data || {};
+  };
+
+  const heroCMS = pageData?.details?.find(d => d.key === 'hero_key');
+  const heroJson = parseJSON(heroCMS?.json_data);
+  const heroTitleTop = heroCMS?.title || '🚆 European Rail Networks';
+  const heroTitleMain = heroJson?.heading_content;
+  const heroDesc = heroJson?.body;
+  const rawBgUrl = heroJson?.media_url;
+  const heroBgImage = rawBgUrl ? `url('${getMediaUrl(rawBgUrl)}')` : null;
+  const heroBadges = heroJson?.points || [
+    { title: "✔ Best Pass Pricing" },
+    { title: "✔ Direct Rail Passes" },
+    { title: "✔ Borderless Travel" }
+  ];
+
+  const bookCMS = pageData?.details?.find(d => d.key === 'book-key');
+  const bookJson = parseJSON(bookCMS?.json_data);
+  const bookTitle = bookCMS?.title || 'Why Book Rails with Us?';
+  const bookHeading = bookJson?.heading_content || 'We make navigating European train systems simple, secure, and cost-effective.';
+  const bookTeam = bookJson?.team || [
+    { name: '🇪🇺 Borderless Passes', bio: 'Get Eurail passes delivered directly to your mobile app or doorstep. Visit up to 33 European countries with a single unified travel document.' },
+    { name: '🛋 Guaranteed Seat Bookings', bio: 'Consulates and rail networks require seat reservations on peak high-speed trains. Our ticketing experts secure reservations months in advance.' },
+    { name: '🛡 24/7 Helpline Assistance', bio: 'Missed a connection or encountered a train cancellation? Our round-the-clock support desk assists you with re-routings and replacement tickets instantly.' }
+  ];
+
+  const faqCMS = pageData?.details?.find(d => d.key === 'FAQ');
+  const faqJson = parseJSON(faqCMS?.json_data);
+  const faqTitle = faqCMS?.title || 'Frequently Asked Questions';
+  const faqHeading = faqJson?.heading_content || 'Helpful advice to make your rail holiday hassle-free.';
+  const dynamicFaqs = faqJson?.faqs || faqs;
 
   useEffect(() => {
     const token = getStoredToken();
@@ -220,17 +256,29 @@ export default function EurorailClient({ formConfig }) {
   return (
     <main className="eurorail-page">
       {/* 1. HERO SECTION */}
-      <section className="eurorail-hero">
+      <section className="eurorail-hero" style={heroBgImage ? { backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%), ${heroBgImage}` } : {}}>
         <div className="container">
           <div className="eurorail-hero-grid">
             <div className="eurorail-hero-copy">
-              <span>🚆 European Rail Networks</span>
-              <h1>Explore Europe, By <span style={{ color: 'var(--color-secondary)' }}>Train</span></h1>
-              <p>Book passes and point-to-point tickets for high-speed networks across Europe. Travel scenic routes, cross borders seamlessly, and enjoy the comfort of Eurostar, TGV, and Swiss panoramic trains.</p>
+              <span className="eurorail-top-subtitle">{heroTitleTop}</span>
+              <h1>
+                {heroTitleMain ? (
+                  <span dangerouslySetInnerHTML={{ __html: heroTitleMain }} />
+                ) : (
+                  <>Explore Europe, By <span style={{ color: 'var(--color-secondary)' }}>Train</span></>
+                )}
+              </h1>
+              <p>
+                {heroDesc ? (
+                  <span dangerouslySetInnerHTML={{ __html: heroDesc }} />
+                ) : (
+                  'Book passes and point-to-point tickets for high-speed networks across Europe. Travel scenic routes, cross borders seamlessly, and enjoy the comfort of Eurostar, TGV, and Swiss panoramic trains.'
+                )}
+              </p>
               <div className="eurorail-hero-badges">
-                <span className="eurorail-tag-badge">✔ Best Pass Pricing</span>
-                <span className="eurorail-tag-badge">✔ Direct Rail Passes</span>
-                <span className="eurorail-tag-badge">✔ Borderless Travel</span>
+                {heroBadges.map((badge, idx) => (
+                  <span key={idx} className="eurorail-tag-badge">{badge.title}</span>
+                ))}
               </div>
             </div>
 
@@ -341,25 +389,33 @@ export default function EurorailClient({ formConfig }) {
       <section className="eurorail-cabin-section">
         <div className="container">
           <div className="eurorail-section-head text-center">
-            <h2>Why Book Rails with Us?</h2>
-            <p>We make navigating European train systems simple, secure, and cost-effective.</p>
+            <h2>{bookTitle}</h2>
+            <p>{bookHeading}</p>
           </div>
           <div className="eurorail-features-grid">
-            <div className="eurorail-feature-box">
-              <div className="feature-icon">🇪🇺</div>
-              <h3>Borderless Passes</h3>
-              <p>Get Eurail passes delivered directly to your mobile app or doorstep. Visit up to 33 European countries with a single unified travel document.</p>
-            </div>
-            <div className="eurorail-feature-box">
-              <div className="feature-icon">🛋</div>
-              <h3>Guaranteed Seat Bookings</h3>
-              <p>Consulates and rail networks require seat reservations on peak high-speed trains. Our ticketing experts secure reservations months in advance.</p>
-            </div>
-            <div className="eurorail-feature-box">
-              <div className="feature-icon">🛡</div>
-              <h3>24/7 Helpline Assistance</h3>
-              <p>Missed a connection or encountered a train cancellation? Our round-the-clock support desk assists you with re-routings and replacement tickets instantly.</p>
-            </div>
+            {bookTeam.map((member, idx) => {
+              let icon = member.img;
+              let name = member.name || '';
+              
+              if (!icon) {
+                // Check if the name starts with an emoji (non-ASCII) followed by a space
+                const match = name.match(/^([^\x00-\x7F]+)\s+(.*)/);
+                if (match) {
+                  icon = match[1];
+                  name = match[2];
+                } else {
+                  icon = idx === 0 ? '🇪🇺' : idx === 1 ? '🛋' : '🛡';
+                }
+              }
+
+              return (
+                <div key={idx} className="eurorail-feature-box">
+                  <div className="feature-icon">{icon}</div>
+                  <h3>{name}</h3>
+                  <p>{member.bio}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -367,11 +423,11 @@ export default function EurorailClient({ formConfig }) {
       {/* 4. FAQS Accordion */}
       <section className="eurorail-section container" style={{ maxWidth: '800px' }}>
         <div className="eurorail-section-head text-center">
-          <h2>Frequently Asked Questions</h2>
-          <p>Helpful advice to make your rail holiday hassle-free.</p>
+          <h2>{faqTitle}</h2>
+          <p>{faqHeading}</p>
         </div>
         <div className="eurorail-faq-list">
-          {faqs.map((faq, idx) => {
+          {dynamicFaqs.map((faq, idx) => {
             const isOpen = activeFaqIndex === idx;
             return (
               <div key={idx} className="eurorail-faq-item">
@@ -414,12 +470,14 @@ export default function EurorailClient({ formConfig }) {
           gap: 40px;
           align-items: center;
         }
-        .eurorail-hero-copy span {
+        .eurorail-hero-copy .eurorail-top-subtitle {
           color: var(--color-secondary);
           font-size: 13px;
           font-weight: 800;
           letter-spacing: 2px;
           text-transform: uppercase;
+          display: block;
+          margin-bottom: 8px;
         }
         .eurorail-hero-copy h1 {
           font-family: var(--font-poppins), Poppins, sans-serif;

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
-import { getForexRates, getForexServiceCharge, convertForexRate, getStoredAuth, getStoredToken } from '@/utils/api';
+import { getForexRates, getForexServiceCharge, convertForexRate, getStoredAuth, getStoredToken, getMediaUrl } from '@/utils/api';
 
 const currencyOptions = [
   { code: 'INR', name: 'Indian Rupee', country: 'India', symbol: '₹' },
@@ -422,7 +422,16 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
     leadFormRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const faqs = [
+  const parseJSON = (data) => {
+    if (typeof data === 'string') {
+      try { return JSON.parse(data); } catch (e) { return {}; }
+    }
+    return data || {};
+  };
+
+  const faqCMS = pageData?.details?.find(d => d.key === 'FAQ-key');
+  const faqJson = parseJSON(faqCMS?.json_data);
+  const faqs = faqJson?.faqs || [
     {
       q: 'What documents are required to buy foreign currency in India?',
       a: 'As per RBI guidelines, you require a valid Indian Passport, PAN Card, Visa for the destination country, and a confirmed air ticket. These documents are verified to ensure compliance under the Liberalized Remittance Scheme (LRS).'
@@ -445,19 +454,28 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
     }
   ];
 
-  const parseJSON = (data) => {
-    if (typeof data === 'string') {
-      try { return JSON.parse(data); } catch (e) { return {}; }
-    }
-    return data || {};
-  };
-
   const heroCMS = pageData?.details?.find(d => d.key === 'hero_key');
   const heroJson = parseJSON(heroCMS?.json_data);
   const heroTitleTop = heroCMS?.title || '✦ RBI Authorized Partner';
   const heroTitleMain = heroJson?.heading_content;
   const heroDesc = heroJson?.body;
-  const heroBgImage = heroJson?.media_url;
+  const heroBgImage = getMediaUrl(heroJson?.media_url);
+
+  const cta1CMS = pageData?.details?.find(d => d.key === 'cta_key_1');
+  const cta1Json = parseJSON(cta1CMS?.json_data);
+  const cta1Text = cta1Json?.btn_text;
+  const cta1Link = cta1Json?.btn_link;
+
+  const cta2CMS = pageData?.details?.find(d => d.key === 'cta_key_2');
+  const cta2Json = parseJSON(cta2CMS?.json_data);
+  const cta2Text = cta2Json?.btn_text;
+  const cta2Link = cta2Json?.btn_link;
+
+  const forexRateCMS = pageData?.details?.find(d => d.key === 'forex_rate_key');
+  const forexRateJson = parseJSON(forexRateCMS?.json_data);
+  const forexRateTitleTop = forexRateCMS?.title || 'Real-time Exchange';
+  const forexRateTitleMain = forexRateJson?.heading_content || 'Live Forex Rates';
+  const forexRateDesc = forexRateJson?.block_desc || 'We fetch rates live from interbank feeds. Check current buy and sell rates for top currencies.';
 
   const heroCurrencyCMS = pageData?.details?.find(d => d.key === 'hero_key_curency');
   const heroCurrencyJson = parseJSON(heroCurrencyCMS?.json_data);
@@ -487,15 +505,28 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
           const code = parts[1] || '';
           const name = parts[2] || '';
 
-          const buyRateStr = tds[1].textContent.replace(/[^\d.]/g, '');
-          const sellRateStr = tds[2].textContent.replace(/[^\d.]/g, '');
+          const match = findForexRateMatch(rates, code, 'INR');
+          let finalBuyRate, finalSellRate;
+
+          if (match && match.rate && match.rate !== 1) {
+            finalBuyRate = (match.rate * 0.995).toFixed(2);
+            finalSellRate = (match.rate * 1.005).toFixed(2);
+          } else {
+            const buyRateStr = tds[1].textContent.replace(/[^\d.]/g, '');
+            const sellRateStr = tds[2].textContent.replace(/[^\d.]/g, '');
+            finalBuyRate = Number(buyRateStr).toFixed(2);
+            finalSellRate = Number(sellRateStr).toFixed(2);
+          }
+
+          const validFromStr = tds[4]?.textContent.trim() || '';
 
           return {
             code,
             name,
             symbol,
-            buyRate: Number(buyRateStr),
-            sellRate: Number(sellRateStr)
+            buyRate: finalBuyRate,
+            sellRate: finalSellRate,
+            validFrom: validFromStr
           };
         }).filter(r => r && r.code);
 
@@ -505,14 +536,16 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
       } catch (e) {
         console.error('Failed to parse CMS table', e);
       }
+    } else if (liveRatesData && liveRatesData.length > 0) {
+      setDisplayRates(liveRatesData);
     }
-  }, [heroCurrencyHTML]);
+  }, [heroCurrencyHTML, rates, liveRatesData]);
 
   return (
     <div style={{ background: 'var(--color-bg)', color: 'var(--color-text-primary)', minHeight: '100vh', fontFamily: 'var(--font-inter), sans-serif' }}>
 
       {/* 1. HERO SECTION (Dynamic Dark Blue Theme Banner matching Flights/Hotels) */}
-      <section className="forex-hero" style={heroBgImage ? { backgroundImage: `url(${heroBgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
+      <section className="forex-hero" style={heroBgImage ? { backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%), url('${heroBgImage}')`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
         {/* Decorative elements */}
         <div style={{ position: 'absolute', top: '10%', right: '-15%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(253,206,46,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '10%', left: '-15%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
@@ -563,10 +596,10 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
               </p>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 15 }}>
-                <a href="#lead-form" onClick={scrollToLeadForm} className="btn-primary" style={{ padding: '14px 28px', textDecoration: 'none', color: '#0f172a', background: 'var(--color-secondary)' }}>
-                  {pageType === 'currency' ? 'Inquire Currency' : pageType === 'card' ? 'Apply Forex Card' : 'Start Transfer'}
+                <a href={cta1Link || "#lead-form"} onClick={!cta1Link ? scrollToLeadForm : undefined} className="btn-primary" style={{ padding: '14px 28px', textDecoration: 'none', color: '#0f172a', background: 'var(--color-secondary)' }}>
+                  {cta1Text || (pageType === 'currency' ? 'Inquire Currency' : pageType === 'card' ? 'Apply Forex Card' : 'Start Transfer')}
                 </a>
-                <a href="#live-rates-table" onClick={scrollToRates} style={{
+                <a href={cta2Link || "#live-rates-table"} onClick={!cta2Link ? scrollToRates : undefined} style={{
                   color: 'white',
                   border: '1.5px solid rgba(255,255,255,0.3)',
                   padding: '13px 26px',
@@ -577,7 +610,7 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
                   backdropFilter: 'blur(4px)',
                   textDecoration: 'none'
                 }}>
-                  Get Live Exchange Rates
+                  {cta2Text || 'Get Live Exchange Rates'}
                 </a>
               </div>
             </div>
@@ -598,6 +631,7 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
                         <th style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border)', color: 'var(--color-primary)', fontWeight: 800 }}>Currency</th>
                         <th style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border)', color: '#059669', fontWeight: 800 }}>Buy Rate</th>
                         <th style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border)', color: '#d97706', fontWeight: 800 }}>Sell Rate</th>
+                        <th style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-secondary)', fontWeight: 800 }}>Valid from</th>
                         <th style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border)', textAlign: 'right', color: 'var(--color-text-secondary)' }}>Action</th>
                       </tr>
                     </thead>
@@ -629,6 +663,9 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
                           </td>
                           <td style={{ padding: '18px 24px', color: '#d97706', fontWeight: 800, fontSize: 15 }}>
                             ₹{row.sellRate}
+                          </td>
+                          <td style={{ padding: '18px 24px', color: 'var(--color-text-secondary)', fontWeight: 600, fontSize: 13 }}>
+                            {row.validFrom || new Date().toLocaleDateString('en-GB')}
                           </td>
                           <td style={{ padding: '18px 24px', textAlign: 'right' }}>
                             <button
@@ -677,13 +714,13 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: 45 }}>
             <span style={{ color: 'var(--color-primary)', fontSize: 11, fontWeight: 800, letterSpacing: '2.5px', textTransform: 'uppercase' }}>
-              Real-time Exchange
+              {forexRateTitleTop}
             </span>
             <h2 style={{ fontFamily: 'var(--font-poppins), sans-serif', fontWeight: 900, fontSize: 32, marginTop: 8, color: 'var(--color-text-primary)' }}>
-              Live Forex Rates
+              {forexRateTitleMain}
             </h2>
             <p style={{ color: 'var(--color-text-secondary)', fontSize: 15, maxWidth: '600px', margin: '10px auto 0' }}>
-              We fetch rates live from interbank feeds. Check current buy and sell rates for top currencies.
+              {forexRateDesc}
             </p>
           </div>
 

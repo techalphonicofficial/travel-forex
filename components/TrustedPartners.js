@@ -92,12 +92,12 @@ export default function TrustedPartners({ category = 'default', customPartners =
           display: flex;
           align-items: center;
           justify-content: center;
-          height: 75px;
-          min-width: 180px;
+          height: 110px;
+          min-width: 250px;
         }
         .marquee-item img {
           max-height: 100%;
-          max-width: 180px;
+          max-width: 250px;
           object-fit: contain;
           transition: opacity 0.3s ease;
         }

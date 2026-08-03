@@ -1,4 +1,5 @@
 import EurorailClient from './EurorailClient';
+import { getPageBySlug } from '@/utils/api';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,16 +71,27 @@ const normalizeFormConfig = (formConfig) => {
   };
 };
 
-export const metadata = {
-  title: 'Book European Train Tickets & Eurail Passes | Euro Rails',
-  description:
-    'Plan your European train journeys. Book high-speed train tickets and Eurail passes for France, Switzerland, Italy, Germany, and beyond with 24/7 support.',
-  keywords:
-    'Euro Rails, Eurail pass, European train tickets, book TGV tickets, ICE trains Europe, Switzerland train pass, scenic rail Europe',
-};
+export async function generateMetadata() {
+  const pageData = await getPageBySlug('eurorail');
+  if (pageData) {
+    return {
+      title: pageData.meta_title || pageData.title || 'Euro Rails',
+      description: pageData.meta_description || pageData.description || 'Euro Rails',
+      keywords: pageData.keyword || '',
+    };
+  }
+  return {
+    title: 'Book European Train Tickets & Eurail Passes | Euro Rails',
+    description:
+      'Plan your European train journeys. Book high-speed train tickets and Eurail passes for France, Switzerland, Italy, Germany, and beyond with 24/7 support.',
+    keywords:
+      'Euro Rails, Eurail pass, European train tickets, book TGV tickets, ICE trains Europe, Switzerland train pass, scenic rail Europe',
+  };
+}
 
 export default async function EurorailPage() {
   const pipelineForm = await getPipelineForm();
   const formConfig = normalizeFormConfig(pipelineForm);
-  return <EurorailClient formConfig={formConfig} />;
+  const pageData = await getPageBySlug('eurorail');
+  return <EurorailClient formConfig={formConfig} pageData={pageData} />;
 }

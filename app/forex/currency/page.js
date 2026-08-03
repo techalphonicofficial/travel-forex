@@ -1,12 +1,14 @@
 import ForexBasePage from '@/components/forex/ForexBasePage';
 import { getPageBySlug } from '@/utils/api';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const pageData = await getPageBySlug('forex/currency');
-  if (pageData?.success && pageData?.data) {
+  if (pageData) {
     return {
-      title: pageData.data.meta_title || 'Buy/Sell Foreign Currency | Best Exchange Rates',
-      description: pageData.data.meta_description || 'Get genuine foreign currency notes delivered to your doorstep. Buy or sell forex at live competitive exchange rates.',
+      title: pageData.meta_title || 'Buy/Sell Foreign Currency | Best Exchange Rates',
+      description: pageData.meta_description || 'Get genuine foreign currency notes delivered to your doorstep. Buy or sell forex at live competitive exchange rates.',
     };
   }
   return {
@@ -16,8 +18,7 @@ export async function generateMetadata() {
 }
 
 export default async function CurrencyPage() {
-  const pageDataResponse = await getPageBySlug('forex/currency');
-  const pageData = pageDataResponse?.success ? pageDataResponse.data : null;
+  const pageData = await getPageBySlug('forex/currency');
 
   return <ForexBasePage pageType="currency" pageData={pageData} />;
 }

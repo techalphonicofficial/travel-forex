@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { getStoredAuth, getStoredToken } from '@/utils/api';
+import { getStoredAuth, getStoredToken, getMediaUrl } from '@/utils/api';
 
 import { useMemo } from 'react';
 
@@ -105,12 +105,49 @@ const faqs = [
   { q: 'What is the standard cancellation timeline for large group venue bookings?', a: 'Hotel booking policies vary. Generally, corporate event spaces permit minor amendments up to 30 days prior. Peak season venue bookings (October to March) have stricter cancellation guidelines.' }
 ];
 
-export default function ConferencesClient({ formConfig }) {
+export default function ConferencesClient({ formConfig, pageData }) {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
+  const [location, setLocation] = useState('');
+
+  const parseJSON = (data) => {
+    if (typeof data === 'string') {
+      try { return JSON.parse(data); } catch (e) { return {}; }
+    }
+    return data || {};
+  };
+
+  const heroCMS = pageData?.details?.find(d => d.key === 'hero_key');
+  const heroJson = parseJSON(heroCMS?.json_data);
+  const heroTitleTop = heroCMS?.title || '🏢 Corporate Meetings & MICE';
+  const heroTitleMain = heroJson?.heading_content;
+  const heroDesc = heroJson?.body;
+  const rawBgUrl = heroJson?.media_url;
+  const heroBgImage = rawBgUrl ? `url('${getMediaUrl(rawBgUrl)}')` : null;
+  const heroBadges = heroJson?.points || [
+    { title: "✔ GST Corporate Invoicing" },
+    { title: "✔ Hybrid Meeting Tech" },
+    { title: "✔ Bulk Travel & Hotels" }
+  ];
+
+  const bookCMS = pageData?.details?.find(d => d.key === 'book-key');
+  const bookJson = parseJSON(bookCMS?.json_data);
+  const bookTitle = bookCMS?.title || 'Seamless MICE Management';
+  const bookHeading = bookJson?.heading_content || 'Our business logistics coordinators assist you at every stage of the corporate schedule.';
+  const bookTeam = bookJson?.team || [
+    { name: '🎙 Premium AV & Staging', bio: 'We supply and set up dual projectors, high-definition LED backdrops, collar microphones, stage podiums, and professional lighting desks.' },
+    { name: '✈ Group Flights & Visa Checks', bio: 'Our ticketing advisors handle bulk corporate airline seat reserves and compile fast-track visa checklists for business travel delegates.' },
+    { name: '🛡 Dedicated Account Manager', bio: 'Save time with a single coordinator handling food menus, schedule changes, tea/coffee breaks, and custom event branding logistics.' }
+  ];
+
+  const faqCMS = pageData?.details?.find(d => d.key === 'FAQ');
+  const faqJson = parseJSON(faqCMS?.json_data);
+  const faqTitle = faqCMS?.title || 'Frequently Asked Questions';
+  const faqHeading = faqJson?.heading_content || 'Helpful advice to make your corporate meeting or summit planning seamless.';
+  const dynamicFaqs = faqJson?.faqs || faqs;
 
   const fields = useMemo(() => {
     if (!formConfig?.fields?.length) return [];
@@ -173,17 +210,29 @@ export default function ConferencesClient({ formConfig }) {
   return (
     <main className="conferences-page">
       {/* 1. HERO SECTION */}
-      <section className="conferences-hero">
+      <section className="conferences-hero" style={heroBgImage ? { backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%), ${heroBgImage}` } : {}}>
         <div className="container">
           <div className="conferences-hero-grid">
             <div className="conferences-hero-copy">
-              <span>🏢 Corporate Meetings & MICE</span>
-              <h1>Host World-Class Business <span style={{ color: 'var(--color-secondary)' }}>Events</span></h1>
-              <p>Plan AGM meetings, corporate summits, training seminars, and product launches seamlessly. We manage premium hotels, projection halls, logistics, catering, and audio-visual setups globally.</p>
+              <span className="conferences-top-subtitle">{heroTitleTop}</span>
+              <h1>
+                {heroTitleMain ? (
+                  <span dangerouslySetInnerHTML={{ __html: heroTitleMain }} />
+                ) : (
+                  <>Host World-Class Business <span style={{ color: 'var(--color-secondary)' }}>Events</span></>
+                )}
+              </h1>
+              <p>
+                {heroDesc ? (
+                  <span dangerouslySetInnerHTML={{ __html: heroDesc }} />
+                ) : (
+                  'Plan AGM meetings, corporate summits, training seminars, and product launches seamlessly. We manage premium hotels, projection halls, logistics, catering, and audio-visual setups globally.'
+                )}
+              </p>
               <div className="conferences-hero-badges">
-                <span className="conferences-tag-badge">✔ GST Corporate Invoicing</span>
-                <span className="conferences-tag-badge">✔ Hybrid Meeting Tech</span>
-                <span className="conferences-tag-badge">✔ Bulk Travel & Hotels</span>
+                {heroBadges.map((badge, idx) => (
+                  <span key={idx} className="conferences-tag-badge">{badge.title}</span>
+                ))}
               </div>
             </div>
 
@@ -220,25 +269,33 @@ export default function ConferencesClient({ formConfig }) {
       <section className="conferences-cabin-section">
         <div className="container">
           <div className="conferences-section-head text-center">
-            <h2>Seamless MICE Management</h2>
-            <p>Our business logistics coordinators assist you at every stage of the corporate schedule.</p>
+            <h2>{bookTitle}</h2>
+            <p>{bookHeading}</p>
           </div>
           <div className="conferences-features-grid">
-            <div className="events-feature-box">
-              <div className="feature-icon">🎙</div>
-              <h3>Premium AV & Staging</h3>
-              <p>We supply and set up dual projectors, high-definition LED backdrops, collar microphones, stage podiums, and professional lighting desks.</p>
-            </div>
-            <div className="events-feature-box">
-              <div className="feature-icon">✈</div>
-              <h3>Group Flights & Visa Checks</h3>
-              <p>Our ticketing advisors handle bulk corporate airline seat reserves and compile fast-track visa checklists for business travel delegates.</p>
-            </div>
-            <div className="events-feature-box">
-              <div className="feature-icon">🛡</div>
-              <h3>Dedicated Account Manager</h3>
-              <p>Save time with a single coordinator handling food menus, schedule changes, tea/coffee breaks, and custom event branding logistics.</p>
-            </div>
+            {bookTeam.map((member, idx) => {
+              let icon = member.img;
+              let name = member.name || '';
+              
+              if (!icon) {
+                // Check if the name starts with an emoji (non-ASCII) followed by a space
+                const match = name.match(/^([^\x00-\x7F]+)\s+(.*)/);
+                if (match) {
+                  icon = match[1];
+                  name = match[2];
+                } else {
+                  icon = idx === 0 ? '🎙' : idx === 1 ? '✈' : '🛡';
+                }
+              }
+
+              return (
+                <div key={idx} className="events-feature-box">
+                  <div className="feature-icon">{icon}</div>
+                  <h3>{name}</h3>
+                  <p>{member.bio}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -246,11 +303,11 @@ export default function ConferencesClient({ formConfig }) {
       {/* 4. FAQS Accordion */}
       <section className="conferences-section container" style={{ maxWidth: '800px' }}>
         <div className="conferences-section-head text-center">
-          <h2>Frequently Asked Questions</h2>
-          <p>Helpful advice to make your corporate meeting or summit planning seamless.</p>
+          <h2>{faqTitle}</h2>
+          <p>{faqHeading}</p>
         </div>
         <div className="conferences-faq-list">
-          {faqs.map((faq, idx) => {
+          {dynamicFaqs.map((faq, idx) => {
             const isOpen = activeFaqIndex === idx;
             return (
               <div key={idx} className="conferences-faq-item">
@@ -293,12 +350,14 @@ export default function ConferencesClient({ formConfig }) {
           gap: 40px;
           align-items: center;
         }
-        .conferences-hero-copy span {
+        .conferences-hero-copy .conferences-top-subtitle {
           color: var(--color-secondary);
           font-size: 13px;
           font-weight: 800;
           letter-spacing: 2px;
           text-transform: uppercase;
+          display: block;
+          margin-bottom: 8px;
         }
         .conferences-hero-copy h1 {
           font-family: var(--font-poppins), Poppins, sans-serif;
