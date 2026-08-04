@@ -289,7 +289,7 @@ export default function ConferencesClient({ formConfig, pageData }) {
               }
 
               return (
-                <div key={idx} className="events-feature-box">
+                <div key={idx} className="conferences-feature-box">
                   <div className="feature-icon">{icon}</div>
                   <h3>{name}</h3>
                   <p>{member.bio}</p>
@@ -583,6 +583,10 @@ export default function ConferencesClient({ formConfig, pageData }) {
           border: 1px solid #e2e8f0;
           border-radius: 16px;
           padding: 28px;
+        }
+        .feature-icon {
+          font-size: 32px;
+          margin-bottom: 16px;
         }
         .conferences-feature-box h3 {
           font-size: 18px;

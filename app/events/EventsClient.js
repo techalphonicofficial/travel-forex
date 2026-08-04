@@ -586,6 +586,10 @@ export default function EventsClient({ formConfig, pageData }) {
           border-radius: 16px;
           padding: 28px;
         }
+        .feature-icon {
+          font-size: 32px;
+          margin-bottom: 16px;
+        }
         .events-feature-box h3 {
           font-size: 18px;
           font-weight: 850;

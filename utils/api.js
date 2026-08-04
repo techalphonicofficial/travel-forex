@@ -513,7 +513,7 @@ export const getHomePage = async () => {
 
 export const getPageBySlug = async (slug) => {
   try {
-    const response = await apiClient.get(`/pages/slug/${slug}`);
+    const response = await apiClient.get(`/pages/slug/${encodeURIComponent(slug)}`);
     return normalizeApiData(response);
   } catch (error) {
     console.warn(`Warning: Page CMS for "${slug}" not found or unavailable (${error?.message || 'Unknown error'}).`);
