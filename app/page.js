@@ -109,6 +109,11 @@ export default async function HomePage() {
   );
   const offersData = offerSection?.json_data || null;
 
+  const testimonialSection = homePage?.details?.find(
+    (detail) => detail?.section === 'testimonial_grid' && detail?.key === 'Happy Travelers'
+  );
+  const testimonialsData = testimonialSection?.json_data || null;
+
   return (
     <>
       {/* Dark video hero — outside warm ivory wrapper */}
@@ -154,7 +159,7 @@ export default async function HomePage() {
       </FadeInSection>
 
       <FadeInSection delay={100}>
-        <TestimonialSlider />
+        <TestimonialSlider section={testimonialSection} />
       </FadeInSection>
 
       <FadeInSection delay={100}>

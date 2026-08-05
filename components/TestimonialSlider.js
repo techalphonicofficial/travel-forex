@@ -38,7 +38,7 @@ const testimonials = [
   }
 ];
 
-export default function TestimonialSlider() {
+export default function TestimonialSlider({ section }) {
   const scrollRef = useRef(null);
 
   const scroll = (direction) => {
@@ -48,15 +48,23 @@ export default function TestimonialSlider() {
     }
   };
 
+  const testimonialsData = section?.json_data;
+  const dynamicTestimonials = testimonialsData?.testimonials?.length > 0 
+    ? testimonialsData.testimonials 
+    : testimonials;
+
+  const sectionKey = section?.key || 'Happy Travelers';
+  const sectionTitle = section?.title || 'Why Customers Love ITS Travels And Tours Private Limited !';
+
   return (
     <section style={{ padding: '80px 0', background: 'var(--color-bg-card)', borderTop: '1px solid var(--color-border)' }}>
       <div className="container">
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--color-primary)', marginBottom: 8 }}>
-            Happy Travelers
+            {sectionKey}
           </p>
           <h2 style={{ fontSize: 32, fontWeight: 900, color: 'var(--color-text-primary)' }}>
-            Why Customers Love ITS Travels And Tours Private Limited !
+            {sectionTitle}
           </h2>
         </div>
 
@@ -92,9 +100,9 @@ export default function TestimonialSlider() {
               scrollbarWidth: 'none', msOverflowStyle: 'none', padding: '10px 0'
             }}
           >
-            {testimonials.map((item) => (
+            {dynamicTestimonials.map((item, idx) => (
               <div
-                key={item.id}
+                key={item.id || idx}
                 style={{
                   flex: '0 0 100%', minWidth: '100%', scrollSnapAlign: 'start',
                   background: 'white', border: '1px solid #f1f5f9', borderRadius: 20,
@@ -103,17 +111,25 @@ export default function TestimonialSlider() {
                 }}
               >
                 <div style={{ color: '#fbbf24', fontSize: 24, marginBottom: 16 }}>
-                  {'★'.repeat(Math.floor(item.rating))}
-                  {item.rating % 1 !== 0 && '☆'}
+                  {item.title || (
+                    <>
+                      {'★'.repeat(Math.floor(item.rating || 5))}
+                      {(item.rating || 5) % 1 !== 0 && '☆'}
+                    </>
+                  )}
                 </div>
                 <p style={{ fontSize: 18, color: 'var(--color-text-primary)', fontStyle: 'italic', marginBottom: 24, lineHeight: 1.6, maxWidth: 700 }}>
-                  "{item.text}"
+                  {item.text && item.text.startsWith('"') ? item.text : `"${item.text}"`}
                 </p>
                 <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--color-primary-light)', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 800, marginBottom: 12 }}>
-                  {item.name.charAt(0)}
+                  {item.name?.charAt(0) || 'U'}
                 </div>
                 <h4 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 4px' }}>{item.name}</h4>
-                <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{item.location} • {item.date}</div>
+                {(item.location || item.date) && (
+                  <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                    {item.location} {item.location && item.date && '•'} {item.date}
+                  </div>
+                )}
               </div>
             ))}
           </div>
