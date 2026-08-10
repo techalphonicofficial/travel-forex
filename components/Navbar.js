@@ -1103,6 +1103,7 @@ export default function Navbar({ brand, companyInfo }) {
   const [flightOpen, setFlightOpen] = useState(false);
   const [flightDraft, setFlightDraft] = useState(emptyFlightDraft);
   const [flightLoading, setFlightLoading] = useState(false);
+  const [visaTabs, setVisaTabs] = useState([]);
   const pathname = usePathname();
 
   const isHeroPage = pathname === '/' || pathname === '/packages' || pathname.startsWith('/package') || pathname.startsWith('/tours') || pathname.startsWith('/hotels') || pathname.startsWith('/about') || pathname.startsWith('/blog') || pathname.startsWith('/contact');
@@ -1125,6 +1126,26 @@ export default function Navbar({ brand, companyInfo }) {
       { name: 'International Packages', href: '/tours?type=INTERNATIONAL', isExplore: true },
     ],
   ];
+
+  useEffect(() => {
+    const fetchVisaTabs = async () => {
+      try {
+        const res = await fetch('https://tourtravel.yber.in/api/v1/pages/slug/visa', {
+          headers: { accept: 'application/json' }
+        });
+        if (res.ok) {
+           const payload = await res.json();
+           const tabs = payload?.data?.details?.find(d => d.section === 'destination_tabs')?.json_data?.tabs;
+           if (tabs && tabs.length > 0) {
+             setVisaTabs(tabs.map(t => ({ name: t.label, href: `/visa?type=${t.key}`, isExplore: true })));
+           }
+        }
+      } catch (e) {
+        console.error("Error fetching visa tabs", e);
+      }
+    };
+    fetchVisaTabs();
+  }, []);
 
   useEffect(() => {
     const fetchNavbarCategoriesAndDests = async () => {
@@ -2174,10 +2195,11 @@ export default function Navbar({ brand, companyInfo }) {
                     </span>
                   }
                   cols={[
-                    [
-                      { name: 'Visa Free & On Arrival', href: '/visa?type=free-on-arrival', isExplore: true },
-                      { name: 'E-Visa', href: '/visa?type=e-visa', isExplore: true },
-                      { name: 'Stamped Visa', href: '/visa?type=stamped', isExplore: true }
+                    visaTabs.length > 0 ? visaTabs : [
+                      { name: 'Visa Free', href: '/visa?type=Visa-Free-&-On-Arrival', isExplore: true },
+                      { name: 'E-Visa', href: '/visa?type=E-Visa', isExplore: true },
+                      { name: 'Stamped Visa', href: '/visa?type=Stamped-Visa', isExplore: true },
+                      { name: 'On Arrival', href: '/visa?type=On Arrival', isExplore: true }
                     ]
                   ]}
                   isTransparent={false}

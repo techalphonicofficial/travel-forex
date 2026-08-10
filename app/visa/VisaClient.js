@@ -150,33 +150,50 @@ export default function VisaClient({ formConfig, pageData }) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const initialType = searchParams?.get('type') || 'free-on-arrival';
-  const mappedType = initialType === 'paid' ? 'stamped' : initialType === 'free' ? 'free-on-arrival' : initialType === 'required' ? 'stamped' : initialType;
-  const validInitialType = ['free-on-arrival', 'e-visa', 'stamped'].includes(mappedType) ? mappedType : 'free-on-arrival';
-
+  const [activeFaqIndex, setActiveFaqIndex] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [activeFaqIndex, setActiveFaqIndex] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
 
-  const [activeCategory, setActiveCategory] = useState(validInitialType);
+  const destinationTabs = pageData?.details?.find(d => d.section === 'destination_tabs')?.json_data?.tabs || [];
+
+  const [activeCategory, setActiveCategory] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(null);
 
+  useEffect(() => {
+    if (destinationTabs.length > 0 && !activeCategory) {
+      const type = searchParams?.get('type');
+      if (type && destinationTabs.some(t => t.key === type)) {
+        setActiveCategory(type);
+      } else {
+        setActiveCategory(destinationTabs[0].key);
+      }
+    }
+  }, [destinationTabs, searchParams, activeCategory]);
+
   const fields = useMemo(() => {
-    return formConfig?.fields?.length ? [...formConfig.fields] : [];
-  }, [formConfig]);
+    let baseFields = formConfig?.fields?.length ? [...formConfig.fields] : [];
+    return baseFields.map(field => {
+      if (field.fieldKey === 'visa_category' || field.label?.toLowerCase().includes('category')) {
+         return {
+           ...field,
+           fieldType: 'select',
+           options: destinationTabs.map(tab => ({ label: tab.label, value: tab.label }))
+         };
+      }
+      return field;
+    });
+  }, [formConfig, destinationTabs]);
 
   useEffect(() => {
     const type = searchParams?.get('type');
-    if (type) {
-      const mapped = type === 'paid' ? 'stamped' : type === 'free' ? 'free-on-arrival' : type === 'required' ? 'stamped' : type;
-      if (['free-on-arrival', 'e-visa', 'stamped'].includes(mapped)) {
-        setActiveCategory(mapped);
-      }
+    if (type && destinationTabs.some(t => t.key === type)) {
+      setActiveCategory(type);
     }
-  }, [searchParams]);
+  }, [searchParams, destinationTabs]);
 
   useEffect(() => {
     const token = getStoredToken();
@@ -219,22 +236,48 @@ export default function VisaClient({ formConfig, pageData }) {
     setIsModalOpen(true);
   };
 
-  const destinationTabs = pageData?.details?.find(d => d.section === 'destination_tabs')?.json_data?.tabs || [];
-  const apiFreeCountries = destinationTabs[0]?.destinations?.map(d => ({ id: d.slug, name: d.name, category: 'free-on-arrival', image: getMediaUrl(d.image) })) || freeAndOnArrivalCountries;
-  const apiEVisaCountries = destinationTabs[1]?.destinations?.map(d => ({ id: d.slug, name: d.name, category: 'e-visa', image: getMediaUrl(d.image) })) || eVisaCountries;
-  const apiStampedCountries = destinationTabs[2]?.destinations?.map(d => ({ id: d.slug, name: d.name, category: 'stamped', image: getMediaUrl(d.image) })) || stampedVisaCountries;
-
   const currentList = useMemo(() => {
-    let list = [];
-    if (activeCategory === 'free-on-arrival') list = apiFreeCountries;
-    if (activeCategory === 'e-visa') list = apiEVisaCountries;
-    if (activeCategory === 'stamped') list = apiStampedCountries;
+    if (!activeCategory) return [];
+    const activeTab = destinationTabs.find(t => t.key === activeCategory);
+    let list = activeTab?.destinations?.map(d => ({ 
+      id: d.slug, 
+      name: d.name, 
+      category: activeCategory, 
+      image: getMediaUrl(d.image) 
+    })) || [];
 
     if (searchTerm) {
       list = list.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
     }
     return list;
-  }, [activeCategory, searchTerm]);
+  }, [activeCategory, destinationTabs, searchTerm]);
+
+  const heroImageSection = pageData?.details?.find(d => d.key === 'hero_image_key') || pageData?.details?.find(d => d.section === 'image_text');
+  
+  const parsedChecklist = useMemo(() => {
+    const rawBody = heroImageSection?.json_data?.body || '';
+    if (!rawBody) return { title: 'Standard Documents Checklist', desc: 'While requirements differ slightly based on your destination country, these core documents are required for almost all tourist applications:', items: [] };
+    
+    const parts = rawBody.split(/✔\n?/);
+    if (parts.length > 1) {
+       const header = parts.shift().trim();
+       const headerLines = header.split('\n');
+       const title = headerLines[0];
+       const desc = headerLines.slice(1).join('\n').trim();
+       
+       const items = parts.map(part => {
+         const lines = part.trim().split('\n');
+         return {
+           title: lines[0]?.trim(),
+           desc: lines.slice(1).join('\n').trim()
+         };
+       }).filter(item => item.title);
+       return { title, desc, items };
+    }
+    return { title: 'Standard Documents Checklist', desc: rawBody, items: [] };
+  }, [heroImageSection]);
+
+  const docHeroImageUrl = heroImageSection?.json_data?.media_url ? getMediaUrl(heroImageSection.json_data.media_url) : null;
 
   return (
     <main className="visa-page">
@@ -248,25 +291,65 @@ export default function VisaClient({ formConfig, pageData }) {
         </div>
 
         <div className="visa-tabs" style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 40, flexWrap: 'wrap' }}>
-          <button className={`visa-tab-btn ${activeCategory === 'free-on-arrival' ? 'active' : ''}`} onClick={() => { setActiveCategory('free-on-arrival'); router.push('/visa?type=free-on-arrival', { scroll: false }); }}>Visa Free & On Arrival</button>
-          <button className={`visa-tab-btn ${activeCategory === 'e-visa' ? 'active' : ''}`} onClick={() => { setActiveCategory('e-visa'); router.push('/visa?type=e-visa', { scroll: false }); }}>E-Visa</button>
-          <button className={`visa-tab-btn ${activeCategory === 'stamped' ? 'active' : ''}`} onClick={() => { setActiveCategory('stamped'); router.push('/visa?type=stamped', { scroll: false }); }}>Stamped Visa</button>
+          {destinationTabs.map(tab => (
+            <button 
+              key={tab.key} 
+              className={`visa-tab-btn ${activeCategory === tab.key ? 'active' : ''}`} 
+              onClick={() => { setActiveCategory(tab.key); router.push(`/visa?type=${tab.key}`, { scroll: false }); }}
+            >
+              {tab.label}
+            </button>
+          ))}
+          {/* Dropdown for tabs as requested */}
+          <select 
+            value={activeCategory} 
+            onChange={(e) => { setActiveCategory(e.target.value); router.push(`/visa?type=${e.target.value}`, { scroll: false }); }}
+            className="visa-tab-dropdown-select d-block d-md-none"
+            style={{
+               padding: '12px 24px',
+               borderRadius: '99px',
+               border: '2px solid #cbd5e1',
+               background: 'white',
+               fontSize: '15px',
+               fontWeight: '700',
+               color: 'var(--color-text-secondary)',
+               cursor: 'pointer',
+               outline: 'none',
+               marginTop: '10px',
+               width: '100%',
+               maxWidth: '300px'
+            }}
+          >
+            {destinationTabs.map(tab => (
+               <option key={tab.key} value={tab.key}>{tab.label}</option>
+            ))}
+          </select>
         </div>
 
         <div className="visa-grid-deals">
-          {currentList.map(country => (
-            <div key={country.id} className="visa-deal-card" onClick={() => handleSelectCountry(country.name)} style={{ cursor: 'pointer' }}>
-              <div className="visa-card-img-wrap" style={{ height: 200, width: '100%', position: 'relative' }}>
-                <Image src={country.image} alt={country.name} fill style={{ objectFit: 'cover' }} />
-              </div>
-              <div className="visa-card-body" style={{ padding: '20px 24px' }}>
-                <h3 style={{ margin: 0, fontSize: 22 }}>{country.name}</h3>
-                <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: 'var(--color-primary)', fontWeight: 800, fontSize: 14 }}>Apply Now &rarr;</span>
+          {currentList.map(country => {
+            const isNoFormSection = activeCategory === 'Visa-Free-&-On-Arrival' || activeCategory === 'On Arrival';
+            return (
+              <div 
+                key={country.id} 
+                className="visa-deal-card" 
+                onClick={!isNoFormSection ? () => handleSelectCountry(country.name) : undefined} 
+                style={{ cursor: isNoFormSection ? 'default' : 'pointer' }}
+              >
+                <div className="visa-card-img-wrap" style={{ height: 200, width: '100%', position: 'relative' }}>
+                  <Image src={country.image} alt={country.name} fill style={{ objectFit: 'cover' }} />
+                </div>
+                <div className="visa-card-body" style={{ padding: '20px 24px' }}>
+                  <h3 style={{ margin: 0, fontSize: 22 }}>{country.name}</h3>
+                  {!isNoFormSection && (
+                    <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: 'var(--color-primary)', fontWeight: 800, fontSize: 14 }}>Apply Now &rarr;</span>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           {currentList.length === 0 && (
             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 40, color: '#64748b' }}>No countries found.</div>
           )}
@@ -295,72 +378,71 @@ export default function VisaClient({ formConfig, pageData }) {
       <section className="visa-section container" id="inquiry">
         <div className="row g-5 align-items-center">
           <div className="col-12 col-lg-6">
-            <h2 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '18px' }}>Standard Documents Checklist</h2>
-            <p style={{ color: 'var(--color-text-secondary)', marginBottom: '32px', lineHeight: 1.6 }}>While requirements differ slightly based on your destination country, these core documents are required for almost all tourist applications:</p>
+            <h2 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '18px' }}>{parsedChecklist.title}</h2>
+            <p style={{ color: 'var(--color-text-secondary)', marginBottom: '32px', lineHeight: 1.6 }}>{parsedChecklist.desc}</p>
 
             <ul className="visa-checklist-ul">
-              <li>
-                <span className="chk-icon">✔</span>
-                <div>
-                  <h4>Valid Passport</h4>
-                  <p>Must have at least 6 months validity remaining from your return date and 2 blank pages.</p>
-                </div>
-              </li>
-              <li>
-                <span className="chk-icon">✔</span>
-                <div>
-                  <h4>Employment Details</h4>
-                  <p>Recent salary slips or a No Objection Certificate (NOC) from your current employer.</p>
-                </div>
-              </li>
-              <li>
-                <span className="chk-icon">✔</span>
-                <div>
-                  <h4>Color Photographs</h4>
-                  <p>Recent white-background photos (size usually 3.5cm x 4.5cm or 2in x 2in depending on country).</p>
-                </div>
-              </li>
-              <li>
-                <span className="chk-icon">✔</span>
-                <div>
-                  <h4>Financial Statements</h4>
-                  <p>Self-attested bank statement for the last 6 months showing sufficient savings balance.</p>
-                </div>
-              </li>
-              <li>
-                <span className="chk-icon">✔</span>
-                <div>
-                  <h4>Flight & Hotel Itineraries</h4>
-                  <p>Confirmed round-trip tickets and hotel voucher sheets confirming stay durations.</p>
-                </div>
-              </li>
+              {parsedChecklist.items.length > 0 ? parsedChecklist.items.map((item, idx) => (
+                <li key={idx}>
+                  <span className="chk-icon">✔</span>
+                  <div>
+                    <h4>{item.title}</h4>
+                    <p>{item.desc}</p>
+                  </div>
+                </li>
+              )) : (
+                <>
+                  <li>
+                    <span className="chk-icon">✔</span>
+                    <div>
+                      <h4>Valid Passport</h4>
+                      <p>Must have at least 6 months validity remaining from your return date and 2 blank pages.</p>
+                    </div>
+                  </li>
+                  <li>
+                    <span className="chk-icon">✔</span>
+                    <div>
+                      <h4>Employment Details</h4>
+                      <p>Recent salary slips or a No Objection Certificate (NOC) from your current employer.</p>
+                    </div>
+                  </li>
+                  <li>
+                    <span className="chk-icon">✔</span>
+                    <div>
+                      <h4>Color Photographs</h4>
+                      <p>Recent white-background photos (size usually 3.5cm x 4.5cm or 2in x 2in depending on country).</p>
+                    </div>
+                  </li>
+                  <li>
+                    <span className="chk-icon">✔</span>
+                    <div>
+                      <h4>Financial Statements</h4>
+                      <p>Self-attested bank statement for the last 6 months showing sufficient savings balance.</p>
+                    </div>
+                  </li>
+                  <li>
+                    <span className="chk-icon">✔</span>
+                    <div>
+                      <h4>Flight & Hotel Itineraries</h4>
+                      <p>Confirmed round-trip tickets and hotel voucher sheets confirming stay durations.</p>
+                    </div>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
 
-          {/* INQUIRY FORM */}
-          <div className="col-12 col-lg-6" id="visa-inquiry-form">
-            <div className="visa-inquiry-card" style={{ margin: '48px 32px' }}>
-              <h3 style={{ margin: '0 0 8px', fontWeight: 900, fontSize: 22, color: 'var(--color-primary)' }}>Speak to a Visa Expert</h3>
-              <p style={{ fontSize: 13.5, color: 'var(--color-text-secondary)', marginBottom: 24 }}>Fill out this form and our senior visa advisor will call you to walk you through documentation and pricing.</p>
-
-              <form onSubmit={handleInquirySubmit} className="visa-form">
-                {fields.length > 0 ? (
-                  fields.map(field => (
-                    <VisaDynamicField
-                      key={field.id || field.fieldKey}
-                      field={field}
-                      defaultValue={currentUser ? currentUser[field.fieldKey] || '' : ''}
-                    />
-                  ))
-                ) : (
-                  <p style={{ gridColumn: '1 / -1', textAlign: 'center', opacity: 0.7 }}>Form is unavailable right now.</p>
-                )}
-
-                <button type="submit" className="visa-search-submit" disabled={loading} style={{ gridColumn: '1 / -1' }}>
-                  {loading ? 'Submitting Visa Request...' : 'Get Visa Assistance'}
-                </button>
-              </form>
-            </div>
+          {/* HERO IMAGE */}
+          <div className="col-12 col-lg-6" id="visa-inquiry-image" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
+            {docHeroImageUrl ? (
+              <div className="visa-hero-image-wrap" style={{ position: 'relative', height: '600px', width: '100%', borderRadius: '24px', overflow: 'hidden', boxShadow: 'var(--shadow-xl)' }}>
+                <Image src={docHeroImageUrl} alt="Visa Documents Checklist" fill style={{ objectFit: 'cover' }} />
+              </div>
+            ) : (
+              <div className="visa-inquiry-card" style={{ margin: '48px 32px', textAlign: 'center', padding: '100px 20px', background: '#f8fafc', borderRadius: '24px' }}>
+                 <p style={{ color: 'var(--color-text-secondary)' }}>Image will appear here</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
