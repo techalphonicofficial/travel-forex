@@ -258,9 +258,6 @@ export default function VisaClient({ formConfig, pageData }) {
             <div key={country.id} className="visa-deal-card" onClick={() => handleSelectCountry(country.name)} style={{ cursor: 'pointer' }}>
               <div className="visa-card-img-wrap" style={{ height: 200, width: '100%', position: 'relative' }}>
                 <Image src={country.image} alt={country.name} fill style={{ objectFit: 'cover' }} />
-                <span style={{ position: 'absolute', textTransform: 'uppercase', background: activeCategory === 'free' ? '#10b981' : activeCategory === 'on-arrival' ? '#f59e0b' : '#ef4444', color: 'white', padding: '6px 14px', fontSize: 11, bottom: 12, left: 12, right: 'auto', borderRadius: 8, fontWeight: 800 }}>
-                  {activeCategory === 'free' ? 'VISA FREE' : activeCategory === 'on-arrival' ? 'ON ARRIVAL / E-VISA' : 'VISA REQUIRED'}
-                </span>
               </div>
               <div className="visa-card-body" style={{ padding: '20px 24px' }}>
                 <h3 style={{ margin: 0, fontSize: 22 }}>{country.name}</h3>
