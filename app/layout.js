@@ -154,7 +154,7 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang="en" data-theme="light" data-project={projectConfig.key} data-scroll-behavior="smooth">
-      <body className={`${inter.variable} ${poppins.variable} bg-light min-h-screen flex flex-col font-sans`} style={activeTheme}>
+      <body className={`${inter.variable} ${poppins.variable} bg-light min-h-screen flex flex-col font-sans`} style={activeTheme} suppressHydrationWarning>
         <BootstrapClient />
         <ThemeColoursClient initialVariables={activeTheme} />
         <WishlistProvider>

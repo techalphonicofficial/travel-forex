@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import TourCard from '@/components/TourCard';
 import { TourCardSkeleton } from '@/components/SkeletonLoader';
-import { getMediaUrl, getPackageFilters, getPackages, getCategories, getPackageCategories } from '@/utils/api';
+import { getMediaUrl, getPackageFilters, getPackages, getCategories, getPackageCategories, getPageBySlug } from '@/utils/api';
 import TourItineraryView from './TourItineraryView';
 
 const DEFAULT_TOUR_TYPES = [{ key: 'all', label: 'All', count: 0 }];
@@ -318,6 +318,37 @@ function ToursContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [categoryList, setCategoryList] = useState([]);
   const [sidebarCategoryList, setSidebarCategoryList] = useState([]);
+  const [heroData, setHeroData] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchHeroData = async () => {
+      const typeParam = searchParams.get('tour_type') || searchParams.get('type');
+      let slug = typeParam && typeParam.toLowerCase() !== 'all' ? typeParam.toLowerCase() : 'holiday';
+      
+      try {
+        let pageData = await getPageBySlug(slug);
+        let heroDetail = pageData?.details?.find(d => d.key === `${slug}-hero` || d.key === 'holiday-hero' || d.section === 'image_text');
+        
+        if ((!pageData || !heroDetail) && slug !== 'holiday') {
+           pageData = await getPageBySlug('holiday');
+           heroDetail = pageData?.details?.find(d => d.key === 'holiday-hero' || d.section === 'image_text');
+        }
+
+        if (isMounted) {
+           if (heroDetail?.json_data) {
+             setHeroData(heroDetail.json_data);
+           } else {
+             setHeroData(null);
+           }
+        }
+      } catch (error) {
+        console.error("Failed to fetch hero data:", error);
+      }
+    };
+    fetchHeroData();
+    return () => { isMounted = false; };
+  }, [searchParams]);
 
   useEffect(() => {
     let isMounted = true;
@@ -472,20 +503,46 @@ function ToursContent() {
     });
   };
 
+  let heroLabel = 'Handcrafted Experiences';
+  let heroTitle = destinationHeading;
+  let heroDesc = 'Explore our curated collection of premium travel packages across 120+ destinations worldwide.';
+  
+  if (heroData?.body) {
+    const lines = heroData.body.split('\n').map(line => line.trim()).filter(Boolean);
+    if (lines.length >= 3) {
+      heroLabel = lines[0];
+      heroTitle = lines[1];
+      heroDesc = lines.slice(2).join('\n');
+    } else if (lines.length === 2) {
+      heroTitle = lines[0];
+      heroDesc = lines[1];
+    } else if (lines.length === 1) {
+      heroTitle = lines[0];
+    }
+  }
+
+  const pageHeaderStyle = heroData?.media_url 
+    ? {
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url(${getMediaUrl(heroData.media_url)})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      } 
+    : {};
+
   if (itineraryDestination && isItineraryView) {
     return <TourItineraryView destination={itineraryDestination} packageSlug={packageSlug} />;
   }
 
   return (
     <>
-      <div className="page-header">
+      <div className="page-header" style={pageHeaderStyle}>
         <div className="container">
-          <span className="section-label" style={{ color: 'rgba(255,255,255,0.6)' }}>Handcrafted Experiences</span>
+          <span className="section-label" style={{ color: 'rgba(255,255,255,0.8)' }}>{heroLabel}</span>
           <h1 className="section-title" style={{ color: 'white', fontSize: 'clamp(32px, 5vw, 52px)' }}>
-            {destinationHeading}
+            {heroTitle}
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 16, maxWidth: 500 }}>
-            Explore our curated collection of premium travel packages across 120+ destinations worldwide.
+          <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: 16, maxWidth: 500, whiteSpace: 'pre-line' }}>
+            {heroDesc}
           </p>
           <nav aria-label="breadcrumb" style={{ marginTop: 16 }}>
             <ol className="breadcrumb mb-0" style={{ background: 'none', padding: 0 }}>
