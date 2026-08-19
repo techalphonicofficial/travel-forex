@@ -20,7 +20,9 @@ const fallbackFaqContent = {
   faqs: [],
 };
 
-const findSection = (page, section) => page?.details?.find((item) => item.section === section);
+const findSection = (page, section, key) => page?.details?.find((item) => (
+  item.section === section && (!key || item.key === key)
+));
 
 const getPipelineForm = async () => {
   try {
@@ -105,14 +107,14 @@ const normalizeFieldOptions = (options) => {
 };
 
 const buildContactContent = (page) => {
-  const standard = findSection(page, 'standard');
+  const heroSection = findSection(page, 'image_text', 'contact_key_1') || findSection(page, 'image_text') || findSection(page, 'standard');
   const faqAccordion = findSection(page, 'faq_accordion');
 
   return {
     hero: {
-      label: standard?.title || fallbackHero.label,
-      title: standard?.json_data?.heading_content || page?.title || fallbackHero.title,
-      description: standard?.description || page?.description || fallbackHero.description,
+      label: heroSection?.title || fallbackHero.label,
+      title: heroSection?.json_data?.heading_content || page?.title || fallbackHero.title,
+      description: heroSection?.json_data?.body || heroSection?.description || page?.description || fallbackHero.description,
     },
     faqContent: {
       label: faqAccordion?.title || fallbackFaqContent.label,
@@ -120,7 +122,7 @@ const buildContactContent = (page) => {
       description: faqAccordion?.json_data?.block_desc || fallbackFaqContent.description,
       faqs: Array.isArray(faqAccordion?.json_data?.faqs) ? faqAccordion.json_data.faqs : [],
     },
-    heroImage: getMediaUrl(page?.feature_image),
+    heroImage: getMediaUrl(heroSection?.json_data?.media_url || page?.feature_image),
   };
 };
 

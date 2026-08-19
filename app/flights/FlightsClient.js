@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { getStoredAuth, getStoredToken } from '@/utils/api';
+import { getMediaUrl, getStoredAuth, getStoredToken } from '@/utils/api';
 import TrustedPartners from '@/components/TrustedPartners';
 
 const getInputType = (fieldType) => {
@@ -133,6 +133,8 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCity
   const heroDesc = heroSection?.json_data?.body || 'Book international and domestic flight tickets at exclusive discount rates. We compare corporate fares and group discounts to give you lower prices than major travel portals.';
   const heroPoints = heroSection?.json_data?.points || [{ title: '✔ Zero Booking Fees' }, { title: '✔ Instant Confirmation' }, { title: '✔ 24/7 Ticketing Support' }];
 
+  const heroBgImage = getMediaUrl(heroSection?.json_data?.media_url || pageData?.feature_image);
+
   const whyBookTitle = whyBookSection?.title || 'Why Book Flights with Us?';
   const whyBookDesc = whyBookSection?.json_data?.heading_content || 'Experience seamless ticketing and premium post-booking customer assistance.';
   const whyBookPoints = whyBookSection?.json_data?.team || [
@@ -231,7 +233,12 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCity
   return (
     <main className="flights-page">
       {/* 1. HERO SECTION */}
-      <section className="flights-hero">
+      <section
+        className="flights-hero"
+        style={heroBgImage ? {
+          backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%), url('${heroBgImage}')`,
+        } : {}}
+      >
         <div className="container">
           <div className="flights-hero-grid">
             <div className="flights-hero-copy">

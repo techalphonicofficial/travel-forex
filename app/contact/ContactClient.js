@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import ScrollReveal from '@/components/ScrollReveal';
 import toast from 'react-hot-toast';
+import { getStoredToken } from '@/utils/api';
 
 const fallbackFaqs = [
   { q: 'What is your cancellation policy?', a: 'Free cancellation up to 14 days before departure. Within 14 days, we offer a 50% refund. No refund within 48 hours of your tour start.' },
@@ -113,6 +113,13 @@ export default function ContactClient({ hero = fallbackHero, faqContent = fallba
     { icon: 'phone', title: 'Phone', info: `${contact.phone || '9999457020'}\nMon-Fri 9am-6pm EST`, action: contact.phone ? `tel:${contact.phone}` : 'tel:+9999457020' },
     { icon: 'mail', title: 'Email', info: `${contact.email || 'itstravels.tours@gmail.com'}\nWe reply within 24 hours`, action: contact.email ? `mailto:${contact.email}` : 'mailto:itstravels.tours@gmail.com' },
   ];
+  const pageHeaderStyle = heroImage
+    ? {
+        backgroundImage: `linear-gradient(rgba(10, 15, 30, 0.72), rgba(10, 15, 30, 0.84)), url('${heroImage}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }
+    : {};
 
   const handleSubmit = async (e) => {
     const token = getStoredToken();
@@ -151,7 +158,7 @@ export default function ContactClient({ hero = fallbackHero, faqContent = fallba
 
   return (
     <>
-      <div className="page-header" style={{ position: 'relative', overflow: 'hidden' }}>
+      <div className="page-header" style={pageHeaderStyle}>
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <span className="section-label" style={{ color: 'rgba(255,255,255,0.7)' }}>{hero.label}</span>
           <h1 className="section-title" style={{ color: 'white' }}>{hero.title}</h1>
