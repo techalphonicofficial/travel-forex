@@ -3,6 +3,12 @@
 import { useState } from 'react';
 import Image from 'next/image';
 
+const fallbackHero = {
+  label: 'Happy Travelers',
+  title: "Don't Just Take Our Word For It",
+  description: 'Discover why thousands of travelers choose us for their unforgettable journeys, seamless visa processing, and forex needs.',
+};
+
 const MOCK_TESTIMONIALS = [
   {
     id: 1,
@@ -66,7 +72,7 @@ const MOCK_TESTIMONIALS = [
   }
 ];
 
-export default function TestimonialsClient() {
+export default function TestimonialsClient({ hero = fallbackHero }) {
   const [filter, setFilter] = useState('All');
 
   const categories = ['All', 'Tours', 'Forex Services', 'Visa Assistance'];
@@ -83,15 +89,11 @@ export default function TestimonialsClient() {
       <section style={{ 
         position: 'relative', 
         padding: '120px 20px 80px', 
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+        background: 'linear-gradient(135deg, #111827 0%, #102036 52%, #1f3f56 100%)',
         color: 'white',
         textAlign: 'center',
         overflow: 'hidden'
       }}>
-        {/* Background Elements */}
-        <div style={{ position: 'absolute', top: '-10%', left: '-5%', width: '40%', height: '150%', background: 'var(--color-primary)', opacity: 0.15, filter: 'blur(100px)', transform: 'rotate(-15deg)' }} />
-        <div style={{ position: 'absolute', bottom: '-20%', right: '-5%', width: '30%', height: '120%', background: '#38bdf8', opacity: 0.15, filter: 'blur(120px)', transform: 'rotate(15deg)' }} />
-        
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 800, margin: '0 auto' }}>
           <span style={{ 
             display: 'inline-block', 
@@ -106,17 +108,17 @@ export default function TestimonialsClient() {
             marginBottom: '24px',
             backdropFilter: 'blur(4px)'
           }}>
-            Happy Travelers
+            {hero.label}
           </span>
           <h1 style={{ 
             fontSize: 'clamp(36px, 5vw, 56px)', 
             fontWeight: 900, 
-            letterSpacing: '-1.5px',
+            letterSpacing: 0,
             lineHeight: 1.1,
             marginBottom: '24px',
             fontFamily: 'var(--font-poppins), Poppins, sans-serif'
           }}>
-            Don't Just Take Our Word For It
+            {hero.title}
           </h1>
           <p style={{ 
             fontSize: '18px', 
@@ -126,7 +128,7 @@ export default function TestimonialsClient() {
             margin: '0 auto',
             fontWeight: 500
           }}>
-            Discover why thousands of travelers choose us for their unforgettable journeys, seamless visa processing, and forex needs.
+            {hero.description}
           </p>
         </div>
       </section>
@@ -215,7 +217,7 @@ export default function TestimonialsClient() {
                 fontStyle: 'italic',
                 margin: 0
               }}>
-                "{testimonial.text}"
+                &ldquo;{testimonial.text}&rdquo;
               </p>
 
               {/* Tag */}
@@ -226,7 +228,7 @@ export default function TestimonialsClient() {
               {/* User Profile */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid #f1f5f9' }}>
                 <div style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', position: 'relative', border: '2px solid #e2e8f0' }}>
-                  <img src={testimonial.avatar} alt={testimonial.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <Image src={testimonial.avatar} alt={testimonial.name} fill sizes="48px" style={{ objectFit: 'cover' }} />
                 </div>
                 <div>
                   <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>{testimonial.name}</h4>

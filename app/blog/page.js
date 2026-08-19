@@ -26,7 +26,41 @@ const formatDate = (value) => {
   }).format(date);
 };
 
-const stripHtml = (value = '') => String(value).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+const decodeHtmlEntities = (value = '') => String(value)
+  .replace(/&amp;/g, '&')
+  .replace(/&quot;/g, '"')
+  .replace(/&#39;/g, "'")
+  .replace(/&apos;/g, "'")
+  .replace(/&nbsp;/g, ' ');
+
+const stripHtml = (value = '') => decodeHtmlEntities(value).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+
+const getFirstTagText = (html = '', tag) => {
+  const match = String(html).match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i'));
+  return match ? stripHtml(match[1]) : '';
+};
+
+const getBlogHeroContent = (page) => {
+  const heroSection = page?.details?.find((item) => item.section === 'story_grid' && item.key === 'hero_key')
+    || page?.details?.find((item) => item.section === 'story_grid')
+    || page?.details?.find((item) => item.section === 'standard');
+  const storyDesc = heroSection?.json_data?.story_desc || '';
+
+  return {
+    title: getFirstTagText(storyDesc, 'h1')
+      || getFirstTagText(storyDesc, 'h2')
+      || heroSection?.json_data?.heading_content
+      || heroSection?.title
+      || page?.title
+      || 'Travel Inspiration & Stories',
+    description: getFirstTagText(storyDesc, 'p')
+      || heroSection?.description
+      || page?.description
+      || 'Discover hidden gems, expert packing guides, and carefully curated itineraries for your next adventure.',
+    image: getMediaUrl(heroSection?.json_data?.media_url || page?.feature_image) || FALLBACK_HERO_IMAGE,
+    alt: page?.alt_text || heroSection?.title || 'Travel stories',
+  };
+};
 
 const getBlogImage = (blog, index = 0) => (
   getMediaUrl(blog.featured_image)
@@ -63,16 +97,16 @@ const getPageHref = ({ page, limit }) => `/blog?page=${page}&limit=${limit}`;
 
 export async function generateMetadata() {
   const page = await getPageBySlug('blog');
-  const image = getMediaUrl(page?.feature_image);
+  const hero = getBlogHeroContent(page);
 
   return {
-    title: page?.meta_title || page?.title || 'Blog',
-    description: page?.meta_description || page?.description || 'Travel inspiration, guides, and stories.',
+    title: page?.meta_title || hero.title || 'Blog',
+    description: page?.meta_description || hero.description || 'Travel inspiration, guides, and stories.',
     keywords: page?.keyword ? [page.keyword] : undefined,
     openGraph: {
-      title: page?.meta_title || page?.title || 'Blog',
-      description: page?.meta_description || page?.description || 'Travel inspiration, guides, and stories.',
-      images: image ? [{ url: image, width: 1200, height: 630, alt: page?.alt_text || page?.title || 'Blog' }] : undefined,
+      title: page?.meta_title || hero.title || 'Blog',
+      description: page?.meta_description || hero.description || 'Travel inspiration, guides, and stories.',
+      images: hero.image ? [{ url: hero.image, width: 1200, height: 630, alt: hero.alt || 'Blog' }] : undefined,
     },
   };
 }
@@ -86,7 +120,7 @@ export default async function BlogPage({ searchParams }) {
     getBlogs({ page: currentPage, limit }),
   ]);
 
-  const standardSection = pageContent?.details?.find((item) => item.section === 'standard');
+  const hero = getBlogHeroContent(pageContent);
   const apiBlogs = blogsResponse.data.map(normalizeApiBlog).filter((blog) => blog.slug);
   const fallbackStart = (currentPage - 1) * limit;
   const fallbackBlogs = blogsData.slice(fallbackStart, fallbackStart + limit).map(normalizeFallbackBlog);
@@ -94,7 +128,6 @@ export default async function BlogPage({ searchParams }) {
   const totalItems = blogsResponse.pagination?.totalItems || blogsData.length;
   const totalPages = Math.max(1, blogsResponse.pagination?.totalPages || Math.ceil(totalItems / limit));
   const safePage = Math.min(currentPage, totalPages);
-  const heroImage = getMediaUrl(pageContent?.feature_image) || FALLBACK_HERO_IMAGE;
 
   return (
     <main style={{ background: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -102,8 +135,8 @@ export default async function BlogPage({ searchParams }) {
 
       <div style={{ position: 'relative', overflow: 'hidden', padding: '112px 24px 72px', textAlign: 'center', background: '#111827' }}>
         <Image
-          src={heroImage}
-          alt={pageContent?.alt_text || standardSection?.title || 'Travel stories'}
+          src={hero.image}
+          alt={hero.alt}
           fill
           priority
           sizes="100vw"
@@ -112,10 +145,10 @@ export default async function BlogPage({ searchParams }) {
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(17,24,39,0.58), rgba(17,24,39,0.92))' }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
           <h1 style={{ fontFamily: 'Poppins, sans-serif', fontSize: 'clamp(34px, 5vw, 56px)', fontWeight: 900, color: 'white', margin: '0 0 16px' }}>
-            {standardSection?.title || 'Travel Inspiration & Stories'}
+            {hero.title}
           </h1>
           <p style={{ color: '#d1d5db', fontSize: 18, maxWidth: 680, margin: '0 auto', lineHeight: 1.7 }}>
-            {standardSection?.description || pageContent?.description || 'Discover hidden gems, expert packing guides, and carefully curated itineraries for your next adventure.'}
+            {hero.description}
           </p>
         </div>
       </div>
