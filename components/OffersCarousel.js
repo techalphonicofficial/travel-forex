@@ -3,52 +3,23 @@
 import Image from 'next/image';
 import { getMediaUrl } from '@/utils/api';
 
-const mockOffers = [
-  {
-    id: 1,
-    title: 'Flat 10% Off on International Flights',
-    code: 'INTL10',
-    validity: 'Valid till 30th Nov',
-    image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1000&q=80',
-    tag: 'Flight Offer',
-  },
-  {
-    id: 2,
-    title: 'Up to ₹5,000 Cashback with HDFC Cards',
-    code: 'HDFC5K',
-    validity: 'Valid till 15th Dec',
-    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80',
-    tag: 'Bank Offer',
-  },
-  {
-    id: 3,
-    title: 'Zero Convenience Fee on Domestic Hotels',
-    code: 'ZEROFEE',
-    validity: 'Valid till 31st Oct',
-    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=80',
-    tag: 'Hotel Offer',
-  },
-  {
-    id: 4,
-    title: 'Get 5% Extra on Forex Cards',
-    code: 'FOREX5',
-    validity: 'Valid on Forex Cards',
-    image: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=500&q=80',
-    tag: 'Forex Offer',
-  },
-];
-
 export default function OffersCarousel({ offersData = null }) {
-  const dynamicOffers = offersData?.offers?.map((offer, idx) => ({
-    id: idx + 1,
-    title: offer.title,
-    code: offer.code,
-    validity: offer.validity,
-    image: getMediaUrl(offer.image),
-    tag: offer.type || 'Offer',
-  })) || [];
+  const displayOffers = offersData?.offers?.map((offer, idx) => {
+    let cleanCode = offer.code || '';
+    if (cleanCode.toUpperCase().startsWith('CODE:')) {
+      cleanCode = cleanCode.substring(5).trim();
+    }
 
-  const displayOffers = dynamicOffers.length > 0 ? dynamicOffers : mockOffers;
+    return {
+      id: idx + 1,
+      title: offer.title,
+      code: cleanCode,
+      validity: offer.validity,
+      image: getMediaUrl(offer.image),
+      tag: (offer.type || 'Offer').trim(),
+    };
+  }) || [];
+
   const displayTitle = offersData?.heading_content || "Exclusive Offers";
   const displayDescription = offersData?.description || "Grab the best deals on flights, hotels, and holiday packages.";
 

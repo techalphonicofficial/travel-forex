@@ -335,15 +335,7 @@ export default function HomeHero() {
             </div>
           )}
 
-          {/* ── Dark gradient overlay ── */}
-          <div
-            style={{
-              position: 'absolute', inset: 0, zIndex: 1,
-              background:
-                'linear-gradient(180deg, rgba(2,8,23,0.3) 0%, rgba(2,8,23,0.1) 42%, rgba(2,8,23,0.5) 100%)',
-              pointerEvents: 'none',
-            }}
-          />
+
 
         </div>
 

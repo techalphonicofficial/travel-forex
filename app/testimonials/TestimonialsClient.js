@@ -7,6 +7,7 @@ const fallbackHero = {
   label: 'Happy Travelers',
   title: "Don't Just Take Our Word For It",
   description: 'Discover why thousands of travelers choose us for their unforgettable journeys, seamless visa processing, and forex needs.',
+  image: '',
 };
 
 const MOCK_TESTIMONIALS = [
@@ -74,6 +75,18 @@ const MOCK_TESTIMONIALS = [
 
 export default function TestimonialsClient({ hero = fallbackHero }) {
   const [filter, setFilter] = useState('All');
+  const heroStyle = {
+    position: 'relative',
+    padding: '120px 20px 80px',
+    background: hero.image
+      ? `linear-gradient(135deg, rgba(17, 24, 39, 0.82) 0%, rgba(16, 32, 54, 0.78) 52%, rgba(31, 63, 86, 0.82) 100%), url('${hero.image}')`
+      : 'linear-gradient(135deg, #111827 0%, #102036 52%, #1f3f56 100%)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    color: 'white',
+    textAlign: 'center',
+    overflow: 'hidden',
+  };
 
   const categories = ['All', 'Tours', 'Forex Services', 'Visa Assistance'];
 
@@ -86,14 +99,7 @@ export default function TestimonialsClient({ hero = fallbackHero }) {
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh' }}>
       {/* Hero Section */}
-      <section style={{ 
-        position: 'relative', 
-        padding: '120px 20px 80px', 
-        background: 'linear-gradient(135deg, #111827 0%, #102036 52%, #1f3f56 100%)',
-        color: 'white',
-        textAlign: 'center',
-        overflow: 'hidden'
-      }}>
+      <section style={heroStyle}>
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 800, margin: '0 auto' }}>
           <span style={{ 
             display: 'inline-block', 

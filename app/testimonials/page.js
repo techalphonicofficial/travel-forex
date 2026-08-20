@@ -1,5 +1,5 @@
 import TestimonialsClient from './TestimonialsClient';
-import { getPageBySlug } from '@/utils/api';
+import { getMediaUrl, getPageBySlug } from '@/utils/api';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,6 +7,7 @@ const fallbackHero = {
   label: 'Happy Travelers',
   title: "Don't Just Take Our Word For It",
   description: 'Discover why thousands of travelers choose us for their unforgettable journeys, seamless visa processing, and forex needs.',
+  image: '',
 };
 
 const stripHtml = (value = '') => String(value).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -27,6 +28,7 @@ const buildHeroContent = (page) => {
     label: heroSection?.title || fallbackHero.label,
     title: heroSection?.json_data?.heading_content || getFirstTagText(storyHtml, 'h1') || getFirstTagText(storyHtml, 'h2') || descriptionTitle || page?.title || fallbackHero.title,
     description: getFirstTagText(storyHtml, 'p') || descriptionLines.join(' ') || page?.description || fallbackHero.description,
+    image: getMediaUrl(page?.feature_image),
   };
 };
 
@@ -38,6 +40,11 @@ export async function generateMetadata() {
     title: page?.meta_title || `${hero.label} | IT'S Travels & Tours`,
     description: page?.meta_description || hero.description,
     keywords: page?.keyword ? [page.keyword] : undefined,
+    openGraph: {
+      title: page?.meta_title || `${hero.label} | IT'S Travels & Tours`,
+      description: page?.meta_description || hero.description,
+      images: hero.image ? [{ url: hero.image, width: 1200, height: 630, alt: page?.alt_text || hero.label }] : undefined,
+    },
   };
 }
 
