@@ -489,15 +489,16 @@ export const getForexServiceCharge = async () => {
 
 export const getHomePage = async () => {
   try {
-    const response = await axios.get('/api/pages/slug/home', {
-      baseURL: typeof window === 'undefined' ? (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001') : undefined,
-      params: { _t: Date.now() },
-      headers: {
-        'Cache-Control': 'no-cache',
-        Pragma: 'no-cache',
-      },
-      validateStatus: () => true,
-    });
+    const response = typeof window === 'undefined'
+      ? await apiClient.get('/pages/slug/home')
+      : await axios.get('/api/pages/slug/home', {
+          params: { _t: Date.now() },
+          headers: {
+            'Cache-Control': 'no-cache',
+            Pragma: 'no-cache',
+          },
+          validateStatus: () => true,
+        });
 
     if (!response.data?.success && response.status >= 400) {
       console.warn('Home page CMS unavailable:', response.data?.message || `HTTP ${response.status}`);
