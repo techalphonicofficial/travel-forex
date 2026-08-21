@@ -1950,7 +1950,7 @@ export default function Navbar({ brand, companyInfo }) {
           justify-content: space-between;
           gap: 18px;
           padding: 24px 28px;
-          background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+          background: var(--color-primary-hover));
           color: #fff;
         }
         .flight-modal-head span {

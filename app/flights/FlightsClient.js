@@ -236,7 +236,7 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCity
       <section
         className="flights-hero"
         style={heroBgImage ? {
-          backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%), url('${heroBgImage}')`,
+          backgroundImage: `url('${heroBgImage}')`,
         } : {}}
       >
         <div className="container">
@@ -355,8 +355,7 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCity
         }
         .flights-hero {
           padding: 48px 0 48px;
-          background: linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%),
-                      url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');
+          background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');
           background-size: cover;
           background-position: center;
           color: white;

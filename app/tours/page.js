@@ -523,7 +523,7 @@ function ToursContent() {
 
   const pageHeaderStyle = heroData?.media_url 
     ? {
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url(${getMediaUrl(heroData.media_url)})`,
+        backgroundImage: `url(${getMediaUrl(heroData.media_url)})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       } 

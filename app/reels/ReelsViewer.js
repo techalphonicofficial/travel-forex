@@ -426,7 +426,7 @@ export default function ReelsViewer() {
                 />
                 <div style={{
                   position: 'absolute', inset: 0,
-                  background: 'linear-gradient(rgba(0,0,0,0.3) 0%, transparent 25%, transparent 60%, rgba(0,0,0,0.8) 100%)'
+                  background: 'transparent'
                 }} />
               </div>
 
@@ -701,7 +701,7 @@ export default function ReelsViewer() {
             {/* Bottom gradient overlay */}
             <div style={{
               position: 'absolute', inset: 0,
-              background: 'linear-gradient(transparent 40%, rgba(0,0,0,0.75) 100%)',
+              background: 'transparent',
             }} />
 
             {/* Bottom user info */}
@@ -709,7 +709,7 @@ export default function ReelsViewer() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <div style={{
                   width: 32, height: 32, borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #f09433, #dc2743, #bc1888)',
+                  background: 'transparent',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 14,
                 }}>
@@ -920,7 +920,7 @@ export default function ReelsViewer() {
           }}>
             <div style={{
               width: 38, height: 38, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #f09433, #dc2743, #bc1888)',
+              background: 'transparent',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 18, flexShrink: 0,
             }}>🌍</div>

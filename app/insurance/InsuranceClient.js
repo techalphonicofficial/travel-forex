@@ -136,8 +136,8 @@ export default function InsuranceClient({ pageData, formConfig }) {
       {/* 1. HERO SECTION */}
       <section style={{
         background: fullHeroMediaUrl
-          ? `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${fullHeroMediaUrl}) center/cover no-repeat`
-          : 'linear-gradient(135deg, var(--color-primary) 0%, #3b82f6 100%)',
+          ? `url(${fullHeroMediaUrl}) center/cover no-repeat`
+          : 'transparent',
         color: 'white',
         padding: '100px 0 80px'
       }}>

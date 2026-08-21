@@ -83,7 +83,7 @@ export default async function CancellationPolicy() {
           style={{ objectFit: 'cover' }}
           priority
         />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(17,24,39,0.92), rgba(31,41,55,0.82), rgba(153,27,27,0.72))' }} />
+        
         <div className="container" style={{ position: 'relative', zIndex: 1, paddingTop: 130, paddingBottom: 80, textAlign: 'center' }}>
           <span style={{ color: '#fecaca', fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1 }}>
             {content.eyebrow}

@@ -153,7 +153,7 @@ export default function HotelInquiryModal({ formConfig }) {
               <div style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 100%)',
+                background: 'transparent',
                 zIndex: 1
               }} />
               <div style={{
@@ -197,7 +197,7 @@ export default function HotelInquiryModal({ formConfig }) {
               <div style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(to right, rgba(0,0,0,0.4), rgba(0,0,0,0.1))',
+                background: 'transparent',
                 zIndex: 1
               }} />
             </>

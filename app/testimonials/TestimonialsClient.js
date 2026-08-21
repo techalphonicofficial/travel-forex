@@ -79,8 +79,8 @@ export default function TestimonialsClient({ hero = fallbackHero }) {
     position: 'relative',
     padding: '120px 20px 80px',
     background: hero.image
-      ? `linear-gradient(135deg, rgba(17, 24, 39, 0.82) 0%, rgba(16, 32, 54, 0.78) 52%, rgba(31, 63, 86, 0.82) 100%), url('${hero.image}')`
-      : 'linear-gradient(135deg, #111827 0%, #102036 52%, #1f3f56 100%)',
+      ? `url('${hero.image}')`
+      : 'transparent',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     color: 'white',

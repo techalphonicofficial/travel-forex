@@ -1280,7 +1280,7 @@ export default function ForexClient() {
       {/* 6. FOREX CARD SECTION */}
       <section style={{
         padding: '100px 0',
-        background: 'linear-gradient(135deg, var(--color-primary) 0%, #013e68 100%)',
+        background: 'transparent',
         color: 'white',
         position: 'relative',
         overflow: 'hidden'
@@ -1323,7 +1323,7 @@ export default function ForexClient() {
               <div style={{
                 width: '380px',
                 height: '240px',
-                background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                background: 'transparent',
                 borderRadius: 20,
                 border: '1px solid rgba(255,255,255,0.15)',
                 padding: 24,
@@ -1704,7 +1704,7 @@ export default function ForexClient() {
       {/* 12. LEAD GENERATION FORM */}
       <section id="lead-form" ref={leadFormRef} style={{
         padding: '100px 0',
-        background: 'linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-soft) 100%)',
+        background: 'transparent',
         position: 'relative'
       }}>
         <div className="container" style={{ maxWidth: '640px' }}>
@@ -1840,7 +1840,7 @@ export default function ForexClient() {
       <style jsx global>{`
         .forex-hero {
           padding: 48px 0 40px;
-          background: linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%), url('https://images.unsplash.com/photo-1508962914676-134849a727f0?w=1920&q=80');
+          background: url('https://images.unsplash.com/photo-1508962914676-134849a727f0?w=1920&q=80');
           background-size: cover;
           background-position: center;
           color: white;

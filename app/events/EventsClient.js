@@ -338,8 +338,7 @@ export default function EventsClient({ formConfig, pageData }) {
         }
         .events-hero {
           padding: 48px 0 48px;
-          background: linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%),
-                      url('https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=80');
+          background: url('https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=80');
           background-size: cover;
           background-position: center;
           color: white;

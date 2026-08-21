@@ -76,7 +76,7 @@ export default function DestinationClient({ destinationSlug, packages = [] }) {
       <div 
         style={{ 
           height: '400px', 
-          background: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(${displayImage}) center/cover no-repeat`,
+          background: `url(${displayImage}) center/cover no-repeat`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

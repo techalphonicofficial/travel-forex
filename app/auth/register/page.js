@@ -57,7 +57,7 @@ export default function RegisterPage() {
           padding: '60px',
         }}
       >
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0) 100%)' }} />
+        
 
         {/* Top Logo overlaid on image */}
         <Link href="/" style={{ position: 'absolute', top: 40, left: 60, zIndex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>

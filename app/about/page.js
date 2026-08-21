@@ -168,7 +168,7 @@ export default async function AboutPage() {
             preload
           />
         </div>
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(0,10,40,0.85) 0%, rgba(0,82,204,0.5) 100%)' }} />
+        
         <div className="container" style={{ position: 'relative', zIndex: 1, paddingTop: 120, paddingBottom: 60 }}>
           <span className="section-label" style={{ color: 'rgba(255,255,255,0.7)' }}>{content.hero.label}</span>
           <h1 className="section-title" style={{ color: 'white', fontSize: 'clamp(36px, 5vw, 60px)', maxWidth: 600 }}>

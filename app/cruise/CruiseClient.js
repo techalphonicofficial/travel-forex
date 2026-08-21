@@ -305,7 +305,7 @@ export default function CruiseClient({ pageData, formConfig }) {
   return (
     <main className="cruise-page">
       {/* 1. HERO SECTION */}
-      <section className="cruise-hero" style={heroData.media_url ? { backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%), url('${getMediaUrl(heroData.media_url)}')` } : {}}>
+      <section className="cruise-hero" style={heroData.media_url ? { backgroundImage: `url('${getMediaUrl(heroData.media_url)}')` } : {}}>
         <div className="container">
           <div className="cruise-hero-grid">
             <div className="cruise-hero-copy">
@@ -435,8 +435,7 @@ export default function CruiseClient({ pageData, formConfig }) {
         }
         .cruise-hero {
           padding: 48px 0 48px;
-          background: linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%),
-                      url('https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1920&q=80');
+          background: url('https://images.unsplash.com/photo-1548574505-5e239809ee19?w=1920&q=80');
           background-size: cover;
           background-position: center;
           color: white;

@@ -115,7 +115,7 @@ export default function ContactClient({ hero = fallbackHero, faqContent = fallba
   ];
   const pageHeaderStyle = heroImage
     ? {
-        backgroundImage: `linear-gradient(rgba(10, 15, 30, 0.72), rgba(10, 15, 30, 0.84)), url('${heroImage}')`,
+        backgroundImage: `url('${heroImage}')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }

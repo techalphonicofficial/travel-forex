@@ -468,7 +468,7 @@ function HotelStyles() {
     <style jsx global>{`
       .hotels-page { background: #f4f6f8; min-height: 100vh; color: #172033; padding-bottom: 70px; }
       .hotels-container { width: min(100%, 1600px); margin: 0 auto; padding: 0 20px; }
-      .hotels-hero { padding: 48px 0 30px; background: linear-gradient(rgba(15, 23, 42, 0.55), rgba(15, 23, 42, 0.55)), url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=80'); background-size: cover; background-position: center; color: #fff; }
+      .hotels-hero { padding: 48px 0 30px; background: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=80'); background-size: cover; background-position: center; color: #fff; }
       .hotels-hero .hotels-container { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; }
       .hotels-hero span { color: #b7ddff; font-size: 12px; font-weight: 900; letter-spacing: .8px; text-transform: uppercase; }
       .hotels-hero h1 { margin: 8px 0 6px; font-family: var(--font-poppins), Poppins, sans-serif; font-size: clamp(32px, 5vw, 52px); font-weight: 900; }

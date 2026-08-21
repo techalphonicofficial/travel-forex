@@ -187,7 +187,7 @@ function PackageCard({ pkg }) {
         {/* Gradient */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(transparent 50%, rgba(0,0,0,0.55) 100%)',
+          background: 'transparent',
         }} />
         {/* Nights badge */}
         <div style={{
@@ -505,8 +505,7 @@ function PackagesContent({ destParam, packages, basePath = '/packages' }) {
         {/* Dark vignette overlay */}
         <div style={{
           position: 'absolute', inset: 0, zIndex: 1,
-          background:
-            'linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.7) 85%, rgba(0,0,0,0.92) 100%)',
+          background: 'transparent',
         }} />
 
         {/* ── Centered hero text ── */}

@@ -380,7 +380,7 @@ function BookedItineraryStyles() {
       .bi-more { display: block; min-width: 280px; margin: 28px auto 0; }
       .bi-error { padding: 140px 22px 80px; max-width: 760px; margin: 0 auto; text-align: center; }
       .bi-error p { color: var(--color-text-secondary); margin-bottom: 24px; }
-      .bi-skeleton { border-radius: 8px; background: linear-gradient(90deg, var(--color-border), var(--color-bg-soft), var(--color-border)); background-size: 300% 100%; animation: biPulse 1.4s infinite; }
+      .bi-skeleton { border-radius: 8px; background: var(--color-bg-soft), var(--color-border)); background-size: 300% 100%; animation: biPulse 1.4s infinite; }
       .bi-skeleton-title { width: min(100%, 620px); height: 44px; margin: 38px 0 20px; }
       .bi-skeleton-gallery { width: 100%; height: 308px; }
       @keyframes biPulse { to { background-position: -300% 0; } }

@@ -649,7 +649,7 @@ function ItineraryStyles() {
       .itn-error { padding: 140px 22px 80px; max-width: 760px; margin: 0 auto; text-align: center; }
       .itn-error h1 { font-size: clamp(28px, 4vw, 42px); margin-bottom: 12px; }
       .itn-error p { color: var(--color-text-secondary); margin-bottom: 24px; }
-      .itn-skeleton { border-radius: 8px; background: linear-gradient(90deg, var(--color-border), var(--color-bg-soft), var(--color-border)); background-size: 300% 100%; animation: itnPulse 1.4s infinite; }
+      .itn-skeleton { border-radius: 8px; background: var(--color-bg-soft), var(--color-border)); background-size: 300% 100%; animation: itnPulse 1.4s infinite; }
       .itn-skeleton-title { width: min(100%, 620px); height: 44px; margin: 38px 0 20px; }
       .itn-skeleton-tabs { width: 360px; height: 42px; margin-bottom: 24px; }
       .itn-skeleton-gallery { width: 100%; height: 308px; }

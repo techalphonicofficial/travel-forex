@@ -147,8 +147,8 @@ export default async function RootLayout({ children }) {
     '--bs-secondary': 'var(--color-secondary)',
     '--bs-link-color': 'var(--color-primary)',
     '--bs-link-hover-color': 'var(--color-primary-hover)',
-    '--gradient-primary': 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%)',
-    '--gradient-warm': 'linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-hover) 100%)',
+    '--gradient-primary': 'transparent',
+    '--gradient-warm': 'transparent',
   };
   const activeTheme = { ...projectTheme, ...themeColours };
 

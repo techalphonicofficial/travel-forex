@@ -1157,7 +1157,7 @@ export default function CustomizeFlow() {
                 {c.img ? (
                   <img src={c.img} alt={c.alt || c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #e0f2fe 0%, #f8fafc 100%)' }} />
+                  
                 )}
                 {/* {selected && (
                   <div style={{ position: 'absolute', top: 16, right: 16, width: 28, height: 28, background: 'var(--color-primary)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>✓</div>
