@@ -114,6 +114,10 @@ export default async function HomePage() {
   );
   const testimonialsData = testimonialSection?.json_data || null;
 
+  const forexSectionData = homePage?.details?.find(
+    (detail) => detail?.section === 'tabs_section' && detail?.key === 'Why_buy_Forex_from_us?'
+  );
+
   return (
     <>
       {/* Dark video hero — outside warm ivory wrapper */}
@@ -155,7 +159,7 @@ export default async function HomePage() {
       {/* Dark-themed sections — own explicit backgrounds, unaffected */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '60px', paddingBottom: '60px' }}>
       <FadeInSection delay={100}>
-        <ForexSection />
+        <ForexSection section={forexSectionData} />
       </FadeInSection>
 
       <FadeInSection delay={100}>

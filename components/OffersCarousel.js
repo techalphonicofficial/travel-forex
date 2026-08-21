@@ -196,7 +196,9 @@ export default function OffersCarousel({ offersData = null }) {
                 <div className="offer-bottom">
                   <div className="offer-details">
                     <div className="offer-validity">{offer.validity}</div>
-                    <div className="offer-code">USE CODE: {offer.code}</div>
+                    {offer.code && (
+                      <div className="offer-code">USE CODE: {offer.code}</div>
+                    )}
                   </div>
                 </div>
               </div>
