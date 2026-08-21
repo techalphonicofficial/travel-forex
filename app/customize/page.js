@@ -1156,9 +1156,7 @@ export default function CustomizeFlow() {
               <div style={{ height: 200, width: '100%', borderRadius: '110px 110px 0 0', overflow: 'hidden' }}>
                 {c.img ? (
                   <img src={c.img} alt={c.alt || c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  
-                )}
+                ) : null}
                 {/* {selected && (
                   <div style={{ position: 'absolute', top: 16, right: 16, width: 28, height: 28, background: 'var(--color-primary)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>✓</div>
                 )} */}
