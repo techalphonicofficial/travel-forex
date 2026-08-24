@@ -1,0 +1,98 @@
+[
+  {
+    "id": "1",
+    "slug": "bali",
+    "name": "Bali",
+    "country": "Indonesia",
+    "continent": "Asia",
+    "image": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&q=75",
+    "description": "Island of the Gods with terraced rice fields, volcanic mountains, and pristine beaches.",
+    "tours": 12,
+    "rating": 4.9,
+    "trending": true
+  },
+  {
+    "id": "2",
+    "slug": "santorini",
+    "name": "Santorini",
+    "country": "Greece",
+    "continent": "Europe",
+    "image": "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=600&q=75",
+    "description": "Iconic white-washed buildings, dramatic cliffs, and stunning Aegean sunsets.",
+    "tours": 8,
+    "rating": 4.8,
+    "trending": true
+  },
+  {
+    "id": "3",
+    "slug": "kyoto",
+    "name": "Kyoto",
+    "country": "Japan",
+    "continent": "Asia",
+    "image": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=75",
+    "description": "Ancient temples, traditional tea ceremonies, and cherry blossom paradise.",
+    "tours": 15,
+    "rating": 4.9,
+    "trending": true
+  },
+  {
+    "id": "4",
+    "slug": "machu-picchu",
+    "name": "Machu Picchu",
+    "country": "Peru",
+    "continent": "South America",
+    "image": "https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600&q=75",
+    "description": "Mystical Incan citadel perched high in the Andes mountains.",
+    "tours": 7,
+    "rating": 4.8,
+    "trending": false
+  },
+  {
+    "id": "5",
+    "slug": "dubai",
+    "name": "Dubai",
+    "country": "UAE",
+    "continent": "Middle East",
+    "image": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=75",
+    "description": "City of superlatives with futuristic skyline, luxury malls, and desert adventures.",
+    "tours": 11,
+    "rating": 4.7,
+    "trending": true
+  },
+  {
+    "id": "6",
+    "slug": "maldives",
+    "name": "Maldives",
+    "country": "Maldives",
+    "continent": "Asia",
+    "image": "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=600&q=75",
+    "description": "Overwater bungalows, crystal lagoons, and the world's best marine life.",
+    "tours": 6,
+    "rating": 5.0,
+    "trending": true
+  },
+  {
+    "id": "7",
+    "slug": "paris",
+    "name": "Paris",
+    "country": "France",
+    "continent": "Europe",
+    "image": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=75",
+    "description": "The City of Light with romance, art, cuisine, and the iconic Eiffel Tower.",
+    "tours": 13,
+    "rating": 4.7,
+    "trending": false
+  },
+  {
+    "id": "8",
+    "slug": "serengeti",
+    "name": "Serengeti",
+    "country": "Tanzania",
+    "continent": "Africa",
+    "image": "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=600&q=75",
+    "description": "Witness the greatest wildlife spectacle on Earth — the Great Migration.",
+    "tours": 5,
+    "rating": 4.8,
+    "trending": true
+  }
+]
