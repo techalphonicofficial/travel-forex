@@ -1134,11 +1134,11 @@ export default function Navbar({ brand, companyInfo }) {
           headers: { accept: 'application/json' }
         });
         if (res.ok) {
-           const payload = await res.json();
-           const tabs = payload?.data?.details?.find(d => d.section === 'destination_tabs')?.json_data?.tabs;
-           if (tabs && tabs.length > 0) {
-             setVisaTabs(tabs.map(t => ({ name: t.label, href: `/visa?type=${t.key}`, isExplore: true })));
-           }
+          const payload = await res.json();
+          const tabs = payload?.data?.details?.find(d => d.section === 'destination_tabs')?.json_data?.tabs;
+          if (tabs && tabs.length > 0) {
+            setVisaTabs(tabs.map(t => ({ name: t.label, href: `/visa?type=${t.key}`, isExplore: true })));
+          }
         }
       } catch (e) {
         console.error("Error fetching visa tabs", e);
@@ -2108,6 +2108,28 @@ export default function Navbar({ brand, companyInfo }) {
         header.navbar-custom .header-nav-link:hover span {
           color: #ffffff !important;
         }
+
+        /* Responsive Navbar for Laptops */
+        @media (max-width: 1400px) {
+          .desktop-nav-ul {
+            gap: 10px !important;
+            transform: none !important;
+          }
+          .desktop-nav-ul .header-nav-link, 
+          .desktop-nav-ul .header-nav-link span {
+            font-size: 15px !important;
+            gap: 5px !important;
+          }
+          .desktop-nav-ul .header-nav-link svg, 
+          .desktop-nav-ul .header-nav-link span svg {
+            width: 18px !important;
+            height: 18px !important;
+          }
+          .desktop-nav-ul > span {
+            font-size: 18px !important;
+            margin: 0 !important;
+          }
+        }
       `}</style>
 
 
@@ -2119,19 +2141,19 @@ export default function Navbar({ brand, companyInfo }) {
         <div className="container" style={{ display: 'flex', alignItems: 'center', height: '110px' }}>
           {/* Logo */}
           <Link href="/" className="animate-fade-up delay-200" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginRight: 24 }}>
-              <Image
-                src={brandLogo}
-                alt={`${brandName} Logo`}
-                width={100}
-                height={100}
-                style={{
-                  width: 100,
-                  height: 100,
-                  objectFit: 'contain',
-                  borderRadius: '8px',
-                }}
-                priority
-              />
+            <Image
+              src={brandLogo}
+              alt={`${brandName} Logo`}
+              width={100}
+              height={100}
+              style={{
+                width: 100,
+                height: 100,
+                objectFit: 'contain',
+                borderRadius: '8px',
+              }}
+              priority
+            />
           </Link>
 
           {/* Right Column */}
@@ -2161,7 +2183,7 @@ export default function Navbar({ brand, companyInfo }) {
                 flex: 1, justifyContent: 'center',
                 transform: 'translateX(-62px)'
               }}
-                className="d-none d-lg-flex"
+                className="d-none d-lg-flex desktop-nav-ul"
               >
                 <Link href="/flights" className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s' }}>
                   <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>

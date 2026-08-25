@@ -4,8 +4,18 @@
 /* ==============================
    RESPONSIVE BASE REFACTOR
    ============================== */
-*, *::before, *::after { box-sizing: border-box; }
-img, video, iframe { max-width: 100%; height: auto; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+video,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
 
 /* ==============================
    CSS VARIABLES / DESIGN TOKENS
@@ -70,19 +80,19 @@ img, video, iframe { max-width: 100%; height: auto; }
   --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Spacing scale */
+  /* Spacing scale - scaled down for standard laptops */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
-  --space-20: 80px;
-  --space-24: 96px;
+  --space-8: 28px;
+  --space-10: 32px;
+  --space-12: 40px;
+  --space-16: 48px;
+  --space-20: 60px;
+  --space-24: 72px;
 
   /* Z-index layers */
   --z-base: 0;
@@ -380,7 +390,7 @@ nav,
 
 .section-title {
   font-family: 'Poppins', sans-serif;
-  font-size: clamp(28px, 4vw, 44px);
+  font-size: clamp(24px, 3.2vw, 36px);
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1.2;
@@ -434,7 +444,7 @@ nav,
   margin: 0;
   color: var(--color-text-primary);
   font-family: var(--font-poppins), Poppins, sans-serif;
-  font-size: clamp(26px, 3.2vw, 38px);
+  font-size: clamp(22px, 2.8vw, 32px);
   font-weight: 800;
   letter-spacing: 0;
   line-height: 1.08;
@@ -601,13 +611,13 @@ nav,
    ============================== */
 .container {
   width: 100%;
-  max-width: 1600px !important;
+  max-width: 1280px !important;
   margin: 0 auto;
   padding: 0 var(--space-6);
 }
 
 .section {
-  padding: var(--space-20) 0;
+  padding: var(--space-16) 0;
 }
 
 .section-sm {
@@ -1630,7 +1640,8 @@ nav,
    ============================== */
 .footer {
   background: #081221;
-  color: #4b5563; /* Dark gray */
+  color: #4b5563;
+  /* Dark gray */
 }
 
 .footer-logo {

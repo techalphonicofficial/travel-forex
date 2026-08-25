@@ -94,7 +94,7 @@ export default async function HomePage() {
   const homePage = await getHomePage();
   const pipeline15Data = await getPipelineForm();
   const formConfig15 = normalizeFormConfig(pipeline15Data);
-  
+
   const trustSection = homePage?.details?.find(
     (detail) => detail?.section === 'gallery' && detail?.key === 'our_trusted_partner'
   );
@@ -130,7 +130,7 @@ export default async function HomePage() {
         <FadeInSection>
           <CategoriesCarousel />
         </FadeInSection>
-        
+
         <FadeInSection delay={100}>
           <OffersCarousel offersData={offersData} />
         </FadeInSection>
@@ -158,17 +158,17 @@ export default async function HomePage() {
 
       {/* Dark-themed sections — own explicit backgrounds, unaffected */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '60px', paddingBottom: '60px' }}>
-      <FadeInSection delay={100}>
-        <ForexSection section={forexSectionData} />
-      </FadeInSection>
+        <FadeInSection delay={100}>
+          <ForexSection section={forexSectionData} />
+        </FadeInSection>
 
-      <FadeInSection delay={100}>
-        <TestimonialSlider section={testimonialSection} />
-      </FadeInSection>
+        <FadeInSection delay={100}>
+          <TestimonialSlider section={testimonialSection} />
+        </FadeInSection>
 
-      <FadeInSection delay={100}>
-        <GramSection />
-      </FadeInSection>
+        <FadeInSection delay={100}>
+          <GramSection />
+        </FadeInSection>
       </div>
 
       <section style={{ background: 'var(--color-primary)', padding: '48px 0' }}>
