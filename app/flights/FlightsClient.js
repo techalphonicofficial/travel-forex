@@ -360,7 +360,7 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCity
         }
         .flights-hero {
           padding: 48px 0 48px;
-          background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');
+          background-color: var(--color-primary);
           background-size: cover;
           background-position: center;
           color: white;
@@ -411,23 +411,23 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCity
         }
         .flights-search-card {
           background: white;
-          border-radius: 20px;
+          border-radius: 16px;
           box-shadow: var(--shadow-xl);
-          padding: 28px;
+          padding: 12px 16px;
           color: var(--color-text-primary);
         }
         .flights-trip-toggle {
           display: flex;
           background: #f1f5f9;
-          padding: 4px;
+          padding: 2px;
           border-radius: 8px;
-          margin-bottom: 24px;
+          margin-bottom: 10px;
           width: fit-content;
         }
         .flights-trip-btn {
-          padding: 8px 16px;
+          padding: 6px 12px;
           border-radius: 6px;
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 800;
           cursor: pointer;
           color: var(--color-text-secondary);
@@ -439,21 +439,21 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCity
         .flights-form {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 16px 12px;
+          gap: 8px 8px;
         }
         .flights-field.full-width {
           grid-column: 1 / -1;
         }
         .flights-field {
           display: grid;
-          gap: 6px;
+          gap: 1px;
         }
         .flights-field label {
-          font-size: 11px;
+          font-size: 9px;
           font-weight: 850;
           text-transform: uppercase;
           color: var(--color-text-secondary);
-          margin-bottom: 2px;
+          margin-bottom: 0px;
         }
         .flights-field input,
         .flights-field select,
@@ -461,13 +461,13 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCity
           width: 100%;
           background: #f8fafc;
           border: 1.5px solid #cbd5e1;
-          border-radius: 10px;
+          border-radius: 8px;
           color: var(--color-text-primary);
-          font-size: 14px;
+          font-size: 12px;
           font-weight: 600;
-          padding: 10px 14px;
+          padding: 6px 10px;
           outline: none;
-          min-height: 42px;
+          min-height: 32px;
         }
         .flights-field input:focus,
         .flights-field select:focus,
@@ -479,9 +479,9 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCity
           background: var(--gradient-primary);
           color: white;
           font-weight: 900;
-          font-size: 15px;
+          font-size: 14px;
           border-radius: 12px;
-          padding: 14px;
+          padding: 8px;
           cursor: pointer;
           transition: transform 0.2s, opacity 0.2s;
           box-shadow: 0 8px 24px rgba(2, 110, 181, 0.22);

@@ -989,7 +989,7 @@ function HeaderSearch({ isLightHeader }) {
   };
 
   return (
-    <div ref={searchRef} style={{ position: 'relative', display: 'flex', alignItems: 'center' }} className="d-none d-lg-flex">
+    <div ref={searchRef} style={{ position: 'relative', display: 'flex', alignItems: 'center' }} className="d-none d-xl-flex">
       <div style={{
         display: 'flex', alignItems: 'center', background: isLightHeader ? 'rgba(255,255,255,0.15)' : '#f9fafb',
         border: isLightHeader ? '1.5px solid rgba(255,255,255,0.3)' : '1.5px solid #e5e7eb',
@@ -1130,18 +1130,15 @@ export default function Navbar({ brand, companyInfo }) {
   useEffect(() => {
     const fetchVisaTabs = async () => {
       try {
-        const res = await fetch('https://tourtravel.yber.in/api/v1/pages/slug/visa', {
-          headers: { accept: 'application/json' }
-        });
-        if (res.ok) {
-          const payload = await res.json();
-          const tabs = payload?.data?.details?.find(d => d.section === 'destination_tabs')?.json_data?.tabs;
+        const payload = await getPageBySlug('visa');
+        if (payload) {
+          const tabs = payload?.details?.find(d => d.section === 'destination_tabs')?.json_data?.tabs;
           if (tabs && tabs.length > 0) {
             setVisaTabs(tabs.map(t => ({ name: t.label, href: `/visa?type=${t.key}`, isExplore: true })));
           }
         }
       } catch (e) {
-        console.error("Error fetching visa tabs", e);
+        console.warn("Could not fetch visa tabs:", e.message);
       }
     };
     fetchVisaTabs();
@@ -2138,17 +2135,17 @@ export default function Navbar({ brand, companyInfo }) {
         className="navbar-custom scrolled"
         style={{ background: '#0f3a75', borderBottom: '1px solid rgba(0,0,0,0.05)', zIndex: 2100 }}
       >
-        <div className="container" style={{ display: 'flex', alignItems: 'center', height: '110px' }}>
+        <div className="container" style={{ display: 'flex', alignItems: 'center', minHeight: '64px', padding: '4px 15px' }}>
           {/* Logo */}
           <Link href="/" className="animate-fade-up delay-200" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginRight: 24 }}>
             <Image
               src={brandLogo}
               alt={`${brandName} Logo`}
-              width={100}
-              height={100}
+              width={60}
+              height={60}
               style={{
-                width: 100,
-                height: 100,
+                width: 60,
+                height: 60,
                 objectFit: 'contain',
                 borderRadius: '8px',
               }}
@@ -2157,10 +2154,10 @@ export default function Navbar({ brand, companyInfo }) {
           </Link>
 
           {/* Right Column */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', paddingBottom: 0 }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: 0 }}>
 
             {/* Social Icons (Top Right) */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 24, marginBottom: 14, paddingRight: 4 }}>
+            <div className="d-none d-xl-flex" style={{ justifyContent: 'flex-end', gap: 16, marginBottom: 6, paddingRight: 4 }}>
               <Link href={companyInfo?.social?.facebook || "https://facebook.com"} target="_blank" aria-label="Facebook" style={{ color: '#1877F2', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /></svg>
               </Link>
@@ -2182,7 +2179,7 @@ export default function Navbar({ brand, companyInfo }) {
                 listStyle: 'none', margin: 0, padding: 0,
                 flex: 1, justifyContent: 'center'
               }}
-                className="d-none d-lg-flex desktop-nav-ul"
+                className="d-none d-xl-flex desktop-nav-ul"
               >
                 <Link href="/flights" className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s', padding: '6px 2px' }}>
                   <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
@@ -2272,7 +2269,7 @@ export default function Navbar({ brand, companyInfo }) {
                 {isLoggedIn ? (
                   <Link
                     href="/profile"
-                    className="d-none d-lg-inline-flex"
+                    className="d-none d-xl-inline-flex"
                     style={navButtonStyle}
                   >
                     My Profile
@@ -2280,7 +2277,7 @@ export default function Navbar({ brand, companyInfo }) {
                 ) : (
                   <Link
                     href={`/auth/login?redirect=${encodeURIComponent(pathname)}`}
-                    className="d-none d-lg-inline-flex"
+                    className="d-none d-xl-inline-flex"
                     style={{
                       ...navButtonStyle,
                       padding: '10px 24px',
@@ -2294,7 +2291,7 @@ export default function Navbar({ brand, companyInfo }) {
                 <button
                   type="button"
                   aria-label="Open travel menu"
-                  className="d-none d-lg-inline-flex"
+                  className="d-none d-xl-inline-flex"
                   onClick={() => setDrawerOpen(true)}
                   style={{
                     width: 44,
@@ -2320,7 +2317,7 @@ export default function Navbar({ brand, companyInfo }) {
                 <button
                   type="button"
                   aria-label="Open travel menu"
-                  className="d-lg-none"
+                  className="d-xl-none"
                   onClick={() => setDrawerOpen(true)}
                   style={{
                     background: 'rgba(0,0,0,0.02)',

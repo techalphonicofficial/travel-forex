@@ -136,7 +136,7 @@ function HotelCard({ hotel, city, country }) {
   );
 }
 
-export default function HotelsClient() {
+export default function HotelsClient({ initialHeroData }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [hotels, setHotels] = useState([]);
@@ -161,6 +161,7 @@ export default function HotelsClient() {
     discountedOnly: false,
   });
   const [formConfig, setFormConfig] = useState(null);
+  const [heroData, setHeroData] = useState(initialHeroData);
 
   useEffect(() => {
     let mounted = true;
@@ -359,13 +360,19 @@ const searchHotels = (event) => {
 
   return (
     <main className="hotels-page">
-      <section className="hotels-hero">
+      <section 
+        className="hotels-hero"
+        style={(heroData?.image || heroData?.json_data?.gallery?.[0]?.img) ? { backgroundImage: `url(${getMediaUrl(heroData.image || heroData.json_data.gallery[0].img)})` } : {}}
+      >
         <div className="hotels-container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
             <div>
-              <span>Hotel stays</span>
-              <h1>{query.city ? `${query.city} Hotels` : 'Explore Hotels'}</h1>
-              <p>{pagination?.total || hotels.length || 0} stays from verified hotel partners</p>
+              <span>{heroData?.json_data?.heading_content || 'Hotel stays'}</span>
+              <h1>{query.city ? `${query.city} Hotels` : (heroData?.title || 'Explore Hotels')}</h1>
+              <p>
+                {pagination?.total || hotels.length || 0}{' '}
+                {(heroData?.json_data?.story_desc || heroData?.description) ? (heroData.json_data?.story_desc || heroData.description).replace(/<[^>]*>?/gm, '') : 'stays from verified hotel partners'}
+              </p>
             </div>
             <div>
               <button 
@@ -468,7 +475,7 @@ function HotelStyles() {
     <style jsx global>{`
       .hotels-page { background: #f4f6f8; min-height: 100vh; color: #172033; padding-bottom: 70px; }
       .hotels-container { width: min(100%, 1600px); margin: 0 auto; padding: 0 20px; }
-      .hotels-hero { padding: 48px 0 30px; background: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=80'); background-size: cover; background-position: center; color: #fff; }
+      .hotels-hero { padding: 48px 0 30px; background-color: #0A192F; background-size: cover; background-position: center; color: #fff; }
       .hotels-hero .hotels-container { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; }
       .hotels-hero span { color: #b7ddff; font-size: 12px; font-weight: 900; letter-spacing: .8px; text-transform: uppercase; }
       .hotels-hero h1 { margin: 8px 0 6px; font-family: var(--font-poppins), Poppins, sans-serif; font-size: clamp(32px, 5vw, 52px); font-weight: 900; }

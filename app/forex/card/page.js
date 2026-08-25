@@ -18,7 +18,21 @@ export async function generateMetadata() {
 }
 
 export default async function CardPage() {
-  const pageData = await getPageBySlug('forex/card');
+  let pageData = await getPageBySlug('forex/card');
+  const currencyPageData = await getPageBySlug('forex/currency');
+
+  // Borrow missing sections from forex/currency
+  if (currencyPageData && currencyPageData.details) {
+    if (!pageData) pageData = { details: [] };
+    if (!pageData.details) pageData.details = [];
+    
+    currencyPageData.details.forEach(currencyBlock => {
+      const exists = pageData.details.some(d => d.key === currencyBlock.key);
+      if (!exists) {
+        pageData.details.push(currencyBlock);
+      }
+    });
+  }
 
   return <ForexBasePage pageType="card" pageData={pageData} />;
 }

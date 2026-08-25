@@ -137,6 +137,7 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
   // Accordion lists
   const [activeDocIndex, setActiveDocIndex] = useState(0); // 0: Purchase, 1: Student
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
+  const [selectedTestimonial, setSelectedTestimonial] = useState(null);
 
   const leadFormRef = useRef(null);
   const calculatorRef = useRef(null);
@@ -157,6 +158,15 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
       setAlertPhone(authUser.phone || '');
     }
   }, []);
+
+  useEffect(() => {
+    if (selectedTestimonial) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [selectedTestimonial]);
 
   useEffect(() => {
     let active = true;
@@ -480,6 +490,44 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
   const heroCurrencyCMS = pageData?.details?.find(d => d.key === 'hero_key_curency');
   const heroCurrencyJson = parseJSON(heroCurrencyCMS?.json_data);
   const heroCurrencyHTML = heroCurrencyJson?.body;
+
+  const servicesCMS = pageData?.details?.find(d => d.key === 'Our-Forex-Services');
+  const servicesJson = parseJSON(servicesCMS?.json_data);
+  const servicesTitleTop = servicesCMS?.title || 'Wide Portfolio';
+  const servicesTitleMain = servicesJson?.heading_content || 'Our Forex Services';
+  const servicesDesc = servicesJson?.block_desc || 'We provide fully digital and offline solutions to cater to all foreign currency needs.';
+  const dynamicForexTabs = Array.isArray(servicesJson?.tabs) && servicesJson.tabs.length > 0 ? servicesJson.tabs : [
+    { title: 'Foreign Currency Notes', icon: '💵', content: '<p>Get genuine currency notes in major global denominations delivered to your doorstep.</p>', badge: 'USD EUR GBP AUD CAD' },
+    { title: 'Forex Card', icon: '💳', content: '<p>Secure and load multiple currencies. Accepted worldwide at offline stores, ATMs and online websites.</p>', badge: '✓ Instant Activation ✓ Secure CHIP & PIN ✓ Easy Online Reloading' },
+    { title: 'International Transfer', icon: '🌐', content: '<p>Wire transfers directly to foreign bank accounts securely and quickly.</p>', badge: 'Education Fees Medical Care Family support' },
+    { title: 'Currency Buy Back', icon: '🔄', content: '<p>Have leftover foreign currency from your recent trip? Sell it back to us at premium exchange rates instantly.</p>', badge: 'Sell leftover currency →' }
+  ];
+
+  const extractTestimonialData = (htmlStr) => {
+    if (!htmlStr) return { role: '', text: '' };
+    const roleMatch = htmlStr.match(/<strong[^>]*>([\s\S]*?)<\/strong>/i);
+    const role = roleMatch ? roleMatch[1].replace(/&nbsp;/g, '').trim() : '';
+    
+    const textMatch = htmlStr.match(/<i[^>]*>([\s\S]*?)<\/i>/i);
+    let text = textMatch ? textMatch[1].trim() : htmlStr.replace(/<[^>]+>/g, '').trim();
+    
+    text = text.replace(/^["“”]|["“”]$/g, '').trim();
+    
+    return { role, text };
+  };
+
+  const testimonialsCMS = pageData?.details?.find(d => d.key === 'testimonials');
+  const testimonialsJson = parseJSON(testimonialsCMS?.json_data);
+  const testimonialsTitleTop = testimonialsCMS?.title || 'Testimonials';
+  const testimonialsTitleMain = testimonialsJson?.heading_content || 'Loved by Travelers & Students';
+  const testimonialsDesc = testimonialsJson?.block_desc || 'Check out reviews from our corporate travelers and study-abroad families.';
+  const dynamicTestimonials = Array.isArray(testimonialsJson?.tabs) && testimonialsJson.tabs.length > 0 
+    ? testimonialsJson.tabs.map(t => ({ ...t, parsed: extractTestimonialData(t.content) }))
+    : [
+        { badge: "★★★★★", parsed: { text: "Locked in a great rate for USD on a Monday, and the cash notes were delivered directly to my office in Gurgaon by Tuesday morning. Zero hassle outward remittance!", role: "Leisure Traveler (USA trip)" }, title: "Priya Sharma" },
+        { badge: "★★★★★", parsed: { text: "Paying tuition fees for my son's MBA at NYU was a major stress. The outward bank remittance was executed under 24 hours at rates much lower than local banks. High trust service.", role: "Supporting Parent (remittance)" }, title: "Dr. Rajesh Gupta" },
+        { badge: "★★★★★", parsed: { text: "My Multi-Currency Card worked perfectly at retail stores and local transit terminals throughout London and Paris. Easy reloading via their platform when I ran short of money.", role: "Student Traveler (UK & Europe)" }, title: "Ananya Mehta" }
+      ];
 
   const [displayRates, setDisplayRates] = useState(liveRatesData);
 
@@ -1234,6 +1282,12 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
 
             </div>
           </div>
+          
+          <div style={{ textAlign: 'center', marginTop: '60px' }}>
+            <a href="#lead-form" onClick={scrollToLeadForm} className="btn-primary" style={{ padding: '15px 30px', textDecoration: 'none', background: 'var(--color-secondary)', color: '#0f172a', fontSize: 15, fontWeight: 800, display: 'inline-block' }}>
+              Apply Forex Card Now
+            </a>
+          </div>
         </div>
       </section>
 
@@ -1242,126 +1296,90 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: 50 }}>
             <span style={{ color: 'var(--color-primary)', fontSize: 11, fontWeight: 800, letterSpacing: '2.5px', textTransform: 'uppercase' }}>
-              Wide Portfolio
+              {servicesTitleTop}
             </span>
             <h2 style={{ fontFamily: 'var(--font-poppins), sans-serif', fontWeight: 900, fontSize: 32, marginTop: 8, color: 'var(--color-text-primary)' }}>
-              Our Forex Services
+              {servicesTitleMain}
             </h2>
             <p style={{ color: 'var(--color-text-secondary)', fontSize: 15, maxWidth: '600px', margin: '10px auto 0' }}>
-              We provide fully digital and offline solutions to cater to all foreign currency needs.
+              {servicesDesc}
             </p>
           </div>
 
           <div className="row g-4">
-            {/* Card 1 */}
-            <div className="col-12 col-md-6 col-lg-3">
-              <div className="card-base" style={{
-                background: 'var(--color-bg-card)',
-                border: '1px solid var(--color-border)',
-                padding: '30px 24px',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: 20
-              }}>
-                <div style={{ fontSize: 36, marginBottom: 15 }}>💵</div>
-                <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)', marginBottom: 10 }}>Foreign Currency Notes</h3>
-                <p style={{ color: 'var(--color-text-secondary)', fontSize: 13.5, lineHeight: 1.5, flexGrow: 1 }}>
-                  Get genuine currency notes in major global denominations delivered to your doorstep.
-                </p>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 15 }}>
-                  {['USD', 'EUR', 'GBP', 'AUD', 'CAD'].map(c => (
-                    <span key={c} style={{ background: 'var(--color-primary-light)', padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700, color: 'var(--color-primary)' }}>{c}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
+            {dynamicForexTabs.map((tab, idx) => {
+              const renderBadge = (badgeText) => {
+                if (!badgeText) return null;
+                
+                if (badgeText.includes('✓')) {
+                  const items = badgeText.split('✓').filter(Boolean).map(i => i.trim());
+                  return (
+                    <ul style={{ paddingLeft: 16, margin: '12px 0 0', fontSize: 12, color: 'var(--color-text-secondary)', display: 'grid', gap: 4, listStyleType: 'none' }}>
+                      {items.map((it, i) => <li key={i}>✓ {it}</li>)}
+                    </ul>
+                  );
+                }
+                
+                if (badgeText.includes('→') || badgeText.toLowerCase().includes('sell')) {
+                  return (
+                    <div style={{ marginTop: 15 }}>
+                      <button
+                        onClick={() => {
+                          setHeroTab('sell');
+                          calculatorRef.current?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        style={{ background: 'none', border: 'none', color: 'var(--color-primary)', fontSize: 12, fontWeight: 800, cursor: 'pointer', padding: 0 }}
+                      >
+                        {badgeText}
+                      </button>
+                    </div>
+                  );
+                }
+                
+                if (idx === 0 || badgeText.includes('USD')) {
+                  return (
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 15 }}>
+                      {badgeText.split(' ').map(c => (
+                        <span key={c} style={{ background: 'var(--color-primary-light)', padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700, color: 'var(--color-primary)' }}>{c}</span>
+                      ))}
+                    </div>
+                  );
+                }
+                
+                if (idx === 2 || badgeText.includes('Education')) {
+                  let items = badgeText.split(/(Education Fees|Medical Care|Family support)/).filter(s => s.trim().length > 0);
+                  if (items.length === 1 && items[0] === badgeText) {
+                    items = badgeText.includes(',') ? badgeText.split(',') : [badgeText];
+                  }
+                  return (
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 15 }}>
+                      {items.map(c => (
+                        <span key={c} style={{ background: 'var(--color-bg-soft)', padding: '4px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700, color: 'var(--color-text-secondary)', border: '1px solid var(--color-border)' }}>{c.trim()}</span>
+                      ))}
+                    </div>
+                  );
+                }
+                
+                return <div style={{ marginTop: 15, fontSize: 12 }}>{badgeText}</div>;
+              };
 
-            {/* Card 2 */}
-            <div className="col-12 col-md-6 col-lg-3">
-              <div className="card-base" style={{
-                background: 'var(--color-bg-card)',
-                border: '1px solid var(--color-border)',
-                padding: '30px 24px',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: 20
-              }}>
-                <div style={{ fontSize: 36, marginBottom: 15 }}>💳</div>
-                <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)', marginBottom: 10 }}>Forex Card</h3>
-                <p style={{ color: 'var(--color-text-secondary)', fontSize: 13.5, lineHeight: 1.5, flexGrow: 1 }}>
-                  Secure and load multiple currencies. Accepted worldwide at offline stores, ATMs and online websites.
-                </p>
-                <ul style={{ paddingLeft: 16, margin: '12px 0 0', fontSize: 12, color: 'var(--color-text-secondary)', display: 'grid', gap: 4, listStyleType: 'none' }}>
-                  <li>✓ Instant Activation</li>
-                  <li>✓ Secure CHIP & PIN</li>
-                  <li>✓ Easy Online Reloading</li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Card 3 */}
-            <div className="col-12 col-md-6 col-lg-3">
-              <div className="card-base" style={{
-                background: 'var(--color-bg-card)',
-                border: '1px solid var(--color-border)',
-                padding: '30px 24px',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: 20
-              }}>
-                <div style={{ fontSize: 36, marginBottom: 15 }}>🌐</div>
-                <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)', marginBottom: 10 }}>International Transfer</h3>
-                <p style={{ color: 'var(--color-text-secondary)', fontSize: 13.5, lineHeight: 1.5, flexGrow: 1 }}>
-                  Wire transfers directly to foreign bank accounts securely and quickly.
-                </p>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 15 }}>
-                  {['Education Fees', 'Medical Care', 'Family support'].map(c => (
-                    <span key={c} style={{ background: 'var(--color-bg-soft)', padding: '4px 8px', borderRadius: 6, fontSize: 10, fontWeight: 700, color: 'var(--color-text-secondary)', border: '1px solid var(--color-border)' }}>{c}</span>
-                  ))}
+              return (
+                <div key={idx} className="col-12 col-md-6 col-lg-3">
+                  <div className="card-base" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', padding: '30px 24px', height: '100%', display: 'flex', flexDirection: 'column', borderRadius: 20 }}>
+                    <div style={{ marginBottom: 15 }}>
+                      {tab.img ? (
+                        <img src={getMediaUrl(tab.img)} alt={tab.title} style={{ height: 40, width: 'auto', objectFit: 'contain' }} />
+                      ) : (
+                        <div style={{ fontSize: 36 }}>{tab.icon || '💵'}</div>
+                      )}
+                    </div>
+                    <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)', marginBottom: 10 }}>{tab.title}</h3>
+                    <div style={{ color: 'var(--color-text-secondary)', fontSize: 13.5, lineHeight: 1.5, flexGrow: 1 }} dangerouslySetInnerHTML={{ __html: tab.content || '' }} />
+                    {renderBadge(tab.badge)}
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Card 4 */}
-            <div className="col-12 col-md-6 col-lg-3">
-              <div className="card-base" style={{
-                background: 'var(--color-bg-card)',
-                border: '1px solid var(--color-border)',
-                padding: '30px 24px',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: 20
-              }}>
-                <div style={{ fontSize: 36, marginBottom: 15 }}>🔄</div>
-                <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)', marginBottom: 10 }}>Currency Buy Back</h3>
-                <p style={{ color: 'var(--color-text-secondary)', fontSize: 13.5, lineHeight: 1.5, flexGrow: 1 }}>
-                  Have leftover foreign currency from your recent trip? Sell it back to us at premium exchange rates instantly.
-                </p>
-                <div style={{ marginTop: 15 }}>
-                  <button
-                    onClick={() => {
-                      setHeroTab('sell');
-                      calculatorRef.current?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--color-primary)',
-                      fontSize: 12,
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      padding: 0
-                    }}
-                  >
-                    Sell leftover currency →
-                  </button>
-                </div>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -1435,95 +1453,6 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
       </section>
 
 
-
-      {/* 6. FOREX CARD SECTION */}
-      <section style={{
-        padding: '100px 0',
-        background: 'transparent',
-        color: 'white',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        <div style={{ position: 'absolute', right: '-5%', bottom: '-10%', width: '380px', height: '220px', borderRadius: 20, background: 'rgba(255,255,255,0.05)', transform: 'rotate(-15deg)', pointerEvents: 'none', border: '1px solid rgba(255,255,255,0.1)' }} />
-
-        <div className="container">
-          <div className="row align-items-center g-5">
-            <div className="col-12 col-lg-7">
-              <span style={{ background: 'rgba(255,255,255,0.15)', padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                Zero Markup Premium Travel Card
-              </span>
-              <h2 style={{ fontFamily: 'var(--font-poppins), sans-serif', fontWeight: 900, fontSize: 'clamp(28px, 4.5vw, 40px)', marginTop: 15, marginBottom: 20, color: 'white' }}>
-                Border-free Spends with Multi-Currency Forex Card
-              </h2>
-              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 16, lineHeight: 1.6, marginBottom: 30, maxWidth: '580px' }}>
-                Insulate your wallet from erratic currency price hikes. Load up to 16 global currencies on a single physical card, accepted globally at millions of ATMs and store merchant portals.
-              </p>
-
-              <div className="row g-3" style={{ marginBottom: 35 }}>
-                {[
-                  { t: 'Zero Markup', d: 'Pay real-time bank conversion rates without margins.' },
-                  { t: 'Contactless Pay', d: 'High-security Tap & Pay enabled NFC transactions.' },
-                  { t: 'Multi Currency', d: 'Convert and store USD, EUR, GBP, AED, SGD easily.' },
-                  { t: 'Mobile App Support', d: 'Check balances, block cards, and download statements.' }
-                ].map((f, i) => (
-                  <div key={i} className="col-12 col-sm-6">
-                    <h4 style={{ fontSize: 15, fontWeight: 800, margin: '0 0 4px', color: 'var(--color-secondary)' }}>• {f.t}</h4>
-                    <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12.5, margin: 0 }}>{f.d}</p>
-                  </div>
-                ))}
-              </div>
-
-              <a href="#lead-form" onClick={scrollToLeadForm} className="btn-primary" style={{ padding: '15px 30px', textDecoration: 'none', background: 'var(--color-secondary)', color: '#0f172a', fontSize: 15, fontWeight: 800 }}>
-                Apply Forex Card Now
-              </a>
-            </div>
-
-            <div className="col-12 col-lg-5 d-none d-lg-block">
-              <div style={{
-                width: '380px',
-                height: '240px',
-                background: 'transparent',
-                borderRadius: 20,
-                border: '1px solid rgba(255,255,255,0.15)',
-                padding: 24,
-                boxShadow: '0 25px 60px rgba(0,0,0,0.4)',
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                margin: '0 auto'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <span style={{ fontSize: 10, letterSpacing: 1.5, color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase' }}>WANDERLUST</span>
-                    <h4 style={{ fontSize: 14, fontWeight: 900, color: 'white', margin: '2px 0 0' }}>TRAVEL CARD</h4>
-                  </div>
-                  <span style={{ fontSize: 24 }}>💳</span>
-                </div>
-
-                <div style={{ width: 44, height: 32, borderRadius: 6, background: '#f59e0b', opacity: 0.8, margin: '20px 0' }} />
-
-                <div>
-                  <div style={{ fontSize: 16, fontFamily: 'monospace', letterSpacing: 2, color: 'white', fontWeight: 700, marginBottom: 8 }}>
-                    ••••  ••••  ••••  8820
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                    <div>
-                      <span style={{ fontSize: 8, color: '#64748b', display: 'block', textTransform: 'uppercase' }}>CARDHOLDER</span>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: 'white' }}>YOUR NAME HERE</span>
-                    </div>
-                    <div>
-                      <span style={{ fontSize: 8, color: '#64748b', display: 'block', textTransform: 'uppercase' }}>VALID THRU</span>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: 'white' }}>12/30</span>
-                    </div>
-                    <span style={{ fontSize: 16, fontWeight: 900, color: 'var(--color-secondary)' }}>VISA</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* 7. INTERNATIONAL MONEY TRANSFER */}
       <section style={{ padding: '80px 0', background: 'var(--color-bg)' }}>
@@ -1754,23 +1683,19 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: 50 }}>
             <span style={{ color: 'var(--color-primary)', fontSize: 11, fontWeight: 800, letterSpacing: '2.5px', textTransform: 'uppercase' }}>
-              Testimonials
+              {testimonialsTitleTop}
             </span>
             <h2 style={{ fontFamily: 'var(--font-poppins), sans-serif', fontWeight: 900, fontSize: 32, marginTop: 8, color: 'var(--color-text-primary)' }}>
-              Loved by Travelers & Students
+              {testimonialsTitleMain}
             </h2>
             <p style={{ color: 'var(--color-text-secondary)', fontSize: 15, maxWidth: '500px', margin: '10px auto 0' }}>
-              Check out reviews from our corporate travelers and study-abroad families.
+              {testimonialsDesc}
             </p>
           </div>
 
           <div className="row g-4">
-            {[
-              { text: "Locked in a great rate for USD on a Monday, and the cash notes were delivered directly to my office in Gurgaon by Tuesday morning. Zero hassle outward remittance!", name: "Priya Sharma", role: "Leisure Traveler (USA trip)" },
-              { text: "Paying tuition fees for my son\'s MBA at NYU was a major stress. The outward bank remittance was executed under 24 hours at rates much lower than local banks. High trust service.", name: "Dr. Rajesh Gupta", role: "Supporting Parent (remittance)" },
-              { text: "My Multi-Currency Card worked perfectly at retail stores and local transit terminals throughout London and Paris. Easy reloading via their platform when I ran short of money.", name: "Ananya Mehta", role: "Student Traveler (UK & Europe)" }
-            ].map((rev, idx) => (
-              <div key={idx} className="col-12 col-lg-4">
+            {dynamicTestimonials.map((rev, idx) => (
+              <div key={idx} className="col-12 col-lg-4" onClick={() => setSelectedTestimonial(rev)} style={{ cursor: 'pointer' }}>
                 <div style={{
                   background: 'var(--color-bg-card)',
                   border: '1px solid var(--color-border)',
@@ -1783,14 +1708,14 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
                   boxShadow: 'var(--shadow-xs)'
                 }}>
                   <div>
-                    <div style={{ color: 'var(--color-secondary)', fontSize: 20, marginBottom: 15 }}>★★★★★</div>
+                    <div style={{ color: 'var(--color-secondary)', fontSize: 20, marginBottom: 15 }}>{rev.badge || '★★★★★'}</div>
                     <p style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1.6, fontStyle: 'italic' }}>
-                      "{rev.text}"
+                      "{rev.parsed?.text}"
                     </p>
                   </div>
                   <div style={{ marginTop: 20, borderTop: '1px solid var(--color-border)', paddingTop: 15 }}>
-                    <h4 style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-text-primary)', margin: '0 0 2px' }}>{rev.name}</h4>
-                    <small style={{ color: 'var(--color-text-secondary)', fontSize: 11.5, fontWeight: 600 }}>{rev.role}</small>
+                    <h4 style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-text-primary)', margin: '0 0 2px' }}>{rev.title}</h4>
+                    <small style={{ color: 'var(--color-text-secondary)', fontSize: 11.5, fontWeight: 600 }}>{rev.parsed?.role}</small>
                   </div>
                 </div>
               </div>
@@ -1999,6 +1924,55 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
           </div>
         </div>
       </section>
+
+      {/* Testimonial Modal */}
+      {selectedTestimonial && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+          background: 'rgba(0,0,0,0.8)', zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+        }} onClick={() => setSelectedTestimonial(null)}>
+          <div style={{
+            background: 'var(--color-bg-card)', 
+            borderRadius: 20, 
+            padding: 40, 
+            maxWidth: 600, 
+            width: '100%',
+            position: 'relative',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center'
+          }} onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => setSelectedTestimonial(null)}
+              style={{ position: 'absolute', top: 15, right: 15, background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: 'var(--color-text-secondary)' }}
+            >
+              &times;
+            </button>
+            
+            {selectedTestimonial.img && (
+              <img src={getMediaUrl(selectedTestimonial.img)} alt={selectedTestimonial.title} style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', marginBottom: 20, border: '4px solid var(--color-bg-soft)' }} />
+            )}
+            
+            <div style={{ color: 'var(--color-secondary)', fontSize: 24, marginBottom: 15 }}>
+              {selectedTestimonial.badge || '★★★★★'}
+            </div>
+            
+            <p style={{ color: 'var(--color-text-primary)', fontSize: 18, lineHeight: 1.6, fontStyle: 'italic', marginBottom: 25 }}>
+              "{selectedTestimonial.parsed?.text}"
+            </p>
+            
+            <h4 style={{ fontSize: 20, fontWeight: 900, color: 'var(--color-text-primary)', margin: '0 0 5px' }}>
+              {selectedTestimonial.title}
+            </h4>
+            <span style={{ color: 'var(--color-primary)', fontSize: 14, fontWeight: 700 }}>
+              {selectedTestimonial.parsed?.role}
+            </span>
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
         .forex-hero {

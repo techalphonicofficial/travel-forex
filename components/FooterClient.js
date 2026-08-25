@@ -157,7 +157,9 @@ export default function FooterClient({ brand, companyInfo }) {
           <div className="row g-5 align-items-start">
             <div className="col-lg-4 text-lg-start mobile-text-center">
               <div className="d-flex align-items-center gap-3 mb-4 mobile-center-flex">
-                <Image src={brandLogo} alt={`${brandName} Logo`} width={70} height={70} style={{ width: 70, height: 70, objectFit: 'contain', borderRadius: '8px' }} />
+                <div style={{ width: 70, height: 70, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Image src={brandLogo} alt={`${brandName} Logo`} width={70} height={70} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px' }} />
+                </div>
                 <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15, textAlign: 'center' }}>
                   <span style={{
                     fontFamily: 'Georgia, serif',
