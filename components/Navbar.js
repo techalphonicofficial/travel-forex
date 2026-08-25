@@ -606,6 +606,15 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
   const firstName = isLoggedIn ? currentUser?.name?.split(' ')[0] || 'Traveler' : 'Guest';
   const userInitial = firstName.charAt(0).toUpperCase() || 'G';
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
+
   const getNavIcon = (label = '') => {
     const key = label.toLowerCase();
     if (key.includes('service')) return 'SV';
