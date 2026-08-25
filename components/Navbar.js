@@ -2180,18 +2180,17 @@ export default function Navbar({ brand, companyInfo }) {
               <ul style={{
                 display: 'flex', alignItems: 'center', gap: 20,
                 listStyle: 'none', margin: 0, padding: 0,
-                flex: 1, justifyContent: 'center',
-                transform: 'translateX(-62px)'
+                flex: 1, justifyContent: 'center'
               }}
                 className="d-none d-lg-flex desktop-nav-ul"
               >
-                <Link href="/flights" className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s' }}>
+                <Link href="/flights" className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s', padding: '6px 2px' }}>
                   <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
                   Flights
                 </Link>
                 <span style={{ color: '#FFD700', fontSize: 24, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
-                <Link href={HOTEL_HREF} className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s' }}>
+                <Link href={HOTEL_HREF} className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s', padding: '6px 2px' }}>
                   <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9" /></svg>
                   Hotels
                 </Link>
