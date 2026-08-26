@@ -2,12 +2,18 @@
 
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { usePathname } from 'next/navigation';
 
 export default function FloatingContactWidget() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: '', phone: '', email: '', subject: 'General Enquiry' });
   const [submitted, setSubmitted] = useState(false);
+
+  if (pathname === '/gallery') {
+    return null;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();

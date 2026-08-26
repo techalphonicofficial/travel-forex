@@ -97,7 +97,7 @@ export default function DomesticInternationalPackages() {
       const container = scrollRef.current;
       if (!container) return;
 
-      const cardWidth = 350 + 24; // Card width (350px) + gap (24px)
+      const cardWidth = 350 + 24; // Card width (21.875rem) + gap (1.5rem)
       const maxScrollLeft = container.scrollWidth - container.clientWidth;
 
       if (container.scrollLeft >= maxScrollLeft - 10) {
@@ -219,16 +219,16 @@ export default function DomesticInternationalPackages() {
   };
 
   return (
-    <section style={{ padding: '68px 0 72px', background: 'var(--color-bg-soft)', borderBottom: '1px solid var(--color-border)' }}>
+    <section style={{ padding: '4.25rem 0 4.5rem', background: 'var(--color-bg-soft)', borderBottom: '1px solid var(--color-border)' }}>
       <div className="container">
-        <div style={{ textAlign: 'center', marginBottom: 34 }}>
-          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'var(--color-primary)', marginBottom: 8 }}>
+        <div style={{ textAlign: 'center', margin: '2.125rem' }}>
+          <p style={{ fontSize: '0.688rem', fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'var(--color-primary)', margin: '0.5rem' }}>
             CURATED HOLIDAYS
           </p>
-          <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 850, fontSize: isMobile ? 26 : 34, color: 'var(--color-primary)', marginBottom: 10, lineHeight: 1.2 }}>
+          <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 850, fontSize: isMobile ? 26 : 34, color: 'var(--color-primary)', margin: '0.625rem', lineHeight: 1.2 }}>
             Start with the trip you want
           </h2>
-          <p style={{ color: 'var(--color-text-secondary)', fontSize: 15, maxWidth: 620, margin: '0 auto 24px', lineHeight: 1.6 }}>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.938rem', maxWidth: '38.75rem', margin: '0 auto 1.5rem', lineHeight: 1.6 }}>
             Browse ready packages, or send a quick flight and hotel request without leaving the homepage.
           </p>
 
@@ -236,22 +236,22 @@ export default function DomesticInternationalPackages() {
           <div style={{ 
             display: 'inline-flex', 
             background: 'var(--color-bg-card)', 
-            padding: 6, 
-            borderRadius: 999, 
+            padding: '0.375rem', 
+            borderRadius: '62.438rem', 
             border: '1px solid var(--color-border)', 
-            boxShadow: '0 8px 20px rgba(15,23,42,0.04)',
+            boxShadow: '0 0.5rem 1.25rem rgba(15,23,42,0.04)',
             flexWrap: 'wrap',
             justifyContent: 'center',
-            gap: 4
+            gap: '0.25rem'
           }}>
             <button
               onClick={() => setActiveTab('domestic')}
               style={{
                 border: 'none',
-                padding: isMobile ? '10px 14px' : '12px 22px',
-                borderRadius: 999,
+                padding: isMobile ? '0.625rem 0.875rem' : '0.75rem 1.375rem',
+                borderRadius: '62.438rem',
                 fontWeight: 750,
-                fontSize: 13.5,
+                fontSize: '0.844rem',
                 cursor: 'pointer',
                 background: activeTab === 'domestic' ? 'var(--color-primary)' : 'transparent',
                 color: activeTab === 'domestic' ? 'white' : 'var(--color-text-secondary)',
@@ -264,10 +264,10 @@ export default function DomesticInternationalPackages() {
               onClick={() => setActiveTab('international')}
               style={{
                 border: 'none',
-                padding: isMobile ? '10px 14px' : '12px 22px',
-                borderRadius: 999,
+                padding: isMobile ? '0.625rem 0.875rem' : '0.75rem 1.375rem',
+                borderRadius: '62.438rem',
                 fontWeight: 750,
-                fontSize: 13.5,
+                fontSize: '0.844rem',
                 cursor: 'pointer',
                 background: activeTab === 'international' ? 'var(--color-primary)' : 'transparent',
                 color: activeTab === 'international' ? 'white' : 'var(--color-text-secondary)',
@@ -280,10 +280,10 @@ export default function DomesticInternationalPackages() {
               onClick={() => setActiveTab('flight')}
               style={{
                 border: 'none',
-                padding: isMobile ? '10px 14px' : '12px 22px',
-                borderRadius: 999,
+                padding: isMobile ? '0.625rem 0.875rem' : '0.75rem 1.375rem',
+                borderRadius: '62.438rem',
                 fontWeight: 750,
-                fontSize: 13.5,
+                fontSize: '0.844rem',
                 cursor: 'pointer',
                 background: activeTab === 'flight' ? 'var(--color-primary)' : 'transparent',
                 color: activeTab === 'flight' ? 'white' : 'var(--color-text-secondary)',
@@ -296,10 +296,10 @@ export default function DomesticInternationalPackages() {
               onClick={() => setActiveTab('hotel')}
               style={{
                 border: 'none',
-                padding: isMobile ? '10px 14px' : '12px 22px',
-                borderRadius: 999,
+                padding: isMobile ? '0.625rem 0.875rem' : '0.75rem 1.375rem',
+                borderRadius: '62.438rem',
                 fontWeight: 750,
-                fontSize: 13.5,
+                fontSize: '0.844rem',
                 cursor: 'pointer',
                 background: activeTab === 'hotel' ? 'var(--color-primary)' : 'transparent',
                 color: activeTab === 'hotel' ? 'white' : 'var(--color-text-secondary)',
@@ -314,28 +314,28 @@ export default function DomesticInternationalPackages() {
         {activeTab === 'flight' && (
           <div style={{
             background: 'var(--color-bg-card)',
-            borderRadius: 24,
+            borderRadius: '1.5rem',
             border: '1px solid var(--color-border)',
-            boxShadow: '0 12px 40px rgba(15,23,42,0.06)',
-            padding: isMobile ? '24px 18px' : '40px',
-            maxWidth: 900,
+            boxShadow: '0 0.75rem 2.5rem rgba(15,23,42,0.06)',
+            padding: isMobile ? '1.5rem 1.125rem' : '2.5rem',
+            maxWidth: '56.25rem',
             margin: '0 auto',
             textAlign: 'left'
           }}>
-            <form onSubmit={handleFlightSubmit} style={{ display: 'grid', gap: 20 }}>
+            <form onSubmit={handleFlightSubmit} style={{ display: 'grid', gap: '1.25rem' }}>
               {/* Trip Type Selectors */}
-              <div style={{ display: 'flex', gap: 12, marginBottom: 8 }}>
+              <div style={{ display: 'flex', gap: '0.75rem', margin: '0.5rem' }}>
                 {['Round-trip', 'One-way'].map((type) => (
                   <button
                     key={type}
                     type="button"
                     onClick={() => setFlightTripType(type)}
                     style={{
-                      padding: '8px 18px',
-                      borderRadius: 999,
+                      padding: '0.5rem 1.125rem',
+                      borderRadius: '62.438rem',
                       border: 'none',
                       fontWeight: 750,
-                      fontSize: 12.5,
+                      fontSize: '0.781rem',
                       cursor: 'pointer',
                       background: flightTripType === type ? 'var(--color-primary)' : 'rgba(21, 128, 61, 0.08)',
                       color: flightTripType === type ? 'white' : 'var(--color-primary)',
@@ -351,10 +351,10 @@ export default function DomesticInternationalPackages() {
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr',
-                gap: 16
+                gap: '1rem'
               }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Departure City / Airport *</label>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Departure City / Airport *</label>
                   <input
                     type="text"
                     placeholder="e.g. Delhi (DEL)"
@@ -363,18 +363,18 @@ export default function DomesticInternationalPackages() {
                     required
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 10,
+                      padding: '0.75rem 0.875rem',
+                      borderRadius: '0.625rem',
                       border: '1px solid var(--color-border)',
                       outline: 'none',
-                      fontSize: 14,
+                      fontSize: '0.875rem',
                       fontFamily: 'Inter, sans-serif'
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Destination City / Airport *</label>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Destination City / Airport *</label>
                   <input
                     type="text"
                     placeholder="e.g. London (LHR)"
@@ -383,28 +383,28 @@ export default function DomesticInternationalPackages() {
                     required
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 10,
+                      padding: '0.75rem 0.875rem',
+                      borderRadius: '0.625rem',
                       border: '1px solid var(--color-border)',
                       outline: 'none',
-                      fontSize: 14,
+                      fontSize: '0.875rem',
                       fontFamily: 'Inter, sans-serif'
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Cabin Class</label>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Cabin Class</label>
                   <select
                     value={flightClass}
                     onChange={(e) => setFlightClass(e.target.value)}
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 10,
+                      padding: '0.75rem 0.875rem',
+                      borderRadius: '0.625rem',
                       border: '1px solid var(--color-border)',
                       outline: 'none',
-                      fontSize: 14,
+                      fontSize: '0.875rem',
                       fontFamily: 'Inter, sans-serif',
                       background: 'white'
                     }}
@@ -417,7 +417,7 @@ export default function DomesticInternationalPackages() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Departure Date *</label>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Departure Date *</label>
                   <input
                     type="date"
                     value={flightDepartDate}
@@ -425,11 +425,11 @@ export default function DomesticInternationalPackages() {
                     required
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 10,
+                      padding: '0.75rem 0.875rem',
+                      borderRadius: '0.625rem',
                       border: '1px solid var(--color-border)',
                       outline: 'none',
-                      fontSize: 14,
+                      fontSize: '0.875rem',
                       fontFamily: 'Inter, sans-serif'
                     }}
                   />
@@ -437,7 +437,7 @@ export default function DomesticInternationalPackages() {
 
                 {flightTripType === 'Round-trip' && (
                   <div>
-                    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Return Date *</label>
+                    <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Return Date *</label>
                     <input
                       type="date"
                       value={flightReturnDate}
@@ -445,11 +445,11 @@ export default function DomesticInternationalPackages() {
                       required={flightTripType === 'Round-trip'}
                       style={{
                         width: '100%',
-                        padding: '12px 14px',
-                        borderRadius: 10,
+                        padding: '0.75rem 0.875rem',
+                        borderRadius: '0.625rem',
                         border: '1px solid var(--color-border)',
                         outline: 'none',
-                        fontSize: 14,
+                        fontSize: '0.875rem',
                         fontFamily: 'Inter, sans-serif'
                       }}
                     />
@@ -457,17 +457,17 @@ export default function DomesticInternationalPackages() {
                 )}
 
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Travellers</label>
-                  <div style={{ display: 'flex', gap: 10 }}>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Travellers</label>
+                  <div style={{ display: 'flex', gap: '0.625rem' }}>
                     <select
                       value={flightAdults}
                       onChange={(e) => setFlightAdults(Number(e.target.value))}
                       style={{
                         flex: 1,
-                        padding: '12px 10px',
-                        borderRadius: 10,
+                        padding: '0.75rem 0.625rem',
+                        borderRadius: '0.625rem',
                         border: '1px solid var(--color-border)',
-                        fontSize: 13,
+                        fontSize: '0.813rem',
                         background: 'white'
                       }}
                     >
@@ -478,10 +478,10 @@ export default function DomesticInternationalPackages() {
                       onChange={(e) => setFlightChildren(Number(e.target.value))}
                       style={{
                         flex: 1,
-                        padding: '12px 10px',
-                        borderRadius: 10,
+                        padding: '0.75rem 0.625rem',
+                        borderRadius: '0.625rem',
                         border: '1px solid var(--color-border)',
-                        fontSize: 13,
+                        fontSize: '0.813rem',
                         background: 'white'
                       }}
                     >
@@ -491,16 +491,16 @@ export default function DomesticInternationalPackages() {
                 </div>
               </div>
 
-              <div style={{ height: '1px', background: 'var(--color-border)', margin: '10px 0' }} />
+              <div style={{ height: '1px', background: 'var(--color-border)', margin: '0.625rem 0' }} />
 
               {/* Contact Details Grid */}
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr',
-                gap: 16
+                gap: '1rem'
               }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Full Name *</label>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Full Name *</label>
                   <input
                     type="text"
                     placeholder="e.g. John Doe"
@@ -509,18 +509,18 @@ export default function DomesticInternationalPackages() {
                     required
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 10,
+                      padding: '0.75rem 0.875rem',
+                      borderRadius: '0.625rem',
                       border: '1px solid var(--color-border)',
                       outline: 'none',
-                      fontSize: 14,
+                      fontSize: '0.875rem',
                       fontFamily: 'Inter, sans-serif'
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Phone Number *</label>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Phone Number *</label>
                   <input
                     type="tel"
                     placeholder="e.g. +91 9999999999"
@@ -529,18 +529,18 @@ export default function DomesticInternationalPackages() {
                     required
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 10,
+                      padding: '0.75rem 0.875rem',
+                      borderRadius: '0.625rem',
                       border: '1px solid var(--color-border)',
                       outline: 'none',
-                      fontSize: 14,
+                      fontSize: '0.875rem',
                       fontFamily: 'Inter, sans-serif'
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Email Address *</label>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Email Address *</label>
                   <input
                     type="email"
                     placeholder="e.g. john@example.com"
@@ -549,11 +549,11 @@ export default function DomesticInternationalPackages() {
                     required
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 10,
+                      padding: '0.75rem 0.875rem',
+                      borderRadius: '0.625rem',
                       border: '1px solid var(--color-border)',
                       outline: 'none',
-                      fontSize: 14,
+                      fontSize: '0.875rem',
                       fontFamily: 'Inter, sans-serif'
                     }}
                   />
@@ -561,7 +561,7 @@ export default function DomesticInternationalPackages() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Special Requests / Notes (Optional)</label>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Special Requests / Notes (Optional)</label>
                 <textarea
                   placeholder="Preferred airlines, meal requests, seat choice, etc."
                   value={flightNotes}
@@ -569,18 +569,18 @@ export default function DomesticInternationalPackages() {
                   rows={3}
                   style={{
                     width: '100%',
-                    padding: '12px 14px',
-                    borderRadius: 10,
+                    padding: '0.75rem 0.875rem',
+                    borderRadius: '0.625rem',
                     border: '1px solid var(--color-border)',
                     outline: 'none',
-                    fontSize: 14,
+                    fontSize: '0.875rem',
                     fontFamily: 'Inter, sans-serif',
                     resize: 'none'
                   }}
                 />
               </div>
 
-              <div style={{ textAlign: 'center', marginTop: 10 }}>
+              <div style={{ textAlign: 'center', margin: '0.625rem' }}>
                 <button
                   type="submit"
                   disabled={flightSubmitting}
@@ -588,13 +588,13 @@ export default function DomesticInternationalPackages() {
                     background: 'var(--color-primary)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: 12,
-                    padding: '14px 40px',
+                    borderRadius: '0.75rem',
+                    padding: '0.875rem 2.5rem',
                     fontWeight: 750,
-                    fontSize: 14,
+                    fontSize: '0.875rem',
                     cursor: flightSubmitting ? 'not-allowed' : 'pointer',
                     opacity: flightSubmitting ? 0.7 : 1,
-                    boxShadow: '0 4px 14px color-mix(in srgb, var(--color-primary) 30%, transparent)',
+                    boxShadow: '0 0.25rem 0.875rem color-mix(in srgb, var(--color-primary) 30%, transparent)',
                     transition: 'all 0.2s'
                   }}
                 >
@@ -608,23 +608,23 @@ export default function DomesticInternationalPackages() {
         {activeTab === 'hotel' && (
           <div style={{
             background: 'var(--color-bg-card)',
-            borderRadius: 24,
+            borderRadius: '1.5rem',
             border: '1px solid var(--color-border)',
-            boxShadow: '0 12px 40px rgba(15,23,42,0.06)',
-            padding: isMobile ? '24px 18px' : '40px',
-            maxWidth: 900,
+            boxShadow: '0 0.75rem 2.5rem rgba(15,23,42,0.06)',
+            padding: isMobile ? '1.5rem 1.125rem' : '2.5rem',
+            maxWidth: '56.25rem',
             margin: '0 auto',
             textAlign: 'left'
           }}>
-            <form onSubmit={handleHotelSearch} style={{ display: 'grid', gap: 20 }}>
+            <form onSubmit={handleHotelSearch} style={{ display: 'grid', gap: '1.25rem' }}>
               {/* Hotel Search Grid */}
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 1fr',
-                gap: 16
+                gap: '1rem'
               }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Destination City / Hotel Name *</label>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Destination City / Hotel Name *</label>
                   <input
                     type="text"
                     placeholder="Where are you going? (e.g. Goa, Paris)"
@@ -633,47 +633,47 @@ export default function DomesticInternationalPackages() {
                     required
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 10,
+                      padding: '0.75rem 0.875rem',
+                      borderRadius: '0.625rem',
                       border: '1px solid var(--color-border)',
                       outline: 'none',
-                      fontSize: 14,
+                      fontSize: '0.875rem',
                       fontFamily: 'Inter, sans-serif'
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Check-in Date (Optional)</label>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Check-in Date (Optional)</label>
                   <input
                     type="date"
                     value={hotelCheckIn}
                     onChange={(e) => setHotelCheckIn(e.target.value)}
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 10,
+                      padding: '0.75rem 0.875rem',
+                      borderRadius: '0.625rem',
                       border: '1px solid var(--color-border)',
                       outline: 'none',
-                      fontSize: 14,
+                      fontSize: '0.875rem',
                       fontFamily: 'Inter, sans-serif'
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Check-out Date (Optional)</label>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Check-out Date (Optional)</label>
                   <input
                     type="date"
                     value={hotelCheckOut}
                     onChange={(e) => setHotelCheckOut(e.target.value)}
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 10,
+                      padding: '0.75rem 0.875rem',
+                      borderRadius: '0.625rem',
                       border: '1px solid var(--color-border)',
                       outline: 'none',
-                      fontSize: 14,
+                      fontSize: '0.875rem',
                       fontFamily: 'Inter, sans-serif'
                     }}
                   />
@@ -683,20 +683,20 @@ export default function DomesticInternationalPackages() {
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: isMobile ? '1.5fr 1fr' : '1fr 1fr 1fr',
-                gap: 16
+                gap: '1rem'
               }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Guests (Adults / Children)</label>
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Guests (Adults / Children)</label>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <select
                       value={hotelAdults}
                       onChange={(e) => setHotelAdults(Number(e.target.value))}
                       style={{
                         flex: 1,
-                        padding: '12px 10px',
-                        borderRadius: 10,
+                        padding: '0.75rem 0.625rem',
+                        borderRadius: '0.625rem',
                         border: '1px solid var(--color-border)',
-                        fontSize: 13,
+                        fontSize: '0.813rem',
                         background: 'white'
                       }}
                     >
@@ -707,10 +707,10 @@ export default function DomesticInternationalPackages() {
                       onChange={(e) => setHotelChildren(Number(e.target.value))}
                       style={{
                         flex: 1,
-                        padding: '12px 10px',
-                        borderRadius: 10,
+                        padding: '0.75rem 0.625rem',
+                        borderRadius: '0.625rem',
                         border: '1px solid var(--color-border)',
-                        fontSize: 13,
+                        fontSize: '0.813rem',
                         background: 'white'
                       }}
                     >
@@ -720,17 +720,17 @@ export default function DomesticInternationalPackages() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Rooms Required</label>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-secondary)', margin: '0.375rem' }}>Rooms Required</label>
                   <select
                     value={hotelRooms}
                     onChange={(e) => setHotelRooms(Number(e.target.value))}
                     style={{
                       width: '100%',
-                      padding: '12px 14px',
-                      borderRadius: 10,
+                      padding: '0.75rem 0.875rem',
+                      borderRadius: '0.625rem',
                       border: '1px solid var(--color-border)',
                       outline: 'none',
-                      fontSize: 14,
+                      fontSize: '0.875rem',
                       fontFamily: 'Inter, sans-serif',
                       background: 'white'
                     }}
@@ -742,19 +742,19 @@ export default function DomesticInternationalPackages() {
                 {!isMobile && <div />}
               </div>
 
-              <div style={{ textAlign: 'center', marginTop: 10 }}>
+              <div style={{ textAlign: 'center', margin: '0.625rem' }}>
                 <button
                   type="submit"
                   style={{
                     background: 'var(--color-primary)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: 12,
-                    padding: '14px 40px',
+                    borderRadius: '0.75rem',
+                    padding: '0.875rem 2.5rem',
                     fontWeight: 750,
-                    fontSize: 14,
+                    fontSize: '0.875rem',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 14px color-mix(in srgb, var(--color-primary) 30%, transparent)',
+                    boxShadow: '0 0.25rem 0.875rem color-mix(in srgb, var(--color-primary) 30%, transparent)',
                     transition: 'all 0.2s'
                   }}
                 >
@@ -772,15 +772,15 @@ export default function DomesticInternationalPackages() {
               <div className="row g-4">
                 {[1, 2, 3].map(i => (
                   <div key={i} className="col-12 col-md-6 col-lg-4">
-                    <div style={{ background: 'var(--color-bg-card)', borderRadius: 18, height: 420, animation: 'pulse 1.5s infinite ease-in-out', border: '1px solid var(--color-border)' }} />
+                    <div style={{ background: 'var(--color-bg-card)', borderRadius: '1.125rem', height: '26.25rem', animation: 'pulse 1.5s infinite ease-in-out', border: '1px solid var(--color-border)' }} />
                   </div>
                 ))}
               </div>
             ) : displayedPackages.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--color-bg-card)', borderRadius: 18, border: '1px dashed var(--color-border)', color: 'var(--color-text-muted)' }}>
-                <div style={{ fontSize: 40, marginBottom: 16 }}>🗺️</div>
-                <h4 style={{ fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 8 }}>No Packages Available</h4>
-                <p style={{ fontSize: 14, margin: 0 }}>We are currently updating our {activeTab} deals. Please check back later!</p>
+              <div style={{ textAlign: 'center', padding: '3.75rem 1.25rem', background: 'var(--color-bg-card)', borderRadius: '1.125rem', border: '1px dashed var(--color-border)', color: 'var(--color-text-muted)' }}>
+                <div style={{ fontSize: '2.5rem', margin: '1rem' }}>🗺️</div>
+                <h4 style={{ fontWeight: 700, color: 'var(--color-text-primary)', margin: '0.5rem' }}>No Packages Available</h4>
+                <p style={{ fontSize: '0.875rem', margin: 0 }}>We are currently updating our {activeTab} deals. Please check back later!</p>
               </div>
             ) : (
               <div 
@@ -789,9 +789,9 @@ export default function DomesticInternationalPackages() {
                 onMouseLeave={() => setIsHovered(false)}
                 style={{
                   display: 'flex',
-                  gap: '24px',
+                  gap: '1.5rem',
                   overflowX: 'auto',
-                  padding: '12px 4px 28px',
+                  padding: '0.75rem 0.25rem 1.75rem',
                   scrollBehavior: 'smooth',
                   scrollbarWidth: 'none',
                   msOverflowStyle: 'none',
@@ -802,13 +802,13 @@ export default function DomesticInternationalPackages() {
                 {displayedPackages.map(pkg => {
                   const packageHref = `/tours?destination=${encodeURIComponent(pkg.destination || 'destination')}&view=itinerary&package=${encodeURIComponent(pkg.slug)}`;
                   return (
-                    <div key={pkg.id} style={{ flex: '0 0 350px', scrollSnapAlign: 'start' }}>
+                    <div key={pkg.id} style={{ flex: '0 0 21.875rem', scrollSnapAlign: 'start' }}>
                       <article style={{
                         background: 'var(--color-bg-card)',
-                        borderRadius: 20,
+                        borderRadius: '1.25rem',
                         overflow: 'hidden',
                         border: '1px solid var(--color-border)',
-                        boxShadow: '0 4px 20px rgba(15,23,42,0.05)',
+                        boxShadow: '0 0.25rem 1.25rem rgba(15,23,42,0.05)',
                         transition: 'all 0.3s ease',
                         height: '100%',
                         display: 'flex',
@@ -817,7 +817,7 @@ export default function DomesticInternationalPackages() {
                       className="package-card-hover"
                       >
                         {/* Image Area */}
-                        <div style={{ position: 'relative', height: 210, width: '100%', overflow: 'hidden' }}>
+                        <div style={{ position: 'relative', height: '13.125rem', width: '100%', overflow: 'hidden' }}>
                           <img
                             src={pkg.image}
                             alt={pkg.title}
@@ -828,44 +828,44 @@ export default function DomesticInternationalPackages() {
                           
                           {/* Duration Tag */}
                           <span style={{
-                            position: 'absolute', top: 16, right: 16,
-                            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
-                            color: 'white', borderRadius: 999, padding: '4px 12px',
-                            fontSize: 11, fontWeight: 700, border: '1px solid rgba(255,255,255,0.2)'
+                            position: 'absolute', top: '1rem', right: '1rem',
+                            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(0.5rem)',
+                            color: 'white', borderRadius: '62.438rem', padding: '0.25rem 0.75rem',
+                            fontSize: '0.688rem', fontWeight: 700, border: '1px solid rgba(255,255,255,0.2)'
                           }}>
                             {pkg.nights} Nights
                           </span>
 
                           {/* Destination Name tag */}
                           <span style={{
-                            position: 'absolute', bottom: 16, left: 16,
+                            position: 'absolute', bottom: '1rem', left: '1rem',
                             background: 'var(--color-secondary)', color: 'white',
-                            borderRadius: 999, padding: '4px 12px',
-                            fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5
+                            borderRadius: '62.438rem', padding: '0.25rem 0.75rem',
+                            fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5
                           }}>
                             {pkg.destination}
                           </span>
                         </div>
 
                         {/* Content Area */}
-                        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                        <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
                           <h4 style={{
                             fontFamily: 'Poppins, sans-serif',
                             fontWeight: 750,
-                            fontSize: 16,
+                            fontSize: '1rem',
                             color: 'var(--color-text-primary)',
                             lineHeight: 1.4,
-                            marginBottom: 10,
+                            margin: '0.625rem',
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical',
                             overflow: 'hidden',
-                            minHeight: 44
+                            minHeight: '2.75rem'
                           }}>
                             {pkg.title}
                           </h4>
 
-                          <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 18 }}>
+                          <p style={{ fontSize: '0.813rem', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '0.375rem', margin: '1.125rem' }}>
                             <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13" style={{ color: 'var(--color-primary)' }}>
                               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                             </svg>
@@ -873,24 +873,24 @@ export default function DomesticInternationalPackages() {
                           </p>
 
                           <div style={{ marginTop: 'auto' }}>
-                            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', borderTop: '1px solid var(--color-border)', paddingTop: 16, marginBottom: 18 }}>
+                            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', borderTop: '1px solid var(--color-border)', padding: '1rem', margin: '1.125rem' }}>
                               <div>
-                                <span style={{ fontSize: 11, color: 'var(--color-text-muted)', display: 'block' }}>Starts from</span>
-                                <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 850, fontSize: 22, color: 'var(--color-text-primary)' }}>
+                                <span style={{ fontSize: '0.688rem', color: 'var(--color-text-muted)', display: 'block' }}>Starts from</span>
+                                <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 850, fontSize: '1.375rem', color: 'var(--color-text-primary)' }}>
                                   ₹{pkg.price.toLocaleString('en-IN')}
                                 </span>
                               </div>
-                              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary)', background: 'var(--color-primary-light)', padding: '4px 10px', borderRadius: 8 }}>
+                              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-primary)', background: 'var(--color-primary-light)', padding: '0.25rem 0.625rem', borderRadius: '0.5rem' }}>
                                 ★ {pkg.rating}
                               </span>
                             </div>
 
                             {/* CTA Buttons */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem' }}>
                               <Link href={packageHref} style={{
                                 background: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)',
-                                borderRadius: 12, padding: '12px 0', textDecoration: 'none',
-                                fontWeight: 700, fontSize: 13, textAlign: 'center', transition: 'all 0.2s',
+                                borderRadius: '0.75rem', padding: '0.75rem 0', textDecoration: 'none',
+                                fontWeight: 700, fontSize: '0.813rem', textAlign: 'center', transition: 'all 0.2s',
                                 border: '1px solid var(--color-border)'
                               }}
                               onMouseEnter={e => e.currentTarget.style.background = 'var(--color-border)'}
@@ -902,9 +902,9 @@ export default function DomesticInternationalPackages() {
                                 onClick={triggerInquiry}
                                 style={{
                                   background: 'var(--color-primary)', color: 'white', border: 'none',
-                                  borderRadius: 12, padding: '12px 0', cursor: 'pointer',
-                                  fontWeight: 750, fontSize: 13, transition: 'all 0.2s',
-                                  boxShadow: '0 4px 14px color-mix(in srgb, var(--color-primary) 20%, transparent)'
+                                  borderRadius: '0.75rem', padding: '0.75rem 0', cursor: 'pointer',
+                                  fontWeight: 750, fontSize: '0.813rem', transition: 'all 0.2s',
+                                  boxShadow: '0 0.25rem 0.875rem color-mix(in srgb, var(--color-primary) 20%, transparent)'
                                 }}
                                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                                 onMouseLeave={e => e.currentTarget.style.transform = 'none'}
@@ -934,8 +934,8 @@ export default function DomesticInternationalPackages() {
           100% { opacity: 0.6; }
         }
         :global(.package-card-hover:hover) {
-          transform: translateY(-8px);
-          box-shadow: 0 20px 35px rgba(15,23,42,0.1) !important;
+          transform: translateY(-0.5rem);
+          box-shadow: 0 1.25rem 2.188rem rgba(15,23,42,0.1) !important;
           border-color: color-mix(in srgb, var(--color-primary) 30%, transparent) !important;
         }
         :global(.package-card-hover:hover .package-card-img) {

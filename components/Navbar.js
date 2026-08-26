@@ -389,12 +389,12 @@ function Tag({ label, color, bg }) {
       display: 'inline-block',
       background: bg,
       color: color,
-      fontSize: 8,
+      fontSize: '0.5rem',
       fontWeight: 700,
       letterSpacing: 0.8,
-      padding: '2px 4px',
-      borderRadius: 4,
-      marginLeft: 6,
+      padding: '2px 0.25rem',
+      borderRadius: '0.25rem',
+      margin: '0.375rem',
       lineHeight: 1.6,
       verticalAlign: 'middle',
       textTransform: 'uppercase',
@@ -444,10 +444,10 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
         onClick={() => setOpen(!open)}
         className="header-nav-link"
         style={{
-          display: 'flex', alignItems: 'center', gap: 5,
+          display: 'flex', alignItems: 'center', gap: '0.313rem',
           background: 'none', border: 'none', cursor: 'pointer',
-          color: linkColor, fontSize: 14, fontWeight: 600,
-          padding: '6px 2px',
+          color: linkColor, fontSize: '0.875rem', fontWeight: 600,
+          padding: '0.375rem 2px',
           transition: 'color 0.2s',
           whiteSpace: 'nowrap',
         }}
@@ -471,16 +471,16 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
         <div
           style={{
             position: 'absolute',
-            top: 'calc(100% + 16px)',
+            top: 'calc(100% + 1rem)',
             left: '50%',
             transform: 'translateX(-50%)',
             background: 'white',
-            borderRadius: 16,
-            boxShadow: '0 12px 48px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06)',
+            borderRadius: '1rem',
+            boxShadow: '0 0.75rem 3rem rgba(0,0,0,0.12), 0 0.25rem 1rem rgba(0,0,0,0.06)',
             border: '1px solid rgba(0,0,0,0.04)',
-            padding: '16px',
+            padding: '1rem',
             display: 'flex',
-            gap: 16,
+            gap: '1rem',
             zIndex: 999,
             animation: 'dropIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
             minWidth: cols.length === 1 ? 240 : Math.max(cols.length * 220, 320),
@@ -489,7 +489,7 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
           {/* Caret pointing to label */}
           <div style={{
             position: 'absolute', top: -6, left: '50%', transform: 'translateX(-50%) rotate(45deg)',
-            width: 12, height: 12, background: 'white', borderLeft: '1px solid rgba(0,0,0,0.04)', borderTop: '1px solid rgba(0,0,0,0.04)',
+            width: '0.75rem', height: '0.75rem', background: 'white', borderLeft: '1px solid rgba(0,0,0,0.04)', borderTop: '1px solid rgba(0,0,0,0.04)',
             zIndex: -1
           }} />
 
@@ -500,7 +500,7 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
                 flex: 1,
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 4,
+                gap: '0.25rem',
                 borderRight: ci < cols.length - 1 ? '1px solid #f1f5f9' : 'none',
                 paddingRight: ci < cols.length - 1 ? 16 : 0,
               }}
@@ -518,15 +518,15 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
                       style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                         width: '100%', textAlign: 'left',
-                        padding: '10px 14px', borderRadius: 8,
+                        padding: '0.625rem 0.875rem', borderRadius: '0.5rem',
                         background: 'transparent', border: 'none',
-                        color: '#1e293b', fontWeight: 600, fontSize: 13.5,
+                        color: '#1e293b', fontWeight: 600, fontSize: '0.844rem',
                         transition: 'all 0.2s', cursor: 'pointer'
                       }}
                       onMouseEnter={e => {
                         e.currentTarget.style.background = '#f8fafc';
                         e.currentTarget.style.color = 'var(--color-primary)';
-                        e.currentTarget.style.transform = 'translateX(4px)';
+                        e.currentTarget.style.transform = 'translateX(0.25rem)';
                       }}
                       onMouseLeave={e => {
                         e.currentTarget.style.background = 'transparent';
@@ -549,7 +549,7 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
                     onClick={() => setOpen(false)}
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '10px 14px', borderRadius: 8,
+                      padding: '0.625rem 0.875rem', borderRadius: '0.5rem',
                       textDecoration: 'none',
                       color: item.isHeaderStyle ? '#FFD700' : (item.isExplore ? 'var(--color-primary)' : '#1e293b'),
                       fontWeight: item.isHeaderStyle ? 600 : (item.isExplore ? 700 : 500),
@@ -561,11 +561,11 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
                       if (item.isHeaderStyle) {
                         e.currentTarget.style.background = '#0a2b5e';
                         e.currentTarget.style.color = '#ffffff';
-                        e.currentTarget.style.transform = 'translateX(4px)';
+                        e.currentTarget.style.transform = 'translateX(0.25rem)';
                       } else {
                         e.currentTarget.style.background = item.isExplore ? '#e0f2fe' : '#f8fafc';
                         e.currentTarget.style.color = 'var(--color-primary)';
-                        e.currentTarget.style.transform = 'translateX(4px)';
+                        e.currentTarget.style.transform = 'translateX(0.25rem)';
                       }
                     }}
                     onMouseLeave={e => {
@@ -580,7 +580,7 @@ function MegaDropdown({ label, cols, isTransparent, onFlightOpen }) {
                       }
                     }}
                   >
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       {item.icon && <span style={{ display: 'flex', alignItems: 'center' }}>{item.icon}</span>}
                       {item.name}
                     </span>
@@ -673,6 +673,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
     },
 
     { label: 'Testimonial', href: '/testimonials' },
+    { label: 'Our Travel Gallery', href: '/gallery' },
     // { label: 'FAQ', href: '/contact#faq' },
     { label: 'Contact us', href: '/contact' },
     { label: 'Blog', href: '/blog' },
@@ -690,29 +691,29 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
           opacity: isOpen ? 1 : 0,
           visibility: isOpen ? 'visible' : 'hidden',
           transition: 'opacity 0.3s ease, visibility 0.3s ease',
-          backdropFilter: 'blur(4px)',
+          backdropFilter: 'blur(0.25rem)',
         }}
       />
       <div
 
         style={{
           position: 'fixed', top: 0, right: 0,
-          width: '100%', maxWidth: 360, height: '100vh',
+          width: '100%', maxWidth: '22.5rem', height: '100vh',
           background: 'linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)', zIndex: 99999,
           transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
           visibility: isOpen ? 'visible' : 'hidden',
           transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),visibility 0.4s',
           display: 'flex', flexDirection: 'column',
-          boxShadow: '-18px 0 50px rgba(15,23,42,0.22)',
+          boxShadow: '-1.125rem 0 3.125rem rgba(15,23,42,0.22)',
         }}
       >
         {/* Header */}
-        <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid #edf2f7' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-            <span style={{ color: 'var(--color-primary)', fontSize: 11, fontWeight: 900, letterSpacing: 1.6, textTransform: 'uppercase' }}>
+        <div style={{ padding: '1.25rem 1.25rem 1rem', borderBottom: '1px solid #edf2f7' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '1.125rem' }}>
+            <span style={{ color: 'var(--color-primary)', fontSize: '0.688rem', fontWeight: 900, letterSpacing: 1.6, textTransform: 'uppercase' }}>
               Travel Menu
             </span>
-            <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: 12, background: '#f1f5f9', border: '1px solid #e2e8f0', cursor: 'pointer', padding: 0, color: '#64748b', display: 'grid', placeItems: 'center' }}>
+            <button onClick={onClose} style={{ width: '2.25rem', height: '2.25rem', borderRadius: '0.75rem', background: '#f1f5f9', border: '1px solid #e2e8f0', cursor: 'pointer', padding: 0, color: '#64748b', display: 'grid', placeItems: 'center' }}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
                 <path d="M18 6L6 18M6 6l12 12" />
               </svg>
@@ -721,16 +722,16 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
           <Link
             href={isLoggedIn ? '/profile' : `/auth/login?redirect=${encodeURIComponent(pathname)}`}
             onClick={onClose}
-            style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16, background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%)', color: 'white', boxShadow: '0 14px 30px color-mix(in srgb, var(--color-primary) 24%, transparent)' }}
+            style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.875rem', borderRadius: '1rem', background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%)', color: 'white', boxShadow: '0 0.875rem 1.875rem color-mix(in srgb, var(--color-primary) 24%, transparent)' }}
           >
-            <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.28)', display: 'grid', placeItems: 'center', fontSize: 15, fontWeight: 900 }}>
+            <div style={{ width: '2.75rem', height: '2.75rem', borderRadius: '50%', background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.28)', display: 'grid', placeItems: 'center', fontSize: '0.938rem', fontWeight: 900 }}>
               {userInitial}
             </div>
             <div style={{ minWidth: 0 }}>
-              <h2 style={{ fontSize: 17, fontWeight: 850, margin: 0, color: 'white' }}>
+              <h2 style={{ fontSize: '1.063rem', fontWeight: 850, margin: 0, color: 'white' }}>
                 Hello, {firstName}
               </h2>
-              <p style={{ margin: '3px 0 0', color: 'rgba(255,255,255,0.74)', fontSize: 12, fontWeight: 700 }}>
+              <p style={{ margin: '0.188rem 0 0', color: 'rgba(255,255,255,0.74)', fontSize: '0.75rem', fontWeight: 700 }}>
                 {isLoggedIn ? 'Manage your travel faster' : 'Sign in for saved trips'}
               </p>
             </div>
@@ -741,7 +742,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
         </div>
 
         {/* Scrollable Content */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '14px 14px 10px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0.875rem 0.875rem 0.625rem' }}>
           {navGroups?.map((group, idx) => {
             const isExpanded = expanded === group.label;
             const hasHref = !!group.href;
@@ -758,7 +759,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                   }
                 }}
                 style={{
-                  padding: '12px 12px',
+                  padding: '0.75rem 0.75rem',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
@@ -766,21 +767,21 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                   transition: 'all 0.2s',
                   background: isExpanded ? 'var(--color-primary-light)' : 'white',
                   border: isExpanded ? '1px solid var(--brand-primary-border)' : '1px solid #edf2f7',
-                  borderRadius: 14,
-                  boxShadow: isExpanded ? '0 10px 22px color-mix(in srgb, var(--color-primary) 14%, transparent)' : '0 4px 12px rgba(15,23,42,0.035)',
+                  borderRadius: '0.875rem',
+                  boxShadow: isExpanded ? '0 0.625rem 1.375rem color-mix(in srgb, var(--color-primary) 14%, transparent)' : '0 0.25rem 0.75rem rgba(15,23,42,0.035)',
                 }}
                 onMouseEnter={e => { if (!isExpanded) e.currentTarget.style.background = 'color-mix(in srgb, var(--color-primary) 8%, white)'; }}
                 onMouseLeave={e => { if (!isExpanded) e.currentTarget.style.background = 'white'; }}
               >
-                <span style={{ display: 'flex', alignItems: 'center', gap: 11, minWidth: 0 }}>
-                  <span style={{ width: 34, height: 34, flex: '0 0 34px', borderRadius: 11, display: 'grid', placeItems: 'center', background: isExpanded ? 'var(--color-primary)' : 'color-mix(in srgb, var(--color-primary) 10%, white)', color: isExpanded ? 'white' : 'var(--color-primary)', fontSize: 10, fontWeight: 950, letterSpacing: 0.3 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.688rem', minWidth: 0 }}>
+                  <span style={{ width: '2.125rem', height: '2.125rem', flex: '0 0 2.125rem', borderRadius: '0.688rem', display: 'grid', placeItems: 'center', background: isExpanded ? 'var(--color-primary)' : 'color-mix(in srgb, var(--color-primary) 10%, white)', color: isExpanded ? 'white' : 'var(--color-primary)', fontSize: '0.625rem', fontWeight: 950, letterSpacing: 0.3 }}>
                     {navIcon}
                   </span>
-                  <span style={{ fontSize: 13.5, fontWeight: isExpanded ? 850 : 750, color: isExpanded ? '#0f172a' : '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <span style={{ fontSize: '0.844rem', fontWeight: isExpanded ? 850 : 750, color: isExpanded ? '#0f172a' : '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {group.label}
                   </span>
                 </span>
-                <span style={{ width: 28, height: 28, borderRadius: 9, display: 'grid', placeItems: 'center', color: isExpanded ? 'var(--color-primary)' : '#94a3b8', background: isExpanded ? '#fff' : 'color-mix(in srgb, var(--color-primary) 6%, white)' }}>
+                <span style={{ width: '1.75rem', height: '1.75rem', borderRadius: '0.563rem', display: 'grid', placeItems: 'center', color: isExpanded ? 'var(--color-primary)' : '#94a3b8', background: isExpanded ? '#fff' : 'color-mix(in srgb, var(--color-primary) 6%, white)' }}>
                   {group.hasSub ? (
                     <svg
                       viewBox="0 0 24 24" fill="currentColor" width="16" height="16"
@@ -801,7 +802,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
             );
 
             return (
-              <div key={idx} style={{ marginBottom: 9 }}>
+              <div key={idx} style={{ margin: '0.563rem' }}>
                 {hasHref ? (
                   <Link href={group.href} style={{ textDecoration: 'none' }} onClick={onClose}>
                     {ItemTrigger}
@@ -814,7 +815,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
 
                 {/* Expanded Sub-items */}
                 {group.hasSub && isExpanded && (
-                  <div style={{ display: 'grid', gap: 7, padding: '10px 4px 4px 48px' }}>
+                  <div style={{ display: 'grid', gap: '0.438rem', padding: '0.625rem 0.25rem 0.25rem 3rem' }}>
                     {group.subItems.map((sub, sidx) => {
                       const isObj = typeof sub === 'object';
                       const label = isObj ? sub.label : sub;
@@ -824,11 +825,11 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                       const ItemContent = (
                         <div
                           style={{
-                            padding: '9px 12px',
-                            borderRadius: 11,
+                            padding: '0.563rem 0.75rem',
+                            borderRadius: '0.688rem',
                             background: '#fff',
                             border: '1px solid #eef2f7',
-                            fontSize: '12.5px',
+                            fontSize: '0.781rem',
                             fontWeight: 750,
                             color: '#475569',
                             cursor: 'pointer',
@@ -871,11 +872,11 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
         </div>
 
         {/* Footer */}
-        <div style={{ padding: '16px 18px 20px', background: '#ffffff', borderTop: '1px solid #edf2f7' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+        <div style={{ padding: '1rem 1.125rem 1.25rem', background: '#ffffff', borderTop: '1px solid #edf2f7' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem' }}>
             <div>
-              <div style={{ color: '#0f172a', fontSize: 12, fontWeight: 900 }}>Need help planning?</div>
-              <div style={{ marginTop: 2, color: '#64748b', fontSize: 12, fontWeight: 700 }}>{displayPhone}</div>
+              <div style={{ color: '#0f172a', fontSize: '0.75rem', fontWeight: 900 }}>Need help planning?</div>
+              <div style={{ marginTop: 2, color: '#64748b', fontSize: '0.75rem', fontWeight: 700 }}>{displayPhone}</div>
             </div>
             {isLoggedIn ? (
               <button
@@ -885,19 +886,19 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                   onClose();
                 }}
                 style={{
-                  fontSize: 12,
+                  fontSize: '0.75rem',
                   fontWeight: 900,
                   color: '#dc2626',
                   background: '#fff1f2',
                   border: '1px solid #fecdd3',
-                  borderRadius: 999,
-                  padding: '9px 13px',
+                  borderRadius: '62.438rem',
+                  padding: '0.563rem 0.813rem',
                 }}
               >
                 Sign out
               </button>
             ) : (
-              <Link href={`/auth/login?redirect=${encodeURIComponent(pathname)}`} onClick={onClose} style={{ fontSize: 12, fontWeight: 900, color: 'white', background: 'var(--color-primary)', borderRadius: 999, padding: '10px 14px', textDecoration: 'none' }}>
+              <Link href={`/auth/login?redirect=${encodeURIComponent(pathname)}`} onClick={onClose} style={{ fontSize: '0.75rem', fontWeight: 900, color: 'white', background: 'var(--color-primary)', borderRadius: '62.438rem', padding: '0.625rem 0.875rem', textDecoration: 'none' }}>
                 Login
               </Link>
             )}
@@ -1002,7 +1003,7 @@ function HeaderSearch({ isLightHeader }) {
       <div style={{
         display: 'flex', alignItems: 'center', background: isLightHeader ? 'rgba(255,255,255,0.15)' : '#f9fafb',
         border: isLightHeader ? '1.5px solid rgba(255,255,255,0.3)' : '1.5px solid #e5e7eb',
-        borderRadius: 20, padding: '4px 12px', width: 220, transition: 'all 0.2s'
+        borderRadius: '1.25rem', padding: '0.25rem 0.75rem', width: '13.75rem', transition: 'all 0.2s'
       }}>
         <svg viewBox="0 0 24 24" fill="none" stroke={isLightHeader ? 'white' : '#64748b'} strokeWidth="2.5" width="16" height="16">
           <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
@@ -1036,21 +1037,21 @@ function HeaderSearch({ isLightHeader }) {
           }}
           style={{
             border: 'none', background: 'transparent', outline: 'none',
-            color: isLightHeader ? 'white' : '#1f2937', fontSize: 14,
-            width: '100%', marginLeft: 8, fontFamily: 'Inter, sans-serif'
+            color: isLightHeader ? 'white' : '#1f2937', fontSize: '0.875rem',
+            width: '100%', margin: '0.5rem', fontFamily: 'Inter, sans-serif'
           }}
         />
       </div>
       {locationOpen && (locationLoading || locationSuggestions.length > 0) && (
         <div style={{
-          position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 280,
-          background: '#fff', borderRadius: 12, boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+          position: 'absolute', top: 'calc(100% + 0.5rem)', right: 0, width: '17.5rem',
+          background: '#fff', borderRadius: '0.75rem', boxShadow: '0 0.625rem 1.563rem rgba(0,0,0,0.1)',
           zIndex: 50, overflow: 'hidden', border: '1px solid #e2e8f0'
         }}>
           {locationLoading ? (
-            <div style={{ padding: 12, fontSize: 13, color: '#64748b' }}>Searching...</div>
+            <div style={{ padding: '0.75rem', fontSize: '0.813rem', color: '#64748b' }}>Searching...</div>
           ) : (
-            <div style={{ maxHeight: 250, overflowY: 'auto' }}>
+            <div style={{ maxHeight: '15.625rem', overflowY: 'auto' }}>
               {locationSuggestions.map((loc, i) => (
                 <button
                   key={`hs-${loc.id}-${i}`}
@@ -1063,18 +1064,18 @@ function HeaderSearch({ isLightHeader }) {
                   }}
                   style={{
                     width: '100%', display: 'flex', justifyContent: 'space-between',
-                    padding: '10px 14px', border: 'none', borderBottom: '1px solid #f1f5f9',
+                    padding: '0.625rem 0.875rem', border: 'none', borderBottom: '1px solid #f1f5f9',
                     background: 'transparent', cursor: 'pointer', textAlign: 'left',
                     alignItems: 'center'
                   }}
                   onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
-                  <span style={{ fontSize: 13, color: '#0f172a', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <span style={{ fontSize: '0.813rem', color: '#0f172a', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {getLocationLabel(loc)}
                   </span>
                   <span style={{
-                    fontSize: 10, padding: '2px 6px', borderRadius: 4,
+                    fontSize: '0.625rem', padding: '2px 0.375rem', borderRadius: '0.25rem',
                     background: loc.type === 'country' ? '#e0f2fe' : '#dcfce7',
                     color: loc.type === 'country' ? '#0369a1' : '#15803d',
                     textTransform: 'uppercase', fontWeight: 700
@@ -1380,15 +1381,15 @@ export default function Navbar({ brand, companyInfo }) {
   const isLightHeader = false;
   const linkColor = isLightHeader ? 'rgba(255,255,255,0.92)' : '#374151';
   const navButtonStyle = {
-    padding: '8px 18px',
-    borderRadius: 8,
+    padding: '0.5rem 1.125rem',
+    borderRadius: '0.5rem',
     border: isLightHeader ? '1.5px solid rgba(255,255,255,0.6)' : '1.5px solid #d1d5db',
     color: isLightHeader ? 'white' : '#374151',
     fontWeight: 600,
-    fontSize: 15,
+    fontSize: '0.938rem',
     textDecoration: 'none',
     background: isLightHeader ? 'rgba(255,255,255,0.1)' : 'white',
-    backdropFilter: 'blur(6px)',
+    backdropFilter: 'blur(0.375rem)',
     transition: 'all 0.2s',
   };
 
@@ -1500,8 +1501,8 @@ export default function Navbar({ brand, companyInfo }) {
           .forex-swap-button:hover {
             transform: rotate(270deg);
           }
-          .forex-modal-head { padding: 20px; }
-          .forex-modal-form { padding: 18px; }
+          .forex-modal-head { padding: 1.25rem; }
+          .forex-modal-form { padding: 1.125rem; }
           .forex-rate-preview {
             align-items: flex-start;
             flex-direction: column;
@@ -1512,21 +1513,21 @@ export default function Navbar({ brand, companyInfo }) {
           .forex-result-grid {
             grid-template-columns: 1fr;
           }
-          @media (min-width: 641px) {
+          @media (min-width: 40.063rem) {
           .flight-modal-grid { grid-template-columns: 1fr; }
-          .flight-modal-head { padding: 20px; }
-          .flight-modal-form { padding: 20px; } }
-          @media (min-width: 641px) {
+          .flight-modal-head { padding: 1.25rem; }
+          .flight-modal-form { padding: 1.25rem; } }
+          @media (min-width: 40.063rem) {
           .top-bar-announcement {
-            height: 40px;
-            font-size: 14px;
+            height: 2.5rem;
+            font-size: 0.875rem;
           } }
-          @media (min-width: 768px) {
+          @media (min-width: 48rem) {
         .nav-plain-link {
-          font-size: 14px;
+          font-size: 0.875rem;
           font-weight: 600;
           text-decoration: none;
-          padding: 6px 2px;
+          padding: 0.375rem 2px;
           transition: color 0.2s;
           position: relative;
         }
@@ -1536,7 +1537,7 @@ export default function Navbar({ brand, companyInfo }) {
           bottom: 0; left: 0;
           width: 0; height: 2px;
           background: var(--color-primary);
-          border-radius: 999px;
+          border-radius: 62.438rem;
           transition: width 0.25s;
         }
         .nav-plain-link:hover::after,
@@ -1548,51 +1549,51 @@ export default function Navbar({ brand, companyInfo }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 20px;
+          padding: 1.25rem;
           background: rgba(15, 23, 42, 0.58);
-          backdrop-filter: blur(5px);
+          backdrop-filter: blur(0.313rem);
         }
         .forex-modal {
-          width: min(100%, 720px);
-          max-height: min(86vh, 760px);
+          width: min(100%, 45rem);
+          max-height: min(86vh, 47.5rem);
           overflow: auto;
-          border-radius: 8px;
+          border-radius: 0.5rem;
           background: #fff;
-          box-shadow: 0 28px 70px rgba(0,0,0,0.28);
+          box-shadow: 0 1.75rem 4.375rem rgba(0,0,0,0.28);
         }
         .forex-modal-head {
           display: flex;
           align-items: flex-start;
           justify-content: space-between;
-          gap: 18px;
-          padding: 22px 24px;
+          gap: 1.125rem;
+          padding: 1.375rem 1.5rem;
           background: linear-gradient(135deg, #083d5b, #108173);
           color: #fff;
         }
         .forex-modal-head span {
           display: block;
-          margin-bottom: 6px;
+          margin-bottom: 0.375rem;
           color: #c9fff2;
-          font-size: 11px;
+          font-size: 0.688rem;
           font-weight: 900;
-          letter-spacing: .8px;
+          letter-spacing: .0.5rem;
           text-transform: uppercase;
         }
         .forex-modal-head h2 {
-          margin: 0 0 6px;
+          margin: 0 0 0.375rem;
           font-family: Poppins, sans-serif;
-          font-size: 24px;
+          font-size: 1.5rem;
           font-weight: 900;
         }
         .forex-modal-head p {
           margin: 0;
           color: rgba(255,255,255,.8);
-          font-size: 14px;
+          font-size: 0.875rem;
           line-height: 1.5;
         }
         .forex-modal-close {
-          width: 36px;
-          height: 36px;
+          width: 2.25rem;
+          height: 2.25rem;
           border: 1px solid rgba(255,255,255,.35);
           border-radius: 50%;
           background: rgba(255,255,255,.12);
@@ -1605,26 +1606,26 @@ export default function Navbar({ brand, companyInfo }) {
         }
         .forex-modal-form {
           display: grid;
-          gap: 16px;
-          padding: 20px 22px 22px;
+          gap: 1rem;
+          padding: 1.25rem 1.375rem 1.375rem;
         }
         .forex-modal-grid {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 14px;
+          gap: 0.875rem;
         }
         .forex-modal-grid label {
           display: grid;
-          gap: 7px;
+          gap: 0.438rem;
           color: #334155;
-          font-size: 12px;
+          font-size: 0.75rem;
           font-weight: 900;
         }
         .forex-conversion-row {
           grid-column: 1 / -1;
           display: grid;
-          grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr);
-          gap: 10px;
+          grid-template-columns: minmax(0, 1fr) 2.625rem minmax(0, 1fr);
+          gap: 0.625rem;
           align-items: end;
         }
         .forex-currency-field {
@@ -1633,38 +1634,38 @@ export default function Navbar({ brand, companyInfo }) {
         .forex-currency-combobox {
           position: relative;
           display: grid;
-          grid-template-columns: minmax(0, 1fr) 42px;
+          grid-template-columns: minmax(0, 1fr) 2.625rem;
           grid-template-areas:
             "selected toggle"
             "search toggle";
-          min-height: 64px;
+          min-height: 4rem;
           border: 1px solid #d8dee8;
-          border-radius: 8px;
+          border-radius: 0.5rem;
           background: #fff;
           transition: border-color .18s ease, box-shadow .18s ease;
         }
         .forex-currency-combobox.is-open {
           border-color: var(--color-primary);
-          box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 14%, transparent);
+          box-shadow: 0 0 0 0.188rem color-mix(in srgb, var(--color-primary) 14%, transparent);
         }
         .forex-currency-selected {
           grid-area: selected;
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 0.5rem;
           min-width: 0;
-          padding: 9px 12px 0;
+          padding: 0.563rem 0.75rem 0;
         }
         .forex-currency-selected strong {
           color: #0f172a;
-          font-size: 15px;
+          font-size: 0.938rem;
           font-weight: 900;
-          letter-spacing: .3px;
+          letter-spacing: .0.188rem;
         }
         .forex-currency-selected span {
           min-width: 0;
           color: #64748b;
-          font-size: 12px;
+          font-size: 0.75rem;
           font-weight: 800;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -1672,22 +1673,22 @@ export default function Navbar({ brand, companyInfo }) {
         }
         .forex-currency-selected em {
           flex: 0 0 auto;
-          padding: 2px 6px;
-          border-radius: 999px;
+          padding: 2px 0.375rem;
+          border-radius: 62.438rem;
           background: #ecfeff;
           color: #0369a1;
-          font-size: 10px;
+          font-size: 0.625rem;
           font-style: normal;
           font-weight: 900;
         }
         .forex-currency-combobox input {
           grid-area: search;
-          min-height: 28px;
+          min-height: 1.75rem;
           border: 0;
           border-radius: 0;
-          padding: 0 12px 8px;
+          padding: 0 0.75rem 0.5rem;
           color: #111827;
-          font-size: 13px;
+          font-size: 0.813rem;
           font-weight: 700;
           outline: none;
         }
@@ -1695,7 +1696,7 @@ export default function Navbar({ brand, companyInfo }) {
           grid-area: toggle;
           border: 0;
           border-left: 1px solid #edf1f5;
-          border-radius: 0 8px 8px 0;
+          border-radius: 0 0.5rem 0.5rem 0;
           background: #f8fafc;
           color: #334155;
           display: inline-flex;
@@ -1708,28 +1709,28 @@ export default function Navbar({ brand, companyInfo }) {
         }
         .forex-currency-menu {
           position: absolute;
-          top: calc(100% + 8px);
+          top: calc(100% + 0.5rem);
           left: 0;
           right: 0;
           z-index: 30;
-          max-height: 248px;
+          max-height: 15.5rem;
           overflow-y: auto;
           border: 1px solid #dbe5ef;
-          border-radius: 8px;
+          border-radius: 0.5rem;
           background: #fff;
-          box-shadow: 0 18px 42px rgba(15,23,42,.18);
-          padding: 6px;
+          box-shadow: 0 1.125rem 2.625rem rgba(15,23,42,.18);
+          padding: 0.375rem;
         }
         .forex-currency-menu button {
           width: 100%;
           border: 0;
-          border-radius: 7px;
+          border-radius: 0.438rem;
           background: transparent;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 12px;
-          padding: 10px;
+          gap: 0.75rem;
+          padding: 0.625rem;
           text-align: left;
           cursor: pointer;
         }
@@ -1744,12 +1745,12 @@ export default function Navbar({ brand, companyInfo }) {
         }
         .forex-currency-menu button strong {
           color: #0f172a;
-          font-size: 13px;
+          font-size: 0.813rem;
           font-weight: 900;
         }
         .forex-currency-menu button small {
           color: #64748b;
-          font-size: 12px;
+          font-size: 0.75rem;
           font-weight: 700;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -1757,9 +1758,9 @@ export default function Navbar({ brand, companyInfo }) {
         }
         .forex-currency-menu button em {
           flex: 0 0 auto;
-          max-width: 120px;
+          max-width: 7.5rem;
           color: #0369a1;
-          font-size: 11px;
+          font-size: 0.688rem;
           font-style: normal;
           font-weight: 900;
           overflow: hidden;
@@ -1767,16 +1768,16 @@ export default function Navbar({ brand, companyInfo }) {
           white-space: nowrap;
         }
         .forex-currency-empty {
-          padding: 14px 12px;
+          padding: 0.875rem 0.75rem;
           color: #64748b;
-          font-size: 13px;
+          font-size: 0.813rem;
           font-weight: 800;
           text-align: center;
         }
         .forex-swap-button {
-          width: 42px;
-          height: 42px;
-          margin-bottom: 11px;
+          width: 2.625rem;
+          height: 2.625rem;
+          margin-bottom: 0.688rem;
           border: 1px solid #cfd9e6;
           border-radius: 50%;
           background: #fff;
@@ -1797,28 +1798,28 @@ export default function Navbar({ brand, companyInfo }) {
         .forex-modal-grid textarea {
           width: 100%;
           border: 1px solid #d8dee8;
-          border-radius: 8px;
+          border-radius: 0.5rem;
           background: #fff;
           color: #111827;
           font: inherit;
-          font-size: 14px;
+          font-size: 0.875rem;
           outline: none;
         }
         .forex-modal-grid input,
         .forex-modal-grid select {
-          min-height: 44px;
-          padding: 0 12px;
+          min-height: 2.75rem;
+          padding: 0 0.75rem;
         }
         .forex-modal-grid textarea {
-          min-height: 92px;
-          padding: 12px;
+          min-height: 5.75rem;
+          padding: 0.75rem;
           resize: vertical;
         }
         .forex-modal-grid .forex-currency-combobox input {
-          min-height: 28px;
+          min-height: 1.75rem;
           border: 0;
           border-radius: 0;
-          padding: 0 12px 8px;
+          padding: 0 0.75rem 0.5rem;
         }
         .forex-modal-notes { grid-column: 1 / -1; }
         .forex-rate-preview {
@@ -1826,58 +1827,58 @@ export default function Navbar({ brand, companyInfo }) {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 14px;
-          padding: 14px 16px;
+          gap: 0.875rem;
+          padding: 0.875rem 1rem;
           border: 1px solid #bae6fd;
-          border-radius: 8px;
+          border-radius: 0.5rem;
           background: #f0f9ff;
           color: #0f172a;
         }
         .forex-rate-preview strong {
           display: block;
           color: #075985;
-          font-size: 13px;
+          font-size: 0.813rem;
           font-weight: 950;
         }
         .forex-rate-preview span {
           display: block;
-          margin-top: 3px;
+          margin-top: 0.188rem;
           color: #334155;
-          font-size: 13px;
+          font-size: 0.813rem;
           font-weight: 800;
           line-height: 1.45;
         }
         .forex-rate-preview small {
           flex: 0 0 auto;
           color: #0369a1;
-          font-size: 12px;
+          font-size: 0.75rem;
           font-weight: 900;
           text-align: right;
         }
         .forex-charge-note {
           grid-column: 1 / -1;
-          margin-top: -6px;
+          margin-top: -0.375rem;
           color: #475569;
-          font-size: 12px;
+          font-size: 0.75rem;
           font-weight: 850;
         }
         .forex-rate-error {
           grid-column: 1 / -1;
           margin: 0;
-          padding: 11px 13px;
+          padding: 0.688rem 0.813rem;
           border: 1px solid #fed7aa;
-          border-radius: 8px;
+          border-radius: 0.5rem;
           background: #fff7ed;
           color: #9a3412;
-          font-size: 13px;
+          font-size: 0.813rem;
           font-weight: 850;
         }
         .forex-modal-form > button {
           justify-self: start;
-          min-height: 44px;
-          padding: 0 18px;
+          min-height: 2.75rem;
+          padding: 0 1.125rem;
           border: 0;
-          border-radius: 8px;
+          border-radius: 0.5rem;
           background: var(--color-primary);
           color: #fff;
           font-weight: 900;
@@ -1888,46 +1889,46 @@ export default function Navbar({ brand, companyInfo }) {
           opacity: .72;
         }
         .forex-modal-output {
-          padding: 15px 16px;
+          padding: 0.938rem 1rem;
           border: 1px solid #bfe7d9;
-          border-radius: 8px;
+          border-radius: 0.5rem;
           background: #effdf7;
           color: #14532d;
         }
         .forex-modal-output strong {
           display: block;
-          margin-bottom: 5px;
-          font-size: 13px;
+          margin-bottom: 0.313rem;
+          font-size: 0.813rem;
           font-weight: 900;
         }
         .forex-result-grid {
           display: grid;
           grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 8px;
-          margin: 10px 0 12px;
+          gap: 0.5rem;
+          margin: 0.625rem 0 0.75rem;
         }
         .forex-result-grid span {
-          min-height: 62px;
-          padding: 10px;
+          min-height: 3.875rem;
+          padding: 0.625rem;
           border: 1px solid #bbf7d0;
-          border-radius: 8px;
+          border-radius: 0.5rem;
           background: #f7fee7;
           color: #14532d;
-          font-size: 13px;
+          font-size: 0.813rem;
           font-weight: 900;
           overflow-wrap: anywhere;
         }
         .forex-result-grid b {
           display: block;
-          margin-bottom: 4px;
+          margin-bottom: 0.25rem;
           color: #4d7c0f;
-          font-size: 11px;
+          font-size: 0.688rem;
           text-transform: uppercase;
         }
         .forex-modal-output p {
           margin: 0;
           color: #166534;
-          font-size: 14px;
+          font-size: 0.875rem;
           line-height: 1.55;
         }
 
@@ -1938,51 +1939,51 @@ export default function Navbar({ brand, companyInfo }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 20px;
+          padding: 1.25rem;
           background: rgba(15, 23, 42, 0.58);
-          backdrop-filter: blur(5px);
+          backdrop-filter: blur(0.313rem);
         }
         .flight-modal {
-          width: min(100%, 680px);
-          max-height: min(90vh, 740px);
+          width: min(100%, 42.5rem);
+          max-height: min(90vh, 46.25rem);
           overflow: auto;
-          border-radius: 14px;
+          border-radius: 0.875rem;
           background: #fff;
-          box-shadow: 0 24px 60px rgba(15,23,42,0.24);
+          box-shadow: 0 1.5rem 3.75rem rgba(15,23,42,0.24);
         }
         .flight-modal-head {
           display: flex;
           align-items: flex-start;
           justify-content: space-between;
-          gap: 18px;
-          padding: 24px 28px;
+          gap: 1.125rem;
+          padding: 1.5rem 1.75rem;
           background: var(--color-primary-hover));
           color: #fff;
         }
         .flight-modal-head span {
           display: block;
-          margin-bottom: 6px;
+          margin-bottom: 0.375rem;
           color: rgba(255,255,255,0.8);
-          font-size: 11px;
+          font-size: 0.688rem;
           font-weight: 900;
           letter-spacing: 1px;
           text-transform: uppercase;
         }
         .flight-modal-head h2 {
-          margin: 0 0 6px;
+          margin: 0 0 0.375rem;
           font-family: Poppins, sans-serif;
-          font-size: 22px;
+          font-size: 1.375rem;
           font-weight: 850;
         }
         .flight-modal-head p {
           margin: 0;
           color: rgba(255,255,255,0.76);
-          font-size: 13.5px;
+          font-size: 0.844rem;
           line-height: 1.5;
         }
         .flight-modal-close {
-          width: 34px;
-          height: 34px;
+          width: 2.125rem;
+          height: 2.125rem;
           border: 1px solid rgba(255,255,255,0.25);
           border-radius: 50%;
           background: rgba(255,255,255,0.1);
@@ -1998,19 +1999,19 @@ export default function Navbar({ brand, companyInfo }) {
         }
         .flight-modal-form {
           display: grid;
-          gap: 20px;
-          padding: 28px;
+          gap: 1.25rem;
+          padding: 1.75rem;
         }
         .flight-trip-type-selector {
           display: flex;
-          gap: 12px;
+          gap: 0.75rem;
           border-bottom: 1px solid #edf2f7;
-          padding-bottom: 16px;
+          padding-bottom: 1rem;
         }
         .flight-trip-type-btn {
-          padding: 8px 16px;
-          border-radius: 8px;
-          font-size: 13px;
+          padding: 0.5rem 1rem;
+          border-radius: 0.5rem;
+          font-size: 0.813rem;
           font-weight: 700;
           cursor: pointer;
           transition: all 0.2s;
@@ -2031,13 +2032,13 @@ export default function Navbar({ brand, companyInfo }) {
         .flight-modal-grid {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 16px;
+          gap: 1rem;
         }
         .flight-modal-grid label {
           display: grid;
-          gap: 7px;
+          gap: 0.438rem;
           color: #334155;
-          font-size: 12px;
+          font-size: 0.75rem;
           font-weight: 850;
         }
         .flight-modal-grid input,
@@ -2045,46 +2046,46 @@ export default function Navbar({ brand, companyInfo }) {
         .flight-modal-grid textarea {
           width: 100%;
           border: 1.5px solid #e2e8f0;
-          border-radius: 8px;
+          border-radius: 0.5rem;
           background: #fff;
           color: #1e293b;
           font: inherit;
-          font-size: 13.5px;
+          font-size: 0.844rem;
           font-weight: 600;
           outline: none;
-          min-height: 42px;
-          padding: 0 12px;
+          min-height: 2.625rem;
+          padding: 0 0.75rem;
           transition: border-color 0.2s, box-shadow 0.2s;
         }
         .flight-modal-grid input:focus,
         .flight-modal-grid select:focus,
         .flight-modal-grid textarea:focus {
           border-color: var(--color-primary);
-          box-shadow: 0 0 0 3px var(--color-primary-light);
+          box-shadow: 0 0 0 0.188rem var(--color-primary-light);
         }
         .flight-modal-grid textarea {
-          min-height: 80px;
-          padding: 10px 12px;
+          min-height: 5rem;
+          padding: 0.625rem 0.75rem;
           resize: vertical;
         }
         .flight-grid-full {
           grid-column: 1 / -1;
         }
         .flight-submit-btn {
-          min-height: 44px;
-          padding: 0 24px;
+          min-height: 2.75rem;
+          padding: 0 1.5rem;
           border: 0;
-          border-radius: 8px;
+          border-radius: 0.5rem;
           background: var(--color-primary);
           color: #fff;
           font-weight: 900;
-          font-size: 14px;
+          font-size: 0.875rem;
           cursor: pointer;
           transition: background 0.2s, opacity 0.2s;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
+          gap: 0.5rem;
         }
         .flight-submit-btn:hover {
           background: var(--color-primary-hover);
@@ -2096,14 +2097,14 @@ export default function Navbar({ brand, companyInfo }) {
         .top-bar-announcement {
           position: relative;
           width: 100%;
-          height: 48px;
+          height: 3rem;
           z-index: 2200;
           background: linear-gradient(90deg, #1e3a8a 0%, #0ea5e9 100%);
           color: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 24px;
+          font-size: 1.5rem;
           font-weight: 800;
           letter-spacing: 0.5px;
         } }
@@ -2116,23 +2117,23 @@ export default function Navbar({ brand, companyInfo }) {
         }
 
         /* Responsive Navbar for Laptops */
-        @media (max-width: 1400px) {
+        @media (max-width: 87.5rem) {
           .desktop-nav-ul {
-            gap: 10px !important;
+            gap: 0.625rem !important;
             transform: none !important;
           }
           .desktop-nav-ul .header-nav-link, 
           .desktop-nav-ul .header-nav-link span {
-            font-size: 15px !important;
-            gap: 5px !important;
+            font-size: 0.938rem !important;
+            gap: 0.313rem !important;
           }
           .desktop-nav-ul .header-nav-link svg, 
           .desktop-nav-ul .header-nav-link span svg {
-            width: 18px !important;
-            height: 18px !important;
+            width: 1.125rem !important;
+            height: 1.125rem !important;
           }
           .desktop-nav-ul > span {
-            font-size: 18px !important;
+            font-size: 1.125rem !important;
             margin: 0 !important;
           }
         }
@@ -2144,19 +2145,19 @@ export default function Navbar({ brand, companyInfo }) {
         className="navbar-custom scrolled"
         style={{ background: '#0f3a75', borderBottom: '1px solid rgba(0,0,0,0.05)', zIndex: 2100 }}
       >
-        <div className="container" style={{ display: 'flex', alignItems: 'center', minHeight: '64px', padding: '4px 15px' }}>
+        <div className="container" style={{ display: 'flex', alignItems: 'center', minHeight: '4rem', padding: '0.25rem 0.938rem', maxWidth: '1280px', margin: '0 auto' }}>
           {/* Logo */}
-          <Link href="/" className="animate-fade-up delay-200" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginRight: 24 }}>
+          <Link href="/" className="animate-fade-up delay-200" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.625rem', flexShrink: 0, margin: '0' }}>
             <Image
               src={brandLogo}
               alt={`${brandName} Logo`}
               width={60}
               height={60}
               style={{
-                width: 60,
-                height: 60,
+                width: '3.75rem',
+                height: '3.75rem',
                 objectFit: 'contain',
-                borderRadius: '8px',
+                borderRadius: '0.5rem',
               }}
               priority
             />
@@ -2166,7 +2167,7 @@ export default function Navbar({ brand, companyInfo }) {
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: 0 }}>
 
             {/* Social Icons (Top Right) */}
-            <div className="d-none d-xl-flex" style={{ justifyContent: 'flex-end', gap: 16, marginBottom: 6, paddingRight: 4 }}>
+            <div className="d-none d-xl-flex" style={{ justifyContent: 'flex-end', gap: '1rem', margin: '0.375rem', padding: '0.25rem' }}>
               <Link href={companyInfo?.social?.facebook || "https://facebook.com"} target="_blank" aria-label="Facebook" style={{ color: '#1877F2', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /></svg>
               </Link>
@@ -2184,27 +2185,27 @@ export default function Navbar({ brand, companyInfo }) {
             {/* Main Nav */}
             <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
               <ul style={{
-                display: 'flex', alignItems: 'center', gap: 20,
+                display: 'flex', alignItems: 'center', gap: '1.25rem',
                 listStyle: 'none', margin: 0, padding: 0,
                 flex: 1, justifyContent: 'center'
               }}
                 className="d-none d-xl-flex desktop-nav-ul"
               >
-                <Link href="/flights" className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s', padding: '6px 2px' }}>
+                <Link href="/flights" className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: '1.125rem', transition: 'color 0.2s', padding: '0.375rem 2px' }}>
                   <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
                   Flights
                 </Link>
-                <span style={{ color: '#FFD700', fontSize: 24, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#FFD700', fontSize: '1.5rem', lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
-                <Link href={HOTEL_HREF} className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: 18, transition: 'color 0.2s', padding: '6px 2px' }}>
+                <Link href={HOTEL_HREF} className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: '1.125rem', transition: 'color 0.2s', padding: '0.375rem 2px' }}>
                   <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9" /></svg>
                   Hotels
                 </Link>
-                <span style={{ color: '#FFD700', fontSize: 24, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#FFD700', fontSize: '1.5rem', lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
                   label={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 18, fontWeight: 600, color: '#FFD700' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.125rem', fontWeight: 600, color: '#FFD700' }}>
                       <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>
                       Holidays
                     </span>
@@ -2212,11 +2213,11 @@ export default function Navbar({ brand, companyInfo }) {
                   cols={dynamicPackageCols}
                   isTransparent={false}
                 />
-                <span style={{ color: '#FFD700', fontSize: 24, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#FFD700', fontSize: '1.5rem', lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
                   label={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 18, fontWeight: 600, color: '#FFD700' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.125rem', fontWeight: 600, color: '#FFD700' }}>
                       <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
                       Visa
                     </span>
@@ -2231,11 +2232,11 @@ export default function Navbar({ brand, companyInfo }) {
                   ]}
                   isTransparent={false}
                 />
-                <span style={{ color: '#FFD700', fontSize: 24, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#FFD700', fontSize: '1.5rem', lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
                   label={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 18, fontWeight: 600, color: '#FFD700' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.125rem', fontWeight: 600, color: '#FFD700' }}>
                       <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" /><path d="M3 5v14a2 2 0 0 0 2 2h16v-5" /><path d="M18 12h2" /></svg>
                       Forex
                     </span>
@@ -2249,11 +2250,11 @@ export default function Navbar({ brand, companyInfo }) {
                   ]}
                   isTransparent={false}
                 />
-                <span style={{ color: '#FFD700', fontSize: 24, lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
+                <span style={{ color: '#FFD700', fontSize: '1.5rem', lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
                   label={
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 18, fontWeight: 600, color: '#FFD700' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.125rem', fontWeight: 600, color: '#FFD700' }}>
                       <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
                       More
                     </span>
@@ -2272,7 +2273,7 @@ export default function Navbar({ brand, companyInfo }) {
               </ul>
 
               {/* Right side controls */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0, marginLeft: 'auto' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', flexShrink: 0, marginLeft: 'auto' }}>
                 <HeaderSearch isLightHeader={isLightHeader} />
 
                 {isLoggedIn ? (
@@ -2289,7 +2290,7 @@ export default function Navbar({ brand, companyInfo }) {
                     className="d-none d-xl-inline-flex"
                     style={{
                       ...navButtonStyle,
-                      padding: '10px 24px',
+                      padding: '0.625rem 1.5rem',
                     }}
                   >
                     Login
@@ -2303,11 +2304,11 @@ export default function Navbar({ brand, companyInfo }) {
                   className="d-none d-xl-inline-flex"
                   onClick={() => setDrawerOpen(true)}
                   style={{
-                    width: 44,
-                    height: 44,
+                    width: '2.75rem',
+                    height: '2.75rem',
                     background: 'rgba(0,0,0,0.02)',
                     border: '1.5px solid rgba(0,0,0,0.1)',
-                    borderRadius: 8,
+                    borderRadius: '0.5rem',
                     padding: 0,
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -2331,7 +2332,7 @@ export default function Navbar({ brand, companyInfo }) {
                   style={{
                     background: 'rgba(0,0,0,0.02)',
                     border: '1.5px solid rgba(0,0,0,0.1)',
-                    borderRadius: 8, padding: '7px 10px',
+                    borderRadius: '0.5rem', padding: '0.438rem 0.625rem',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: '#FFD700',
                     cursor: 'pointer',
@@ -2590,7 +2591,7 @@ export default function Navbar({ brand, companyInfo }) {
                   </select>
                 </label>
 
-                <label className="flight-grid-full" style={{ borderTop: '1px solid #edf2f7', paddingTop: '16px', marginTop: '8px' }}>
+                <label className="flight-grid-full" style={{ borderTop: '1px solid #edf2f7', paddingTop: '1rem', marginTop: '0.5rem' }}>
                   Customer Name
                   <input
                     type="text"

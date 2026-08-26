@@ -52,5 +52,5 @@ export default async function TestimonialsPage() {
   const page = await getPageBySlug('testimonials');
   const hero = buildHeroContent(page);
 
-  return <TestimonialsClient hero={hero} />;
+  return <TestimonialsClient hero={hero} pageData={page} />;
 }

@@ -92,9 +92,9 @@ export default function HomeHero() {
       const w = window.innerWidth;
       setIsMobile(w <= 767);
       if (w <= 767) {         // Mobile
-        setHeroHeight('calc(93svh - 80px)');
+        setHeroHeight('calc(93svh - 5rem)');
       } else {                // Desktop/Tablet
-        setHeroHeight('calc(93vh - 70px)');
+        setHeroHeight('calc(93vh - 4.375rem)');
       }
     };
 
@@ -354,10 +354,10 @@ export default function HomeHero() {
             title={heroMediaType === 'image' ? 'Next image' : 'Next video'}
             aria-label={heroMediaType === 'image' ? 'Switch to next image' : 'Switch to next video'}
             style={{
-              position: 'absolute', bottom: isMobile ? 36 : 48, right: 20, zIndex: 5,
-              background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)',
+              position: 'absolute', bottom: isMobile ? 36 : 48, right: '1.25rem', zIndex: 5,
+              background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(0.5rem)',
               border: '1px solid rgba(255,255,255,0.22)', borderRadius: '50%',
-              width: 38, height: 38, display: 'flex', alignItems: 'center',
+              width: '2.375rem', height: '2.375rem', display: 'flex', alignItems: 'center',
               justifyContent: 'center', cursor: 'pointer', color: 'white',
               transition: 'background 0.2s',
             }}
@@ -382,14 +382,14 @@ export default function HomeHero() {
             style={{
               position: 'absolute',
               bottom: isMobile ? 36 : 48,
-              left: 20,
+              left: '1.25rem',
               zIndex: 5,
               background: 'rgba(0,0,0,0.4)',
-              backdropFilter: 'blur(8px)',
+              backdropFilter: 'blur(0.5rem)',
               border: '1px solid rgba(255,255,255,0.22)',
               borderRadius: '50%',
-              width: 38,
-              height: 38,
+              width: '2.375rem',
+              height: '2.375rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

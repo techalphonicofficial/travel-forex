@@ -1,7 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
+
+const getMediaUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
+  return `https://tourtravel.yber.in${path}`;
+};
+
+const extractData = (htmlStr) => {
+  if (!htmlStr) return { tour: '', text: '', location: '', popupImage: '' };
+  
+  const strongs = [...htmlStr.matchAll(/<strong[^>]*>([\s\S]*?)<\/strong>/ig)];
+  const tour = strongs.length > 0 ? strongs[0][1].replace(/&nbsp;/g, '').trim() : '';
+  const location = strongs.length > 1 ? strongs[strongs.length - 1][1].replace(/&nbsp;/g, '').trim() : '';
+  
+  const textMatch = htmlStr.match(/<i[^>]*>([\s\S]*?)<\/i>/i);
+  let text = textMatch ? textMatch[1].trim() : htmlStr.replace(/<[^>]+>/g, '').trim();
+  text = text.replace(/^["“”]|["“”]$/g, '').trim();
+  
+  const imgMatch = htmlStr.match(/<img[^>]+src="([^">]+)"/i);
+  const popupImage = imgMatch ? imgMatch[1] : '';
+
+  return { tour, text, location, popupImage };
+};
 
 const fallbackHero = {
   label: 'Happy Travelers',
@@ -73,11 +96,56 @@ const MOCK_TESTIMONIALS = [
   }
 ];
 
-export default function TestimonialsClient({ hero = fallbackHero }) {
+export default function TestimonialsClient({ hero = fallbackHero, pageData }) {
   const [filter, setFilter] = useState('All');
+  const [selectedTestimonial, setSelectedTestimonial] = useState(null);
+  const [zoomedImage, setZoomedImage] = useState(null);
+
+  useEffect(() => {
+    if (selectedTestimonial || zoomedImage) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [selectedTestimonial, zoomedImage]);
+
+  const getDynamicTestimonials = () => {
+    const cmsBlock = pageData?.details?.find(d => d.key === 'testimonials_comment');
+    if (!cmsBlock?.json_data) return MOCK_TESTIMONIALS;
+    
+    try {
+      const parsed = typeof cmsBlock.json_data === 'string' 
+        ? JSON.parse(cmsBlock.json_data) 
+        : cmsBlock.json_data;
+      
+      if (parsed?.tabs && Array.isArray(parsed.tabs)) {
+        return parsed.tabs.map((tab, idx) => {
+          const extracted = extractData(tab.content);
+          const rawRating = (tab.badge && typeof tab.badge === 'string') ? (tab.badge.match(/★/g) || []).length : 5;
+          return {
+            id: idx + 1,
+            name: tab.title || 'Traveler',
+            location: extracted.location || 'India',
+            text: extracted.text || '',
+            rating: rawRating > 0 ? rawRating : 5,
+            badgeStr: tab.badge || '★ ★ ★ ★ ★',
+            tour: extracted.tour || 'General',
+            avatar: getMediaUrl(tab.img),
+            popupImage: extracted.popupImage
+          };
+        });
+      }
+    } catch (e) {
+      console.error('Error parsing testimonials JSON:', e);
+    }
+    return MOCK_TESTIMONIALS;
+  };
+
+  const dynamicTestimonials = getDynamicTestimonials();
   const heroStyle = {
     position: 'relative',
-    padding: '120px 20px 80px',
+    padding: '36px 20px 24px',
     background: hero.image
       ? `url('${hero.image}')`
       : 'transparent',
@@ -90,7 +158,7 @@ export default function TestimonialsClient({ hero = fallbackHero }) {
 
   const categories = ['All', 'Tours', 'Forex Services', 'Visa Assistance'];
 
-  const filteredTestimonials = MOCK_TESTIMONIALS.filter(t => {
+  const filteredTestimonials = dynamicTestimonials.filter(t => {
     if (filter === 'All') return true;
     if (filter === 'Tours') return !['Forex Services', 'Visa Assistance'].includes(t.tour);
     return t.tour === filter;
@@ -107,27 +175,27 @@ export default function TestimonialsClient({ hero = fallbackHero }) {
             background: 'rgba(255,255,255,0.1)', 
             border: '1px solid rgba(255,255,255,0.2)', 
             borderRadius: '999px', 
-            fontSize: '13px', 
+            fontSize: '11px', 
             fontWeight: 800,
             textTransform: 'uppercase',
             letterSpacing: '1px',
-            marginBottom: '24px',
+            marginBottom: '8px',
             backdropFilter: 'blur(4px)'
           }}>
             {hero.label}
           </span>
           <h1 style={{ 
-            fontSize: 'clamp(36px, 5vw, 56px)', 
+            fontSize: 'clamp(28px, 4vw, 42px)', 
             fontWeight: 900, 
             letterSpacing: 0,
             lineHeight: 1.1,
-            marginBottom: '24px',
+            marginBottom: '8px',
             fontFamily: 'var(--font-poppins), Poppins, sans-serif'
           }}>
             {hero.title}
           </h1>
           <p style={{ 
-            fontSize: '18px', 
+            fontSize: '15px', 
             color: '#cbd5e1', 
             lineHeight: 1.6, 
             maxWidth: 600, 
@@ -181,6 +249,7 @@ export default function TestimonialsClient({ hero = fallbackHero }) {
           {filteredTestimonials.map(testimonial => (
             <div 
               key={testimonial.id}
+              onClick={() => setSelectedTestimonial(testimonial)}
               style={{
                 background: 'white',
                 padding: '36px',
@@ -190,7 +259,8 @@ export default function TestimonialsClient({ hero = fallbackHero }) {
                 transition: 'transform 0.3s, box-shadow 0.3s',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '24px'
+                gap: '24px',
+                cursor: 'pointer'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-8px)';
@@ -252,6 +322,105 @@ export default function TestimonialsClient({ hero = fallbackHero }) {
           </div>
         )}
       </section>
+
+      {/* Testimonial Modal */}
+      {selectedTestimonial && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+          background: 'rgba(0,0,0,0.85)', zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px',
+          backdropFilter: 'blur(4px)'
+        }} onClick={() => setSelectedTestimonial(null)}>
+          <div style={{
+            background: 'white', 
+            borderRadius: '24px', 
+            padding: '40px', 
+            maxWidth: '650px', 
+            width: '100%',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            position: 'relative',
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center'
+          }} onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => setSelectedTestimonial(null)}
+              style={{ 
+                position: 'absolute', top: '20px', right: '20px', 
+                background: '#f1f5f9', border: 'none', borderRadius: '50%',
+                width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '24px', cursor: 'pointer', color: '#64748b', transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.color = '#0f172a'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#64748b'; }}
+            >
+              &times;
+            </button>
+            
+            {/* Avatar always at top */}
+            {selectedTestimonial.avatar && (
+              <div style={{ width: '100px', height: '100px', borderRadius: '50%', overflow: 'hidden', marginBottom: '24px', border: '4px solid #f8fafc', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', flexShrink: 0 }}>
+                <img src={selectedTestimonial.avatar} alt={selectedTestimonial.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            )}
+            
+            <div style={{ color: '#fbbf24', fontSize: '24px', marginBottom: '16px', letterSpacing: '4px' }}>
+              {selectedTestimonial.badgeStr || '★★★★★'}
+            </div>
+            
+            <p style={{ color: '#334155', fontSize: '18px', lineHeight: 1.8, fontStyle: 'italic', marginBottom: '24px', fontWeight: 500 }}>
+              "{selectedTestimonial.text}"
+            </p>
+
+            {/* Rich text image after text */}
+            {selectedTestimonial.popupImage && (
+              <div style={{ width: '100%', marginBottom: '24px', borderRadius: '16px', overflow: 'hidden', flexShrink: 0 }}>
+                <img 
+                  src={selectedTestimonial.popupImage} 
+                  alt={selectedTestimonial.name} 
+                  style={{ width: '100%', height: 'auto', cursor: 'zoom-in', display: 'block' }} 
+                  onClick={() => setZoomedImage(selectedTestimonial.popupImage)}
+                />
+              </div>
+            )}
+            
+            <h4 style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', margin: '0 0 6px' }}>
+              {selectedTestimonial.name}
+            </h4>
+            <span style={{ color: 'var(--color-primary)', fontSize: '15px', fontWeight: 700 }}>
+              {selectedTestimonial.location} {selectedTestimonial.tour ? `• ${selectedTestimonial.tour}` : ''}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Zoomed Image Modal */}
+      {zoomedImage && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+          background: 'rgba(0,0,0,0.95)', zIndex: 10000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px',
+        }} onClick={() => setZoomedImage(null)}>
+            <button 
+              onClick={() => setZoomedImage(null)}
+              style={{ 
+                position: 'absolute', top: '20px', right: '20px', 
+                background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%',
+                width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '30px', cursor: 'pointer', color: '#fff', transition: 'all 0.2s', zIndex: 10001
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.3)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+            >
+              &times;
+            </button>
+            <img src={zoomedImage} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} onClick={e => e.stopPropagation()} />
+        </div>
+      )}
+
     </div>
   );
 }

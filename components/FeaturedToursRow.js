@@ -328,13 +328,13 @@ function DestinationDropdown({ currentDest, onChange, destinations = DESTINATION
       <button
         onClick={() => setOpen(!open)}
         style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          padding: '7px 16px', borderRadius: 999,
+          display: 'flex', alignItems: 'center', gap: '0.5rem',
+          padding: '0.438rem 1rem', borderRadius: '62.438rem',
           border: open ? '1.5px solid var(--color-primary)' : '1.5px solid #d1d5db',
           background: 'var(--color-bg-card)',
-          color: '#374151', fontSize: 13, fontWeight: 500, cursor: 'pointer',
+          color: '#374151', fontSize: '0.813rem', fontWeight: 500, cursor: 'pointer',
           whiteSpace: 'nowrap', transition: 'all 0.2s',
-          boxShadow: open ? '0 0 0 3px rgba(20,83,45,0.1)' : 'none',
+          boxShadow: open ? '0 0 0 0.188rem rgba(20,83,45,0.1)' : 'none',
         }}
       >
         {currentDest}
@@ -345,10 +345,10 @@ function DestinationDropdown({ currentDest, onChange, destinations = DESTINATION
 
       {open && (
         <div style={{
-          position: 'absolute', top: 'calc(100% + 8px)', left: 0,
+          position: 'absolute', top: 'calc(100% + 0.5rem)', left: 0,
           background: 'var(--color-bg-card)', border: '1px solid var(--color-border)',
-          borderRadius: 12, boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-          minWidth: 200, zIndex: 50, padding: '8px 0',
+          borderRadius: '0.75rem', boxShadow: '0 0.625rem 1.875rem rgba(0,0,0,0.1)',
+          minWidth: '12.5rem', zIndex: 50, padding: '0.5rem 0',
           animation: 'fadeSlideIn 0.2s ease',
         }}>
           {destinations.map((d, i) => {
@@ -361,12 +361,12 @@ function DestinationDropdown({ currentDest, onChange, destinations = DESTINATION
                   setOpen(false);
                 }}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 12,
-                  width: '100%', padding: '10px 18px',
+                  display: 'flex', alignItems: 'center', gap: '0.75rem',
+                  width: '100%', padding: '0.625rem 1.125rem',
                   background: 'none', border: 'none',
                   borderBottom: i < destinations.length - 1 ? '1px solid #f3f4f6' : 'none',
                   textAlign: 'left', cursor: 'pointer',
-                  color: '#1f2937', fontSize: 13.5, fontWeight: isActive ? 600 : 400,
+                  color: '#1f2937', fontSize: '0.844rem', fontWeight: isActive ? 600 : 400,
                   transition: 'background 0.15s',
                 }}
                 onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'}
@@ -374,11 +374,11 @@ function DestinationDropdown({ currentDest, onChange, destinations = DESTINATION
               >
                 {/* Radio circle matching screenshot */}
                 <div style={{
-                  width: 18, height: 18, borderRadius: '50%',
+                  width: '1.125rem', height: '1.125rem', borderRadius: '50%',
                   border: isActive ? '2px solid #16a34a' : '1.5px solid #d1d5db',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
-                  {isActive && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#16a34a' }} />}
+                  {isActive && <div style={{ width: '0.5rem', height: '0.5rem', borderRadius: '50%', background: '#16a34a' }} />}
                 </div>
                 {d}
               </button>
@@ -544,7 +544,7 @@ export default function RecommendedPackages() {
       <style>{`
 
            .recent-bookings-section .th-section-copy p {
-             font-size: 13.5px;
+             font-size: 0.844rem;
            }
            .recent-bookings-section .th-soft-badge {
              max-width: 100%;
@@ -552,20 +552,20 @@ export default function RecommendedPackages() {
              line-height: 1.25;
            }
            .recent-filters {
-             gap: 7px;
+             gap: 0.438rem;
            }
            .recent-filters > * {
              flex: 0 0 auto;
            }
            .recent-booking-card {
-             width: calc(100vw - 28px);
+             width: calc(100vw - 1.75rem);
            }
-           @media (min-width: 421px) {
-           .recent-bookings-section { padding: 20px 0 24px; }
+           @media (min-width: 26.313rem) {
+           .recent-bookings-section { padding: 1.25rem 0 1.5rem; }
            .recent-bookings-section .th-section-intro {
              width: 100%;
              min-width: 0;
-             margin-bottom: 22px;
+             margin-bottom: 1.375rem;
            }
            .recent-bookings-section .th-section-copy,
            .recent-bookings-section .th-section-actions {
@@ -573,19 +573,19 @@ export default function RecommendedPackages() {
              min-width: 0;
            }
            .recent-bookings-section .th-section-copy h2 {
-             font-size: clamp(25px, 8.2vw, 32px);
+             font-size: clamp(1.563rem, 8.2vw, 2rem);
              line-height: 1.08;
            }
            .recent-bookings-section .th-section-copy p {
              max-width: 100%;
-             font-size: 14px;
+             font-size: 0.875rem;
              line-height: 1.55;
              overflow-wrap: normal;
              word-break: normal;
            }
            .recent-bookings-section .th-section-actions {
              display: grid;
-             gap: 12px;
+             gap: 0.75rem;
              justify-content: stretch;
            }
            .recent-filters {
@@ -593,18 +593,18 @@ export default function RecommendedPackages() {
              max-width: 100%;
              overflow-x: auto;
              flex-wrap: nowrap;
-             padding: 1px 2px 8px;
+             padding: 1px 2px 0.5rem;
              margin: 0 -2px;
              scrollbar-width: none;
              -webkit-overflow-scrolling: touch;
            }
            .recent-filters::-webkit-scrollbar { display: none; }
            .recent-scroll-actions { display: none; }
-           .recent-booking-card { width: calc(100vw - 36px); }
+           .recent-booking-card { width: calc(100vw - 2.25rem); }
            .responsive-header-row {
              flex-direction: column;
              align-items: flex-start !important;
-             gap: 24px !important;
+             gap: 1.5rem !important;
            }
            .filters-container {
              width: 100%;
@@ -612,18 +612,18 @@ export default function RecommendedPackages() {
            }
            .arrows-container {
              order: 3;
-             margin-top: 8px;
+             margin-top: 0.5rem;
            }
            .heading-container {
              order: 1;
            }
 }
-           @media (min-width: 769px) {
+           @media (min-width: 48.063rem) {
         .booking-cards-wrap {
           display: flex;
-          gap: 20px;
+          gap: 1.25rem;
           overflow-x: auto;
-          padding: 4px 2px 12px;
+          padding: 0.25rem 2px 0.75rem;
           scrollbar-width: none;
           -ms-overflow-style: none;
           transition: opacity 0.18s ease;
@@ -635,19 +635,19 @@ export default function RecommendedPackages() {
         }
         .recent-bookings-section {
           background: transparent;
-          padding: 24px 0 32px;
+          padding: 1.5rem 0 2rem;
         }
         .recent-filters {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 0.5rem;
           flex-wrap: wrap;
           min-width: 0;
         }
         .recent-scroll-actions {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 0.5rem;
         }
         .responsive-header-row {
           display: none !important;
@@ -657,18 +657,18 @@ export default function RecommendedPackages() {
           align-items: center;
           justify-content: space-between;
           flex-wrap: wrap;
-          gap: 10px;
-          margin: -10px 0 18px;
+          gap: 0.625rem;
+          margin: -0.625rem 0 1.125rem;
         }
         .recent-result-row p {
           margin: 0;
           color: #667085;
-          font-size: 13px;
+          font-size: 0.813rem;
           font-weight: 500;
         }
         .recent-result-row > span:last-child {
           color: #667085 !important;
-          font-size: 13px !important;
+          font-size: 0.813rem !important;
           font-weight: 500;
         }
         .booking-cards-wrap {
@@ -677,36 +677,36 @@ export default function RecommendedPackages() {
         .booking-cards-wrap::-webkit-scrollbar { display: none; }
         .recent-empty-state {
           flex: 1 0 100%;
-          min-height: 128px;
+          min-height: 8rem;
           display: grid;
           place-items: center;
           border: 1px dashed var(--color-border);
-          border-radius: 12px;
+          border-radius: 0.75rem;
           color: #64748b;
           background: var(--color-bg-card);
-          font-size: 13px;
+          font-size: 0.813rem;
           font-weight: 700;
         }
         .recent-booking-card {
           flex-shrink: 0;
-          width: 310px;
+          width: 19.375rem;
           max-width: 85vw;
           overflow: hidden;
           border: 1px solid var(--color-border);
-          border-radius: 12px;
+          border-radius: 0.75rem;
           background: var(--color-bg-card);
-          box-shadow: 0 10px 26px rgba(15, 23, 42, .07);
+          box-shadow: 0 0.625rem 1.625rem rgba(15, 23, 42, .07);
           transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
           scroll-snap-align: start;
         }
         .recent-booking-card:hover {
-          transform: translateY(-4px);
+          transform: translateY(-0.25rem);
           border-color: color-mix(in srgb, var(--color-primary) 28%, #e6ebf1);
-          box-shadow: 0 18px 44px rgba(15, 23, 42, .12);
+          box-shadow: 0 1.125rem 2.75rem rgba(15, 23, 42, .12);
         }
         .recent-card-media {
           position: relative;
-          height: 188px;
+          height: 11.75rem;
           overflow: hidden;
           background: var(--color-bg-soft);
         }
@@ -726,29 +726,29 @@ export default function RecommendedPackages() {
         }
         .recent-user-badge {
           position: absolute;
-          left: 12px;
-          top: 12px;
+          left: 0.75rem;
+          top: 0.75rem;
           z-index: 1;
           display: flex;
           align-items: center;
-          gap: 8px;
-          max-width: calc(100% - 24px);
-          padding: 5px 11px 5px 5px;
+          gap: 0.5rem;
+          max-width: calc(100% - 1.5rem);
+          padding: 0.313rem 0.688rem 0.313rem 0.313rem;
           border: 1px solid rgba(255,255,255,.24);
           border-radius: var(--radius-full);
           background: rgba(15, 23, 42, .58);
           color: #fff;
-          backdrop-filter: blur(10px);
+          backdrop-filter: blur(0.625rem);
         }
         .recent-user-avatar {
-          width: 26px;
-          height: 26px;
-          flex: 0 0 26px;
+          width: 1.625rem;
+          height: 1.625rem;
+          flex: 0 0 1.625rem;
           border-radius: 50%;
           display: grid;
           place-items: center;
           color: #fff;
-          font-size: 11px;
+          font-size: 0.688rem;
           font-weight: 800;
         }
         .recent-user-badge span {
@@ -756,16 +756,16 @@ export default function RecommendedPackages() {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
-          font-size: 11px;
+          font-size: 0.688rem;
           font-weight: 600;
         }
-        .recent-card-body { padding: 16px; }
+        .recent-card-body { padding: 1rem; }
         .recent-card-title {
-          min-height: 40px;
-          margin: 0 0 8px;
+          min-height: 2.5rem;
+          margin: 0 0 0.5rem;
           color: #111827;
           font-family: var(--font-poppins), Poppins, sans-serif;
-          font-size: 15px;
+          font-size: 0.938rem;
           font-weight: 700;
           line-height: 1.35;
           display: -webkit-box;
@@ -776,10 +776,10 @@ export default function RecommendedPackages() {
         .recent-card-location {
           display: flex;
           align-items: center;
-          gap: 5px;
-          margin: 0 0 12px;
+          gap: 0.313rem;
+          margin: 0 0 0.75rem;
           color: #667085;
-          font-size: 12px;
+          font-size: 0.75rem;
           line-height: 1.4;
         }
         .recent-card-location span {
@@ -792,25 +792,25 @@ export default function RecommendedPackages() {
           display: flex;
           flex-wrap: wrap;
           align-items: center;
-          gap: 8px;
-          margin-bottom: 14px;
+          gap: 0.5rem;
+          margin-bottom: 0.875rem;
         }
         .recent-card-type,
         .recent-card-nights {
           display: inline-flex;
           align-items: center;
-          min-height: 24px;
-          border-radius: 7px;
-          padding: 3px 9px;
-          font-size: 10px;
+          min-height: 1.5rem;
+          border-radius: 0.438rem;
+          padding: 0.188rem 0.563rem;
+          font-size: 0.625rem;
           font-weight: 800;
-          letter-spacing: .6px;
+          letter-spacing: .0.375rem;
           text-transform: uppercase;
         }
         .recent-card-nights {
           background: #f3f6fa;
           color: #475467;
-          font-size: 11px;
+          font-size: 0.688rem;
           font-weight: 700;
           letter-spacing: 0;
           text-transform: none;
@@ -819,21 +819,21 @@ export default function RecommendedPackages() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 10px;
+          gap: 0.625rem;
           border-top: 1px solid #eef2f6;
-          padding-top: 13px;
+          padding-top: 0.813rem;
         }
         .recent-card-price {
           color: #111827;
           font-family: var(--font-poppins), Poppins, sans-serif;
-          font-size: 19px;
+          font-size: 1.188rem;
           font-weight: 800;
           line-height: 1;
         }
         .recent-card-price-note {
-          margin-top: 4px;
+          margin-top: 0.25rem;
           color: #98a2b3;
-          font-size: 11px;
+          font-size: 0.688rem;
           font-weight: 600;
         }
 }
@@ -878,13 +878,13 @@ export default function RecommendedPackages() {
         />
 
         {/* ── Top row: left label + filters + arrows ── */}
-        <div className="responsive-header-row" style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32, flexWrap: 'wrap' }}>
+        <div className="responsive-header-row" style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '2rem', flexWrap: 'wrap' }}>
 
           {/* Left label */}
-          <div className="heading-container" style={{ flexShrink: 0, marginRight: 12 }}>
+          <div className="heading-container" style={{ flexShrink: 0, margin: '0.75rem' }}>
             <h2 style={{
               fontFamily: 'Poppins, sans-serif',
-              fontWeight: 900, fontSize: 28,
+              fontWeight: 900, fontSize: '1.75rem',
               color: '#111827', margin: 0,
               lineHeight: 1.15,
               textTransform: 'uppercase',
@@ -894,19 +894,19 @@ export default function RecommendedPackages() {
               <span style={{ color: 'var(--color-primary)' }}>ITINERARIES</span>
             </h2>
             <div style={{
-              marginTop: 12, display: 'flex', alignItems: 'center', gap: 6,
+              margin: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.375rem',
               background: '#fff0f0', border: '1px solid #fecaca',
-              borderRadius: 999, padding: '5px 12px', width: 'fit-content',
+              borderRadius: '62.438rem', padding: '0.313rem 0.75rem', width: 'fit-content',
             }}>
-              <span style={{ color: '#ef4444', fontSize: 14 }}>❤️</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>
+              <span style={{ color: '#ef4444', fontSize: '0.875rem' }}>❤️</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#374151' }}>
                 {liveBookings.length ? `${liveBookings.length}+ recent trip requests` : '143+ trips booked last week'}
               </span>
             </div>
           </div>
 
           {/* Filter pills */}
-          <div className="filters-container" style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, flexWrap: 'wrap' }}>
+          <div className="filters-container" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, flexWrap: 'wrap' }}>
             {/* The Destination Dropdown */}
             <DestinationDropdown currentDest={activeDest} onChange={handleDestChange} destinations={destinationOptions} />
 
@@ -915,13 +915,13 @@ export default function RecommendedPackages() {
                 key={f.key}
                 onClick={() => handleBudgetSort(f.key)}
                 style={{
-                  padding: '7px 16px',
-                  borderRadius: 999,
+                  padding: '0.438rem 1rem',
+                  borderRadius: '62.438rem',
                   border: activeBudget === f.key ? '2px solid var(--color-primary)' : '1.5px solid #d1d5db',
                   background: activeBudget === f.key ? 'var(--color-primary-light)' : 'white',
                   color: activeBudget === f.key ? 'var(--color-primary)' : '#374151',
                   fontWeight: activeBudget === f.key ? 700 : 500,
-                  fontSize: 13,
+                  fontSize: '0.813rem',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                   whiteSpace: 'nowrap',
@@ -933,19 +933,19 @@ export default function RecommendedPackages() {
           </div>
 
           {/* Prev / Next arrows */}
-          <div className="arrows-container" style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+          <div className="arrows-container" style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
             {['‹', '›'].map((arrow, i) => (
               <button
                 key={arrow}
                 onClick={() => scroll(i === 0 ? -1 : 1)}
                 style={{
-                  width: 36, height: 36, borderRadius: '50%',
+                  width: '2.25rem', height: '2.25rem', borderRadius: '50%',
                   border: '1.5px solid #d1d5db',
-                  background: 'white', color: '#374151', fontSize: 20,
+                  background: 'white', color: '#374151', fontSize: '1.25rem',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: 'pointer', lineHeight: 1,
                   transition: 'all 0.2s',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+                  boxShadow: '0 1px 0.25rem rgba(0,0,0,0.08)',
                 }}
                 onMouseEnter={e => { e.currentTarget.style.background = '#f9fafb'; e.currentTarget.style.borderColor = '#9ca3af'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#d1d5db'; }}
@@ -960,12 +960,12 @@ export default function RecommendedPackages() {
         <div className="recent-result-row">
           <span style={{
             background: 'var(--color-primary-light)', border: '1px solid var(--brand-primary-border)',
-            color: 'var(--color-primary)', borderRadius: 999,
-            padding: '3px 12px', fontSize: 12, fontWeight: 700,
+            color: 'var(--color-primary)', borderRadius: '62.438rem',
+            padding: '0.188rem 0.75rem', fontSize: '0.75rem', fontWeight: 700,
           }}>
             {filtered.length} itineraries
           </span>
-          <span style={{ color: '#9ca3af', fontSize: 12 }}>
+          <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>
               {inquiriesLoading
                 ? 'loading latest trips'
                 : activeDest === 'All Destinations' && activeBudget === 'all'
@@ -1013,7 +1013,7 @@ function BookingCardV2({ pkg, animDelay }) {
           src={pkg.image}
           alt={pkg.title}
           fill
-          sizes="(max-width: 768px) calc(100vw - 36px), 310px"
+          sizes="(max-width: 48rem) calc(100vw - 2.25rem), 19.375rem"
         />
         <div className="recent-user-badge">
           <div className="recent-user-avatar" style={{ background: pkg.user.avatarBg }}>
@@ -1070,19 +1070,19 @@ function BookingCard({ pkg, animDelay, isMobile }) {
       onMouseLeave={() => setHovered(false)}
       style={{
         flexShrink: 0,
-        width: isMobile ? 'calc(100vw - 32px)' : 310,
+        width: isMobile ? 'calc(100vw - 2rem)' : 310,
         background: 'var(--color-bg-card)',
-        borderRadius: 16,
+        borderRadius: '1rem',
         overflow: 'hidden',
         border: '1px solid var(--color-border)',
-        // boxShadow: hovered ? '0 12px 40px rgba(0,0,0,0.14)' : '0 2px 12px rgba(0,0,0,0.07)',
-        transform: hovered ? 'translateY(-4px)' : 'none',
+        // boxShadow: hovered ? '0 0.75rem 2.5rem rgba(0,0,0,0.14)' : '0 2px 0.75rem rgba(0,0,0,0.07)',
+        transform: hovered ? 'translateY(-0.25rem)' : 'none',
         transition: 'all 0.3s ease',
         animationDelay: `${animDelay}ms`,
       }}
     >
       {/* Image */}
-      <div style={{ position: 'relative', height: 180, overflow: 'hidden' }}>
+      <div style={{ position: 'relative', height: '11.25rem', overflow: 'hidden' }}>
         <Image
           src={pkg.image}
           alt={pkg.title}
@@ -1098,44 +1098,44 @@ function BookingCard({ pkg, animDelay, isMobile }) {
         />
         {/* Price ribbon */}
         {/* <div style={{
-          position: 'absolute', top: 10, right: 10,
+          position: 'absolute', top: '0.625rem', right: '0.625rem',
           background: 'rgba(0,0,0,0.65)',
-          backdropFilter: 'blur(6px)',
-          color: 'white', borderRadius: 999,
-          padding: '3px 10px', fontSize: 11, fontWeight: 700,
+          backdropFilter: 'blur(0.375rem)',
+          color: 'white', borderRadius: '62.438rem',
+          padding: '0.188rem 0.625rem', fontSize: '0.688rem', fontWeight: 700,
         }}>
           ₹{pkg.price.toLocaleString('en-IN')}
         </div> */}
 
         {/* User badge */}
         <div style={{
-          position: 'absolute', top: 10, left: 10,
-          display: 'flex', alignItems: 'center', gap: 7,
+          position: 'absolute', top: '0.625rem', left: '0.625rem',
+          display: 'flex', alignItems: 'center', gap: '0.438rem',
           background: 'rgba(0,0,0,0.65)',
-          backdropFilter: 'blur(6px)',
-          borderRadius: 999,
-          padding: '5px 12px 5px 5px',
+          backdropFilter: 'blur(0.375rem)',
+          borderRadius: '62.438rem',
+          padding: '0.313rem 0.75rem 0.313rem 0.313rem',
         }}>
           <div style={{
-            width: 26, height: 26, borderRadius: '50%',
+            width: '1.625rem', height: '1.625rem', borderRadius: '50%',
             background: pkg.user.avatarBg,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontWeight: 800, fontSize: 11, color: 'white', flexShrink: 0,
+            fontWeight: 800, fontSize: '0.688rem', color: 'white', flexShrink: 0,
           }}>
             {pkg.user.avatar}
           </div>
-          <span style={{ color: 'white', fontSize: 11, fontWeight: 600 }}>
+          <span style={{ color: 'white', fontSize: '0.688rem', fontWeight: 600 }}>
             {pkg.user.name} from {pkg.user.city} · {pkg.user.ago}
           </span>
         </div>
       </div>
 
       {/* Body */}
-      <div style={{ padding: '14px 16px' }}>
+      <div style={{ padding: '0.875rem 1rem' }}>
         {/* Title */}
         <p style={{
           fontFamily: 'Poppins, sans-serif', fontWeight: 700,
-          fontSize: 14, color: '#111827', margin: '0 0 6px',
+          fontSize: '0.875rem', color: '#111827', margin: '0 0 0.375rem',
           lineHeight: 1.4,
           display: '-webkit-box',
           WebkitLineClamp: 2,
@@ -1147,8 +1147,8 @@ function BookingCard({ pkg, animDelay, isMobile }) {
 
         {/* Location */}
         <p style={{
-          fontSize: 12, color: '#6b7280', margin: '0 0 10px',
-          display: 'flex', alignItems: 'center', gap: 4,
+          fontSize: '0.75rem', color: '#6b7280', margin: '0 0 0.625rem',
+          display: 'flex', alignItems: 'center', gap: '0.25rem',
         }}>
           <svg viewBox="0 0 24 24" fill="#6b7280" width="11" height="11">
             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
@@ -1157,15 +1157,15 @@ function BookingCard({ pkg, animDelay, isMobile }) {
         </p>
 
         {/* Type badge + nights */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0.875rem' }}>
           <span style={{
             display: 'inline-block',
             background: pkg.typeColor + '18',
             color: pkg.typeColor,
             border: `1px solid ${pkg.typeColor}40`,
-            borderRadius: 6,
-            padding: '2px 10px',
-            fontSize: 10, fontWeight: 800,
+            borderRadius: '0.375rem',
+            padding: '2px 0.625rem',
+            fontSize: '0.625rem', fontWeight: 800,
             letterSpacing: 0.8,
             textTransform: 'uppercase',
           }}>
@@ -1175,9 +1175,9 @@ function BookingCard({ pkg, animDelay, isMobile }) {
             display: 'inline-block',
             background: '#f3f4f6',
             color: '#4b5563',
-            borderRadius: 6,
-            padding: '2px 9px',
-            fontSize: 10, fontWeight: 700,
+            borderRadius: '0.375rem',
+            padding: '2px 0.563rem',
+            fontSize: '0.625rem', fontWeight: 700,
           }}>
             🌙 {pkg.nights} Nights
           </span>
@@ -1188,20 +1188,20 @@ function BookingCard({ pkg, animDelay, isMobile }) {
           display: 'flex', alignItems: 'center',
           justifyContent: 'space-between',
           borderTop: '1px solid #f3f4f6',
-          paddingTop: 12, gap: 8,
+          padding: '0.75rem', gap: '0.5rem',
         }}>
           <div>
-            <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: 18, color: '#111827', lineHeight: 1 }}>
+            <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '1.125rem', color: '#111827', lineHeight: 1 }}>
               {priceLabel}
             </div>
-            <div style={{ fontSize: 10, color: '#9ca3af' }}>{pkg.nights} nights / person</div>
+            <div style={{ fontSize: '0.625rem', color: '#9ca3af' }}>{pkg.nights} nights / person</div>
           </div>
           <Link
             href={pkg.isInquiry ? `/itineraries/${encodeURIComponent(pkg.id)}` : `/tour?search=${encodeURIComponent(searchTerm)}`}
             style={{
               background: 'var(--color-primary)', color: 'white',
-              borderRadius: 8, padding: '9px 16px',
-              fontWeight: 700, fontSize: 12,
+              borderRadius: '0.5rem', padding: '0.563rem 1rem',
+              fontWeight: 700, fontSize: '0.75rem',
               textDecoration: 'none',
               transition: 'background 0.2s',
               whiteSpace: 'nowrap',
