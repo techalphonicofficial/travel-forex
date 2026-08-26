@@ -16,12 +16,16 @@ const extractData = (htmlStr) => {
   const tour = strongs.length > 0 ? strongs[0][1].replace(/&nbsp;/g, '').trim() : '';
   const location = strongs.length > 1 ? strongs[strongs.length - 1][1].replace(/&nbsp;/g, '').trim() : '';
   
-  const textMatch = htmlStr.match(/<i[^>]*>([\s\S]*?)<\/i>/i);
-  let text = textMatch ? textMatch[1].trim() : htmlStr.replace(/<[^>]+>/g, '').trim();
-  text = text.replace(/^["“”]|["“”]$/g, '').trim();
-  
   const imgMatch = htmlStr.match(/<img[^>]+src="([^">]+)"/i);
   const popupImage = imgMatch ? imgMatch[1] : '';
+
+  let cleanHtml = htmlStr.replace(/<strong[^>]*>[\s\S]*?<\/strong>/ig, '');
+  cleanHtml = cleanHtml.replace(/<figure[^>]*>[\s\S]*?<\/figure>/ig, '');
+  cleanHtml = cleanHtml.replace(/<img[^>]*>/ig, '');
+  
+  let text = cleanHtml.replace(/<\/?(p|div|br)[^>]*>/ig, ' ').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
+  text = text.replace(/\s+/g, ' ');
+  text = text.replace(/^["“”]|["“”]$/g, '').trim();
 
   return { tour, text, location, popupImage };
 };
@@ -99,6 +103,7 @@ const MOCK_TESTIMONIALS = [
 export default function TestimonialsClient({ hero = fallbackHero, pageData }) {
   const [filter, setFilter] = useState('All');
   const [selectedTestimonial, setSelectedTestimonial] = useState(null);
+  const [isPopupTextExpanded, setIsPopupTextExpanded] = useState(false);
   const [zoomedImage, setZoomedImage] = useState(null);
 
   useEffect(() => {
@@ -244,72 +249,89 @@ export default function TestimonialsClient({ hero = fallbackHero, pageData }) {
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
           gap: '32px',
-          alignItems: 'start'
+          alignItems: 'stretch'
         }}>
           {filteredTestimonials.map(testimonial => (
             <div 
               key={testimonial.id}
-              onClick={() => setSelectedTestimonial(testimonial)}
+              onClick={() => {
+                setSelectedTestimonial(testimonial);
+                setIsPopupTextExpanded(false);
+              }}
               style={{
                 background: 'white',
-                padding: '36px',
-                borderRadius: '24px',
+                padding: '24px',
+                borderRadius: '20px',
                 border: '1px solid rgba(0,0,0,0.05)',
                 boxShadow: '0 12px 30px rgba(0,0,0,0.03)',
                 transition: 'transform 0.3s, box-shadow 0.3s',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '24px',
+                alignItems: 'center',
+                textAlign: 'center',
                 cursor: 'pointer'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-                e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.08)';
+                e.currentTarget.style.transform = 'translateY(-6px)';
+                e.currentTarget.style.boxShadow = '0 16px 32px rgba(0,0,0,0.06)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.03)';
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                {/* Rating */}
-                <div style={{ display: 'flex', gap: '4px', color: '#fbbf24', fontSize: '18px' }}>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <span key={i}>{i < Math.floor(testimonial.rating) ? '★' : '☆'}</span>
-                  ))}
+              {/* Avatar always at top */}
+              {testimonial.avatar && (
+                <div style={{ width: '60px', height: '60px', borderRadius: '50%', overflow: 'hidden', marginBottom: '12px', border: '2px solid #f8fafc', boxShadow: '0 2px 6px rgba(0,0,0,0.08)', flexShrink: 0, position: 'relative' }}>
+                  <Image src={testimonial.avatar} alt={testimonial.name} fill sizes="60px" style={{ objectFit: 'cover' }} />
                 </div>
-                {/* Quote Icon */}
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="var(--color-primary)" opacity="0.1" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M14.017 18L14.017 10.609C14.017 4.905 17.748 1.039 23 0L23.995 2.151C21.563 3.068 20 5.789 20 8H24V18H14.017ZM0 18V10.609C0 4.905 3.748 1.038 9 0L9.996 2.151C7.563 3.068 6 5.789 6 8H9.983L9.983 18L0 18Z" />
-                </svg>
+              )}
+
+              {/* Rating */}
+              <div style={{ color: '#fbbf24', fontSize: '16px', marginBottom: '12px', letterSpacing: '2px' }}>
+                {testimonial.badgeStr || '★★★★★'}
               </div>
 
               {/* Review Text */}
-              <p style={{ 
-                fontSize: '16px', 
-                color: '#334155', 
-                lineHeight: 1.7, 
-                fontWeight: 500,
-                fontStyle: 'italic',
-                margin: 0
-              }}>
-                &ldquo;{testimonial.text}&rdquo;
-              </p>
+              {testimonial.text && (
+                <p style={{ 
+                  fontSize: '14px', 
+                  color: '#334155', 
+                  lineHeight: 1.6, 
+                  fontWeight: 500,
+                  fontStyle: 'italic',
+                  margin: '0 0 16px 0'
+                }}>
+                  "{testimonial.text.length > 120 ? testimonial.text.substring(0, 120).trim() + '... ' : testimonial.text}"
+                  {testimonial.text.length > 120 && (
+                    <span style={{ color: 'var(--color-primary)', fontWeight: 700, cursor: 'pointer', fontStyle: 'normal' }}>
+                      Read more
+                    </span>
+                  )}
+                </p>
+              )}
 
-              {/* Tag */}
-              <div style={{ display: 'inline-flex', padding: '6px 12px', background: '#f1f5f9', color: '#64748b', fontSize: '12px', fontWeight: 800, borderRadius: '6px', alignSelf: 'flex-start' }}>
-                {testimonial.tour}
-              </div>
+              {/* Rich text image after text */}
+              {testimonial.popupImage && (
+                <div style={{ width: '100%', marginBottom: '16px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, position: 'relative', height: '160px' }}>
+                  <Image 
+                    src={testimonial.popupImage} 
+                    alt={testimonial.name} 
+                    fill
+                    sizes="(max-width: 768px) 100vw, 320px"
+                    style={{ objectFit: 'cover' }} 
+                  />
+                </div>
+              )}
 
-              {/* User Profile */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid #f1f5f9' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', position: 'relative', border: '2px solid #e2e8f0' }}>
-                  <Image src={testimonial.avatar} alt={testimonial.name} fill sizes="48px" style={{ objectFit: 'cover' }} />
-                </div>
-                <div>
-                  <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>{testimonial.name}</h4>
-                  <p style={{ fontSize: '13px', color: '#64748b', margin: 0, fontWeight: 600 }}>{testimonial.location}</p>
-                </div>
+              {/* Name & Location */}
+              <div style={{ marginTop: 'auto' }}>
+                <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>
+                  {testimonial.name}
+                </h4>
+                <span style={{ color: 'var(--color-primary)', fontSize: '12px', fontWeight: 700 }}>
+                  {testimonial.location} {testimonial.tour ? `• ${testimonial.tour}` : ''}
+                </span>
               </div>
             </div>
           ))}
@@ -333,9 +355,9 @@ export default function TestimonialsClient({ hero = fallbackHero, pageData }) {
         }} onClick={() => setSelectedTestimonial(null)}>
           <div style={{
             background: 'white', 
-            borderRadius: '24px', 
-            padding: '40px', 
-            maxWidth: '650px', 
+            borderRadius: '20px', 
+            padding: '32px', 
+            maxWidth: '500px', 
             width: '100%',
             maxHeight: '90vh',
             overflowY: 'auto',
@@ -349,10 +371,10 @@ export default function TestimonialsClient({ hero = fallbackHero, pageData }) {
             <button 
               onClick={() => setSelectedTestimonial(null)}
               style={{ 
-                position: 'absolute', top: '20px', right: '20px', 
+                position: 'absolute', top: '16px', right: '16px', 
                 background: '#f1f5f9', border: 'none', borderRadius: '50%',
-                width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '24px', cursor: 'pointer', color: '#64748b', transition: 'all 0.2s'
+                width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '20px', cursor: 'pointer', color: '#64748b', transition: 'all 0.2s'
               }}
               onMouseEnter={(e) => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.color = '#0f172a'; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#64748b'; }}
@@ -362,22 +384,34 @@ export default function TestimonialsClient({ hero = fallbackHero, pageData }) {
             
             {/* Avatar always at top */}
             {selectedTestimonial.avatar && (
-              <div style={{ width: '100px', height: '100px', borderRadius: '50%', overflow: 'hidden', marginBottom: '24px', border: '4px solid #f8fafc', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', flexShrink: 0 }}>
+              <div style={{ width: '72px', height: '72px', borderRadius: '50%', overflow: 'hidden', marginBottom: '16px', border: '3px solid #f8fafc', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', flexShrink: 0 }}>
                 <img src={selectedTestimonial.avatar} alt={selectedTestimonial.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             )}
             
-            <div style={{ color: '#fbbf24', fontSize: '24px', marginBottom: '16px', letterSpacing: '4px' }}>
+            <div style={{ color: '#fbbf24', fontSize: '18px', marginBottom: '12px', letterSpacing: '2px' }}>
               {selectedTestimonial.badgeStr || '★★★★★'}
             </div>
             
-            <p style={{ color: '#334155', fontSize: '18px', lineHeight: 1.8, fontStyle: 'italic', marginBottom: '24px', fontWeight: 500 }}>
-              "{selectedTestimonial.text}"
-            </p>
+            {selectedTestimonial.text && (
+              <p style={{ color: '#334155', fontSize: '15px', lineHeight: 1.7, fontStyle: 'italic', marginBottom: '20px', fontWeight: 500 }}>
+                "{!isPopupTextExpanded && selectedTestimonial.text.length > 120 ? selectedTestimonial.text.substring(0, 120).trim() + '... ' : selectedTestimonial.text}"
+                {!isPopupTextExpanded && selectedTestimonial.text.length > 120 && (
+                  <span onClick={() => setIsPopupTextExpanded(true)} style={{ color: 'var(--color-primary)', fontWeight: 700, cursor: 'pointer', fontStyle: 'normal' }}>
+                    Read more
+                  </span>
+                )}
+                {isPopupTextExpanded && selectedTestimonial.text.length > 120 && (
+                  <span onClick={() => setIsPopupTextExpanded(false)} style={{ color: 'var(--color-primary)', fontWeight: 700, cursor: 'pointer', fontStyle: 'normal', marginLeft: '6px' }}>
+                    Show less
+                  </span>
+                )}
+              </p>
+            )}
 
             {/* Rich text image after text */}
             {selectedTestimonial.popupImage && (
-              <div style={{ width: '100%', marginBottom: '24px', borderRadius: '16px', overflow: 'hidden', flexShrink: 0 }}>
+              <div style={{ width: '100%', marginBottom: '20px', borderRadius: '12px', overflow: 'hidden', flexShrink: 0 }}>
                 <img 
                   src={selectedTestimonial.popupImage} 
                   alt={selectedTestimonial.name} 
@@ -387,10 +421,10 @@ export default function TestimonialsClient({ hero = fallbackHero, pageData }) {
               </div>
             )}
             
-            <h4 style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', margin: '0 0 6px' }}>
+            <h4 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>
               {selectedTestimonial.name}
             </h4>
-            <span style={{ color: 'var(--color-primary)', fontSize: '15px', fontWeight: 700 }}>
+            <span style={{ color: 'var(--color-primary)', fontSize: '13px', fontWeight: 700 }}>
               {selectedTestimonial.location} {selectedTestimonial.tour ? `• ${selectedTestimonial.tour}` : ''}
             </span>
           </div>

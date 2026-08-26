@@ -58,15 +58,28 @@ export default function GalleryClient({ pageData }) {
             .masonry-item:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
           `}} />
           
-          {masonryImages.map((img, idx) => (
-            <div key={idx} className="masonry-item">
-              <img 
-                src={getMediaUrl(img.img)} 
-                alt={img.lbl || `Gallery image ${idx + 1}`} 
-                style={{ width: '100%', display: 'block', height: 'auto' }} 
-              />
-            </div>
-          ))}
+          {masonryImages.map((img, idx) => {
+            const url = getMediaUrl(img.img);
+            const isVideo = url.match(/\.(mp4|webm|ogg|mov)$/i);
+            return (
+              <div key={idx} className="masonry-item">
+                {isVideo ? (
+                  <video 
+                    src={url} 
+                    controls 
+                    playsInline
+                    style={{ width: '100%', display: 'block', height: 'auto', borderRadius: '0.5rem' }} 
+                  />
+                ) : (
+                  <img 
+                    src={url} 
+                    alt={img.lbl || `Gallery image ${idx + 1}`} 
+                    style={{ width: '100%', display: 'block', height: 'auto', borderRadius: '0.5rem' }} 
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -123,7 +136,11 @@ export default function GalleryClient({ pageData }) {
               overflow: 'hidden',
               boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
             }}>
-              <img src={collageImage1} alt="Traveler" style={{ width: '100%', display: 'block' }} />
+              {collageImage1.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                <video src={collageImage1} controls playsInline style={{ width: '100%', display: 'block' }} />
+              ) : (
+                <img src={collageImage1} alt="Traveler" style={{ width: '100%', display: 'block' }} />
+              )}
             </div>
             <div style={{ 
               position: 'absolute', 
@@ -135,7 +152,11 @@ export default function GalleryClient({ pageData }) {
               overflow: 'hidden',
               boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
             }}>
-              <img src={collageImage2} alt="Villa pool" style={{ width: '100%', display: 'block' }} />
+              {collageImage2.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                <video src={collageImage2} controls playsInline style={{ width: '100%', display: 'block' }} />
+              ) : (
+                <img src={collageImage2} alt="Villa pool" style={{ width: '100%', display: 'block' }} />
+              )}
             </div>
           </div>
           
