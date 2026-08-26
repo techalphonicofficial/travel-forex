@@ -635,7 +635,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
     setExpanded(expanded === label ? null : label);
   };
 
-  const navGroups = [
+  const defaultNavGroups = [
     {
       label: 'Tour Categories',
       hasSub: allCategories && allCategories.length > 0,
@@ -671,14 +671,66 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
         href: item.href,
       })),
     },
-
     { label: 'Testimonial', href: '/testimonials' },
     { label: 'Our Travel Gallery', href: '/gallery' },
-    // { label: 'FAQ', href: '/contact#faq' },
     { label: 'Contact us', href: '/contact' },
     { label: 'Blog', href: '/blog' },
     { label: 'About us', href: '/about' }
   ];
+
+  const [navGroups, setNavGroups] = useState(defaultNavGroups);
+
+  useEffect(() => {
+    // Keep defaults updated with latest props like allCategories
+    setNavGroups(prev => {
+      // If we haven't fetched dynamic groups yet, just use defaults
+      if (prev === defaultNavGroups || prev.length === 0) return defaultNavGroups;
+      
+      // If we have dynamic groups, merge them with the updated defaults
+      return prev.map(group => {
+        const matchingDefault = defaultNavGroups.find(d => d.label.toLowerCase() === group.label.toLowerCase());
+        return matchingDefault ? { ...group, hasSub: matchingDefault.hasSub, subItems: matchingDefault.subItems } : group;
+      });
+    });
+  }, [allCategories, dynamicPackageCols, onFlightOpen]);
+
+  useEffect(() => {
+    const fetchSideNav = async () => {
+      try {
+        const { getPageBySlug } = await import('@/utils/api');
+        const payload = await getPageBySlug('sidenavbar');
+        if (payload) {
+          const sideNavBlock = payload?.details?.find(d => d.key === 'side-navbar-options');
+          const points = sideNavBlock?.json_data?.points;
+          if (points && points.length > 0) {
+            const dynamicGroups = points.map(p => {
+              const fullTitle = p.title || '';
+              let prefix = '';
+              let label = fullTitle;
+              const match = fullTitle.match(/^([A-Z]{2})\s+(.*)/);
+              if (match) {
+                prefix = match[1];
+                label = match[2].trim();
+              }
+              
+              const matchingDefault = defaultNavGroups.find(g => g.label.toLowerCase() === label.toLowerCase()) || {};
+              
+              return {
+                ...matchingDefault,
+                label: label,
+                overrideIcon: prefix,
+                href: matchingDefault.href || `/${label.toLowerCase().replace(/\s+/g, '')}`
+              };
+            });
+            setNavGroups(dynamicGroups);
+          }
+        }
+      } catch (e) {
+        console.warn("Could not fetch sidenavbar:", e.message);
+      }
+    };
+    fetchSideNav();
+  }, []);
 
   return (
     <>
@@ -747,7 +799,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
             const isExpanded = expanded === group.label;
             const hasHref = !!group.href;
             const hasAction = typeof group.action === 'function';
-            const navIcon = getNavIcon(group.label);
+            const navIcon = group.overrideIcon || getNavIcon(group.label);
 
             const ItemTrigger = (
               <div
