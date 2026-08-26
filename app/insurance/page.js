@@ -1,6 +1,6 @@
 import InsuranceClient from './InsuranceClient';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 const PIPELINE_INSURANCE = 'https://tourtravel.yber.in/api/v1/crm/pipelines/26/form';
 const CRM_API_KEY = process.env.CRM_PIPELINE_FORM_API_KEY || process.env.CRM_COMPANY_INFO_API_KEY || 'pt_dc9eae82075b27c1408392fa7d7e0e632ef9e846f6e4e33e';
@@ -9,7 +9,7 @@ const fetchPipeline = async (endpoint) => {
   try {
     const response = await fetch(endpoint, {
       headers: { accept: 'application/json', 'x-api-key': CRM_API_KEY },
-      cache: 'no-store',
+      next: { revalidate: 60 },
     });
     if (!response.ok) return null;
     const payload = await response.json();
@@ -76,7 +76,7 @@ const fetchPage = async () => {
   try {
     const res = await fetch('https://tourtravel.yber.in/api/v1/pages/slug/insurance', {
       headers: { accept: '*/*' },
-      cache: 'no-store'
+      next: { revalidate: 60 }
     });
     if (!res.ok) return null;
     const json = await res.json();

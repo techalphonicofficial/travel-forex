@@ -1,7 +1,7 @@
 import CruiseClient from './CruiseClient';
 import { getPageBySlug } from '@/utils/api';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 const PIPELINE_FORM_ENDPOINT = 'https://tourtravel.yber.in/api/v1/crm/pipelines/7/form';
 const CRM_API_KEY = process.env.CRM_PIPELINE_FORM_API_KEY || process.env.CRM_COMPANY_INFO_API_KEY || 'pt_dc9eae82075b27c1408392fa7d7e0e632ef9e846f6e4e33e';
@@ -13,7 +13,7 @@ const getPipelineForm = async () => {
         accept: 'application/json',
         'x-api-key': CRM_API_KEY,
       },
-      cache: 'no-store',
+      next: { revalidate: 60 },
     });
     if (!response.ok) return null;
     const payload = await response.json();
