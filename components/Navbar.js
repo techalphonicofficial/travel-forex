@@ -2145,7 +2145,23 @@ export default function Navbar({ brand, companyInfo }) {
         className="navbar-custom scrolled"
         style={{ background: '#0f3a75', borderBottom: '1px solid rgba(0,0,0,0.05)', zIndex: 2100 }}
       >
-        <div className="container" style={{ display: 'flex', alignItems: 'center', minHeight: '4rem', padding: '0.25rem 0.938rem', maxWidth: '1280px', margin: '0 auto' }}>
+        {/* Social Icons Top Bar (Desktop Only) */}
+        <div className="d-none d-xl-flex container" style={{ justifyContent: 'flex-end', gap: '1rem', padding: '0.375rem 0.938rem 0', maxWidth: '1280px', margin: '0 auto' }}>
+          <Link href={companyInfo?.social?.facebook || "https://facebook.com"} target="_blank" aria-label="Facebook" style={{ color: '#1877F2', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /></svg>
+          </Link>
+          <Link href={companyInfo?.social?.instagram || "https://instagram.com"} target="_blank" aria-label="Instagram" style={{ color: '#E1306C', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
+          </Link>
+          <Link href={companyInfo?.social?.twitter || "https://twitter.com"} target="_blank" aria-label="X (Twitter)" style={{ color: '#FFFFFF', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+          </Link>
+          <Link href={companyInfo?.social?.linkedin || companyInfo?.social?.youtube || "https://linkedin.com"} target="_blank" aria-label="LinkedIn" style={{ color: '#0A66C2', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" /><circle cx="4" cy="4" r="2" /></svg>
+          </Link>
+        </div>
+
+        <div className="container" style={{ display: 'flex', alignItems: 'center', minHeight: '4rem', padding: '0.25rem 0.938rem 0.625rem', maxWidth: '1280px', margin: '0 auto' }}>
           {/* Logo */}
           <Link href="/" className="animate-fade-up delay-200" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.625rem', flexShrink: 0, margin: '0' }}>
             <Image
@@ -2154,10 +2170,10 @@ export default function Navbar({ brand, companyInfo }) {
               width={60}
               height={60}
               style={{
-                width: '3.75rem',
-                height: '3.75rem',
+                width: '4rem',
+                height: '4rem',
                 objectFit: 'contain',
-                borderRadius: '0.5rem',
+                borderRadius: '50%',
               }}
               priority
             />
@@ -2166,27 +2182,11 @@ export default function Navbar({ brand, companyInfo }) {
           {/* Right Column */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: 0 }}>
 
-            {/* Social Icons (Top Right) */}
-            <div className="d-none d-xl-flex" style={{ justifyContent: 'flex-end', gap: '1rem', margin: '0.375rem', padding: '0.25rem' }}>
-              <Link href={companyInfo?.social?.facebook || "https://facebook.com"} target="_blank" aria-label="Facebook" style={{ color: '#1877F2', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /></svg>
-              </Link>
-              <Link href={companyInfo?.social?.instagram || "https://instagram.com"} target="_blank" aria-label="Instagram" style={{ color: '#E1306C', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
-              </Link>
-              <Link href={companyInfo?.social?.twitter || "https://twitter.com"} target="_blank" aria-label="X (Twitter)" style={{ color: '#FFFFFF', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
-              </Link>
-              <Link href={companyInfo?.social?.linkedin || companyInfo?.social?.youtube || "https://linkedin.com"} target="_blank" aria-label="LinkedIn" style={{ color: '#0A66C2', transition: 'transform 0.2s, filter 0.2s', filter: 'brightness(0.9)' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.filter = 'brightness(1.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'brightness(0.9)'; }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" /><circle cx="4" cy="4" r="2" /></svg>
-              </Link>
-            </div>
-
             {/* Main Nav */}
             <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
               <ul style={{
                 display: 'flex', alignItems: 'center', gap: '1.25rem',
-                listStyle: 'none', margin: 0, padding: 0,
+                listStyle: 'none', margin: 0, padding: 0, paddingLeft: '1.5rem',
                 flex: 1, justifyContent: 'center'
               }}
                 className="d-none d-xl-flex desktop-nav-ul"
