@@ -116,7 +116,6 @@ const getUrlSearchValue = (searchParams) =>
   searchParams.get('city') ||
   searchParams.get('country') ||
   searchParams.get('continent') ||
-  searchParams.get('category') ||
   '';
 
 const formatHeadingValue = (value) =>
