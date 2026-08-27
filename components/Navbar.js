@@ -707,7 +707,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
               const fullTitle = p.title || '';
               let prefix = '';
               let label = fullTitle;
-              const match = fullTitle.match(/^([A-Z]{2})\s+(.*)/);
+              const match = fullTitle.match(/^([A-Z]{2})\s*(.*)/);
               if (match) {
                 prefix = match[1];
                 label = match[2].trim();
@@ -797,14 +797,17 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
         <div style={{ flex: 1, overflowY: 'auto', padding: '0.875rem 0.875rem 0.625rem' }}>
           {navGroups?.map((group, idx) => {
             const isExpanded = expanded === group.label;
-            const hasHref = !!group.href;
+            const hasHref = !!group.href && !group.hasSub;
             const hasAction = typeof group.action === 'function';
             const navIcon = group.overrideIcon || getNavIcon(group.label);
 
             const ItemTrigger = (
               <div
-                onClick={() => {
-                  if (group.hasSub) toggleExpand(group.label);
+                onClick={(e) => {
+                  if (group.hasSub) {
+                    e.preventDefault();
+                    toggleExpand(group.label);
+                  }
                   if (hasAction) {
                     group.action();
                     onClose();
@@ -859,7 +862,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
                   <Link href={group.href} style={{ textDecoration: 'none' }} onClick={onClose}>
                     {ItemTrigger}
                   </Link>
-                ) : hasAction ? (
+                ) : hasAction && !group.hasSub ? (
                   <button type="button" style={{ width: '100%', border: 0, background: 'transparent', padding: 0, textAlign: 'left' }}>
                     {ItemTrigger}
                   </button>
