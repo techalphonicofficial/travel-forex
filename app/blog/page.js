@@ -314,8 +314,7 @@ export default async function BlogPage({
           />
         </div>
 
-        {/* Light dark overlay */}
-        <div className="blog-hero-overlay" />
+        {/* Light dark overlay removed */}
 
         {/* Hero Content */}
         <div className="blog-hero-content">
