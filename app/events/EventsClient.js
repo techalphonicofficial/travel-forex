@@ -121,7 +121,7 @@ export default function EventsClient({ formConfig, pageData }) {
 
   const heroCMS = pageData?.details?.find(d => d.key === 'hero_key');
   const heroJson = parseJSON(heroCMS?.json_data);
-  const heroTitleTop = heroCMS?.title || '💍 Destination Weddings & Celebrations';
+  const heroTitleTop = heroCMS?.title;
   const heroTitleMain = heroJson?.heading_content;
   const heroDesc = heroJson?.body;
   const rawBgUrl = heroJson?.media_url;
@@ -212,23 +212,19 @@ export default function EventsClient({ formConfig, pageData }) {
   return (
     <main className="events-page">
       {/* 1. HERO SECTION */}
-      <section className="events-hero" style={heroBgImage ? { backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%), ${heroBgImage}` } : {}}>
+      <section className="events-hero" style={heroBgImage ? { backgroundImage: heroBgImage } : {}}>
         <div className="container">
           <div className="events-hero-grid">
             <div className="events-hero-copy">
               <span className="events-top-subtitle">{heroTitleTop}</span>
               <h1>
-                {heroTitleMain ? (
+                {heroTitleMain && (
                   <span dangerouslySetInnerHTML={{ __html: heroTitleMain }} />
-                ) : (
-                  <>Create Unforgettable <span style={{ color: 'var(--color-secondary)' }}>Moments</span></>
                 )}
               </h1>
               <p>
-                {heroDesc ? (
+                {heroDesc && (
                   <span dangerouslySetInnerHTML={{ __html: heroDesc }} />
-                ) : (
-                  'Host destination weddings, anniversary galas, and bespoke parties in stunning venues globally. We handle decorators, luxury hotel bookings, transfers, and gourmet cuisines to turn your dreams into reality.'
                 )}
               </p>
               <div className="events-hero-badges">

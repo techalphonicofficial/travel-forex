@@ -643,6 +643,24 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
                 )}
               </p>
 
+              {heroJson?.points && heroJson.points.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 30 }}>
+                  {heroJson.points.map((pt, i) => (
+                    <div key={i} style={{
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      border: '1px solid rgba(255, 255, 255, 0.22)',
+                      borderRadius: 99,
+                      padding: '6px 16px',
+                      fontSize: 13.5,
+                      fontWeight: 700,
+                      color: 'white'
+                    }}>
+                      {pt.title}
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 15 }}>
                 <a href={cta1Link || "#lead-form"} onClick={!cta1Link ? scrollToLeadForm : undefined} className="btn-primary" style={{ padding: '14px 28px', textDecoration: 'none', color: '#0f172a', background: 'var(--color-secondary)' }}>
                   {cta1Text || (pageType === 'currency' ? 'Inquire Currency' : pageType === 'card' ? 'Apply Forex Card' : 'Start Transfer')}
@@ -1366,11 +1384,11 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
               return (
                 <div key={idx} className="col-12 col-md-6 col-lg-3">
                   <div className="card-base" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', padding: '30px 24px', height: '100%', display: 'flex', flexDirection: 'column', borderRadius: 20 }}>
-                    <div style={{ marginBottom: 15 }}>
+                    <div style={{ marginBottom: 20, textAlign: 'center' }}>
                       {tab.img ? (
-                        <img src={getMediaUrl(tab.img)} alt={tab.title} style={{ height: 40, width: 'auto', objectFit: 'contain' }} />
+                        <img src={getMediaUrl(tab.img)} alt={tab.title} style={{ height: 72, width: 'auto', objectFit: 'contain', margin: '0 auto' }} />
                       ) : (
-                        <div style={{ fontSize: 36 }}>{tab.icon || '💵'}</div>
+                        <div style={{ fontSize: 48, textAlign: 'center' }}>{tab.icon || '💵'}</div>
                       )}
                     </div>
                     <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-text-primary)', marginBottom: 10 }}>{tab.title}</h3>

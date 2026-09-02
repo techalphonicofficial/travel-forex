@@ -122,7 +122,7 @@ export default function ConferencesClient({ formConfig, pageData }) {
 
   const heroCMS = pageData?.details?.find(d => d.key === 'hero_key');
   const heroJson = parseJSON(heroCMS?.json_data);
-  const heroTitleTop = heroCMS?.title || '🏢 Corporate Meetings & MICE';
+  const heroTitleTop = heroCMS?.title;
   const heroTitleMain = heroJson?.heading_content;
   const heroDesc = heroJson?.body;
   const rawBgUrl = heroJson?.media_url;
@@ -210,23 +210,19 @@ export default function ConferencesClient({ formConfig, pageData }) {
   return (
     <main className="conferences-page">
       {/* 1. HERO SECTION */}
-      <section className="conferences-hero" style={heroBgImage ? { backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%), ${heroBgImage}` } : {}}>
+      <section className="conferences-hero" style={heroBgImage ? { backgroundImage: heroBgImage } : {}}>
         <div className="container">
           <div className="conferences-hero-grid">
             <div className="conferences-hero-copy">
               <span className="conferences-top-subtitle">{heroTitleTop}</span>
               <h1>
-                {heroTitleMain ? (
+                {heroTitleMain && (
                   <span dangerouslySetInnerHTML={{ __html: heroTitleMain }} />
-                ) : (
-                  <>Host World-Class Business <span style={{ color: 'var(--color-secondary)' }}>Events</span></>
                 )}
               </h1>
               <p>
-                {heroDesc ? (
+                {heroDesc && (
                   <span dangerouslySetInnerHTML={{ __html: heroDesc }} />
-                ) : (
-                  'Plan AGM meetings, corporate summits, training seminars, and product launches seamlessly. We manage premium hotels, projection halls, logistics, catering, and audio-visual setups globally.'
                 )}
               </p>
               <div className="conferences-hero-badges">

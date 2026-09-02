@@ -111,9 +111,9 @@ export default function InsuranceClient({ pageData, formConfig }) {
   const partnersSection = pageData?.details?.find(d => d.section === 'team_grid' && d.key === 'our_trusted_partner');
   const benefitsSection = pageData?.details?.find(d => d.section === 'team_grid' && d.key === 'book-key');
 
-  const heroHeadingSmall = heroSection?.title || 'Peace of Mind Anywhere';
-  const heroHeadingLarge = heroSection?.json_data?.heading_content || 'Comprehensive Travel Insurance';
-  const heroDesc = heroSection?.json_data?.body || 'Don\'t let unforeseen circumstances ruin your hard-earned vacation. Protect yourself against medical emergencies, flight cancellations, and lost baggage with our top-tier insurance policies.';
+  const heroHeadingSmall = heroSection?.title;
+  const heroHeadingLarge = heroSection?.json_data?.heading_content;
+  const heroDesc = heroSection?.json_data?.body;
   const heroMediaUrl = heroSection?.json_data?.media_url;
   const fullHeroMediaUrl = heroMediaUrl ? (heroMediaUrl.startsWith('http') ? heroMediaUrl : `https://tourtravel.yber.in${heroMediaUrl}`) : null;
   console.log(fullHeroMediaUrl, "fullHeroMediaUrl");

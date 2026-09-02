@@ -309,11 +309,11 @@ export default function CruiseClient({ pageData, formConfig }) {
         <div className="container">
           <div className="cruise-hero-grid">
             <div className="cruise-hero-copy">
-              <span>{pageData?.meta_title || '🛳 Premium Ocean Journeys'}</span>
-              <h1>{heroData.heading_content || 'Sail Away Into Paradise'}</h1>
-              <p>{heroData.body || "Discover unmatched cruise packages on the world's most luxurious liners. Enjoy fine multi-cuisine dining, Broadway-style deck entertainment, and exciting shore excursions, all included in your package."}</p>
+              <span>{pageData?.meta_title}</span>
+              <h1>{heroData?.heading_content}</h1>
+              <p>{heroData?.body}</p>
               <div className="cruise-hero-badges">
-                {(heroData.points || [{ title: '★ All-Inclusive Meals' }, { title: '★ Kid-Friendly Lounges' }, { title: '★ Dedicated Deck Support' }]).map((pt, idx) => (
+                {(heroData?.points || []).map((pt, idx) => (
                   <span key={idx} className="cruise-tag-badge">{pt.title}</span>
                 ))}
               </div>

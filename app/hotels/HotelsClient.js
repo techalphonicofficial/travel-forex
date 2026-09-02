@@ -10,6 +10,7 @@ import HotelInquiryModal from '@/components/HotelInquiryModal';
 import ReadMoreText from '@/components/ReadMoreText';
 import { useDebounce } from '@/hooks/useDebounce';
 import HotDealsMarquee from '@/components/HotDealsMarquee';
+import './hotels.css';
 
 const formatMoney = (value) => `Rs ${Number(value || 0).toLocaleString('en-IN')}`;
 
@@ -464,8 +465,6 @@ const searchHotels = (event) => {
       />
 
       <HotelInquiryModal formConfig={formConfig} />
-
-      <HotelStyles />
     </main>
   );
 }

@@ -162,10 +162,8 @@ export default function FooterClient({ brand, companyInfo }) {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.4 }}>
                   <span style={{
-                    fontFamily: 'Georgia, serif',
-                    fontStyle: 'italic',
-                    fontWeight: 600,
-                    fontSize: '13px',
+                    fontWeight: 700,
+                    fontSize: '14px',
                     color: '#cbd5e1',
                     letterSpacing: '0.2px'
                   }}>

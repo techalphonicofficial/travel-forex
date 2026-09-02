@@ -6,6 +6,7 @@ import { getMediaUrl } from '@/utils/api';
 export default function GalleryClient({ pageData }) {
   const galleryBlock = pageData?.details?.find(d => d.key === 'our _travel_gallery');
   const galleryBlock2 = pageData?.details?.find(d => d.key === 'our _travel_gallery2');
+  const centerSectionBlock = pageData?.details?.find(d => d.key === 'center_section');
 
   const heroTitle = galleryBlock?.title || pageData?.title || 'Our Travel Gallery';
   const heroDesc = galleryBlock?.json_data?.block_desc || galleryBlock?.description || pageData?.description || 'Explore our beautiful travel destinations and packages.';
@@ -13,10 +14,14 @@ export default function GalleryClient({ pageData }) {
 
   const masonryImages = galleryBlock?.json_data?.images || [];
   
-  const ctaTitle = galleryBlock2?.description || galleryBlock2?.json_data?.block_desc || 'Best holiday package for you';
+  const ctaTitle = centerSectionBlock?.title || galleryBlock2?.description || galleryBlock2?.json_data?.block_desc || 'Best holiday package for you';
+  const ctaDesc = centerSectionBlock?.description || heroDesc;
   const collageImages = galleryBlock2?.json_data?.images || [];
   const collageImage1 = collageImages[0]?.img ? getMediaUrl(collageImages[0].img) : 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&w=400&q=80';
   const collageImage2 = collageImages[1]?.img ? getMediaUrl(collageImages[1].img) : 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=600&q=80';
+  const testimonialTag = galleryBlock2?.title || 'Testimonial';
+  const testimonialHeading = galleryBlock2?.description || 'Travel Agency provides beautiful Dream Place for you';
+  const testimonialDesc = galleryBlock2?.json_data?.block_desc || 'Lorem ipsum dolor sit amet consectetur. Urna nibh sem morbi interdum habitant. Porttitor augue enim turpis maecenas et adipiscing. Dis ipsum vitae ultrices vulputate sem quis eu eu. Amet tincidunt est elementum.';
 
   return (
     <div style={{ background: '#ffffff', minHeight: '100vh' }}>
@@ -96,7 +101,7 @@ export default function GalleryClient({ pageData }) {
             {ctaTitle}
           </h2>
           <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.8)', marginBottom: '2rem', lineHeight: 1.6 }}>
-            {heroDesc}
+            {ctaDesc}
           </p>
         </div>
       </section>
@@ -108,16 +113,13 @@ export default function GalleryClient({ pageData }) {
           {/* Left Text */}
           <div>
             <span style={{ color: 'var(--color-primary)', fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '1rem' }}>
-              Testimonial
+              {testimonialTag}
             </span>
             <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-text-primary)', lineHeight: 1.2, marginBottom: '1.5rem', fontFamily: 'var(--font-playfair), serif' }}>
-              Travel Agency provides beautiful Dream Place for you
+              {testimonialHeading}
             </h2>
             <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.8, marginBottom: '1.5rem', fontSize: '1rem' }}>
-              Lorem ipsum dolor sit amet consectetur. Urna nibh sem morbi interdum habitant. Porttitor augue enim turpis maecenas et adipiscing. Dis ipsum vitae ultrices vulputate sem quis eu eu. Amet tincidunt est elementum.
-            </p>
-            <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.8, marginBottom: '2rem', fontSize: '1rem' }}>
-              Lorem ipsum dolor sit amet consectetur. Urna nibh sem morbi interdum habitant. Porttitor augue enim turpis maecenas et adipiscing. Dis ipsum vitae ultrices vulputate sem quis eu eu. Amet tincidunt est elementum.
+              {testimonialDesc}
             </p>
             <div style={{ display: 'flex', gap: '0.25rem', color: '#fbbf24', fontSize: '1.25rem' }}>
               {'★★★★★'.split('').map((star, i) => <span key={i}>{star}</span>)}

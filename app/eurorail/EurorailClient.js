@@ -122,7 +122,7 @@ export default function EurorailClient({ formConfig, pageData }) {
 
   const heroCMS = pageData?.details?.find(d => d.key === 'hero_key');
   const heroJson = parseJSON(heroCMS?.json_data);
-  const heroTitleTop = heroCMS?.title || '🚆 European Rail Networks';
+  const heroTitleTop = heroCMS?.title;
   const heroTitleMain = heroJson?.heading_content;
   const heroDesc = heroJson?.body;
   const rawBgUrl = heroJson?.media_url;
@@ -183,7 +183,7 @@ export default function EurorailClient({ formConfig, pageData }) {
         const departureTime = formData.get('departure_time') || '';
         const returnDate = formData.get('return_date') || '';
         const returnTime = formData.get('return_time') || '';
-        
+
         const details = [
           `Ticket Type: ${ticketType.toUpperCase()}`,
           `Route: ${fromCity} to ${toCity}`,
@@ -256,23 +256,19 @@ export default function EurorailClient({ formConfig, pageData }) {
   return (
     <main className="eurorail-page">
       {/* 1. HERO SECTION */}
-      <section className="eurorail-hero" style={heroBgImage ? { backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 100%), ${heroBgImage}` } : {}}>
+      <section className="eurorail-hero" style={heroBgImage ? { backgroundImage: heroBgImage } : {}}>
         <div className="container">
           <div className="eurorail-hero-grid">
             <div className="eurorail-hero-copy">
               <span className="eurorail-top-subtitle">{heroTitleTop}</span>
               <h1>
-                {heroTitleMain ? (
+                {heroTitleMain && (
                   <span dangerouslySetInnerHTML={{ __html: heroTitleMain }} />
-                ) : (
-                  <>Explore Europe, By <span style={{ color: 'var(--color-secondary)' }}>Train</span></>
                 )}
               </h1>
               <p>
-                {heroDesc ? (
+                {heroDesc && (
                   <span dangerouslySetInnerHTML={{ __html: heroDesc }} />
-                ) : (
-                  'Book passes and point-to-point tickets for high-speed networks across Europe. Travel scenic routes, cross borders seamlessly, and enjoy the comfort of Eurostar, TGV, and Swiss panoramic trains.'
                 )}
               </p>
               <div className="eurorail-hero-badges">
@@ -396,7 +392,7 @@ export default function EurorailClient({ formConfig, pageData }) {
             {bookTeam.map((member, idx) => {
               let icon = member.img;
               let name = member.name || '';
-              
+
               if (!icon) {
                 // Check if the name starts with an emoji (non-ASCII) followed by a space
                 const match = name.match(/^([^\x00-\x7F]+)\s+(.*)/);
