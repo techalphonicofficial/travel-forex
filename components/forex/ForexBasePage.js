@@ -466,7 +466,7 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
 
   const heroCMS = pageData?.details?.find(d => d.key === 'hero_key');
   const heroJson = parseJSON(heroCMS?.json_data);
-  const heroTitleTop = heroCMS?.title || '✦ RBI Authorized Partner';
+  const heroTitleTop = heroCMS?.title !== undefined ? heroCMS.title : '✦ RBI Authorized Partner';
   const heroTitleMain = heroJson?.heading_content;
   const heroDesc = heroJson?.body;
   const heroBgImage = getMediaUrl(heroJson?.media_url);
@@ -602,46 +602,59 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
           <div className="row align-items-center g-5">
             {/* Title / Description */}
             <div className="col-12 col-lg-6">
-              <span style={{
-                color: 'var(--color-secondary)',
-                fontSize: 12,
-                fontWeight: 800,
-                letterSpacing: '3px',
-                textTransform: 'uppercase',
-                display: 'block',
-                marginBottom: 12
-              }}>
-                {heroTitleTop}
-              </span>
-              <h1 style={{
-                fontFamily: 'var(--font-poppins), sans-serif',
-                fontWeight: 900,
-                fontSize: 'clamp(32px, 5vw, 48px)',
-                lineHeight: 1.15,
-                marginBottom: 20,
-                color: 'white'
-              }}>
-                {heroTitleMain ? (
-                  <span dangerouslySetInnerHTML={{ __html: heroTitleMain }} />
-                ) : (
-                  <>
-                    {pageType === 'currency' && <>Buy/Sell <span style={{ color: 'var(--color-secondary)' }}>Foreign Currency</span></>}
-                    {pageType === 'card' && <>Get Your Multi-Currency <span style={{ color: 'var(--color-secondary)' }}>Forex Card</span></>}
-                    {pageType === 'transfer' && <>Fast & Secure <span style={{ color: 'var(--color-secondary)' }}>International Transfer</span></>}
-                  </>
-                )}
-              </h1>
-              <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 16, lineHeight: 1.6, marginBottom: 30, maxWidth: '520px' }}>
-                {heroDesc ? (
-                  <span dangerouslySetInnerHTML={{ __html: heroDesc }} />
-                ) : (
-                  <>
-                    {pageType === 'currency' && "Get genuine currency notes in major global denominations delivered to your doorstep at the best live exchange rates."}
-                    {pageType === 'card' && "Secure and load multiple currencies. Accepted worldwide at offline stores, ATMs and online websites with zero markup fees."}
-                    {pageType === 'transfer' && "Secure instant international tuition remittances, medical payments, and business transfers. Lock in competitive live rates today."}
-                  </>
-                )}
-              </p>
+              {heroTitleTop && (
+                <span style={{
+                  color: 'var(--color-secondary)',
+                  fontSize: 12,
+                  fontWeight: 800,
+                  letterSpacing: '3px',
+                  textTransform: 'uppercase',
+                  display: 'block',
+                  marginBottom: 12
+                }}>
+                  {heroTitleTop}
+                </span>
+              )}
+              {heroTitleMain !== undefined ? (
+                heroTitleMain && (
+                  <h1 style={{
+                    fontFamily: 'var(--font-poppins), sans-serif',
+                    fontWeight: 900,
+                    fontSize: 'clamp(32px, 5vw, 48px)',
+                    lineHeight: 1.15,
+                    marginBottom: 20,
+                    color: 'white'
+                  }}>
+                    <span dangerouslySetInnerHTML={{ __html: heroTitleMain }} />
+                  </h1>
+                )
+              ) : (
+                <h1 style={{
+                  fontFamily: 'var(--font-poppins), sans-serif',
+                  fontWeight: 900,
+                  fontSize: 'clamp(32px, 5vw, 48px)',
+                  lineHeight: 1.15,
+                  marginBottom: 20,
+                  color: 'white'
+                }}>
+                  {pageType === 'currency' && <>Buy/Sell <span style={{ color: 'var(--color-secondary)' }}>Foreign Currency</span></>}
+                  {pageType === 'card' && <>Get Your Multi-Currency <span style={{ color: 'var(--color-secondary)' }}>Forex Card</span></>}
+                  {pageType === 'transfer' && <>Fast & Secure <span style={{ color: 'var(--color-secondary)' }}>International Transfer</span></>}
+                </h1>
+              )}
+              {heroDesc !== undefined ? (
+                heroDesc && (
+                  <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 16, lineHeight: 1.6, marginBottom: 30, maxWidth: '520px' }}>
+                    <span dangerouslySetInnerHTML={{ __html: heroDesc }} />
+                  </p>
+                )
+              ) : (
+                <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 16, lineHeight: 1.6, marginBottom: 30, maxWidth: '520px' }}>
+                  {pageType === 'currency' && "Get genuine currency notes in major global denominations delivered to your doorstep at the best live exchange rates."}
+                  {pageType === 'card' && "Secure and load multiple currencies. Accepted worldwide at offline stores, ATMs and online websites with zero markup fees."}
+                  {pageType === 'transfer' && "Secure instant international tuition remittances, medical payments, and business transfers. Lock in competitive live rates today."}
+                </p>
+              )}
 
               {heroJson?.points && heroJson.points.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 30 }}>
