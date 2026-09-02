@@ -174,41 +174,46 @@ export default function TestimonialsClient({ hero = fallbackHero, pageData }) {
       {/* Hero Section */}
       <section style={heroStyle}>
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 800, margin: '0 auto' }}>
-          <span style={{ 
-            display: 'inline-block', 
-            padding: '8px 16px', 
-            background: 'rgba(255,255,255,0.1)', 
-            border: '1px solid rgba(255,255,255,0.2)', 
-            borderRadius: '999px', 
-            fontSize: '11px', 
-            fontWeight: 800,
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-            marginBottom: '8px',
-            backdropFilter: 'blur(4px)'
-          }}>
-            {hero.label}
-          </span>
-          <h1 style={{ 
-            fontSize: 'clamp(28px, 4vw, 42px)', 
-            fontWeight: 900, 
-            letterSpacing: 0,
-            lineHeight: 1.1,
-            marginBottom: '8px',
-            fontFamily: 'var(--font-poppins), Poppins, sans-serif'
-          }}>
-            {hero.title}
-          </h1>
-          <p style={{ 
-            fontSize: '15px', 
-            color: '#cbd5e1', 
-            lineHeight: 1.6, 
-            maxWidth: 600, 
-            margin: '0 auto',
-            fontWeight: 500
-          }}>
-            {hero.description}
-          </p>
+          {hero.label && (
+            <span style={{
+              display: 'inline-block',
+              background: 'rgba(255,255,255,0.1)',
+              padding: '6px 16px',
+              borderRadius: '24px',
+              fontSize: '13px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: 1.5,
+              marginBottom: '16px',
+              border: '1px solid rgba(255,255,255,0.2)'
+            }}>
+              {hero.label}
+            </span>
+          )}
+          {hero.title && (
+            <h1 style={{ 
+              fontSize: 'clamp(28px, 4vw, 42px)', 
+              fontWeight: 900, 
+              letterSpacing: 0,
+              lineHeight: 1.1,
+              marginBottom: '8px',
+              fontFamily: 'var(--font-poppins), Poppins, sans-serif'
+            }}>
+              {hero.title}
+            </h1>
+          )}
+          {hero.description && (
+            <p style={{ 
+              fontSize: '15px', 
+              color: '#cbd5e1', 
+              lineHeight: 1.6, 
+              maxWidth: 600, 
+              margin: '0 auto',
+              fontWeight: 500
+            }}>
+              {hero.description}
+            </p>
+          )}
         </div>
       </section>
 

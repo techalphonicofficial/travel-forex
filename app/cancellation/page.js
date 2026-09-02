@@ -47,7 +47,7 @@ const buildCancellationContent = (page) => {
       'Stuff happens. We completely understand. Here is everything you need to know about modifying or canceling your trips.',
     image: heroImage,
     imageAlt: page?.alt_text || page?.title || 'Cancellation policy',
-    html: storyGrid?.json_data?.story_desc || FALLBACK_POLICY_HTML,
+    html: storyGrid?.json_data?.story_desc ?? FALLBACK_POLICY_HTML,
     updatedAt: formatDate(page?.updated_at || page?.created_at),
   };
 };

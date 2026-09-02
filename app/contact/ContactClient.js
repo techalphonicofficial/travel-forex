@@ -160,11 +160,13 @@ export default function ContactClient({ hero = fallbackHero, faqContent = fallba
     <>
       <div className="page-header" style={pageHeaderStyle}>
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          <span className="section-label" style={{ color: 'rgba(255,255,255,0.7)' }}>{hero.label}</span>
-          <h1 className="section-title" style={{ color: 'white' }}>{hero.title}</h1>
-          <p style={{ color: 'rgba(255,255,255,0.78)', fontSize: 16, maxWidth: 720 }}>
-            {hero.description}
-          </p>
+          {hero.label && <span className="section-label" style={{ color: 'rgba(255,255,255,0.7)' }}>{hero.label}</span>}
+          {hero.title && <h1 className="section-title" style={{ color: 'white' }}>{hero.title}</h1>}
+          {hero.description && (
+            <p style={{ color: 'rgba(255,255,255,0.78)', fontSize: 16, maxWidth: 720 }}>
+              {hero.description}
+            </p>
+          )}
         </div>
       </div>
 
@@ -294,9 +296,9 @@ export default function ContactClient({ hero = fallbackHero, faqContent = fallba
         <div className="container" style={{ maxWidth: 780 }}>
           <ScrollReveal>
             <div className="text-center mb-5">
-              <span className="section-label">{faqContent.label}</span>
-              <h2 className="section-title">{faqContent.title}</h2>
-              <p className="section-subtitle mx-auto">{faqContent.description}</p>
+              {faqContent.label && <span className="section-label">{faqContent.label}</span>}
+              {faqContent.title && <h2 className="section-title">{faqContent.title}</h2>}
+              {faqContent.description && <p className="section-subtitle mx-auto">{faqContent.description}</p>}
             </div>
           </ScrollReveal>
 

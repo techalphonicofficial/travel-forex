@@ -126,7 +126,7 @@ export default function EventsClient({ formConfig, pageData }) {
   const heroDesc = heroJson?.body;
   const rawBgUrl = heroJson?.media_url;
   const heroBgImage = rawBgUrl ? `url('${getMediaUrl(rawBgUrl)}')` : null;
-  const heroBadges = heroJson?.points || [
+  const heroBadges = heroJson?.points !== undefined ? heroJson.points : [
     { title: "✔ Elite Decor Designers" },
     { title: "✔ Hospitality Managers" },
     { title: "✔ Curated Guest Experiences" }
@@ -134,9 +134,9 @@ export default function EventsClient({ formConfig, pageData }) {
 
   const bookCMS = pageData?.details?.find(d => d.key === 'book-key');
   const bookJson = parseJSON(bookCMS?.json_data);
-  const bookTitle = bookCMS?.title || 'Seamless Celebration Planning';
-  const bookHeading = bookJson?.heading_content || 'Our complete event management systems handle all logistics, letting you enjoy the day.';
-  const bookTeam = bookJson?.team || [
+  const bookTitle = bookCMS?.title !== undefined ? bookCMS.title : 'Seamless Celebration Planning';
+  const bookHeading = bookJson?.heading_content !== undefined ? bookJson.heading_content : 'Our complete event management systems handle all logistics, letting you enjoy the day.';
+  const bookTeam = bookJson?.team !== undefined ? bookJson.team : [
     { name: '🏨 Discount Group Bookings', bio: 'We leverage hotel partner relationships to book bulk rooms at rates significantly lower than booking platforms, keeping group travel affordable.' },
     { name: '✨ Premium Themes & Decor', bio: 'From sunset beach lights and boho setups to royal palace floral arches, our design teams customize decor templates to match your family vision.' },
     { name: '🍽 Gourmet Dining Curation', bio: 'Work with renowned catering groups offering multi-cuisine menus (Punjabi, South Indian, Continental, Jain, and Halal) with strict quality checks.' }
@@ -144,9 +144,9 @@ export default function EventsClient({ formConfig, pageData }) {
 
   const faqCMS = pageData?.details?.find(d => d.key === 'FAQ');
   const faqJson = parseJSON(faqCMS?.json_data);
-  const faqTitle = faqCMS?.title || 'Frequently Asked Questions';
-  const faqHeading = faqJson?.heading_content || 'Helpful advice to make your rail holiday hassle-free.';
-  const dynamicFaqs = faqJson?.faqs || faqs;
+  const faqTitle = faqCMS?.title !== undefined ? faqCMS.title : 'Frequently Asked Questions';
+  const faqHeading = faqJson?.heading_content !== undefined ? faqJson.heading_content : 'Helpful advice to make your rail holiday hassle-free.';
+  const dynamicFaqs = faqJson?.faqs !== undefined ? faqJson.faqs : faqs;
 
   const fields = useMemo(() => {
     if (!formConfig?.fields?.length) return [];
@@ -216,22 +216,24 @@ export default function EventsClient({ formConfig, pageData }) {
         <div className="container">
           <div className="events-hero-grid">
             <div className="events-hero-copy">
-              <span className="events-top-subtitle">{heroTitleTop}</span>
-              <h1>
-                {heroTitleMain && (
+              {heroTitleTop && <span className="events-top-subtitle">{heroTitleTop}</span>}
+              {heroTitleMain && (
+                <h1>
                   <span dangerouslySetInnerHTML={{ __html: heroTitleMain }} />
-                )}
-              </h1>
-              <p>
-                {heroDesc && (
+                </h1>
+              )}
+              {heroDesc && (
+                <p>
                   <span dangerouslySetInnerHTML={{ __html: heroDesc }} />
-                )}
-              </p>
-              <div className="events-hero-badges">
-                {heroBadges.map((badge, idx) => (
-                  <span key={idx} className="events-tag-badge">{badge.title}</span>
-                ))}
-              </div>
+                </p>
+              )}
+              {heroBadges.length > 0 && (
+                <div className="events-hero-badges">
+                  {heroBadges.map((badge, idx) => (
+                    <span key={idx} className="events-tag-badge">{badge.title}</span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* SEARCH WIDGET CARD */}

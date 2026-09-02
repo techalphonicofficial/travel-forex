@@ -21,13 +21,13 @@ const buildHeroContent = (page) => {
   const heroSection = page?.details?.find((detail) => (
     detail.section === 'story_grid' && detail.key === 'hero_key'
   )) || page?.details?.find((detail) => detail.section === 'story_grid');
-  const storyHtml = heroSection?.json_data?.story_desc || '';
+  const storyHtml = heroSection?.json_data?.story_desc ?? undefined;
   const [descriptionTitle, ...descriptionLines] = String(heroSection?.description || '').split(/\r?\n/).filter(Boolean);
 
   return {
-    label: heroSection?.title || fallbackHero.label,
-    title: heroSection?.json_data?.heading_content || getFirstTagText(storyHtml, 'h1') || getFirstTagText(storyHtml, 'h2') || descriptionTitle || page?.title || fallbackHero.title,
-    description: getFirstTagText(storyHtml, 'p') || descriptionLines.join(' ') || page?.description || fallbackHero.description,
+    label: heroSection?.title ?? fallbackHero.label,
+    title: heroSection?.json_data?.heading_content ?? (getFirstTagText(storyHtml, 'h1') || getFirstTagText(storyHtml, 'h2') || descriptionTitle || page?.title || fallbackHero.title),
+    description: storyHtml !== undefined ? getFirstTagText(storyHtml, 'p') : (descriptionLines.join(' ') || page?.description || fallbackHero.description),
     image: getMediaUrl(page?.feature_image),
   };
 };

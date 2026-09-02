@@ -112,14 +112,14 @@ const buildContactContent = (page) => {
 
   return {
     hero: {
-      label: heroSection?.title || fallbackHero.label,
-      title: heroSection?.json_data?.heading_content || page?.title || fallbackHero.title,
-      description: heroSection?.json_data?.body || heroSection?.description || page?.description || fallbackHero.description,
+      label: heroSection?.title !== undefined ? heroSection.title : fallbackHero.label,
+      title: heroSection?.json_data?.heading_content !== undefined ? heroSection.json_data.heading_content : (page?.title || fallbackHero.title),
+      description: heroSection?.json_data?.body !== undefined ? heroSection.json_data.body : (heroSection?.description || page?.description || fallbackHero.description),
     },
     faqContent: {
-      label: faqAccordion?.title || fallbackFaqContent.label,
-      title: faqAccordion?.json_data?.heading_content || fallbackFaqContent.title,
-      description: faqAccordion?.json_data?.block_desc || fallbackFaqContent.description,
+      label: faqAccordion?.title !== undefined ? faqAccordion.title : fallbackFaqContent.label,
+      title: faqAccordion?.json_data?.heading_content !== undefined ? faqAccordion.json_data.heading_content : fallbackFaqContent.title,
+      description: faqAccordion?.json_data?.block_desc !== undefined ? faqAccordion.json_data.block_desc : fallbackFaqContent.description,
       faqs: Array.isArray(faqAccordion?.json_data?.faqs) ? faqAccordion.json_data.faqs : [],
     },
     heroImage: getMediaUrl(heroSection?.json_data?.media_url || page?.feature_image),

@@ -368,12 +368,22 @@ const searchHotels = (event) => {
         <div className="hotels-container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
             <div>
-              <span>{heroData?.json_data?.heading_content || 'Hotel stays'}</span>
-              <h1>{query.city ? `${query.city} Hotels` : (heroData?.title || 'Explore Hotels')}</h1>
-              <p>
-                {pagination?.total || hotels.length || 0}{' '}
-                {(heroData?.json_data?.story_desc || heroData?.description) ? (heroData.json_data?.story_desc || heroData.description).replace(/<[^>]*>?/gm, '') : 'stays from verified hotel partners'}
-              </p>
+              {heroData?.json_data?.heading_content !== '' && (
+                <span>{heroData?.json_data?.heading_content ?? 'Hotel stays'}</span>
+              )}
+              {(query.city || heroData?.title !== '') && (
+                <h1>{query.city ? `${query.city} Hotels` : (heroData?.title ?? 'Explore Hotels')}</h1>
+              )}
+              {(() => {
+                const desc = heroData
+                  ? (heroData?.json_data?.story_desc ?? heroData?.description ?? '').replace(/<[^>]*>?/gm, '')
+                  : 'stays from verified hotel partners';
+                return desc ? (
+                  <p>
+                    {pagination?.total || hotels.length || 0} {desc}
+                  </p>
+                ) : null;
+              })()}
             </div>
             <div>
               <button 

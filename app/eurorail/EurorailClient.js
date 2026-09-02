@@ -127,7 +127,7 @@ export default function EurorailClient({ formConfig, pageData }) {
   const heroDesc = heroJson?.body;
   const rawBgUrl = heroJson?.media_url;
   const heroBgImage = rawBgUrl ? `url('${getMediaUrl(rawBgUrl)}')` : null;
-  const heroBadges = heroJson?.points || [
+  const heroBadges = heroJson?.points !== undefined ? heroJson.points : [
     { title: "✔ Best Pass Pricing" },
     { title: "✔ Direct Rail Passes" },
     { title: "✔ Borderless Travel" }
@@ -135,9 +135,9 @@ export default function EurorailClient({ formConfig, pageData }) {
 
   const bookCMS = pageData?.details?.find(d => d.key === 'book-key');
   const bookJson = parseJSON(bookCMS?.json_data);
-  const bookTitle = bookCMS?.title || 'Why Book Rails with Us?';
-  const bookHeading = bookJson?.heading_content || 'We make navigating European train systems simple, secure, and cost-effective.';
-  const bookTeam = bookJson?.team || [
+  const bookTitle = bookCMS?.title !== undefined ? bookCMS.title : 'Why Book Rails with Us?';
+  const bookHeading = bookJson?.heading_content !== undefined ? bookJson.heading_content : 'We make navigating European train systems simple, secure, and cost-effective.';
+  const bookTeam = bookJson?.team !== undefined ? bookJson.team : [
     { name: '🇪🇺 Borderless Passes', bio: 'Get Eurail passes delivered directly to your mobile app or doorstep. Visit up to 33 European countries with a single unified travel document.' },
     { name: '🛋 Guaranteed Seat Bookings', bio: 'Consulates and rail networks require seat reservations on peak high-speed trains. Our ticketing experts secure reservations months in advance.' },
     { name: '🛡 24/7 Helpline Assistance', bio: 'Missed a connection or encountered a train cancellation? Our round-the-clock support desk assists you with re-routings and replacement tickets instantly.' }
@@ -145,9 +145,9 @@ export default function EurorailClient({ formConfig, pageData }) {
 
   const faqCMS = pageData?.details?.find(d => d.key === 'FAQ');
   const faqJson = parseJSON(faqCMS?.json_data);
-  const faqTitle = faqCMS?.title || 'Frequently Asked Questions';
-  const faqHeading = faqJson?.heading_content || 'Helpful advice to make your rail holiday hassle-free.';
-  const dynamicFaqs = faqJson?.faqs || faqs;
+  const faqTitle = faqCMS?.title !== undefined ? faqCMS.title : 'Frequently Asked Questions';
+  const faqHeading = faqJson?.heading_content !== undefined ? faqJson.heading_content : 'Helpful advice to make your rail holiday hassle-free.';
+  const dynamicFaqs = faqJson?.faqs !== undefined ? faqJson.faqs : faqs;
 
   useEffect(() => {
     const token = getStoredToken();
@@ -260,22 +260,24 @@ export default function EurorailClient({ formConfig, pageData }) {
         <div className="container">
           <div className="eurorail-hero-grid">
             <div className="eurorail-hero-copy">
-              <span className="eurorail-top-subtitle">{heroTitleTop}</span>
-              <h1>
-                {heroTitleMain && (
+              {heroTitleTop && <span className="eurorail-top-subtitle">{heroTitleTop}</span>}
+              {heroTitleMain && (
+                <h1>
                   <span dangerouslySetInnerHTML={{ __html: heroTitleMain }} />
-                )}
-              </h1>
-              <p>
-                {heroDesc && (
+                </h1>
+              )}
+              {heroDesc && (
+                <p>
                   <span dangerouslySetInnerHTML={{ __html: heroDesc }} />
-                )}
-              </p>
-              <div className="eurorail-hero-badges">
-                {heroBadges.map((badge, idx) => (
-                  <span key={idx} className="eurorail-tag-badge">{badge.title}</span>
-                ))}
-              </div>
+                </p>
+              )}
+              {heroBadges.length > 0 && (
+                <div className="eurorail-hero-badges">
+                  {heroBadges.map((badge, idx) => (
+                    <span key={idx} className="eurorail-tag-badge">{badge.title}</span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* NEW TABS WIDGET */}

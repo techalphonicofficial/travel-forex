@@ -127,7 +127,7 @@ export default function ConferencesClient({ formConfig, pageData }) {
   const heroDesc = heroJson?.body;
   const rawBgUrl = heroJson?.media_url;
   const heroBgImage = rawBgUrl ? `url('${getMediaUrl(rawBgUrl)}')` : null;
-  const heroBadges = heroJson?.points || [
+  const heroBadges = heroJson?.points !== undefined ? heroJson.points : [
     { title: "✔ GST Corporate Invoicing" },
     { title: "✔ Hybrid Meeting Tech" },
     { title: "✔ Bulk Travel & Hotels" }
@@ -135,12 +135,12 @@ export default function ConferencesClient({ formConfig, pageData }) {
 
   const bookCMS = pageData?.details?.find(d => d.key === 'book-key');
   const bookJson = parseJSON(bookCMS?.json_data);
-  const bookTitle = bookCMS?.title || 'Seamless MICE Management';
-  const bookHeading = bookJson?.heading_content || 'Our business logistics coordinators assist you at every stage of the corporate schedule.';
-  const bookTeam = bookJson?.team || [
-    { name: '🎙 Premium AV & Staging', bio: 'We supply and set up dual projectors, high-definition LED backdrops, collar microphones, stage podiums, and professional lighting desks.' },
-    { name: '✈ Group Flights & Visa Checks', bio: 'Our ticketing advisors handle bulk corporate airline seat reserves and compile fast-track visa checklists for business travel delegates.' },
-    { name: '🛡 Dedicated Account Manager', bio: 'Save time with a single coordinator handling food menus, schedule changes, tea/coffee breaks, and custom event branding logistics.' }
+  const bookTitle = bookCMS?.title !== undefined ? bookCMS.title : 'Seamless MICE Management';
+  const bookHeading = bookJson?.heading_content !== undefined ? bookJson.heading_content : 'Our business logistics coordinators assist you at every stage of the corporate schedule.';
+  const bookTeam = bookJson?.team !== undefined ? bookJson.team : [
+    { name: '🏢 Hotel & Banquet Sourcing', bio: 'We negotiate special bulk rates with global hotel chains to book ballrooms, boardroom layouts, and premium residential executive suites at high discounts.' },
+    { name: '📺 AV & Stage Logistics', bio: 'From LED wall setups and dual-projection screens to dedicated secure IT infrastructure, we deploy technical support to ensure your summit presentations run smoothly.' },
+    { name: '🛫 Travel & Airport Transfers', bio: 'We manage multi-city flight ticketing for all corporate delegates, and provide dedicated airport shuttle logistics to the host hotel venues.' }
   ];
 
   const faqCMS = pageData?.details?.find(d => d.key === 'FAQ');
@@ -214,22 +214,24 @@ export default function ConferencesClient({ formConfig, pageData }) {
         <div className="container">
           <div className="conferences-hero-grid">
             <div className="conferences-hero-copy">
-              <span className="conferences-top-subtitle">{heroTitleTop}</span>
-              <h1>
-                {heroTitleMain && (
+              {heroTitleTop && <span className="conferences-top-subtitle">{heroTitleTop}</span>}
+              {heroTitleMain && (
+                <h1>
                   <span dangerouslySetInnerHTML={{ __html: heroTitleMain }} />
-                )}
-              </h1>
-              <p>
-                {heroDesc && (
+                </h1>
+              )}
+              {heroDesc && (
+                <p>
                   <span dangerouslySetInnerHTML={{ __html: heroDesc }} />
-                )}
-              </p>
-              <div className="conferences-hero-badges">
-                {heroBadges.map((badge, idx) => (
-                  <span key={idx} className="conferences-tag-badge">{badge.title}</span>
-                ))}
-              </div>
+                </p>
+              )}
+              {heroBadges.length > 0 && (
+                <div className="conferences-hero-badges">
+                  {heroBadges.map((badge, idx) => (
+                    <span key={idx} className="conferences-tag-badge">{badge.title}</span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* SEARCH WIDGET CARD */}

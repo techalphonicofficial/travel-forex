@@ -75,22 +75,22 @@ const buildAboutContent = (page) => {
 
   return {
     hero: {
-      label: imageText?.json_data?.heading_content || 'Since 1995',
-      title: imageText?.title || 'We Live & Breathe Travel',
-      description: imageText?.json_data?.body || page?.description || 'ITS TRAVELS AND TOURS was born from a simple belief: travel should change you. We craft journeys that get under your skin.',
+      label: imageText?.json_data?.heading_content !== undefined ? imageText.json_data.heading_content : 'Since 1995',
+      title: imageText?.title !== undefined ? imageText.title : 'We Live & Breathe Travel',
+      description: imageText?.json_data?.body !== undefined ? imageText.json_data.body : (page?.description || 'ITS TRAVELS AND TOURS was born from a simple belief: travel should change you. We craft journeys that get under your skin.'),
       image: heroImage,
       alt: page?.alt_text || imageText?.title || 'Our story',
     },
     story: {
-      label: storyGrid?.json_data?.heading_content || 'Our Story',
-      title: storyGrid?.title || 'From a Single Trip to 50,000 Adventures',
-      html: storyGrid?.json_data?.story_desc || fallbackStoryHtml,
+      label: storyGrid?.json_data?.heading_content !== undefined ? storyGrid.json_data.heading_content : 'Our Story',
+      title: storyGrid?.title !== undefined ? storyGrid.title : 'From a Single Trip to 50,000 Adventures',
+      html: storyGrid?.json_data?.story_desc !== undefined ? storyGrid.json_data.story_desc : fallbackStoryHtml,
       stats: storyGrid?.json_data?.stats?.length ? storyGrid.json_data.stats : fallbackStats,
       gallery: storyGallery,
     },
     milestones: {
-      label: statsBar?.title || 'Our Journey',
-      title: statsBar?.json_data?.heading_content || 'Key Milestones',
+      label: statsBar?.title !== undefined ? statsBar.title : 'Our Journey',
+      title: statsBar?.json_data?.heading_content !== undefined ? statsBar.json_data.heading_content : 'Key Milestones',
       items: statsBar?.json_data?.stats?.length
         ? statsBar.json_data.stats.map((item) => ({
           value: item.value,
@@ -99,9 +99,9 @@ const buildAboutContent = (page) => {
         : fallbackMilestones,
     },
     team: {
-      label: teamGrid?.title || 'The People Behind The Magic',
-      title: teamGrid?.json_data?.heading_content || 'Meet Our Team',
-      description: teamGrid?.json_data?.block_desc || 'Passionate travelers who turned their love of adventure into a career.',
+      label: teamGrid?.title !== undefined ? teamGrid.title : 'The People Behind The Magic',
+      title: teamGrid?.json_data?.heading_content !== undefined ? teamGrid.json_data.heading_content : 'Meet Our Team',
+      description: teamGrid?.json_data?.block_desc !== undefined ? teamGrid.json_data.block_desc : 'Passionate travelers who turned their love of adventure into a career.',
       members: teamGrid?.json_data?.team?.length
         ? teamGrid.json_data.team.map((member) => ({
           name: member.name,
@@ -112,23 +112,23 @@ const buildAboutContent = (page) => {
         : fallbackTeam,
     },
     services: {
-      label: servicesSection?.title || 'What We Do',
-      title: servicesSection?.json_data?.heading_content || 'Our Services',
-      description: servicesSection?.json_data?.body || 'We offer a comprehensive range of travel solutions under one roof:',
+      label: servicesSection?.title !== undefined ? servicesSection.title : 'What We Do',
+      title: servicesSection?.json_data?.heading_content !== undefined ? servicesSection.json_data.heading_content : 'Our Services',
+      description: servicesSection?.json_data?.body !== undefined ? servicesSection.json_data.body : 'We offer a comprehensive range of travel solutions under one roof:',
       items: servicesSection?.json_data?.points?.map(p => p.title) || ['Customized Holiday Packages', 'Visa Assistance', 'Flight Bookings', 'Hotel Reservations', 'Travel Insurance', 'Cruise Bookings', 'Train Bookings', 'Swiss Passes', 'Euro Rail Passes', 'Destination Weddings', 'Events and Conferences', 'Corporate Travel Services']
     },
     promise: {
-      label: promiseSection?.title || 'Our Promise',
-      title: promiseSection?.json_data?.heading_content || 'Why Choose Us',
-      html: promiseSection?.json_data?.body?.replace(/\n/g, '<br />') || '<p>At ITS Travels and Tours...</p>',
-      highlight: promiseSection?.json_data?.points?.[0]?.title || 'Our Promise: Trust. Experience. Simplicity.',
+      label: promiseSection?.title !== undefined ? promiseSection.title : 'Our Promise',
+      title: promiseSection?.json_data?.heading_content !== undefined ? promiseSection.json_data.heading_content : 'Why Choose Us',
+      html: promiseSection?.json_data?.body?.replace(/\n/g, '<br />') !== undefined ? promiseSection.json_data.body.replace(/\n/g, '<br />') : '<p>At ITS Travels and Tours...</p>',
+      highlight: promiseSection?.json_data?.points?.[0]?.title !== undefined ? promiseSection.json_data.points[0].title : 'Our Promise: Trust. Experience. Simplicity.',
       image: getMediaUrl(promiseSection?.json_data?.media_url) || 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80'
     },
     sisterCompany: {
-      label: sisterSection?.title || 'Our Sister Company',
-      title: sisterSection?.json_data?.heading_content || 'Karnation India Forex Services Private Limited',
-      html: sisterSection?.json_data?.body?.replace(/\n/g, '<br />') || '<p>Established in <strong>1995...</strong></p>',
-      highlight: sisterSection?.json_data?.points?.[0]?.title || 'Karnation India Forex Services Private Limited — three decades of trusted currency exchange, one relationship at a time.',
+      label: sisterSection?.title !== undefined ? sisterSection.title : 'Our Sister Company',
+      title: sisterSection?.json_data?.heading_content !== undefined ? sisterSection.json_data.heading_content : 'Karnation India Forex Services Private Limited',
+      html: sisterSection?.json_data?.body?.replace(/\n/g, '<br />') !== undefined ? sisterSection.json_data.body.replace(/\n/g, '<br />') : '<p>Established in <strong>1995...</strong></p>',
+      highlight: sisterSection?.json_data?.points?.[0]?.title !== undefined ? sisterSection.json_data.points[0].title : 'Karnation India Forex Services Private Limited — three decades of trusted currency exchange, one relationship at a time.',
       image: getMediaUrl(sisterSection?.json_data?.media_url) || 'https://images.unsplash.com/photo-1580519542036-ed47f7a78330?w=800&q=80'
     }
   };
@@ -170,13 +170,21 @@ export default async function AboutPage() {
         </div>
         
         <div className="container" style={{ position: 'relative', zIndex: 1, paddingTop: 120, paddingBottom: 60 }}>
-          <span className="section-label" style={{ color: 'rgba(255,255,255,0.7)' }}>{content.hero.label}</span>
-          <h1 className="section-title" style={{ color: 'white', fontSize: 'clamp(36px, 5vw, 60px)', maxWidth: 600 }}>
-            {content.hero.title}
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 18, maxWidth: 520, lineHeight: 1.7 }}>
-            {content.hero.description}
-          </p>
+          {content.hero.label && (
+            <span className="section-label" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              {content.hero.label}
+            </span>
+          )}
+          {content.hero.title && (
+            <h1 className="section-title" style={{ color: 'white', fontSize: 'clamp(36px, 5vw, 60px)', maxWidth: 600 }}>
+              {content.hero.title}
+            </h1>
+          )}
+          {content.hero.description && (
+            <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 18, maxWidth: 520, lineHeight: 1.7 }}>
+              {content.hero.description}
+            </p>
+          )}
         </div>
       </section>
 
@@ -185,12 +193,14 @@ export default async function AboutPage() {
           <div className="row g-5 align-items-center">
             <div className="col-lg-6">
               <ScrollReveal direction="left">
-                <span className="section-label">{content.story.label}</span>
-                <h2 className="section-title">{content.story.title}</h2>
-                <div
-                  style={{ color: 'var(--color-text-secondary)', fontSize: 16, lineHeight: 1.8, marginBottom: 28 }}
-                  dangerouslySetInnerHTML={{ __html: content.story.html }}
-                />
+                {content.story.label && <span className="section-label">{content.story.label}</span>}
+                {content.story.title && <h2 className="section-title">{content.story.title}</h2>}
+                {content.story.html && (
+                  <div
+                    style={{ color: 'var(--color-text-secondary)', fontSize: 16, lineHeight: 1.8, marginBottom: 28 }}
+                    dangerouslySetInnerHTML={{ __html: content.story.html }}
+                  />
+                )}
                 <div className="d-flex gap-5 flex-wrap">
                   {content.story.stats.map((stat) => (
                     <div key={`${stat.value}-${stat.desc}`}>
@@ -232,10 +242,10 @@ export default async function AboutPage() {
             </div>
             <div className="col-lg-7 order-lg-1">
               <ScrollReveal direction="left">
-                <span className="section-label">{content.sisterCompany.label}</span>
-                <h2 className="section-title">{content.sisterCompany.title}</h2>
+                {content.sisterCompany.label && <span className="section-label">{content.sisterCompany.label}</span>}
+                {content.sisterCompany.title && <h2 className="section-title">{content.sisterCompany.title}</h2>}
                 <div style={{ color: 'var(--color-text-secondary)', fontSize: 16, lineHeight: 1.8 }}>
-                  <div dangerouslySetInnerHTML={{ __html: content.sisterCompany.html }} />
+                  {content.sisterCompany.html && <div dangerouslySetInnerHTML={{ __html: content.sisterCompany.html }} />}
                   {content.sisterCompany.highlight && (
                     <div style={{ marginTop: 24, padding: '16px 0', borderTop: '1px solid var(--color-border)' }}>
                       <strong style={{ color: 'var(--color-text-primary)' }}>{content.sisterCompany.highlight}</strong>
@@ -253,10 +263,10 @@ export default async function AboutPage() {
           <div className="row g-5 align-items-center">
             <div className="col-lg-6 order-lg-2">
               <ScrollReveal direction="right">
-                <span className="section-label">{content.promise.label}</span>
-                <h2 className="section-title">{content.promise.title}</h2>
+                {content.promise.label && <span className="section-label">{content.promise.label}</span>}
+                {content.promise.title && <h2 className="section-title">{content.promise.title}</h2>}
                 <div style={{ color: 'var(--color-text-secondary)', fontSize: 16, lineHeight: 1.8 }}>
-                  <div dangerouslySetInnerHTML={{ __html: content.promise.html }} />
+                  {content.promise.html && <div dangerouslySetInnerHTML={{ __html: content.promise.html }} />}
                   {content.promise.highlight && (
                     <div style={{ background: 'var(--color-primary-light)', padding: '16px 24px', borderRadius: '12px', borderLeft: '4px solid var(--color-primary)', marginTop: 24 }}>
                       <strong style={{ color: 'var(--color-primary)', fontSize: 16 }}>{content.promise.highlight}</strong>
@@ -280,9 +290,9 @@ export default async function AboutPage() {
         <div className="container">
           <ScrollReveal>
             <div className="text-center mb-5">
-              <span className="section-label">{content.services.label}</span>
-              <h2 className="section-title">{content.services.title}</h2>
-              <p className="section-subtitle mx-auto">{content.services.description}</p>
+              {content.services.label && <span className="section-label">{content.services.label}</span>}
+              {content.services.title && <h2 className="section-title">{content.services.title}</h2>}
+              {content.services.description && <p className="section-subtitle mx-auto">{content.services.description}</p>}
             </div>
             <div className="d-flex flex-wrap gap-3 justify-content-center" style={{ maxWidth: 900, margin: '0 auto' }}>
               {content.services.items.map((service, i) => (

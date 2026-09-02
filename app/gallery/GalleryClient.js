@@ -31,7 +31,7 @@ export default function GalleryClient({ pageData }) {
         position: 'relative',
         padding: '6rem 1rem',
         backgroundColor: 'var(--color-primary)',
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), url("${heroBg}")`,
+        backgroundImage: `url("${heroBg}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed',
@@ -88,23 +88,6 @@ export default function GalleryClient({ pageData }) {
         </div>
       </section>
 
-      {/* 3. CTA Section */}
-      <section style={{
-        backgroundColor: 'var(--color-primary)',
-        backgroundImage: 'radial-gradient(circle at center, rgba(255,255,255,0.08) 0%, transparent 60%)',
-        padding: '5rem 1rem',
-        color: 'white',
-        textAlign: 'center'
-      }}>
-        <div style={{ maxWidth: '700px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 700, marginBottom: '1.25rem', fontFamily: 'var(--font-playfair), serif' }}>
-            {ctaTitle}
-          </h2>
-          <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.8)', marginBottom: '2rem', lineHeight: 1.6 }}>
-            {ctaDesc}
-          </p>
-        </div>
-      </section>
 
       {/* 4. Split Testimonial / Collage Section */}
       <section style={{ padding: '6rem 1.5rem', maxWidth: '1200px', margin: '0 auto' }}>
@@ -127,10 +110,29 @@ export default function GalleryClient({ pageData }) {
           </div>
 
           {/* Right Collage */}
-          <div style={{ position: 'relative', minHeight: '500px' }}>
+          <div style={{ position: 'relative', width: '100%' }}>
+            
+            {/* Background image/video (relative to expand container height) */}
+            <div style={{ 
+              position: 'relative',
+              width: '75%',
+              marginLeft: 'auto',
+              zIndex: 1,
+              borderRadius: '0.5rem',
+              overflow: 'hidden',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
+            }}>
+              {collageImage2.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                <video src={collageImage2} controls playsInline style={{ width: '100%', display: 'block' }} />
+              ) : (
+                <img src={collageImage2} alt="Villa pool" style={{ width: '100%', display: 'block' }} />
+              )}
+            </div>
+
+            {/* Foreground image (absolute to overlap) */}
             <div style={{ 
               position: 'absolute', 
-              top: '0', 
+              bottom: '10%', 
               left: '0', 
               width: '55%', 
               zIndex: 2,
@@ -144,22 +146,7 @@ export default function GalleryClient({ pageData }) {
                 <img src={collageImage1} alt="Traveler" style={{ width: '100%', display: 'block' }} />
               )}
             </div>
-            <div style={{ 
-              position: 'absolute', 
-              bottom: '0', 
-              right: '0', 
-              width: '75%', 
-              zIndex: 1,
-              borderRadius: '0.5rem',
-              overflow: 'hidden',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
-            }}>
-              {collageImage2.match(/\.(mp4|webm|ogg|mov)$/i) ? (
-                <video src={collageImage2} controls playsInline style={{ width: '100%', display: 'block' }} />
-              ) : (
-                <img src={collageImage2} alt="Villa pool" style={{ width: '100%', display: 'block' }} />
-              )}
-            </div>
+
           </div>
           
         </div>

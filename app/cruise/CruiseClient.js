@@ -214,7 +214,7 @@ export default function CruiseClient({ pageData, formConfig }) {
 
   const cabinSection = pageData?.details?.find(d => d.section === 'tabs_section' || d.key === 'cabin_key');
   const cabinData = cabinSection?.json_data || {};
-  const dynamicCabinTabs = cabinData.tabs || cabinTypes.map(c => ({
+  const dynamicCabinTabs = cabinData.tabs !== undefined ? cabinData.tabs : cabinTypes.map(c => ({
     badge: c.name,
     content: `
       <div class="cabin-badge-price">${c.price}</div>
@@ -230,7 +230,7 @@ export default function CruiseClient({ pageData, formConfig }) {
 
   const ultimateSection = pageData?.details?.find(d => d.section === 'stats_bar' || d.key === 'ultimate_vacation_key');
   const ultimateData = ultimateSection?.json_data || {};
-  const dynamicStats = ultimateData.stats || [
+  const dynamicStats = ultimateData.stats !== undefined ? ultimateData.stats : [
     { value: 'Direct Cabin Bookings', label: '<p>We work directly with major liners...</p>' },
     { value: 'Free Cabin Upgrades', label: '<p>Early-bird bookers receive complimentary ocean view upgrades...</p>' },
     { value: 'Onboard Credit Allowances', label: '<p>Receive up to USD 100 in onboard credit...</p>' }
@@ -238,7 +238,7 @@ export default function CruiseClient({ pageData, formConfig }) {
 
   const faqSection = pageData?.details?.find(d => d.section === 'faq_accordion' || d.key === 'faq_key');
   const faqData = faqSection?.json_data || {};
-  const dynamicFaqs = faqData.faqs || faqs;
+  const dynamicFaqs = faqData.faqs !== undefined ? faqData.faqs : faqs;
 
   useEffect(() => {
     const token = getStoredToken();
@@ -309,14 +309,16 @@ export default function CruiseClient({ pageData, formConfig }) {
         <div className="container">
           <div className="cruise-hero-grid">
             <div className="cruise-hero-copy">
-              <span>{pageData?.meta_title}</span>
-              <h1>{heroData?.heading_content}</h1>
-              <p>{heroData?.body}</p>
-              <div className="cruise-hero-badges">
-                {(heroData?.points || []).map((pt, idx) => (
-                  <span key={idx} className="cruise-tag-badge">{pt.title}</span>
-                ))}
-              </div>
+              {heroData?.title && <span>{heroData.title}</span>}
+              {heroData?.heading_content && <h1>{heroData.heading_content}</h1>}
+              {heroData?.body && <p>{heroData.body}</p>}
+              {(heroData?.points || []).length > 0 && (
+                <div className="cruise-hero-badges">
+                  {(heroData?.points || []).map((pt, idx) => (
+                    <span key={idx} className="cruise-tag-badge">{pt.title}</span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* CRUISE SEARCH WIDGET */}

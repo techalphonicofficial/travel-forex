@@ -318,6 +318,7 @@ function ToursContent() {
   const [categoryList, setCategoryList] = useState([]);
   const [sidebarCategoryList, setSidebarCategoryList] = useState([]);
   const [heroData, setHeroData] = useState(null);
+  const [heroLoading, setHeroLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -343,6 +344,10 @@ function ToursContent() {
         }
       } catch (error) {
         console.error("Failed to fetch hero data:", error);
+      } finally {
+        if (isMounted) {
+          setHeroLoading(false);
+        }
       }
     };
     fetchHeroData();
@@ -502,9 +507,9 @@ function ToursContent() {
     });
   };
 
-  let heroLabel = 'Handcrafted Experiences';
-  let heroTitle = destinationHeading;
-  let heroDesc = 'Explore our curated collection of premium travel packages across 120+ destinations worldwide.';
+  let heroLabel = heroLoading ? '' : 'Handcrafted Experiences';
+  let heroTitle = heroLoading ? '' : destinationHeading;
+  let heroDesc = heroLoading ? '' : 'Explore our curated collection of premium travel packages across 120+ destinations worldwide.';
   
   if (heroData?.json_data?.body) {
     const lines = heroData.json_data.body.split('\n').map(line => line.trim()).filter(Boolean);
@@ -519,13 +524,13 @@ function ToursContent() {
       heroTitle = lines[0];
     }
   } else if (heroData) {
-    if (heroData.json_data?.heading_content) heroLabel = heroData.json_data.heading_content;
-    if (heroData.title) {
+    if (heroData.json_data?.heading_content !== undefined) heroLabel = heroData.json_data.heading_content;
+    if (heroData.title !== undefined) {
        heroTitle = searchParams.get('destination') ? destinationHeading : heroData.title;
     }
-    if (heroData.json_data?.story_desc) {
+    if (heroData.json_data?.story_desc !== undefined) {
       heroDesc = heroData.json_data.story_desc.replace(/<[^>]+>/g, '');
-    } else if (heroData.description) {
+    } else if (heroData.description !== undefined) {
       heroDesc = heroData.description;
     }
   }
@@ -547,33 +552,43 @@ function ToursContent() {
     <>
       <div className="page-header" style={pageHeaderStyle}>
         <div className="container">
-          <span className="section-label" style={{ color: 'rgba(255,255,255,0.8)' }}>{heroLabel}</span>
-          <h1 className="section-title" style={{ color: 'white', fontSize: 'clamp(32px, 5vw, 52px)' }}>
-            {heroTitle}
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: 16, maxWidth: 500, whiteSpace: 'pre-line' }}>
-            {heroDesc}
-          </p>
-          <nav aria-label="breadcrumb" style={{ marginTop: 16 }}>
-            <ol className="breadcrumb mb-0" style={{ background: 'none', padding: 0 }}>
-              {heroData?.json_data?.stats?.[0]?.value ? (
-                heroData.json_data.stats[0].value.split('/').map((part, idx, arr) => (
-                  <li 
-                    key={idx} 
-                    className={`breadcrumb-item ${idx === arr.length - 1 ? 'active' : ''}`}
-                    style={{ color: idx === arr.length - 1 ? 'white' : 'rgba(255,255,255,0.6)' }}
-                  >
-                    {idx === arr.length - 1 ? part : <Link href="/" style={{ color: 'inherit' }}>{part}</Link>}
-                  </li>
-                ))
-              ) : (
-                <>
+          {heroLabel && <span className="section-label" style={{ color: 'rgba(255,255,255,0.8)' }}>{heroLabel}</span>}
+          {heroTitle && (
+            <h1 className="section-title" style={{ color: 'white', fontSize: 'clamp(32px, 5vw, 52px)' }}>
+              {heroTitle}
+            </h1>
+          )}
+          {heroDesc && (
+            <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: 16, maxWidth: 500, whiteSpace: 'pre-line' }}>
+              {heroDesc}
+            </p>
+          )}
+          {!heroLoading && (
+            heroData ? (
+              heroData?.json_data?.stats?.[0]?.value && (
+                <nav aria-label="breadcrumb" style={{ marginTop: 16 }}>
+                  <ol className="breadcrumb mb-0" style={{ background: 'none', padding: 0 }}>
+                    {heroData.json_data.stats[0].value.split('/').map((part, idx, arr) => (
+                      <li 
+                        key={idx} 
+                        className={`breadcrumb-item ${idx === arr.length - 1 ? 'active' : ''}`}
+                        style={{ color: idx === arr.length - 1 ? 'white' : 'rgba(255,255,255,0.6)' }}
+                      >
+                        {idx === arr.length - 1 ? part : <Link href="/" style={{ color: 'inherit' }}>{part}</Link>}
+                      </li>
+                    ))}
+                  </ol>
+                </nav>
+              )
+            ) : (
+              <nav aria-label="breadcrumb" style={{ marginTop: 16 }}>
+                <ol className="breadcrumb mb-0" style={{ background: 'none', padding: 0 }}>
                   <li className="breadcrumb-item"><Link href="/" style={{ color: 'rgba(255,255,255,0.6)' }}>Home</Link></li>
                   <li className="breadcrumb-item active" style={{ color: 'white' }}>Tours</li>
-                </>
-              )}
-            </ol>
-          </nav>
+                </ol>
+              </nav>
+            )
+          )}
         </div>
       </div>
 

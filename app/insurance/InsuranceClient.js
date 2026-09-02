@@ -118,14 +118,15 @@ export default function InsuranceClient({ pageData, formConfig }) {
   const fullHeroMediaUrl = heroMediaUrl ? (heroMediaUrl.startsWith('http') ? heroMediaUrl : `https://tourtravel.yber.in${heroMediaUrl}`) : null;
   console.log(fullHeroMediaUrl, "fullHeroMediaUrl");
 
-  const partnersTitle = partnersSection?.title || 'Our Trusted Insurance Partners';
-  const dynamicPartners = partnersSection?.json_data?.team?.map(p => ({
-    name: p.name,
-    logo: p.img?.startsWith('http') ? p.img : `https://tourtravel.yber.in${p.img}`
-  })) || null;
+  const partnersTitle = partnersSection?.title !== undefined ? partnersSection.title : 'Our Trusted Insurance Partners';
+  const dynamicPartners = partnersSection?.json_data?.team !== undefined ? 
+    (partnersSection.json_data.team?.map(p => ({
+      name: p.name,
+      logo: p.img?.startsWith('http') ? p.img : `https://tourtravel.yber.in${p.img}`
+    })) || []) : null;
 
-  const benefitsTitle = benefitsSection?.title || 'Why You Need Coverage';
-  const benefitsList = benefitsSection?.json_data?.team || [
+  const benefitsTitle = benefitsSection?.title !== undefined ? benefitsSection.title : 'Why You Need Coverage';
+  const benefitsList = benefitsSection?.json_data?.team !== undefined ? benefitsSection.json_data.team : [
     { name: 'Medical Emergencies', bio: 'Coverage for unexpected hospital visits and medical evacuations abroad.', img: '🏥' },
     { name: 'Trip Cancellation', bio: 'Get reimbursed if you need to cancel your trip due to covered unforeseen events.', img: '✈️' },
     { name: 'Lost Baggage', bio: 'Compensation for lost, stolen, or delayed luggage and personal items.', img: '🧳' }
@@ -146,15 +147,21 @@ export default function InsuranceClient({ pageData, formConfig }) {
 
             {/* Left Column: Hero Text */}
             <div className="col-12 col-lg-6 mb-5 mb-lg-0" style={{ textAlign: 'left' }}>
-              <span style={{ display: 'inline-block', background: 'rgba(255,255,255,0.2)', padding: '6px 16px', borderRadius: 20, fontSize: 13, fontWeight: 700, letterSpacing: 1.2, marginBottom: 20, textTransform: 'uppercase' }}>
-                {heroHeadingSmall}
-              </span>
-              <h1 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: 20, lineHeight: 1.2 }}>
-                {heroHeadingLarge}
-              </h1>
-              <p style={{ fontSize: '1.1rem', opacity: 0.9, maxWidth: 500, marginBottom: '40px', lineHeight: 1.6 }}>
-                {heroDesc}
-              </p>
+              {heroHeadingSmall && (
+                <span style={{ display: 'inline-block', background: 'rgba(255,255,255,0.2)', padding: '6px 16px', borderRadius: 20, fontSize: 13, fontWeight: 700, letterSpacing: 1.2, marginBottom: 20, textTransform: 'uppercase' }}>
+                  {heroHeadingSmall}
+                </span>
+              )}
+              {heroHeadingLarge && (
+                <h1 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: 20, lineHeight: 1.2 }}>
+                  {heroHeadingLarge}
+                </h1>
+              )}
+              {heroDesc && (
+                <p style={{ fontSize: '1.1rem', opacity: 0.9, maxWidth: 500, marginBottom: '40px', lineHeight: 1.6 }}>
+                  {heroDesc}
+                </p>
+              )}
             </div>
 
             {/* Right Column: Inline Form */}

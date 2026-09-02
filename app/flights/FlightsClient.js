@@ -131,7 +131,7 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCity
 
   const heroTitle = heroSection?.title || (pageData ? '' : '✈ Global Airline Tickets');
   const heroHeading = heroSection?.json_data?.heading_content || (pageData ? '' : 'Fly Anywhere, For Less');
-  const heroDesc = heroSection?.json_data?.story_desc || (pageData ? '' : 'Book international and domestic flight tickets at exclusive discount rates. We compare corporate fares and group discounts to give you lower prices than major travel portals.');
+  const heroDesc = heroSection?.json_data?.story_desc ?? (pageData ? '' : 'Book international and domestic flight tickets at exclusive discount rates. We compare corporate fares and group discounts to give you lower prices than major travel portals.');
   const heroPoints = heroSection?.json_data?.stats || (pageData ? [] : [{ value: '✔ Zero Booking Fees' }, { value: '✔ Instant Confirmation' }, { value: '✔ 24/7 Ticketing Support' }]);
 
   const heroBgImage = getMediaUrl(heroSection?.json_data?.media_url || pageData?.feature_image);
@@ -243,14 +243,16 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCity
         <div className="container">
           <div className="flights-hero-grid">
             <div className="flights-hero-copy">
-              <span>{heroTitle}</span>
-              <h1>
-                {heroHeading.split(' ').slice(0, -1).join(' ')}{' '}
-                <span style={{ color: 'var(--color-secondary)' }}>
-                  {heroHeading.split(' ').slice(-1)[0] || ''}
-                </span>
-              </h1>
-              {heroSection?.json_data?.story_desc ? (
+              {heroTitle && <span>{heroTitle}</span>}
+              {heroHeading && (
+                <h1>
+                  {heroHeading.split(' ').slice(0, -1).join(' ')}{' '}
+                  <span style={{ color: 'var(--color-secondary)' }}>
+                    {heroHeading.split(' ').slice(-1)[0] || ''}
+                  </span>
+                </h1>
+              )}
+              {heroSection?.json_data?.story_desc !== undefined ? (
                 <div dangerouslySetInnerHTML={{ __html: heroDesc }} className="flights-hero-desc" />
               ) : (
                 <p>{heroDesc}</p>

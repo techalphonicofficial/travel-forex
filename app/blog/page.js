@@ -77,7 +77,7 @@ const getBlogHeroContent = (page) => {
     );
 
   const storyDesc =
-    heroSection?.json_data?.story_desc || '';
+    heroSection?.json_data?.story_desc ?? undefined;
 
   return {
     title:
@@ -89,10 +89,9 @@ const getBlogHeroContent = (page) => {
       'Travel Inspiration & Stories',
 
     description:
-      getFirstTagText(storyDesc, 'p') ||
-      heroSection?.description ||
-      page?.description ||
-      'Discover hidden gems, expert packing guides, and carefully curated itineraries for your next adventure.',
+      storyDesc !== undefined 
+        ? getFirstTagText(storyDesc, 'p') 
+        : (heroSection?.description || page?.description || 'Discover hidden gems, expert packing guides, and carefully curated itineraries for your next adventure.'),
 
     image:
       getMediaUrl(
