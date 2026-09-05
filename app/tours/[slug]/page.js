@@ -1,13 +1,13 @@
 import { notFound } from 'next/navigation';
 import TourDetailClient from './TourDetailClient';
 
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://tourtravel.yber.in/api/v1';
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://admin.travel-forex.com/api/v1';
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80';
 
 const getMediaUrl = (path) => {
   if (!path) return null;
   if (path.startsWith('http')) return path;
-  return `https://tourtravel.yber.in${path.startsWith('/') ? '' : '/'}${path}`;
+  return `https://admin.travel-forex.com${path.startsWith('/') ? '' : '/'}${path}`;
 };
 
 const transformApiPackageToTourDetail = (pkg) => {

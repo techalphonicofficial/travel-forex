@@ -1124,7 +1124,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
       setError('');
 
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tourtravel.yber.in/api/v1';
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://admin.travel-forex.com/api/v1';
         const response = await fetch(`${baseUrl.replace(/\/$/, '')}/packages/${encodeURIComponent(resolvedSlug)}`, {
           method: 'GET',
           headers: {

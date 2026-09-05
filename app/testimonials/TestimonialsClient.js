@@ -6,7 +6,7 @@ import Image from 'next/image';
 const getMediaUrl = (path) => {
   if (!path) return '';
   if (path.startsWith('http') || path.startsWith('data:')) return path;
-  return `https://tourtravel.yber.in${path}`;
+  return `https://admin.travel-forex.com${path}`;
 };
 
 const extractData = (htmlStr) => {
@@ -127,6 +127,7 @@ export default function TestimonialsClient({ hero = fallbackHero, pageData }) {
       if (parsed?.tabs && Array.isArray(parsed.tabs)) {
         return parsed.tabs.map((tab, idx) => {
           const extracted = extractData(tab.content);
+          console.log('Extracted testimonial data:', extracted.popupImage ,tab.img);
           const rawRating = (tab.badge && typeof tab.badge === 'string') ? (tab.badge.match(/★/g) || []).length : 5;
           return {
             id: idx + 1,
@@ -137,7 +138,7 @@ export default function TestimonialsClient({ hero = fallbackHero, pageData }) {
             badgeStr: tab.badge || '★ ★ ★ ★ ★',
             tour: extracted.tour || 'General',
             avatar: getMediaUrl(tab.img),
-            popupImage: extracted.popupImage
+            popupImage: getMediaUrl(extracted.popupImage) || getMediaUrl(tab.img) || '',
           };
         });
       }

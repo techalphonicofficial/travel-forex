@@ -3,8 +3,8 @@ import { getMediaUrl, getPageBySlug } from '@/utils/api';
 
 export const dynamic = 'force-dynamic';
 
-const PIPELINE_FORM_ENDPOINT = 'https://tourtravel.yber.in/api/v1/crm/pipelines/3/form';
-const COMPANY_INFO_ENDPOINT = 'https://tourtravel.yber.in/api/v1/crm/settings/company-info';
+const PIPELINE_FORM_ENDPOINT = 'https://admin.travel-forex.com/api/v1/crm/pipelines/3/form';
+const COMPANY_INFO_ENDPOINT = 'https://admin.travel-forex.com/api/v1/crm/settings/company-info';
 const CRM_API_KEY = process.env.CRM_PIPELINE_FORM_API_KEY || process.env.CRM_COMPANY_INFO_API_KEY || 'pt_dc9eae82075b27c1408392fa7d7e0e632ef9e846f6e4e33e';
 
 const fallbackHero = {

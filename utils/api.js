@@ -2,8 +2,8 @@ import axios from 'axios';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 const BASE_IMAGE_URL = process.env.NEXT_PUBLIC_BASE_IMAGE_URL;
-const DEFAULT_API_BASE_URL = 'https://tourtravel.yber.in/api/v1';
-const DEFAULT_MEDIA_BASE_URL = 'https://tourtravel.yber.in';
+const DEFAULT_API_BASE_URL = 'https://admin.travel-forex.com/api/v1';
+const DEFAULT_MEDIA_BASE_URL = 'https://admin.travel-forex.com';
 export const AUTH_STORAGE_KEY = 'wl_auth';
 export const TOKEN_STORAGE_KEY = 'wl_token';
 export const AUTH_CHANGED_EVENT = 'wl_auth_changed';

@@ -2,9 +2,9 @@ import FlightsClient from './FlightsClient';
 
 export const dynamic = 'force-dynamic';
 
-const PIPELINE_ROUND_TRIP = 'https://tourtravel.yber.in/api/v1/crm/pipelines/28/form';
-const PIPELINE_ONE_WAY = 'https://tourtravel.yber.in/api/v1/crm/pipelines/9/form';
-const PIPELINE_MULTI_CITY = 'https://tourtravel.yber.in/api/v1/crm/pipelines/27/form';
+const PIPELINE_ROUND_TRIP = 'https://admin.travel-forex.com/api/v1/crm/pipelines/28/form';
+const PIPELINE_ONE_WAY = 'https://admin.travel-forex.com/api/v1/crm/pipelines/9/form';
+const PIPELINE_MULTI_CITY = 'https://admin.travel-forex.com/api/v1/crm/pipelines/27/form';
 const CRM_API_KEY = process.env.CRM_PIPELINE_FORM_API_KEY || process.env.CRM_COMPANY_INFO_API_KEY || 'pt_dc9eae82075b27c1408392fa7d7e0e632ef9e846f6e4e33e';
 
 const fetchPipeline = async (endpoint) => {
@@ -80,7 +80,7 @@ const normalizeFormConfig = (formConfig) => {
 
 const fetchPage = async () => {
   try {
-    const res = await fetch('https://tourtravel.yber.in/api/v1/pages/slug/Flights', {
+    const res = await fetch('https://admin.travel-forex.com/api/v1/pages/slug/Flights', {
       headers: { accept: '*/*' },
       cache: 'no-store'
     });
