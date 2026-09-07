@@ -108,6 +108,8 @@ export default function EurorailClient({ formConfig, pageData }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
   const [activeTab, setActiveTab] = useState('passes');
   const [ticketType, setTicketType] = useState('oneway');
@@ -228,6 +230,7 @@ export default function EurorailClient({ formConfig, pageData }) {
 
       toast.success('Your European train inquiry has been received! Our rail desk will contact you shortly.');
       form.reset();
+      setIsSubmitted(true);
     } catch (err) {
       toast.error(err.message || 'Unable to process request. Please try again.');
     } finally {
@@ -256,10 +259,10 @@ export default function EurorailClient({ formConfig, pageData }) {
   return (
     <main className="eurorail-page">
       {/* 1. HERO SECTION */}
-      <section className="eurorail-hero" style={heroBgImage ? { backgroundImage: heroBgImage } : {}}>
+      <section className="eurorail-hero" style={{ ...(heroBgImage ? { backgroundImage: heroBgImage } : {}), ...(isClosed ? { minHeight: '60vh', display: 'flex', alignItems: 'center' } : {}) }}>
         <div className="container">
-          <div className="eurorail-hero-grid">
-            <div className="eurorail-hero-copy">
+          <div className="eurorail-hero-grid" style={isClosed ? { gridTemplateColumns: '1fr', textAlign: 'center' } : {}}>
+            <div className="eurorail-hero-copy" style={isClosed ? { margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' } : {}}>
               {heroTitleTop && <span className="eurorail-top-subtitle">{heroTitleTop}</span>}
               {heroTitleMain && (
                 <h1>
@@ -281,77 +284,61 @@ export default function EurorailClient({ formConfig, pageData }) {
             </div>
 
             {/* NEW TABS WIDGET */}
-            <div className="eurorail-search-card" id="eurorail-search-widget">
+            {!isClosed && (
+              !isSubmitted ? (
+                <div className="eurorail-search-card" id="eurorail-search-widget">
 
-              {/* Tabs */}
-              <div className="eurorail-tabs">
-                <button type="button" className={activeTab === 'passes' ? 'active' : ''} onClick={() => setActiveTab('passes')}>Passes</button>
-                <button type="button" className={activeTab === 'tickets' ? 'active' : ''} onClick={() => setActiveTab('tickets')}>Tickets</button>
-              </div>
+                  {/* Tabs */}
+                  <div className="eurorail-tabs">
+                    <button type="button" className={activeTab === 'passes' ? 'active' : ''} onClick={() => setActiveTab('passes')}>Passes</button>
+                    <button type="button" className={activeTab === 'tickets' ? 'active' : ''} onClick={() => setActiveTab('tickets')}>Tickets</button>
+                  </div>
 
-              {/* Form Container */}
-              <div className="eurorail-form-container">
-                <form onSubmit={handleSearchSubmit}>
-                  {activeTab === 'passes' && (
-                    <div className="eurorail-tab-content passes-grid">
-                      {fields.map(field => (
-                        <EurorailDynamicField key={field.id} field={field} />
-                      ))}
-                      <button type="submit" className="eurorail-search-submit" style={{ gridColumn: '1 / -1' }}>Search</button>
-                    </div>
-                  )}
+                  {/* Form Container */}
+                  <div className="eurorail-form-container">
+                    <form onSubmit={handleSearchSubmit}>
+                      {activeTab === 'passes' && (
+                        <div className="eurorail-tab-content passes-grid">
+                          {fields.map(field => (
+                            <EurorailDynamicField key={field.id} field={field} />
+                          ))}
+                          <button type="submit" className="eurorail-search-submit" style={{ gridColumn: '1 / -1' }}>Search</button>
+                        </div>
+                      )}
 
-                  {activeTab === 'tickets' && (
-                    <div className="eurorail-tab-content tickets-grid">
-                      <div className="ticket-type-toggles">
-                        <label><input type="radio" name="ticketType" checked={ticketType === 'oneway'} onChange={() => setTicketType('oneway')} /> Oneway</label>
-                        <label><input type="radio" name="ticketType" checked={ticketType === 'roundtrip'} onChange={() => setTicketType('roundtrip')} /> Roundtrip</label>
-                      </div>
-
-                      <div className="tickets-inputs-row">
-                        <div className="input-group">
-                          <label>From City</label>
-                          <div className="icon-input-wrapper">
-                            <i>📍</i>
-                            <input type="text" name="from_city" placeholder="From City" required />
+                      {activeTab === 'tickets' && (
+                        <div className="eurorail-tab-content tickets-grid">
+                          <div className="ticket-type-toggles">
+                            <label><input type="radio" name="ticketType" checked={ticketType === 'oneway'} onChange={() => setTicketType('oneway')} /> Oneway</label>
+                            <label><input type="radio" name="ticketType" checked={ticketType === 'roundtrip'} onChange={() => setTicketType('roundtrip')} /> Roundtrip</label>
                           </div>
-                        </div>
-                        <div className="input-group">
-                          <label>To City</label>
-                          <div className="icon-input-wrapper">
-                            <i>📍</i>
-                            <input type="text" name="to_city" placeholder="To City" required />
-                          </div>
-                        </div>
-                        <div className="input-group">
-                          <label>Adult (30-59 years)</label>
-                          <input type="number" name="adults" min="1" defaultValue="1" required />
-                        </div>
-                        <div className="input-group">
-                          <label>Youth (Under 30 years)</label>
-                          <input type="number" name="youth" min="0" defaultValue="0" />
-                        </div>
-                        <div className="input-group">
-                          <label>Senior (60+ years)</label>
-                          <input type="number" name="senior" min="0" defaultValue="0" />
-                        </div>
-                        <div className="tickets-inputs-row dates-row">
-                          <div className="input-group">
-                            <label>Departure Date</label>
-                            <div className="icon-input-wrapper">
-                              <i>📅</i>
-                              <input type="date" name="departure_date" required />
+
+                          <div className="tickets-inputs-row">
+                            <div className="input-group">
+                              <label>From City</label>
+                              <div className="icon-input-wrapper">
+                                <i>📍</i>
+                                <input type="text" name="from_city" placeholder="From City" required />
+                              </div>
+                            </div>
+                            <div className="input-group">
+                              <label>To City</label>
+                              <div className="icon-input-wrapper">
+                                <i>📍</i>
+                                <input type="text" name="to_city" placeholder="To City" required />
+                              </div>
                             </div>
                           </div>
-                          <div className="input-group">
-                            <label>Departure Time</label>
-                            <div className="icon-input-wrapper">
-                              <i>🕒</i>
-                              <input type="time" name="departure_time" placeholder="Any Time" />
+
+                          <div className="tickets-inputs-row">
+                            <div className="input-group">
+                              <label>Date of Travel</label>
+                              <div className="icon-input-wrapper">
+                                <i>📅</i>
+                                <input type="date" name="travel_date" required />
+                              </div>
                             </div>
-                          </div>
-                          {ticketType === 'roundtrip' && (
-                            <>
+                            {ticketType === 'roundtrip' && (
                               <div className="input-group">
                                 <label>Return Date</label>
                                 <div className="icon-input-wrapper">
@@ -359,25 +346,72 @@ export default function EurorailClient({ formConfig, pageData }) {
                                   <input type="date" name="return_date" required />
                                 </div>
                               </div>
-                              <div className="input-group">
-                                <label>Return Time</label>
-                                <div className="icon-input-wrapper">
-                                  <i>🕒</i>
-                                  <input type="time" name="return_time" placeholder="Any Time" />
-                                </div>
+                            )}
+                          </div>
+
+                          <div className="tickets-inputs-row">
+                            <div className="input-group">
+                              <label>Passengers</label>
+                              <div className="icon-input-wrapper">
+                                <i>👥</i>
+                                <input type="number" name="passengers" min="1" placeholder="Number of Passengers" required />
                               </div>
-                            </>
-                          )}
+                            </div>
+                            <div className="input-group">
+                              <label>Class</label>
+                              <div className="icon-input-wrapper">
+                                <i>💺</i>
+                                <select name="train_class">
+                                  <option value="2nd Class">2nd Class</option>
+                                  <option value="1st Class">1st Class</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="tickets-inputs-row">
+                            <div className="input-group">
+                              <label>Full Name</label>
+                              <div className="icon-input-wrapper">
+                                <i>👤</i>
+                                <input type="text" name="name" placeholder="Full Name" required />
+                              </div>
+                            </div>
+                            <div className="input-group">
+                              <label>Email Address</label>
+                              <div className="icon-input-wrapper">
+                                <i>📧</i>
+                                <input type="email" name="email" placeholder="Email Address" required />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="tickets-inputs-row">
+                            <div className="input-group">
+                              <label>Phone Number</label>
+                              <div className="icon-input-wrapper">
+                                <i>📱</i>
+                                <input type="tel" name="phone" placeholder="Phone Number" required />
+                              </div>
+                            </div>
+                          </div>
+
+                          <button type="submit" className="eurorail-search-submit" style={{ width: '100%' }}>Get Quote</button>
                         </div>
-                        <button type="submit" className="eurorail-search-submit align-bottom">Search</button>
-                      </div>
-
-
-                    </div>
-                  )}
-                </form>
-              </div>
-            </div>
+                      )}
+                    </form>
+                  </div>
+                </div>
+              ) : (
+                <div className="eurorail-search-card success-card" style={{ textAlign: 'center', padding: '40px 20px', position: 'relative' }}>
+                  <button onClick={() => setIsClosed(true)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#64748b', lineHeight: 1 }}>&times;</button>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+                  <h3 style={{ margin: '0 0 12px', fontWeight: 900, fontSize: 24, color: 'var(--color-primary)' }}>Thank You!</h3>
+                  <p style={{ color: 'var(--color-text-secondary)', fontSize: '15px', lineHeight: '1.6' }}>
+                    Your request has been submitted successfully. Our team will get back to you shortly.
+                  </p>
+                </div>
+              )
+            )}
           </div>
         </div>
       </section>
@@ -770,13 +804,24 @@ export default function EurorailClient({ formConfig, pageData }) {
             grid-template-columns: 1fr;
             gap: 30px;
           }
-          .eurorail-features-grid {
-            grid-template-columns: 1fr;
-          }
         }
         @media (max-width: 640px) {
-          .eurorail-form, .passes-grid, .tickets-inputs-row {
-            grid-template-columns: 1fr !important;
+          .eurorail-search-card {
+            padding: 20px 14px;
+          }
+          .passes-grid,
+          .tickets-inputs-row,
+          .dates-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 8px;
+          }
+          .eurorail-field select,
+          .eurorail-field input,
+          .eurorail-field textarea,
+          .eurorail-tab-content .input-group input {
+            font-size: 13px;
+            padding: 8px 10px;
+            min-height: 38px;
           }
         }
         .eurorail-tabs {

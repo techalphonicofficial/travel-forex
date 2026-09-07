@@ -171,15 +171,15 @@ export default async function HomePage() {
         </FadeInSection>
       </div>
 
-      <section style={{ background: 'var(--color-primary)', padding: '48px 0' }}>
-        <div className="container" style={{ textAlign: 'center', maxWidth: 420, width: '40%' }}>
-          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: 8 }}>
+      <section style={{ background: 'var(--color-primary)', padding: '56px 16px' }}>
+        <div className="container" style={{ textAlign: 'center', maxWidth: 520, width: '100%', margin: '0 auto', padding: '0 12px' }}>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 8 }}>
             STAY IN THE LOOP
           </p>
-          <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: 26, color: 'white', marginBottom: 10, lineHeight: 1.2 }}>
+          <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: 'clamp(22px, 5vw, 28px)', color: 'white', marginBottom: 10, lineHeight: 1.25 }}>
             Get Exclusive Deals & Travel Inspiration
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 24 }}>
+          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, marginBottom: 24 }}>
             Early-bird discounts, curated guides & weekly travel ideas.
           </p>
           <NewsletterForm />

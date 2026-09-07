@@ -196,6 +196,8 @@ export default function CruiseClient({ pageData, formConfig }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
   const [activeCabinTab, setActiveCabinTab] = useState(0);
 
@@ -275,6 +277,7 @@ export default function CruiseClient({ pageData, formConfig }) {
 
       toast.success('Your Cruise booking request has been submitted! Our cruise consultant will contact you within 2 hours with available cabin deals.');
       form.reset();
+      setIsSubmitted(true);
     } catch (err) {
       toast.error(err.message || 'Unable to process inquiry. Please try again.');
     } finally {
@@ -305,10 +308,10 @@ export default function CruiseClient({ pageData, formConfig }) {
   return (
     <main className="cruise-page">
       {/* 1. HERO SECTION */}
-      <section className="cruise-hero" style={heroData.media_url ? { backgroundImage: `url('${getMediaUrl(heroData.media_url)}')` } : {}}>
+      <section className="cruise-hero" style={{ ...(heroData.media_url ? { backgroundImage: `url('${getMediaUrl(heroData.media_url)}')` } : {}), ...(isClosed ? { minHeight: '60vh', display: 'flex', alignItems: 'center' } : {}) }}>
         <div className="container">
-          <div className="cruise-hero-grid">
-            <div className="cruise-hero-copy">
+          <div className="cruise-hero-grid" style={isClosed ? { gridTemplateColumns: '1fr', textAlign: 'center' } : {}}>
+            <div className="cruise-hero-copy" style={isClosed ? { margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' } : {}}>
               {heroData?.title && <span>{heroData.title}</span>}
               {heroData?.heading_content && <h1>{heroData.heading_content}</h1>}
               {heroData?.body && <p>{heroData.body}</p>}
@@ -321,27 +324,42 @@ export default function CruiseClient({ pageData, formConfig }) {
               )}
             </div>
 
-            {/* CRUISE SEARCH WIDGET */}
-            <div className="cruise-search-card" id="cruise-search-widget">
-              <h3 style={{ margin: '0 0 16px', fontWeight: 800, fontSize: 20, color: 'var(--color-primary)' }}>Find Your Ideal Cruise</h3>
-              <form onSubmit={handleSearchSubmit} className="cruise-form">
-                {fields.length > 0 ? (
-                  fields.map(field => (
-                    <CruiseDynamicField
-                      key={field.id || field.fieldKey}
-                      field={field}
-                      defaultValue={currentUser ? currentUser[field.fieldKey] || '' : ''}
-                    />
-                  ))
-                ) : (
-                  <p style={{ gridColumn: '1 / -1', textAlign: 'center', opacity: 0.7 }}>Form is unavailable right now.</p>
-                )}
+            {/* SEARCH WIDGET CARD */}
+            {!isClosed && (
+              !isSubmitted ? (
+                <div className="cruise-search-card" id="cruise-search-widget">
+                  <h3 style={{ margin: '0 0 12px', fontWeight: 900, fontSize: 19, color: 'var(--color-primary)' }}>Find Your Ideal Cabin</h3>
+                  <form onSubmit={handleSearchSubmit} className="cruise-form">
+                    {fields.length > 0 ? (
+                      fields.map(field => (
+                        <CruiseDynamicField
+                          key={field.id || field.fieldKey}
+                          field={field}
+                          defaultValue={currentUser ? currentUser[field.fieldKey] || '' : ''}
+                        />
+                      ))
+                    ) : (
+                      <p style={{ gridColumn: '1 / -1', textAlign: 'center', opacity: 0.7 }}>Form is unavailable right now.</p>
+                    )}
 
-                <button type="submit" className="cruise-search-submit" disabled={loading} style={{ gridColumn: '1 / -1' }}>
-                  {loading ? 'Sending Booking Request...' : 'Get Cruise Quote'}
-                </button>
-              </form>
-            </div>
+                    <div style={{ gridColumn: '1 / -1', marginTop: '10px' }}>
+                      <button type="submit" className="cruise-search-submit" disabled={loading} style={{ width: '100%' }}>
+                        {loading ? 'Submitting Inquiry...' : 'Check Cabin Availability'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              ) : (
+                <div className="cruise-search-card success-card" style={{ textAlign: 'center', padding: '40px 20px', position: 'relative' }}>
+                  <button onClick={() => setIsClosed(true)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#64748b', lineHeight: 1 }}>&times;</button>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+                  <h3 style={{ margin: '0 0 12px', fontWeight: 900, fontSize: 24, color: 'var(--color-primary)' }}>Thank You!</h3>
+                  <p style={{ color: 'var(--color-text-secondary)', fontSize: '15px', lineHeight: '1.6' }}>
+                    Your request has been submitted successfully. Our team will get back to you shortly.
+                  </p>
+                </div>
+              )
+            )}
           </div>
         </div>
       </section>
@@ -894,8 +912,19 @@ export default function CruiseClient({ pageData, formConfig }) {
           }
         }
         @media (max-width: 640px) {
-          .cruise-inputs-row {
-            grid-template-columns: 1fr;
+          .cruise-search-card {
+            padding: 20px 14px;
+          }
+          .cruise-form {
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 8px;
+          }
+          .cruise-field select,
+          .cruise-field input,
+          .cruise-field textarea {
+            font-size: 13px;
+            padding: 8px 10px;
+            min-height: 38px;
           }
           .cabin-amenities-list ul {
             grid-template-columns: 1fr;

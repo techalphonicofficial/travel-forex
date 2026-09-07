@@ -50,25 +50,50 @@ const normalizePackageToTour = (pkg, targetSlug) => {
   };
 };
 
-export default function DestinationClient({ destinationSlug, packages = [] }) {
-  // Extract destination info from the first package that has this destination
+export default function DestinationClient({ destinationSlug = '', packages = [], travelType = '' }) {
+  // Extract destination info only if a specific destination slug was provided
   let destInfo = null;
-  for (const pkg of packages) {
-    const d = getFirstDestination(pkg, destinationSlug);
-    if (d) {
-      destInfo = d;
-      break;
+  if (destinationSlug) {
+    for (const pkg of packages) {
+      const d = getFirstDestination(pkg, destinationSlug);
+      if (d) {
+        destInfo = d;
+        break;
+      }
     }
   }
 
-  const displayTitle = destInfo?.name || (destinationSlug ? destinationSlug.replace(/-/g, ' ').toUpperCase() : 'All Packages');
+  // Filter packages by travelType if specified and exclude test packages
+  const filteredPackages = (packages || []).filter(pkg => {
+    const name = String(pkg?.name || '').toLowerCase();
+    const slug = String(pkg?.slug || '').toLowerCase();
+    if (name.includes('test package') || slug.includes('test-package') || pkg?.id === 60) {
+      return false;
+    }
+    if (!travelType) return true;
+    const targetType = travelType.toLowerCase();
+    const isPkgInternational = pkg?.destinations?.some(
+      d => d.destination?.type?.toLowerCase() === 'international'
+    );
+    const pkgType = pkg?.travel_type
+      ? pkg.travel_type.toLowerCase()
+      : (isPkgInternational ? 'international' : 'domestic');
+    return pkgType === targetType;
+  });
+
+  // Build display title considering travelType filter
+  const typeLabel = travelType ? travelType.charAt(0).toUpperCase() + travelType.slice(1).toLowerCase() : '';
+  const displayTitle = destInfo?.name 
+    || (destinationSlug ? destinationSlug.replace(/-/g, ' ').toUpperCase() : '')
+    || (typeLabel ? `${typeLabel} Packages` : 'All Packages');
   const displayImage = destInfo?.feature_image 
     ? getMediaUrl(destInfo.feature_image) 
-    : (packages[0]?.main_image ? getMediaUrl(packages[0].main_image) : FALLBACK_IMAGE);
+    : (filteredPackages[0]?.main_image ? getMediaUrl(filteredPackages[0].main_image) : FALLBACK_IMAGE);
 
-  const displayDescription = destInfo?.title || `Explore our handpicked collection of ${displayTitle} tours designed for the perfect getaway.`;
+  const displayDescription = destInfo?.title || `Explore our handpicked collection of ${displayTitle.toLowerCase()} tours designed for the perfect getaway.`;
 
-  const tours = (packages || []).map(pkg => normalizePackageToTour(pkg, destinationSlug));
+  const tours = filteredPackages.map(pkg => normalizePackageToTour(pkg, destinationSlug));
+
 
   return (
     <main style={{ minHeight: '100vh', background: '#f8fafc' }}>

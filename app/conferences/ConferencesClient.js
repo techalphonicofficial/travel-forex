@@ -110,6 +110,8 @@ export default function ConferencesClient({ formConfig, pageData }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
   const [location, setLocation] = useState('');
 
@@ -194,6 +196,7 @@ export default function ConferencesClient({ formConfig, pageData }) {
 
       toast.success('Your corporate conference inquiry has been received! Our corporate desk executive will email/call you with a custom proposal shortly.');
       form.reset();
+      setIsSubmitted(true);
     } catch (err) {
       toast.error(err.message || 'Unable to process request. Please try again.');
     } finally {
@@ -210,10 +213,10 @@ export default function ConferencesClient({ formConfig, pageData }) {
   return (
     <main className="conferences-page">
       {/* 1. HERO SECTION */}
-      <section className="conferences-hero" style={heroBgImage ? { backgroundImage: heroBgImage } : {}}>
+      <section className="conferences-hero" style={{ ...(heroBgImage ? { backgroundImage: heroBgImage } : {}), ...(isClosed ? { minHeight: '60vh', display: 'flex', alignItems: 'center' } : {}) }}>
         <div className="container">
-          <div className="conferences-hero-grid">
-            <div className="conferences-hero-copy">
+          <div className="conferences-hero-grid" style={isClosed ? { gridTemplateColumns: '1fr', textAlign: 'center' } : {}}>
+            <div className="conferences-hero-copy" style={isClosed ? { margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' } : {}}>
               {heroTitleTop && <span className="conferences-top-subtitle">{heroTitleTop}</span>}
               {heroTitleMain && (
                 <h1>
@@ -235,33 +238,44 @@ export default function ConferencesClient({ formConfig, pageData }) {
             </div>
 
             {/* SEARCH WIDGET CARD */}
-            <div className="conferences-search-card" id="conferences-search-widget">
-              <h3 style={{ margin: '0 0 12px', fontWeight: 900, fontSize: 19, color: 'var(--color-primary)' }}>Request Conference Proposal</h3>
-              <form onSubmit={handleSearchSubmit} className="conferences-form">
-                {fields.length > 0 ? (
-                  fields.map(field => (
-                    <ConferencesDynamicField
-                      key={field.id || field.fieldKey}
-                      field={field}
-                      defaultValue={currentUser ? currentUser[field.fieldKey] || '' : ''}
-                    />
-                  ))
-                ) : (
-                  <p style={{ gridColumn: '1 / -1', textAlign: 'center', opacity: 0.7 }}>Form is unavailable right now.</p>
-                )}
+            {!isClosed && (
+              !isSubmitted ? (
+                <div className="conferences-search-card" id="conferences-search-widget">
+                  <h3 style={{ margin: '0 0 12px', fontWeight: 900, fontSize: 19, color: 'var(--color-primary)' }}>Request Event Consultation</h3>
+                  <form onSubmit={handleSearchSubmit} className="conferences-form">
+                    {fields.length > 0 ? (
+                      fields.map(field => (
+                        <ConferencesDynamicField
+                          key={field.id || field.fieldKey}
+                          field={field}
+                          defaultValue={currentUser ? currentUser[field.fieldKey] || '' : ''}
+                        />
+                      ))
+                    ) : (
+                      <p style={{ gridColumn: '1 / -1', textAlign: 'center', opacity: 0.7 }}>Form is unavailable right now.</p>
+                    )}
 
-                <div style={{ gridColumn: '1 / -1', marginTop: '10px' }}>
-                  <button type="submit" className="conferences-search-submit" disabled={loading} style={{ width: '100%' }}>
-                    {loading ? 'Submitting Planning Request...' : 'Get Custom Proposal'}
-                  </button>
+                    <div style={{ gridColumn: '1 / -1', marginTop: '10px' }}>
+                      <button type="submit" className="conferences-search-submit" disabled={loading} style={{ width: '100%' }}>
+                        {loading ? 'Submitting Planning Request...' : 'Get Event Proposal'}
+                      </button>
+                    </div>
+                  </form>
                 </div>
-              </form>
-            </div>
+              ) : (
+                <div className="conferences-search-card success-card" style={{ textAlign: 'center', padding: '40px 20px', position: 'relative' }}>
+                  <button onClick={() => setIsClosed(true)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#64748b', lineHeight: 1 }}>&times;</button>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+                  <h3 style={{ margin: '0 0 12px', fontWeight: 900, fontSize: 24, color: 'var(--color-primary)' }}>Thank You!</h3>
+                  <p style={{ color: 'var(--color-text-secondary)', fontSize: '15px', lineHeight: '1.6' }}>
+                    Your request has been submitted successfully. Our team will get back to you shortly.
+                  </p>
+                </div>
+              )
+            )}
           </div>
         </div>
       </section>
-
-
 
       {/* 3. KEY FEATURES */}
       <section className="conferences-cabin-section">
@@ -652,8 +666,19 @@ export default function ConferencesClient({ formConfig, pageData }) {
           }
         }
         @media (max-width: 640px) {
+          .conferences-search-card {
+            padding: 20px 14px;
+          }
           .conferences-form {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 8px;
+          }
+          .conferences-field select,
+          .conferences-field input,
+          .conferences-field textarea {
+            font-size: 13px;
+            padding: 8px 10px;
+            min-height: 38px;
           }
         }
       `}</style>

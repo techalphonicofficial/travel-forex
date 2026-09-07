@@ -24,6 +24,17 @@ export default function TourDetailClient({ tour, similarTours }) {
   const [submittedReviews, setSubmittedReviews] = useState([]);
   const [reviewMessage, setReviewMessage] = useState('');
 
+  useEffect(() => {
+    if (galleryModal !== null) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [galleryModal]);
+
   const totalPrice = tour.price * travelers;
 
   // Mock reviews data generator
@@ -201,11 +212,11 @@ export default function TourDetailClient({ tour, similarTours }) {
             </div>
 
             {/* Tabs (Sticky Header) */}
-            <div 
-              style={{ 
-                position: 'sticky', 
-                top: '72px', 
-                zIndex: 100, 
+            <div
+              style={{
+                position: 'sticky',
+                top: '72px',
+                zIndex: 100,
                 background: 'rgba(255, 255, 255, 0.9)',
                 backdropFilter: 'blur(12px)',
                 padding: '12px 0 20px',

@@ -439,7 +439,11 @@ function ToursContent() {
   }, [activePackageQuery]);
 
   const filteredTours = useMemo(() => {
-    let result = [...apiTours];
+    let result = apiTours.filter(t => {
+      const title = String(t?.title || '').toLowerCase();
+      const slug = String(t?.slug || '').toLowerCase();
+      return !title.includes('test package') && !slug.includes('test-package') && t?.id !== 60;
+    });
 
     if (filters.search) {
       const q = filters.search.toLowerCase();

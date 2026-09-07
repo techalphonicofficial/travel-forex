@@ -154,8 +154,8 @@ export default function FooterClient({ brand, companyInfo }) {
     <footer className="footer" style={{ background: '#0f3a75', color: '#ffffff' }}>
       <div className="section-sm">
         <div className="container">
-          <div className="row g-5 align-items-start">
-            <div className="col-lg-4 text-lg-start mobile-text-center">
+          <div className="row g-4 g-lg-5 align-items-start">
+            <div className="col-12 col-lg-4 text-lg-start mobile-text-center">
               <div className="d-flex flex-column flex-lg-row align-items-center align-items-lg-center gap-3 mb-4 text-center text-lg-start">
                 <div style={{ width: 70, height: 70, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Image src={brandLogo} alt={`${brandName} Logo`} width={70} height={70} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }} />
@@ -206,9 +206,9 @@ export default function FooterClient({ brand, companyInfo }) {
             </div>
 
             {Object.entries(footerLinks).map(([section, links]) => (
-              <div key={section} className="col-12 col-sm-6 col-lg-2 text-lg-start mobile-text-center mb-4 mb-lg-0">
+              <div key={section} className="col-6 col-lg-2 text-lg-start mobile-text-center mb-4 mb-lg-0">
 
-                <h4 className="footer-heading mt-0" style={{ color: '#ffffff' }}>{section}</h4>
+                <h4 className="footer-heading" style={{ color: '#ffffff', marginTop: '18px', marginBottom: '18px' }}>{section}</h4>
                 <ul className="list-unstyled mb-0">
                   {links.map(({ label, href }) => (
                     <li key={`${section}-${label}`}>
@@ -220,8 +220,8 @@ export default function FooterClient({ brand, companyInfo }) {
             ))}
 
 
-            <div className="col-12 col-sm-6 col-lg-2 text-lg-start mobile-text-center mb-4 mb-lg-0">
-              <h4 className="footer-heading mt-0" style={{ color: '#ffffff' }}>Trust & Safety</h4>
+            <div className="col-6 col-lg-2 text-lg-start mobile-text-center mb-4 mb-lg-0">
+              <h4 className="footer-heading" style={{ color: '#ffffff', marginTop: '18px', marginBottom: '18px' }}>Trust & Safety</h4>
               <div className="d-flex flex-column gap-3">
                 {trustItems.map(({ icon, text }) => (
                   <div key={text} className="d-flex align-items-center gap-2 mobile-center-flex" style={{ color: '#cbd5e1', fontSize: 13 }}>
@@ -268,6 +268,21 @@ export default function FooterClient({ brand, companyInfo }) {
           .mobile-mx-auto {
             margin-left: auto !important;
             margin-right: auto !important;
+          }
+          .footer-heading {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #ffffff;
+            margin-top: 18px !important;
+            margin-bottom: 18px !important;
+          }
+          @media (min-width: 992px) {
+            .footer-heading {
+              margin-top: 0 !important;
+              margin-bottom: 20px !important;
+            }
           }
           @media (min-width: 992px) {
         .footer-bottom-link {

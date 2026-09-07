@@ -387,13 +387,14 @@ function ItineraryStyles() {
       .itn-video strong, .itn-video button, .itn-video div { position: relative; z-index: 1; }
       .itn-video div { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.18); font-size: 12px; font-weight: 800; }
       .itn-video button, .itn-more { border: 1px solid var(--color-primary); color: var(--color-primary); background: #fff; border-radius: 8px; padding: 9px 18px; font-size: 13px; font-weight: 800; }
-      .itn-media-modal { position: fixed; inset: 0; z-index: 500; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(8, 14, 25, .82); backdrop-filter: blur(8px); }
-      .itn-media-panel { width: min(100%, 980px); max-height: 88vh; overflow: auto; border-radius: 10px; background: #fff; box-shadow: var(--shadow-xl); }
-      .itn-media-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 18px; background: #fff; border-bottom: 1px solid var(--color-border); }
-      .itn-media-head h3 { margin: 0; font-family: var(--font-poppins), Poppins, sans-serif; font-size: 18px; font-weight: 800; }
-      .itn-media-head button { width: 34px; height: 34px; border-radius: 50%; background: var(--color-bg-soft); color: var(--color-text-primary); font-weight: 900; }
-      .itn-media-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; padding: 18px; }
-      .itn-media-item { overflow: hidden; border-radius: 8px; background: var(--color-bg-soft); border: 1px solid var(--color-border); }
+      .itn-media-modal { position: fixed; inset: 0; z-index: 999999; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(8, 14, 25, .88); backdrop-filter: blur(8px); }
+      .itn-media-panel { width: min(95%, 1060px); max-height: 72vh; overflow-y: auto; border-radius: 16px; background: #fff; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45); position: relative; border: 1px solid rgba(255, 255, 255, 0.2); }
+      .itn-media-head { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 22px; background: #ffffff; border-bottom: 1px solid var(--color-border); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+      .itn-media-head h3 { margin: 0; font-family: var(--font-poppins), Poppins, sans-serif; font-size: 19px; font-weight: 800; color: #0f172a; }
+      .itn-media-head button { width: 38px; height: 38px; border-radius: 50%; background: #f1f5f9; color: #1e293b; font-size: 19px; font-weight: 800; border: 1px solid #cbd5e1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; line-height: 1; padding: 0; }
+      .itn-media-head button:hover { background: #ef4444; color: #ffffff; border-color: #ef4444; transform: scale(1.08); }
+      .itn-media-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; padding: 20px; }
+      .itn-media-item { overflow: hidden; border-radius: 10px; background: var(--color-bg-soft); border: 1px solid var(--color-border); }
       .itn-media-item img, .itn-media-item video { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
       .itn-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 48px; align-items: start; }
       .itn-section h2 { margin: 0 0 20px; font-family: var(--font-poppins), Poppins, sans-serif; font-size: 19px; font-weight: 700; letter-spacing: 0; }
@@ -1130,6 +1131,17 @@ export default function TourItineraryView({ destination, packageSlug }) {
   const [couponError, setCouponError] = useState('');
 
   useEffect(() => {
+    if (mediaOpen || bookingModalOpen || costingOpen || loginPromptOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mediaOpen, bookingModalOpen, costingOpen, loginPromptOpen]);
+
+  useEffect(() => {
     let mounted = true;
     const controller = new AbortController();
     const signal = controller.signal;
@@ -1158,7 +1170,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
         }
 
         const json = await response.json();
-        
+
         if (!mounted) return;
 
         if (json && json.success && json.data) {
@@ -1170,7 +1182,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
       } catch (err) {
         if (!mounted) return;
         if (err.name === 'AbortError') return;
-        
+
         console.error('Error fetching package itinerary:', err);
         setError('Unable to load this itinerary right now.');
         setPkg(null);
@@ -1508,7 +1520,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
       setInquiryMessage('Please fill in your name, email, and phone number.');
       return;
     }
-    
+
     setInquiryStatus('loading');
     setInquiryMessage('');
 
@@ -2002,11 +2014,11 @@ export default function TourItineraryView({ destination, packageSlug }) {
         </section>
 
         {mediaOpen ? (
-          <div className="itn-media-modal" role="dialog" aria-modal="true" aria-label="Package media">
-            <div className="itn-media-panel">
+          <div className="itn-media-modal" role="dialog" aria-modal="true" aria-label="Package media" onClick={() => setMediaOpen(false)}>
+            <div className="itn-media-panel" onClick={(e) => e.stopPropagation()}>
               <div className="itn-media-head">
                 <h3>All Media</h3>
-                <button type="button" onClick={() => setMediaOpen(false)} aria-label="Close media">x</button>
+                <button type="button" onClick={() => setMediaOpen(false)} aria-label="Close media">✕</button>
               </div>
               <div className="itn-media-grid">
                 {mediaItems.map((item) => (

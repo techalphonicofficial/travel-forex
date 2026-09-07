@@ -7,22 +7,38 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { registerCustomer, getMediaUrl } from '@/utils/api';
 
+const getLogoUrl = (logo) => {
+  if (!logo) return '/logooo.png';
+  if (/^(https?:|data:|blob:)/i.test(logo)) return logo;
+  if (!String(logo).startsWith('/uploads')) return logo;
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'https://admin.travel-forex.com';
+  return `${baseUrl.replace(/\/$/, '')}/${String(logo).replace(/^\//, '')}`;
+};
+
 export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [logo, setLogo] = useState('https://i.ibb.co/wNt195HZ/Whats-App-Image-2026-03-27-at-1-12-46-AM-1-copy-2.webp');
+  const [logo, setLogo] = useState(null);
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
   const password = watch('password');
 
   useEffect(() => {
     fetch('/api/company-info')
       .then(res => res.json())
-      .then(data => {
-        if (data?.company_logo_url) {
-          setLogo(getMediaUrl(data.company_logo_url));
+      .then(payload => {
+        const info = payload?.data || payload;
+        const dynamicLogo = info?.logo || info?.company_logo_url;
+        if (dynamicLogo) {
+          setLogo(getLogoUrl(dynamicLogo));
+        } else {
+          setLogo('/logooo.png');
         }
       })
-      .catch(err => console.error('Error fetching logo:', err));
+      .catch(err => {
+        console.error('Error fetching logo:', err);
+        setLogo('/logooo.png');
+      });
   }, []);
 
   const onSubmit = async (data) => {
@@ -60,9 +76,11 @@ export default function RegisterPage() {
         
 
         {/* Top Logo overlaid on image */}
-        <Link href="/" style={{ position: 'absolute', top: 40, left: 60, zIndex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <img src={logo} alt="Logo" style={{ width: 80, height: 80, objectFit: 'contain' }} />
-        </Link>
+        {logo && (
+          <Link href="/" style={{ position: 'absolute', top: 40, left: 60, zIndex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <img src={logo} alt="Logo" style={{ width: 80, height: 80, objectFit: 'contain', borderRadius: '50%' }} />
+          </Link>
+        )}
 
         {/* Bottom Text overlaid on image */}
         <div style={{ position: 'relative', zIndex: 1, color: 'white', maxWidth: 460 }}>
@@ -74,14 +92,16 @@ export default function RegisterPage() {
       {/* RIGHT: FORM */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '40px 20px', position: 'relative' }}>
 
-        {/* Mobile Header (only visible on small screens) */}
-        <Link href="/" className="d-lg-none" style={{ position: 'absolute', top: 30, left: 24, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <img src={logo} alt="Logo" style={{ width: 80, height: 80, objectFit: 'contain' }} />
-        </Link>
-
         <div style={{ width: '100%', maxWidth: 460 }}>
           <div style={{ marginBottom: 32, marginTop: 40 }}>
-            <h1 style={{ fontSize: 32, fontWeight: 800, color: '#111827', marginBottom: 8, letterSpacing: -0.5 }}>Create an account</h1>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <h1 style={{ fontSize: 32, fontWeight: 800, color: '#111827', margin: 0, letterSpacing: -0.5 }}>Create an account</h1>
+              {logo && (
+                <Link href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
+                  <img src={logo} alt="Logo" style={{ width: 55, height: 55, objectFit: 'contain', borderRadius: '50%' }} />
+                </Link>
+              )}
+            </div>
             <p style={{ color: '#6b7280', fontSize: 15 }}>Enter your details to get started.</p>
           </div>
 

@@ -471,15 +471,36 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
   const heroDesc = heroJson?.body;
   const heroBgImage = getMediaUrl(heroJson?.media_url);
 
+  // Sanitize CMS-provided links: strip any internal CMS admin URLs (e.g. /cms/pages/...)
+  // that were accidentally saved as button targets and would cause 404 errors.
+  const sanitizeCmsLink = (link) => {
+    if (!link || typeof link !== 'string') return null;
+    const trimmed = link.trim();
+    if (!trimmed) return null;
+    // Reject links pointing to the CMS admin area
+    if (trimmed.includes('/cms/pages/') || trimmed.includes('/cms/')) return null;
+    // Reject bare localhost absolute URLs that are not valid app routes
+    try {
+      const url = new URL(trimmed);
+      if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+        // Allow only relative-style paths extracted from localhost URLs
+        return url.pathname && url.pathname !== '/' ? url.pathname : null;
+      }
+    } catch {
+      // Not a full URL — treat as a relative path, which is fine
+    }
+    return trimmed || null;
+  };
+
   const cta1CMS = pageData?.details?.find(d => d.key === 'cta_key_1');
   const cta1Json = parseJSON(cta1CMS?.json_data);
   const cta1Text = cta1Json?.btn_text;
-  const cta1Link = cta1Json?.btn_link;
+  const cta1Link = sanitizeCmsLink(cta1Json?.btn_link);
 
   const cta2CMS = pageData?.details?.find(d => d.key === 'cta_key_2');
   const cta2Json = parseJSON(cta2CMS?.json_data);
   const cta2Text = cta2Json?.btn_text;
-  const cta2Link = cta2Json?.btn_link;
+  const cta2Link = sanitizeCmsLink(cta2Json?.btn_link);
 
   const forexRateCMS = pageData?.details?.find(d => d.key === 'forex_rate_key');
   const forexRateJson = parseJSON(forexRateCMS?.json_data);
@@ -804,7 +825,7 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
           </div>
 
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-            <div style={{
+            <div className="forex-calc-card" style={{
               background: 'var(--color-bg-card)',
               border: '1px solid var(--color-border)',
               borderRadius: 24,
@@ -1823,7 +1844,7 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
         position: 'relative'
       }}>
         <div className="container" style={{ maxWidth: '640px' }}>
-          <div style={{
+          <div className="forex-lead-card" style={{
             background: 'var(--color-bg-card)',
             border: '1px solid var(--color-border)',
             borderRadius: 24,
@@ -1848,7 +1869,7 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
             </div>
 
             <form onSubmit={handleLeadFormSubmit}>
-              <div style={{ display: 'grid', gap: 18 }}>
+              <div className="forex-lead-grid">
                 <div>
                   <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Name</label>
                   <input
@@ -1861,57 +1882,55 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Mobile Number</label>
-                    <input
-                      type="tel"
-                      required
-                      value={leadPhone}
-                      onChange={e => setLeadPhone(e.target.value)}
-                      placeholder="+91 99999 99999"
-                      style={formInputStyle}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Email Address</label>
-                    <input
-                      type="email"
-                      required
-                      value={leadEmail}
-                      onChange={e => setLeadEmail(e.target.value)}
-                      placeholder="john@example.com"
-                      style={formInputStyle}
-                    />
-                  </div>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Mobile Number</label>
+                  <input
+                    type="tel"
+                    required
+                    value={leadPhone}
+                    onChange={e => setLeadPhone(e.target.value)}
+                    placeholder="+91 99999 99999"
+                    style={formInputStyle}
+                  />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 12 }}>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Currency</label>
-                    <select
-                      value={leadCurrency}
-                      onChange={e => setLeadCurrency(e.target.value)}
-                      style={formInputStyle}
-                    >
-                      {currencyOptions.map(c => (
-                        <option key={c.code} value={c.code}>
-                          {c.code} - {c.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Estimated Amount</label>
-                    <input
-                      type="number"
-                      required
-                      value={leadAmount}
-                      onChange={e => setLeadAmount(e.target.value)}
-                      placeholder="1000"
-                      style={formInputStyle}
-                    />
-                  </div>
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    value={leadEmail}
+                    onChange={e => setLeadEmail(e.target.value)}
+                    placeholder="john@example.com"
+                    style={formInputStyle}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Currency</label>
+                  <select
+                    value={leadCurrency}
+                    onChange={e => setLeadCurrency(e.target.value)}
+                    style={formInputStyle}
+                  >
+                    {currencyOptions.map(c => (
+                      <option key={c.code} value={c.code}>
+                        {c.code} - {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, display: 'block' }}>Estimated Amount</label>
+                  <input
+                    type="number"
+                    required
+                    value={leadAmount}
+                    onChange={e => setLeadAmount(e.target.value)}
+                    placeholder="1000"
+                    style={formInputStyle}
+                  />
                 </div>
 
                 <div>
@@ -1927,6 +1946,7 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
                     <option value="Medical">Medical Emergency Outward Spends</option>
                   </select>
                 </div>
+              </div>
 
                 <button
                   type="submit"
@@ -1950,7 +1970,6 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
                 >
                   {submittingLead ? 'Submitting Inquiry...' : 'Request Wholesale Rate Quote'}
                 </button>
-              </div>
             </form>
           </div>
         </div>
@@ -2015,9 +2034,108 @@ export default function ForexBasePage({ pageType = 'currency', pageData }) {
           position: relative;
           overflow: hidden;
         }
+        .forex-lead-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px 12px;
+        }
         @media (max-width: 991px) {
           .forex-hero {
             padding: 36px 0 32px;
+          }
+        }
+        @media (max-width: 768px) {
+          .forex-hero {
+            padding: 28px 0 24px;
+          }
+          .forex-hero h1 {
+            font-size: clamp(22px, 6vw, 32px) !important;
+            margin-bottom: 14px !important;
+          }
+          .forex-hero p {
+            font-size: 13.5px !important;
+            margin-bottom: 18px !important;
+          }
+          .forex-hero .btn-primary,
+          .forex-hero a[style] {
+            padding: 10px 18px !important;
+            font-size: 13px !important;
+          }
+          section[id] {
+            padding: 40px 0 !important;
+          }
+          section[id] h2 {
+            font-size: 22px !important;
+          }
+          .forex-lead-card,
+          .forex-calc-card {
+            padding: 20px 14px !important;
+            border-radius: 16px !important;
+            max-width: 100% !important;
+          }
+          .forex-lead-card h2 {
+            font-size: 20px !important;
+          }
+          .forex-lead-card p {
+            font-size: 12px !important;
+          }
+          .forex-lead-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 8px;
+          }
+          .forex-lead-grid label {
+            font-size: 10px !important;
+            margin-bottom: 4px !important;
+          }
+          .forex-lead-grid input,
+          .forex-lead-grid select,
+          .forex-calc-card input,
+          .forex-calc-card select,
+          .forex-calc-card textarea {
+            font-size: 13px !important;
+            padding: 8px 10px !important;
+            min-height: 36px;
+            border-radius: 8px !important;
+          }
+          .forex-lead-card button[type="submit"] {
+            padding: 12px !important;
+            font-size: 13px !important;
+            border-radius: 10px !important;
+          }
+          .table-responsive {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 12px !important;
+          }
+          .table-responsive table {
+            min-width: 520px;
+          }
+          .table-responsive table th,
+          .table-responsive table td {
+            padding: 10px 10px !important;
+            font-size: 11px !important;
+            white-space: nowrap;
+          }
+          .table-responsive table th:first-child,
+          .table-responsive table td:first-child {
+            padding-left: 12px !important;
+          }
+          .table-responsive table td button {
+            padding: 5px 10px !important;
+            font-size: 10px !important;
+          }
+          .container {
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+          }
+        }
+        @media (max-width: 400px) {
+          .forex-lead-grid {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+          }
+          .forex-hero h1 {
+            font-size: 20px !important;
           }
         }
       `}</style>

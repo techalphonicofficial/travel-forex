@@ -115,7 +115,7 @@ export default function InquiryForm({
   };
 
   const btnStyle = {
-    flexShrink: 0,
+    flex: '1 1 160px',
     padding: '12px 28px',
     borderRadius: 10,
     border: 'none',

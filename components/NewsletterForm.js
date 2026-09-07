@@ -226,23 +226,31 @@ export default function NewsletterForm() {
 
         /* Mobile specific adjustments */
         @media (max-width: 480px) {
-
-          .
           .newsletter-form {
-            width: calc(100% - 32px); /* Ensures a 16px safe gap on the left and right screen edges */
-            padding: 15px 50px;
-             min-width:200px;
+            width: 100%;
+            max-width: 100%;
+            padding: 5px 5px 5px 14px;
+            min-height: 50px;
+          }
+
+          .newsletter-icon {
+            margin-right: 8px;
+          }
+
+          .newsletter-icon svg {
+            width: 17px;
+            height: 17px;
           }
 
           .newsletter-email-input {
-            font-size: 7px;
-            padding: 8px 0;
-           
+            font-size: 14px;
+            padding: 10px 0;
           }
 
           .newsletter-submit-btn {
-            padding: 2px 5px;
-            font-size: 7px;
+            padding: 11px 20px;
+            font-size: 13px;
+            font-weight: 700;
           }
 
           .newsletter-popup {

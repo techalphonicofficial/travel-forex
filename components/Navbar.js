@@ -1285,6 +1285,17 @@ export default function Navbar({ brand, companyInfo }) {
   }, [pathname]);
 
   useEffect(() => {
+    if (flightOpen || forexOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [flightOpen, forexOpen]);
+
+  useEffect(() => {
     if (currentUser) {
       setFlightDraft(prev => ({
         ...prev,
@@ -1544,34 +1555,7 @@ export default function Navbar({ brand, companyInfo }) {
       {/* Inject keyframe for dropdown animation */}
       <style>{`
 
-          .forex-modal-grid { grid-template-columns: 1fr; }
-          .forex-conversion-row {
-            grid-template-columns: 1fr;
-          }
-          .forex-swap-button {
-            justify-self: center;
-            margin: 0;
-            transform: rotate(90deg);
-          }
-          .forex-swap-button:hover {
-            transform: rotate(270deg);
-          }
-          .forex-modal-head { padding: 1.25rem; }
-          .forex-modal-form { padding: 1.125rem; }
-          .forex-rate-preview {
-            align-items: flex-start;
-            flex-direction: column;
-          }
-          .forex-rate-preview small {
-            text-align: left;
-          }
-          .forex-result-grid {
-            grid-template-columns: 1fr;
-          }
-          @media (min-width: 40.063rem) {
-          .flight-modal-grid { grid-template-columns: 1fr; }
-          .flight-modal-head { padding: 1.25rem; }
-          .flight-modal-form { padding: 1.25rem; } }
+          /* Mobile overrides moved to end */
           @media (min-width: 40.063rem) {
           .top-bar-announcement {
             height: 2.5rem;
@@ -1597,6 +1581,8 @@ export default function Navbar({ brand, companyInfo }) {
         }
         .nav-plain-link:hover::after,
         .nav-plain-link.active::after { width: 100%; }
+        }
+
         .forex-modal-backdrop {
           position: fixed;
           inset: 0;
@@ -1611,7 +1597,9 @@ export default function Navbar({ brand, companyInfo }) {
         .forex-modal {
           width: min(100%, 45rem);
           max-height: min(86vh, 47.5rem);
-          overflow: auto;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
           border-radius: 0.5rem;
           background: #fff;
           box-shadow: 0 1.75rem 4.375rem rgba(0,0,0,0.28);
@@ -1663,6 +1651,7 @@ export default function Navbar({ brand, companyInfo }) {
           display: grid;
           gap: 1rem;
           padding: 1.25rem 1.375rem 1.375rem;
+          overflow-y: auto;
         }
         .forex-modal-grid {
           display: grid;
@@ -2001,7 +1990,9 @@ export default function Navbar({ brand, companyInfo }) {
         .flight-modal {
           width: min(100%, 42.5rem);
           max-height: min(90vh, 46.25rem);
-          overflow: auto;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
           border-radius: 0.875rem;
           background: #fff;
           box-shadow: 0 1.5rem 3.75rem rgba(15,23,42,0.24);
@@ -2012,7 +2003,7 @@ export default function Navbar({ brand, companyInfo }) {
           justify-content: space-between;
           gap: 1.125rem;
           padding: 1.5rem 1.75rem;
-          background: var(--color-primary-hover));
+          background: var(--color-primary-hover);
           color: #fff;
         }
         .flight-modal-head span {
@@ -2056,6 +2047,7 @@ export default function Navbar({ brand, companyInfo }) {
           display: grid;
           gap: 1.25rem;
           padding: 1.75rem;
+          overflow-y: auto;
         }
         .flight-trip-type-selector {
           display: flex;
@@ -2162,8 +2154,8 @@ export default function Navbar({ brand, companyInfo }) {
           font-size: 1.5rem;
           font-weight: 800;
           letter-spacing: 0.5px;
-        } }
-      
+        }
+
         /* HEADER LINKS HOVER EFFECT */
         header.navbar-custom .header-nav-link:hover,
         header.navbar-custom .header-nav-link:hover svg,
@@ -2190,6 +2182,148 @@ export default function Navbar({ brand, companyInfo }) {
           .desktop-nav-ul > span {
             font-size: 1.125rem !important;
             margin: 0 !important;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .forex-modal {
+            width: 100% !important;
+            max-height: 90vh !important;
+            border-radius: 0.375rem !important;
+          }
+          .forex-modal-backdrop {
+            padding: 0.5rem !important;
+          }
+          .forex-modal-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 0.625rem !important;
+          }
+          .forex-modal-grid label {
+            font-size: 0.625rem !important;
+            gap: 0.25rem !important;
+          }
+          .forex-modal-grid input,
+          .forex-modal-grid select {
+            min-height: 2.25rem !important;
+            font-size: 0.75rem !important;
+            padding: 0 0.5rem !important;
+          }
+          .forex-modal-grid textarea {
+            min-height: 4rem !important;
+            font-size: 0.75rem !important;
+            padding: 0.5rem !important;
+          }
+          .forex-conversion-row {
+            grid-template-columns: 1fr !important;
+            gap: 0.375rem !important;
+          }
+          .forex-currency-combobox {
+            min-height: 3rem !important;
+            grid-template-columns: minmax(0, 1fr) 2rem !important;
+          }
+          .forex-currency-selected {
+            padding: 0.375rem 0.5rem 0 !important;
+            gap: 0.375rem !important;
+          }
+          .forex-currency-selected strong {
+            font-size: 0.813rem !important;
+          }
+          .forex-currency-selected span {
+            font-size: 0.625rem !important;
+          }
+          .forex-currency-selected em {
+            font-size: 0.5rem !important;
+            padding: 1px 0.25rem !important;
+          }
+          .forex-currency-combobox input {
+            min-height: 1.375rem !important;
+            font-size: 0.75rem !important;
+            padding: 0 0.5rem 0.375rem !important;
+          }
+          .forex-swap-button {
+            justify-self: center;
+            margin: 0;
+            transform: rotate(90deg);
+            width: 2rem !important;
+            height: 2rem !important;
+          }
+          .forex-swap-button:hover { transform: rotate(270deg); }
+          .forex-swap-button svg {
+            width: 16px !important;
+            height: 16px !important;
+          }
+          .forex-modal-head {
+            padding: 0.875rem 1rem;
+          }
+          .forex-modal-head h2 {
+            font-size: 1.125rem !important;
+          }
+          .forex-modal-head p {
+            font-size: 0.75rem !important;
+          }
+          .forex-modal-head span {
+            font-size: 0.563rem !important;
+          }
+          .forex-modal-form {
+            padding: 0.875rem;
+            gap: 0.75rem;
+          }
+          .forex-modal-form > button {
+            min-height: 2.375rem !important;
+            font-size: 0.75rem !important;
+            padding: 0 0.875rem !important;
+          }
+          .forex-rate-preview {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 0.625rem 0.75rem !important;
+            gap: 0.375rem !important;
+          }
+          .forex-rate-preview strong {
+            font-size: 0.688rem !important;
+          }
+          .forex-rate-preview span {
+            font-size: 0.688rem !important;
+          }
+          .forex-rate-preview small {
+            text-align: left;
+            font-size: 0.625rem !important;
+          }
+          .forex-charge-note {
+            font-size: 0.625rem !important;
+          }
+          .forex-result-grid { grid-template-columns: 1fr 1fr !important; }
+          .forex-result-grid span {
+            min-height: 2.75rem !important;
+            padding: 0.5rem !important;
+            font-size: 0.688rem !important;
+          }
+          .forex-modal-output strong {
+            font-size: 0.688rem !important;
+          }
+          .forex-modal-output p {
+            font-size: 0.688rem !important;
+          }
+          .flight-modal-grid { grid-template-columns: 1fr !important; }
+          .flight-modal-head { padding: 1.25rem; }
+          .flight-modal-form { padding: 1.25rem; }
+        }
+        @media (max-width: 400px) {
+          .forex-modal-grid {
+            grid-template-columns: 1fr !important;
+            gap: 0.5rem !important;
+          }
+          .forex-modal-notes {
+            grid-column: auto !important;
+          }
+          .forex-rate-preview {
+            grid-column: auto !important;
+          }
+          .forex-charge-note {
+            grid-column: auto !important;
+          }
+          .forex-rate-error {
+            grid-column: auto !important;
           }
         }
       `}</style>
@@ -2446,11 +2580,11 @@ export default function Navbar({ brand, companyInfo }) {
                 </div>
                 <label>
                   Amount
-                  <input type="number" min="1" value={forexDraft.amount} onChange={(event) => updateForexDraft('amount', event.target.value)} placeholder="1000" required />
+                  <input type="number" min="1" value={forexDraft.amount ?? ''} onChange={(event) => updateForexDraft('amount', event.target.value)} placeholder="1000" required />
                 </label>
                 <label>
                   Purpose
-                  <select value={forexDraft.purpose} onChange={(event) => updateForexDraft('purpose', event.target.value)}>
+                  <select value={forexDraft.purpose ?? 'Travel'} onChange={(event) => updateForexDraft('purpose', event.target.value)}>
                     <option>Travel</option>
                     <option>Business</option>
                     <option>Education</option>
@@ -2459,23 +2593,23 @@ export default function Navbar({ brand, companyInfo }) {
                 </label>
                 <label>
                   Date
-                  <input type="date" value={forexDraft.travelDate} onChange={(event) => updateForexDraft('travelDate', event.target.value)} />
+                  <input type="date" value={forexDraft.travelDate ?? ''} onChange={(event) => updateForexDraft('travelDate', event.target.value)} />
                 </label>
                 <label>
                   Customer name
-                  <input value={forexDraft.customerName} onChange={(event) => updateForexDraft('customerName', event.target.value)} placeholder="Full name" />
+                  <input value={forexDraft.customerName ?? ''} onChange={(event) => updateForexDraft('customerName', event.target.value)} placeholder="Full name" />
                 </label>
                 <label>
                   Phone
-                  <input value={forexDraft.phone} onChange={(event) => updateForexDraft('phone', event.target.value)} placeholder="+91 98765 43210" />
+                  <input value={forexDraft.phone ?? ''} onChange={(event) => updateForexDraft('phone', event.target.value)} placeholder="+91 98765 43210" />
                 </label>
                 <label>
                   Email
-                  <input type="email" value={forexDraft.email} onChange={(event) => updateForexDraft('email', event.target.value)} placeholder="name@example.com" />
+                  <input type="email" value={forexDraft.email ?? ''} onChange={(event) => updateForexDraft('email', event.target.value)} placeholder="name@example.com" />
                 </label>
                 <label className="forex-modal-notes">
                   Notes
-                  <textarea value={forexDraft.notes} onChange={(event) => updateForexDraft('notes', event.target.value)} placeholder="Pickup city, delivery preference, or document details" rows="3" />
+                  <textarea value={forexDraft.notes ?? ''} onChange={(event) => updateForexDraft('notes', event.target.value)} placeholder="Pickup city, delivery preference, or document details" rows="3" />
                 </label>
                 <div className="forex-rate-preview" aria-live="polite">
                   <div>
@@ -2567,7 +2701,7 @@ export default function Navbar({ brand, companyInfo }) {
                   From
                   <input
                     type="text"
-                    value={flightDraft.departureCity}
+                    value={flightDraft.departureCity ?? ''}
                     onChange={(event) => updateFlightDraft('departureCity', event.target.value)}
                     placeholder="Departure city or airport"
                     required
@@ -2577,7 +2711,7 @@ export default function Navbar({ brand, companyInfo }) {
                   To
                   <input
                     type="text"
-                    value={flightDraft.destinationCity}
+                    value={flightDraft.destinationCity ?? ''}
                     onChange={(event) => updateFlightDraft('destinationCity', event.target.value)}
                     placeholder="Destination city or airport"
                     required
@@ -2588,7 +2722,7 @@ export default function Navbar({ brand, companyInfo }) {
                   Departure Date
                   <input
                     type="date"
-                    value={flightDraft.departureDate}
+                    value={flightDraft.departureDate ?? ''}
                     onChange={(event) => updateFlightDraft('departureDate', event.target.value)}
                     required
                   />
@@ -2598,7 +2732,7 @@ export default function Navbar({ brand, companyInfo }) {
                     Return Date
                     <input
                       type="date"
-                      value={flightDraft.returnDate}
+                      value={flightDraft.returnDate ?? ''}
                       onChange={(event) => updateFlightDraft('returnDate', event.target.value)}
                       required
                     />
@@ -2606,14 +2740,14 @@ export default function Navbar({ brand, companyInfo }) {
                 ) : (
                   <label style={{ opacity: 0.5 }}>
                     Return Date
-                    <input type="text" placeholder="One-way flight selected" disabled />
+                    <input type="text" value="" readOnly placeholder="One-way flight selected" disabled />
                   </label>
                 )}
 
                 <label>
                   Adults (12y+)
                   <select
-                    value={flightDraft.adults}
+                    value={flightDraft.adults ?? 1}
                     onChange={(event) => updateFlightDraft('adults', Number(event.target.value))}
                   >
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
@@ -2624,7 +2758,7 @@ export default function Navbar({ brand, companyInfo }) {
                 <label>
                   Children (2-12y)
                   <select
-                    value={flightDraft.children}
+                    value={flightDraft.children ?? 0}
                     onChange={(event) => updateFlightDraft('children', Number(event.target.value))}
                   >
                     {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
@@ -2636,7 +2770,7 @@ export default function Navbar({ brand, companyInfo }) {
                 <label className="flight-grid-full">
                   Cabin Class
                   <select
-                    value={flightDraft.cabinClass}
+                    value={flightDraft.cabinClass ?? 'Economy'}
                     onChange={(event) => updateFlightDraft('cabinClass', event.target.value)}
                   >
                     <option value="Economy">Economy</option>
@@ -2650,7 +2784,7 @@ export default function Navbar({ brand, companyInfo }) {
                   Customer Name
                   <input
                     type="text"
-                    value={flightDraft.customerName}
+                    value={flightDraft.customerName ?? ''}
                     onChange={(event) => updateFlightDraft('customerName', event.target.value)}
                     placeholder="Full name"
                     required
@@ -2660,7 +2794,7 @@ export default function Navbar({ brand, companyInfo }) {
                   Phone Number
                   <input
                     type="tel"
-                    value={flightDraft.phone}
+                    value={flightDraft.phone ?? ''}
                     onChange={(event) => updateFlightDraft('phone', event.target.value)}
                     placeholder="+91 99999 99999"
                     required
@@ -2670,7 +2804,7 @@ export default function Navbar({ brand, companyInfo }) {
                   Email Address
                   <input
                     type="email"
-                    value={flightDraft.email}
+                    value={flightDraft.email ?? ''}
                     onChange={(event) => updateFlightDraft('email', event.target.value)}
                     placeholder="email@example.com"
                     required
@@ -2680,7 +2814,7 @@ export default function Navbar({ brand, companyInfo }) {
                 <label className="flight-grid-full">
                   Special Notes / Preferences
                   <textarea
-                    value={flightDraft.notes}
+                    value={flightDraft.notes ?? ''}
                     onChange={(event) => updateFlightDraft('notes', event.target.value)}
                     placeholder="Mention preferred airlines, meal requirements, or flexible date window details"
                     rows="3"

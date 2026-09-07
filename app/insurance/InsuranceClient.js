@@ -69,11 +69,11 @@ function InsuranceDynamicField({ field }) {
     style: { width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', color: '#1e293b', background: 'white' }
   };
 
-  const colClass = isWideField ? "col-12 mb-3" : "col-12 col-md-6 mb-3";
+  const colClass = isWideField ? "col-12 mb-2 mb-md-3" : "col-6 col-md-6 mb-2 mb-md-3";
 
   return (
-    <div className={colClass}>
-      <label htmlFor={field.fieldKey} style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', marginBottom: '8px', textTransform: 'uppercase' }}>
+    <div className={colClass} style={{ paddingLeft: '6px', paddingRight: '6px' }}>
+      <label htmlFor={field.fieldKey} style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>
         {field.label}{requiredMark}
       </label>
       {isTextarea ? (
@@ -98,10 +98,10 @@ export default function InsuranceClient({ pageData, formConfig }) {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
 
   const fields = formConfig?.fields || [];
-
-
 
   useEffect(() => {
     setIsMounted(true);
@@ -140,13 +140,14 @@ export default function InsuranceClient({ pageData, formConfig }) {
           ? `url(${fullHeroMediaUrl}) center/cover no-repeat`
           : 'transparent',
         color: 'white',
-        padding: '100px 0 80px'
+        padding: '100px 0 80px',
+        ...(isClosed ? { minHeight: '60vh', display: 'flex', alignItems: 'center' } : {})
       }}>
         <div className="container">
-          <div className="row align-items-center">
+          <div className="row align-items-center" style={isClosed ? { justifyContent: 'center', textAlign: 'center' } : {}}>
 
             {/* Left Column: Hero Text */}
-            <div className="col-12 col-lg-6 mb-5 mb-lg-0" style={{ textAlign: 'left' }}>
+            <div className={isClosed ? "col-12" : "col-12 col-lg-6 mb-5 mb-lg-0"} style={isClosed ? { textAlign: 'center' } : { textAlign: 'left' }}>
               {heroHeadingSmall && (
                 <span style={{ display: 'inline-block', background: 'rgba(255,255,255,0.2)', padding: '6px 16px', borderRadius: 20, fontSize: 13, fontWeight: 700, letterSpacing: 1.2, marginBottom: 20, textTransform: 'uppercase' }}>
                   {heroHeadingSmall}
@@ -165,70 +166,87 @@ export default function InsuranceClient({ pageData, formConfig }) {
             </div>
 
             {/* Right Column: Inline Form */}
-            <div className="col-12 col-lg-6">
-              <div style={{
-                background: 'white',
-                borderRadius: '16px',
-                boxShadow: '0 10px 40px rgba(0,0,0,0.15)',
-                padding: '32px',
-                color: '#0f172a',
-                textAlign: 'left'
-              }}>
-                <h2 style={{ fontSize: '22px', fontWeight: 900, marginBottom: '24px' }}>Get Overseas Travel Insurance Quote</h2>
-
-                <form onSubmit={async (e) => {
-                  e.preventDefault();
-                  const token = getStoredToken();
-                  if (!token) {
-                    toast.error('Please login first to continue.');
-                    router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`);
-                    return;
-                  }
-
-                  const formElement = e.currentTarget;
-                  setLoading(true);
-
-                  try {
-                    const payload = getFormPayload(formElement, fields, formConfig?.id);
-
-                    const response = await fetch('/api/contact-leads', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(payload),
-                    });
-
-                    const resData = await response.json();
-                    if (!response.ok || !resData?.success) {
-                      throw new Error(resData?.message || 'Failed to submit inquiry.');
-                    }
-
-                    toast.success('Your insurance inquiry has been sent! Our team will contact you shortly.');
-                    formElement.reset();
-                  } catch (err) {
-                    toast.error(err.message || 'Unable to process request. Please try again.');
-                  } finally {
-                    setLoading(false);
-                  }
+            {!isClosed && (
+              <div className="col-12 col-lg-6">
+                <div className="insurance-form-card" style={{
+                  background: 'white',
+                  borderRadius: '16px',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.15)',
+                  padding: '32px',
+                  color: '#0f172a',
+                  textAlign: 'left',
+                  position: 'relative'
                 }}>
-                  <div className="row">
-                    {fields.length > 0 ? (
-                      fields.map(field => (
-                        <InsuranceDynamicField
-                          key={field.id || field.fieldKey}
-                          field={field}
-                        />
-                      ))
-                    ) : (
-                      <div className="col-12"><p>Loading form fields...</p></div>
-                    )}
-                  </div>
+                  {!isSubmitted ? (
+                    <>
+                      <h2 style={{ fontSize: '22px', fontWeight: 900, marginBottom: '20px' }}>Get Overseas Travel Insurance Quote</h2>
 
-                  <button type="submit" disabled={loading} style={{ width: '100%', padding: '16px', background: '#111827', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 800, cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 0.2s', opacity: loading ? 0.7 : 1 }} onMouseEnter={e => { if (!loading) e.currentTarget.style.background = '#000000' }} onMouseLeave={e => { if (!loading) e.currentTarget.style.background = '#111827' }}>
-                    {loading ? 'Submitting...' : 'Get Insurance Quote'}
-                  </button>
-                </form>
+                      <form onSubmit={async (e) => {
+                        e.preventDefault();
+                        const token = getStoredToken();
+                        if (!token) {
+                          toast.error('Please login first to continue.');
+                          router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+                          return;
+                        }
+
+                        const formElement = e.currentTarget;
+                        setLoading(true);
+
+                        try {
+                          const payload = getFormPayload(formElement, fields, formConfig?.id);
+
+                          const response = await fetch('/api/contact-leads', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload),
+                          });
+
+                          const resData = await response.json();
+                          if (!response.ok || !resData?.success) {
+                            throw new Error(resData?.message || 'Failed to submit inquiry.');
+                          }
+
+                          toast.success('Your insurance inquiry has been sent! Our team will contact you shortly.');
+                          formElement.reset();
+                          setIsSubmitted(true);
+                        } catch (err) {
+                          toast.error(err.message || 'Unable to process request. Please try again.');
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}>
+                        <div className="row g-2">
+                          {fields.length > 0 ? (
+                            fields.map(field => (
+                              <InsuranceDynamicField
+                                key={field.id || field.fieldKey}
+                                field={field}
+                              />
+                            ))
+                          ) : (
+                            <div className="col-12"><p>Loading form fields...</p></div>
+                          )}
+                        </div>
+
+                        <button type="submit" disabled={loading} style={{ width: '100%', padding: '16px', background: '#111827', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 800, cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 0.2s', opacity: loading ? 0.7 : 1 }} onMouseEnter={e => { if (!loading) e.currentTarget.style.background = '#000000' }} onMouseLeave={e => { if (!loading) e.currentTarget.style.background = '#111827' }}>
+                          {loading ? 'Submitting...' : 'Get Insurance Quote'}
+                        </button>
+                      </form>
+                    </>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                      <button onClick={() => setIsClosed(true)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#64748b', lineHeight: 1 }}>&times;</button>
+                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+                      <h2 style={{ fontSize: '24px', fontWeight: 900, marginBottom: '12px', color: '#10b981' }}>Thank You!</h2>
+                      <p style={{ color: '#475569', fontSize: '15px', lineHeight: '1.6' }}>
+                        Your request has been submitted successfully. Our team will get back to you shortly.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
@@ -261,6 +279,21 @@ export default function InsuranceClient({ pageData, formConfig }) {
       </section>
 
       <InsuranceInquiryModal />
+
+      <style jsx global>{`
+        @media (max-width: 640px) {
+          .insurance-form-card {
+            padding: 20px 14px !important;
+          }
+          .insurance-form-card input,
+          .insurance-form-card select,
+          .insurance-form-card textarea {
+            padding: 8px 10px !important;
+            font-size: 13px !important;
+            min-height: 38px !important;
+          }
+        }
+      `}</style>
     </main>
   );
 }

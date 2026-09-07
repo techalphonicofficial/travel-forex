@@ -20,6 +20,17 @@ export default function HotelInquiryModal({ formConfig }) {
   const [form, setForm] = useState({ name: '', phone: '', email: '', date: '', checkoutDate: '', guests: '2', message: '' });
 
   useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     const handleTrigger = (e) => {
       if (e.detail?.hotel) {
         setHotel(e.detail.hotel);
@@ -119,6 +130,7 @@ export default function HotelInquiryModal({ formConfig }) {
           position: 'fixed', top: '50%', left: '50%',
           transform: isOpen ? 'translate(-50%, -50%) scale(1)' : 'translate(-50%, -46%) scale(0.95)',
           width: '95%', maxWidth: '850px',
+          maxHeight: '90vh',
           background: 'white', borderRadius: '24px',
           boxShadow: '0 40px 80px -12px rgba(0,0,0,0.4)',
           zIndex: 10000,
@@ -204,23 +216,25 @@ export default function HotelInquiryModal({ formConfig }) {
           )}
         </div>
 
+        {/* Close Button (Fixed at modal level) */}
+        <button
+          onClick={handleClose}
+          className="close-btn"
+          style={{
+            position: 'absolute',
+            background: '#f9fafb', border: 'none', borderRadius: '50%',
+            width: '36px', height: '36px', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#374151', transition: 'all 0.2s', zIndex: 100
+          }}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+
         {/* Right Panel (Form Content) */}
-        <div style={{ flex: 1, padding: '48px', position: 'relative' }}>
-          {/* Close Button */}
-          <button
-            onClick={handleClose}
-            style={{
-              position: 'absolute', top: '24px', right: '48px',
-              background: '#f9fafb', border: 'none', borderRadius: '50%',
-              width: '36px', height: '36px', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#374151', transition: 'all 0.2s', zIndex: 10
-            }}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
+        <div style={{ flex: 1, position: 'relative', overflowY: 'auto' }} className="form-panel">
 
           <div className="mb-4">
             {hotel?.description ? (
@@ -365,9 +379,13 @@ export default function HotelInquiryModal({ formConfig }) {
         <style jsx>{`
           .modal-container { font-family: 'Inter', sans-serif; }
           .hotel-panel { min-height: 400px; }
+          .form-panel { padding: 48px; }
+          .close-btn { top: 24px; right: 24px; }
           @media (max-width: 768px) {
             .modal-container { flex-direction: column; }
             .hotel-panel { flex: 0 0 200px !important; min-height: 200px; }
+            .form-panel { padding: 48px 16px 24px 16px; }
+            .close-btn { top: 12px; right: 12px; }
           }
         `}</style>
       </div>

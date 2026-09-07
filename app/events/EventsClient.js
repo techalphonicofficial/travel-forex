@@ -110,6 +110,8 @@ export default function EventsClient({ formConfig, pageData }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = useState(null);
 
   const parseJSON = (data) => {
@@ -193,6 +195,7 @@ export default function EventsClient({ formConfig, pageData }) {
 
       toast.success('Your event planning request has been received! Our dedicated planner will contact you shortly.');
       form.reset();
+      setIsSubmitted(true);
     } catch (err) {
       toast.error(err.message || 'Unable to process request. Please try again.');
     } finally {
@@ -212,10 +215,10 @@ export default function EventsClient({ formConfig, pageData }) {
   return (
     <main className="events-page">
       {/* 1. HERO SECTION */}
-      <section className="events-hero" style={heroBgImage ? { backgroundImage: heroBgImage } : {}}>
+      <section className="events-hero" style={{ ...(heroBgImage ? { backgroundImage: heroBgImage } : {}), ...(isClosed ? { minHeight: '60vh', display: 'flex', alignItems: 'center' } : {}) }}>
         <div className="container">
-          <div className="events-hero-grid">
-            <div className="events-hero-copy">
+          <div className="events-hero-grid" style={isClosed ? { gridTemplateColumns: '1fr', textAlign: 'center' } : {}}>
+            <div className="events-hero-copy" style={isClosed ? { margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' } : {}}>
               {heroTitleTop && <span className="events-top-subtitle">{heroTitleTop}</span>}
               {heroTitleMain && (
                 <h1>
@@ -237,28 +240,41 @@ export default function EventsClient({ formConfig, pageData }) {
             </div>
 
             {/* SEARCH WIDGET CARD */}
-            <div className="events-search-card" id="events-search-widget">
-              <h3 style={{ margin: '0 0 12px', fontWeight: 900, fontSize: 19, color: 'var(--color-primary)' }}>Request Event Consultation</h3>
-              <form onSubmit={handleSearchSubmit} className="events-form">
-                {fields.length > 0 ? (
-                  fields.map(field => (
-                    <EventsDynamicField
-                      key={field.id || field.fieldKey}
-                      field={field}
-                      defaultValue={currentUser ? currentUser[field.fieldKey] || '' : ''}
-                    />
-                  ))
-                ) : (
-                  <p style={{ gridColumn: '1 / -1', textAlign: 'center', opacity: 0.7 }}>Form is unavailable right now.</p>
-                )}
+            {!isClosed && (
+              !isSubmitted ? (
+                <div className="events-search-card" id="events-search-widget">
+                  <h3 style={{ margin: '0 0 12px', fontWeight: 900, fontSize: 19, color: 'var(--color-primary)' }}>Request Event Consultation</h3>
+                  <form onSubmit={handleSearchSubmit} className="events-form">
+                    {fields.length > 0 ? (
+                      fields.map(field => (
+                        <EventsDynamicField
+                          key={field.id || field.fieldKey}
+                          field={field}
+                          defaultValue={currentUser ? currentUser[field.fieldKey] || '' : ''}
+                        />
+                      ))
+                    ) : (
+                      <p style={{ gridColumn: '1 / -1', textAlign: 'center', opacity: 0.7 }}>Form is unavailable right now.</p>
+                    )}
 
-                <div style={{ gridColumn: '1 / -1', marginTop: '10px' }}>
-                  <button type="submit" className="events-search-submit" disabled={loading} style={{ width: '100%' }}>
-                    {loading ? 'Submitting Planning Request...' : 'Get Event Proposal'}
-                  </button>
+                    <div style={{ gridColumn: '1 / -1', marginTop: '10px' }}>
+                      <button type="submit" className="events-search-submit" disabled={loading} style={{ width: '100%' }}>
+                        {loading ? 'Submitting Planning Request...' : 'Get Event Proposal'}
+                      </button>
+                    </div>
+                  </form>
                 </div>
-              </form>
-            </div>
+              ) : (
+                <div className="events-search-card success-card" style={{ textAlign: 'center', padding: '40px 20px', position: 'relative' }}>
+                  <button onClick={() => setIsClosed(true)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#64748b', lineHeight: 1 }}>&times;</button>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+                  <h3 style={{ margin: '0 0 12px', fontWeight: 900, fontSize: 24, color: 'var(--color-primary)' }}>Thank You!</h3>
+                  <p style={{ color: 'var(--color-text-secondary)', fontSize: '15px', lineHeight: '1.6' }}>
+                    Your request has been submitted successfully. Our team will get back to you shortly.
+                  </p>
+                </div>
+              )
+            )}
           </div>
         </div>
       </section>
@@ -654,8 +670,19 @@ export default function EventsClient({ formConfig, pageData }) {
           }
         }
         @media (max-width: 640px) {
+          .events-search-card {
+            padding: 20px 14px;
+          }
           .events-form {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 8px;
+          }
+          .events-field select,
+          .events-field input,
+          .events-field textarea {
+            font-size: 13px;
+            padding: 8px 10px;
+            min-height: 38px;
           }
         }
       `}</style>

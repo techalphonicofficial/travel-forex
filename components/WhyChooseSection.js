@@ -28,12 +28,24 @@ const fallbackGallery = [
 ];
 
 export default function WhyChooseSection() {
+  const [previewImage, setPreviewImage] = useState(null);
   const [content, setContent] = useState({
     title: 'Why Choose ITS TRAVELS AND TOURS?',
     stats: fallbackStats,
     features: fallbackFeatures,
     gallery: fallbackGallery,
   });
+
+  useEffect(() => {
+    if (previewImage) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [previewImage]);
 
   useEffect(() => {
     let mounted = true;
@@ -156,7 +168,20 @@ export default function WhyChooseSection() {
             {content.gallery.map(({ src, span, label }, i) => (
               <div
                 key={`${src}-${i}`}
-                style={{ gridColumn: span ? '1 / -1' : undefined, height: span ? 195 : 150, borderRadius: 14, overflow: 'hidden', position: 'relative', boxShadow: '0 4px 14px rgba(0,0,0,0.12)' }}
+                onClick={() => setPreviewImage({ src, label })}
+                style={{ 
+                  gridColumn: span ? '1 / -1' : undefined, 
+                  height: span ? 195 : 150, 
+                  borderRadius: 14, 
+                  overflow: 'hidden', 
+                  position: 'relative', 
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
+                  cursor: 'pointer',
+                  transition: 'transform 0.25s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                title="Click to view full image"
               >
                 <img src={src} alt={label || 'Travel gallery'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
                 {label && (
@@ -169,6 +194,116 @@ export default function WhyChooseSection() {
           </div>
         </div>
       </div>
+
+      {/* Lightbox Pop-up Modal */}
+      {previewImage && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setPreviewImage(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1000000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+            background: 'rgba(5, 10, 20, 0.92)',
+            backdropFilter: 'blur(10px)',
+          }}
+        >
+          {/* Close / Cross Button */}
+          <button
+            type="button"
+            onClick={() => setPreviewImage(null)}
+            aria-label="Close preview"
+            style={{
+              position: 'fixed',
+              top: '1.25rem',
+              right: '1.25rem',
+              zIndex: 1000002,
+              width: '44px',
+              height: '44px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.2)',
+              backdropFilter: 'blur(8px)',
+              border: '1.5px solid rgba(255, 255, 255, 0.5)',
+              color: '#ffffff',
+              fontSize: '22px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
+              lineHeight: 1,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#ef4444';
+              e.currentTarget.style.borderColor = '#ef4444';
+              e.currentTarget.style.transform = 'scale(1.08)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            ✕
+          </button>
+
+          {/* Media Content Box */}
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              maxWidth: 'min(92vw, 1000px)',
+              maxHeight: 'min(86vh, 800px)',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+            }}
+          >
+            <img
+              src={previewImage.src}
+              alt={previewImage.label || 'Enlarged gallery view'}
+              style={{
+                maxWidth: '100%',
+                maxHeight: 'min(82vh, 760px)',
+                width: 'auto',
+                height: 'auto',
+                objectFit: 'contain',
+                display: 'block',
+                borderRadius: '12px',
+                userSelect: 'none',
+              }}
+            />
+            {previewImage.label && (
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                padding: '12px 16px',
+                background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%)',
+                color: '#ffffff',
+                fontSize: '14px',
+                fontWeight: 600,
+                textAlign: 'center',
+                textShadow: '0 1px 3px rgba(0,0,0,0.8)'
+              }}>
+                {previewImage.label}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
