@@ -84,7 +84,7 @@ export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, 
 
     setSubmitting(true);
     const hotelName = hotel?.name || 'Hotel';
-    
+
     const noteLines = [
       `Service Interest: Hotel Booking`,
       `Hotel: ${hotelName} (${location})`,
@@ -188,12 +188,12 @@ export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, 
 
           <form onSubmit={submitInquiry} className="d-flex flex-column gap-3">
             <div className="form-floating">
-              <input 
-                type="text" 
-                className="form-control" 
-                placeholder="Name" 
-                style={formInputStyle} 
-                required 
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Name"
+                style={formInputStyle}
+                required
                 value={form.name}
                 onChange={e => update('name', e.target.value)}
               />
@@ -201,12 +201,12 @@ export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, 
             </div>
 
             <div className="form-floating">
-              <input 
-                type="email" 
-                className="form-control" 
-                placeholder="Email" 
-                style={formInputStyle} 
-                required 
+              <input
+                type="email"
+                className="form-control"
+                placeholder="Email"
+                style={formInputStyle}
+                required
                 value={form.email}
                 onChange={e => update('email', e.target.value)}
               />
@@ -219,12 +219,12 @@ export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, 
                 <label>Code</label>
               </div>
               <div className="form-floating flex-grow-1">
-                <input 
-                  type="tel" 
-                  className="form-control" 
-                  placeholder="Phone" 
-                  style={formInputStyle} 
-                  required 
+                <input
+                  type="tel"
+                  className="form-control"
+                  placeholder="Phone"
+                  style={formInputStyle}
+                  required
                   value={form.phone}
                   onChange={e => update('phone', e.target.value)}
                 />
@@ -234,28 +234,28 @@ export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, 
 
             <div className="d-flex gap-2">
               <div className="form-floating flex-grow-1">
-                <input 
-                  type="date" 
-                  className="form-control" 
-                  style={formInputStyle} 
+                <input
+                  type="date"
+                  className="form-control"
+                  style={formInputStyle}
                   value={form.date}
                   onChange={e => update('date', e.target.value)}
                 />
                 <label>Check-in Date (Optional)</label>
               </div>
               <div className="form-floating flex-grow-1">
-                <input 
-                  type="date" 
-                  className="form-control" 
-                  style={formInputStyle} 
+                <input
+                  type="date"
+                  className="form-control"
+                  style={formInputStyle}
                   value={form.checkoutDate}
                   onChange={e => update('checkoutDate', e.target.value)}
                 />
                 <label>Check-out (Optional)</label>
               </div>
               <div className="form-floating" style={{ width: '100px' }}>
-                <select 
-                  className="form-select" 
+                <select
+                  className="form-select"
                   style={formInputStyle}
                   value={form.guests}
                   onChange={e => update('guests', e.target.value)}
@@ -269,12 +269,12 @@ export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, 
                 <label>Guests</label>
               </div>
             </div>
-            
+
             <div className="form-floating">
-              <textarea 
-                className="form-control" 
-                placeholder="Message" 
-                style={{ ...formInputStyle, height: '80px', resize: 'none' }} 
+              <textarea
+                className="form-control"
+                placeholder="Message"
+                style={{ ...formInputStyle, height: '80px', resize: 'none' }}
                 value={form.message}
                 onChange={e => update('message', e.target.value)}
               ></textarea>
@@ -298,8 +298,8 @@ export default function HotelDetailClient({ hotel: initialHotel, hotelId, city, 
                 cursor: submitting ? 'wait' : 'pointer',
                 width: '100%'
               }}
-              onMouseEnter={e => { if(!submitting) e.currentTarget.style.transform = 'scale(1.02)' }}
-              onMouseLeave={e => { if(!submitting) e.currentTarget.style.transform = 'scale(1)' }}
+              onMouseEnter={e => { if (!submitting) e.currentTarget.style.transform = 'scale(1.02)' }}
+              onMouseLeave={e => { if (!submitting) e.currentTarget.style.transform = 'scale(1)' }}
             >
               {submitting ? 'Submitting...' : 'Send Inquiry'}
             </button>

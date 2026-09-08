@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { getStoredToken } from '@/utils/api';
+import { getStoredToken, getStoredAuth } from '@/utils/api';
 import TrustedPartners from '@/components/TrustedPartners';
 import QuoteButton from '@/components/QuoteButton';
 import InsuranceInquiryModal from '@/components/InsuranceInquiryModal';
@@ -56,16 +56,20 @@ const getFormPayload = (formElement, fields, pipelineId) => {
   return payload;
 };
 
-function InsuranceDynamicField({ field }) {
+function InsuranceDynamicField({ field, defaultValue }) {
   const isTextarea = field.fieldType === 'textarea';
   const isSelect = field.fieldType === 'select';
   const isMultiSelect = field.fieldType === 'multiselect';
   const isWideField = isTextarea || field.fieldKey.includes('notes') || field.fieldKey.includes('request');
   const requiredMark = field.isRequired ? ' *' : '';
+  const inputType = getInputType(field.fieldType);
+  const minDateAttr = inputType === 'date' ? new Date().toISOString().split('T')[0] : undefined;
+
   const commonProps = {
     id: field.fieldKey,
     name: field.fieldKey,
     required: field.isRequired,
+    defaultValue: defaultValue || '',
     style: { width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px', color: '#1e293b', background: 'white' }
   };
 
@@ -88,7 +92,7 @@ function InsuranceDynamicField({ field }) {
           })}
         </select>
       ) : (
-        <input {...commonProps} type={getInputType(field.fieldType)} placeholder={`Enter ${field.label.toLowerCase()}`} />
+        <input {...commonProps} type={inputType} min={minDateAttr} placeholder={`Enter ${field.label.toLowerCase()}`} />
       )}
     </div>
   );
@@ -100,12 +104,22 @@ export default function InsuranceClient({ pageData, formConfig }) {
   const [loading, setLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isClosed, setIsClosed] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const fields = formConfig?.fields || [];
 
   useEffect(() => {
     setIsMounted(true);
+    setCurrentUser(getStoredAuth());
   }, []);
+
+  const getDefaultValue = (fieldKey) => {
+    if (!currentUser) return '';
+    if (['name', 'full_name', 'first_name', 'your_name_', 'base_name'].includes(fieldKey)) return currentUser.name || '';
+    if (['email', 'email_address', 'base_email'].includes(fieldKey)) return currentUser.email || '';
+    if (['phone', 'mobile_number', 'contact_number', 'mobile_number_', 'base_phone'].includes(fieldKey)) return currentUser.phone || '';
+    return '';
+  };
 
   const heroSection = pageData?.details?.find(d => d.section === 'image_text' && d.key === 'hero_key');
   const partnersSection = pageData?.details?.find(d => d.section === 'team_grid' && d.key === 'our_trusted_partner');
@@ -222,6 +236,7 @@ export default function InsuranceClient({ pageData, formConfig }) {
                               <InsuranceDynamicField
                                 key={field.id || field.fieldKey}
                                 field={field}
+                                defaultValue={getDefaultValue(field.fieldKey)}
                               />
                             ))
                           ) : (

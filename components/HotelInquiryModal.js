@@ -254,9 +254,9 @@ export default function HotelInquiryModal({ formConfig }) {
           </div>
 
           {formConfig ? (
-            <InquiryForm 
-              variant="inline" 
-              formConfig={formConfig} 
+            <InquiryForm
+              variant="inline"
+              formConfig={formConfig}
               title="Send Booking Inquiry"
               subtitle="Fill in your details and we will get back to you with the best rates."
               pipelineId={23}

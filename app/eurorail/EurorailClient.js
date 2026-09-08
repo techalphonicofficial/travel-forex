@@ -61,6 +61,9 @@ function EurorailDynamicField({ field, defaultValue }) {
   const isMultiSelect = field.fieldType === 'multiselect';
   const isWideField = isTextarea || field.fieldKey.includes('notes') || field.fieldKey.includes('address') || field.fieldKey.includes('request');
   const requiredMark = field.isRequired ? ' *' : '';
+  const inputType = getInputType(field.fieldType);
+  const minDateAttr = inputType === 'date' ? new Date().toISOString().split('T')[0] : undefined;
+  
   const commonProps = {
     id: field.fieldKey,
     name: field.fieldKey,
@@ -83,7 +86,7 @@ function EurorailDynamicField({ field, defaultValue }) {
           })}
         </select>
       ) : (
-        <input {...commonProps} type={getInputType(field.fieldType)} placeholder={`Enter ${field.label.toLowerCase()}`} />
+        <input {...commonProps} type={inputType} min={minDateAttr} placeholder={`Enter ${field.label.toLowerCase()}`} />
       )}
     </div>
   );
@@ -114,6 +117,14 @@ export default function EurorailClient({ formConfig, pageData }) {
   const [activeTab, setActiveTab] = useState('passes');
   const [ticketType, setTicketType] = useState('oneway');
   const fields = useMemo(() => (formConfig?.fields?.length ? formConfig.fields : []), [formConfig]);
+
+  const getDefaultValue = (fieldKey) => {
+    if (!currentUser) return '';
+    if (['name', 'full_name', 'first_name', 'your_name_', 'base_name'].includes(fieldKey)) return currentUser.name || '';
+    if (['email', 'email_address', 'base_email'].includes(fieldKey)) return currentUser.email || '';
+    if (['phone', 'mobile_number', 'contact_number', 'mobile_number_', 'base_phone'].includes(fieldKey)) return currentUser.phone || '';
+    return '';
+  };
 
   const parseJSON = (data) => {
     if (typeof data === 'string') {
@@ -300,7 +311,7 @@ export default function EurorailClient({ formConfig, pageData }) {
                       {activeTab === 'passes' && (
                         <div className="eurorail-tab-content passes-grid">
                           {fields.map(field => (
-                            <EurorailDynamicField key={field.id} field={field} />
+                            <EurorailDynamicField key={field.id} field={field} defaultValue={getDefaultValue(field.fieldKey)} />
                           ))}
                           <button type="submit" className="eurorail-search-submit" style={{ gridColumn: '1 / -1' }}>Search</button>
                         </div>
@@ -335,7 +346,7 @@ export default function EurorailClient({ formConfig, pageData }) {
                               <label>Date of Travel</label>
                               <div className="icon-input-wrapper">
                                 <i>📅</i>
-                                <input type="date" name="travel_date" required />
+                                <input type="date" name="travel_date" min={new Date().toISOString().split('T')[0]} required />
                               </div>
                             </div>
                             {ticketType === 'roundtrip' && (
@@ -343,7 +354,7 @@ export default function EurorailClient({ formConfig, pageData }) {
                                 <label>Return Date</label>
                                 <div className="icon-input-wrapper">
                                   <i>📅</i>
-                                  <input type="date" name="return_date" required />
+                                  <input type="date" name="return_date" min={new Date().toISOString().split('T')[0]} required />
                                 </div>
                               </div>
                             )}
@@ -804,10 +815,18 @@ export default function EurorailClient({ formConfig, pageData }) {
             grid-template-columns: 1fr;
             gap: 30px;
           }
+          .eurorail-features-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+          }
         }
         @media (max-width: 640px) {
           .eurorail-search-card {
             padding: 20px 14px;
+          }
+          .eurorail-features-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
           }
           .passes-grid,
           .tickets-inputs-row,

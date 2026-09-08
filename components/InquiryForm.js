@@ -175,10 +175,25 @@ export default function InquiryForm({
         </div>
       );
     }
+    let minDateAttr = undefined;
+    if (fieldType === 'date') {
+      minDateAttr = new Date().toISOString().split('T')[0];
+      if (fieldKey.toLowerCase().includes('out') || fieldKey.toLowerCase().includes('return')) {
+        const startKeys = ['check_in', 'checkin', 'departure_date', 'departure', 'start_date'];
+        for (const key of startKeys) {
+          if (dynamicForm[key]) {
+            minDateAttr = dynamicForm[key];
+            break;
+          }
+        }
+      }
+    }
+
     return (
       <div key={field.id} className="form-floating" style={wrapperStyle}>
         <input
           type={fieldType === 'email' ? 'email' : fieldType === 'date' ? 'date' : 'text'}
+          min={minDateAttr}
           className="form-control"
           placeholder={labelText}
           value={dynamicForm[fieldKey] || ''}
@@ -266,6 +281,7 @@ export default function InquiryForm({
                     {showDate && (
                       <input
                         type="date"
+                        min={new Date().toISOString().split('T')[0]}
                         placeholder="Travel date"
                         value={form.date}
                         onChange={(e) => update('date', e.target.value)}
@@ -351,6 +367,7 @@ export default function InquiryForm({
               {showDate && (
                 <input
                   type="date"
+                  min={new Date().toISOString().split('T')[0]}
                   value={form.date}
                   onChange={(e) => update('date', e.target.value)}
                   style={{ ...inputStyle, flex: 'none', width: '100%' }}
@@ -430,6 +447,7 @@ export default function InquiryForm({
               {showDate && (
                 <input
                   type="date"
+                  min={new Date().toISOString().split('T')[0]}
                   value={form.date}
                   onChange={(e) => update('date', e.target.value)}
                   style={inputStyle}

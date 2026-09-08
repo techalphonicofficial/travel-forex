@@ -249,6 +249,7 @@ export default function InsuranceInquiryModal() {
               <div className="form-floating flex-grow-1">
                 <input 
                   type="date" 
+                  min={new Date().toISOString().split('T')[0]}
                   className="form-control" 
                   style={formInputStyle} 
                   required
@@ -260,6 +261,7 @@ export default function InsuranceInquiryModal() {
               <div className="form-floating flex-grow-1">
                 <input 
                   type="date" 
+                  min={form.tripStartDate || new Date().toISOString().split('T')[0]}
                   className="form-control" 
                   style={formInputStyle} 
                   required

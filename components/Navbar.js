@@ -2583,6 +2583,10 @@ export default function Navbar({ brand, companyInfo }) {
                   <input type="number" min="1" value={forexDraft.amount ?? ''} onChange={(event) => updateForexDraft('amount', event.target.value)} placeholder="1000" required />
                 </label>
                 <label>
+                  Travel Date (Optional)
+                  <input type="date" min={new Date().toISOString().split('T')[0]} value={forexDraft.travelDate ?? ''} onChange={(event) => updateForexDraft('travelDate', event.target.value)} />
+                </label>
+                <label>
                   Purpose
                   <select value={forexDraft.purpose ?? 'Travel'} onChange={(event) => updateForexDraft('purpose', event.target.value)}>
                     <option>Travel</option>
@@ -2694,6 +2698,13 @@ export default function Navbar({ brand, companyInfo }) {
                 >
                   One-way
                 </button>
+                <button
+                  type="button"
+                  className={`flight-trip-type-btn ${flightDraft.tripType === 'Multi-city' ? 'active' : 'inactive'}`}
+                  onClick={() => updateFlightDraft('tripType', 'Multi-city')}
+                >
+                  Multi-city
+                </button>
               </div>
 
               <div className="flight-modal-grid">
@@ -2722,6 +2733,7 @@ export default function Navbar({ brand, companyInfo }) {
                   Departure Date
                   <input
                     type="date"
+                    min={new Date().toISOString().split('T')[0]}
                     value={flightDraft.departureDate ?? ''}
                     onChange={(event) => updateFlightDraft('departureDate', event.target.value)}
                     required
@@ -2732,6 +2744,7 @@ export default function Navbar({ brand, companyInfo }) {
                     Return Date
                     <input
                       type="date"
+                      min={flightDraft.departureDate || new Date().toISOString().split('T')[0]}
                       value={flightDraft.returnDate ?? ''}
                       onChange={(event) => updateFlightDraft('returnDate', event.target.value)}
                       required
@@ -2740,7 +2753,7 @@ export default function Navbar({ brand, companyInfo }) {
                 ) : (
                   <label style={{ opacity: 0.5 }}>
                     Return Date
-                    <input type="text" value="" readOnly placeholder="One-way flight selected" disabled />
+                    <input type="text" value="" readOnly placeholder={`${flightDraft.tripType} flight selected`} disabled />
                   </label>
                 )}
 

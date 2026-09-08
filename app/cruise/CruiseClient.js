@@ -63,6 +63,9 @@ function CruiseDynamicField({ field, defaultValue }) {
   const isMultiSelect = field.fieldType === 'multiselect';
   const isWideField = isTextarea || field.fieldKey.includes('requests') || field.fieldKey.includes('message');
   const requiredMark = field.isRequired ? ' *' : '';
+  const inputType = getInputType(field.fieldType);
+  const minDateAttr = inputType === 'date' ? new Date().toISOString().split('T')[0] : undefined;
+  
   const commonProps = {
     id: field.fieldKey,
     name: field.fieldKey,
@@ -85,7 +88,7 @@ function CruiseDynamicField({ field, defaultValue }) {
           })}
         </select>
       ) : (
-        <input {...commonProps} type={getInputType(field.fieldType)} placeholder={`Enter ${field.label.toLowerCase()}`} />
+        <input {...commonProps} type={inputType} min={minDateAttr} placeholder={`Enter ${field.label.toLowerCase()}`} />
       )}
     </div>
   );
