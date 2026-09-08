@@ -49,6 +49,17 @@ export default function LoginPage() {
       });
   }, []);
 
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (forgotOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [forgotOpen]);
+
   const onSubmit = async (data) => {
     setLoading(true);
     try {
@@ -184,16 +195,16 @@ export default function LoginPage() {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '40px 20px', position: 'relative' }}>
 
         <div style={{ width: '100%', maxWidth: 420 }}>
-          <div style={{ marginBottom: 40, marginTop: 40 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <h1 style={{ fontSize: 32, fontWeight: 800, color: '#111827', margin: 0, letterSpacing: -0.5 }}>Welcome back</h1>
-              {logo && (
-                <Link href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
-                  <img src={logo} alt="Logo" style={{ width: 55, height: 55, objectFit: 'contain', borderRadius: '50%' }} />
-                </Link>
-              )}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 36, marginTop: 32 }}>
+            <div>
+              <h1 style={{ fontSize: 32, fontWeight: 800, color: '#111827', margin: '0 0 6px 0', letterSpacing: -0.5 }}>Welcome back</h1>
+              <p style={{ color: '#6b7280', fontSize: 15, margin: 0 }}>Please enter your details to sign in.</p>
             </div>
-            <p style={{ color: '#6b7280', fontSize: 15 }}>Please enter your details to sign in.</p>
+            {logo && (
+              <Link href="/" className="auth-mobile-logo d-lg-none" style={{ textDecoration: 'none', flexShrink: 0, alignItems: 'center' }}>
+                <img src={logo} alt="Logo" style={{ width: 58, height: 58, objectFit: 'contain', borderRadius: '50%' }} />
+              </Link>
+            )}
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -275,26 +286,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div style={{ display: 'flex', alignItems: 'center', margin: '32px 0' }}>
-            <div style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
-            <span style={{ padding: '0 16px', fontSize: 13, color: '#6b7280', fontWeight: 500 }}>Or continue with</span>
-            <div style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
-          </div>
 
-          <div>
-            <button
-              type="button"
-              onClick={() => toast.error('Google OAuth needs a backend OAuth endpoint and Google client ID first.')}
-              style={{ width: '100%', padding: '15px 18px', background: 'white', border: '1px solid #d1d5db', borderRadius: 14, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 10, cursor: 'pointer', fontWeight: 700, color: '#374151', transition: 'background 0.2s', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', fontSize: 15 }}
-              onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'}
-              onMouseLeave={e => e.currentTarget.style.background = 'white'}
-            >
-              <img src="https://www.svgrepo.com/show/475656/google-color.svg" width={22} alt="Google" /> Continue with Google
-            </button>
-            {/* Previous Apple button removed from UI and kept for reference:
-            <button>Apple</button>
-            */}
-          </div>
 
           <p style={{ textAlign: 'center', marginTop: 32, fontSize: 14, color: '#6b7280' }}>
             Don&apos;t have an account? <Link href="/auth/register" style={{ fontWeight: 600, color: 'var(--color-primary)', textDecoration: 'none' }}>Sign up</Link>
@@ -305,6 +297,11 @@ export default function LoginPage() {
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @media (min-width: 992px) {
+          .auth-mobile-logo {
+            display: none !important;
+          }
+        }
       `}</style>
 
       {forgotOpen && (

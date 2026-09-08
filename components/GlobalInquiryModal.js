@@ -48,6 +48,17 @@ export default function GlobalInquiryModal({ brand, companyInfo }) {
     }
   }, []);
 
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isOpen]);
+
   const handleClose = () => {
     setIsOpen(false);
     try {
@@ -81,10 +92,11 @@ export default function GlobalInquiryModal({ brand, companyInfo }) {
           position: 'fixed', top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)',
           width: '95%', maxWidth: '850px',
+          maxHeight: '92vh',
+          overflowY: 'auto',
           background: 'white', borderRadius: '24px',
           boxShadow: '0 40px 80px -12px rgba(0,0,0,0.4)',
           zIndex: 10000,
-          overflow: 'hidden',
           display: 'flex',
           flexDirection: 'row',
           animation: 'modalEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1)'

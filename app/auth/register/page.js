@@ -93,16 +93,16 @@ export default function RegisterPage() {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '40px 20px', position: 'relative' }}>
 
         <div style={{ width: '100%', maxWidth: 460 }}>
-          <div style={{ marginBottom: 32, marginTop: 40 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <h1 style={{ fontSize: 32, fontWeight: 800, color: '#111827', margin: 0, letterSpacing: -0.5 }}>Create an account</h1>
-              {logo && (
-                <Link href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
-                  <img src={logo} alt="Logo" style={{ width: 55, height: 55, objectFit: 'contain', borderRadius: '50%' }} />
-                </Link>
-              )}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 32, marginTop: 32 }}>
+            <div>
+              <h1 style={{ fontSize: 32, fontWeight: 800, color: '#111827', margin: '0 0 6px 0', letterSpacing: -0.5 }}>Create an account</h1>
+              <p style={{ color: '#6b7280', fontSize: 15, margin: 0 }}>Enter your details to get started.</p>
             </div>
-            <p style={{ color: '#6b7280', fontSize: 15 }}>Enter your details to get started.</p>
+            {logo && (
+              <Link href="/" className="auth-mobile-logo d-lg-none" style={{ textDecoration: 'none', flexShrink: 0, alignItems: 'center' }}>
+                <img src={logo} alt="Logo" style={{ width: 58, height: 58, objectFit: 'contain', borderRadius: '50%' }} />
+              </Link>
+            )}
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -280,6 +280,11 @@ export default function RegisterPage() {
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @media (min-width: 992px) {
+          .auth-mobile-logo {
+            display: none !important;
+          }
+        }
       `}</style>
     </div>
   );
