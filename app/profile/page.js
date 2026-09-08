@@ -9,7 +9,7 @@ import { ToastContainer, toast as toastifyToast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import bookingsData from '@/data/bookings.json';
 import { useWishlist } from '@/components/WishlistProvider';
-import { getStoredToken, createRazorpayOrder, getCancellationRules, getCustomerBookings, getMediaUrl, getMyPackageReturnRequests, getStoredAuth, getTripInquiries, payRemainingPackageBooking, submitPackageReturnRequest, submitPackageReview, verifyRazorpayPayment, getCustomerProfile, changeCustomerPassword } from '@/utils/api';
+import { getStoredToken, createRazorpayOrder, getCancellationRules, getCustomerBookings, getMediaUrl, getMyPackageReturnRequests, getStoredAuth, getTripInquiries, payRemainingPackageBooking, submitPackageReturnRequest, submitPackageReview, verifyRazorpayPayment, getCustomerProfile, changeCustomerPassword, clearAuthSession } from '@/utils/api';
 
 const NAV_ITEMS = [
   { id: 'bookings', label: 'My Bookings', icon: '📋' },
@@ -416,6 +416,12 @@ const loadRazorpayCheckout = () => new Promise((resolve, reject) => {
 export default function ProfilePage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('bookings');
+
+  const handleSignOut = useCallback(() => {
+    clearAuthSession();
+    toast.success('Signed out successfully');
+    router.push('/');
+  }, [router]);
   
   // --- Profile State ---
   const [profile, setProfile] = useState(null);
@@ -1343,7 +1349,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 20 }}>
-              <button className="dashboard-nav-item" style={{ color: '#e53935', width: '100%' }}>
+              <button className="dashboard-nav-item" style={{ color: '#e53935', width: '100%' }} onClick={handleSignOut}>
                 <span>🚪</span>
                 <span>Sign Out</span>
               </button>
