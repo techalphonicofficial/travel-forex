@@ -1338,16 +1338,37 @@ export default function Navbar({ brand, companyInfo }) {
         flightDraft.notes.trim() ? `- Special Requests: ${flightDraft.notes.trim()}` : ''
       ].filter(Boolean).join('\n');
 
+      let pId = 3;
+      if (flightDraft.tripType === 'Multi-city') {
+        pId = 27;
+      } else if (flightDraft.tripType === 'Round-trip') {
+        pId = 28;
+      } else if (flightDraft.tripType === 'One-way') {
+        pId = 9;
+      }
+
       const payload = {
-        pipeline_id: 3,
+        pipeline_id: pId,
         name: flightDraft.customerName || 'Flight Inquiry',
         email: flightDraft.email || '',
         phone: flightDraft.phone || '',
-        source: 'Website',
+        source: 'Website Sidebar',
         notes: flightDetails,
         custom_fields: {
           subject: 'Flight Booking Inquiry',
-          message: flightDetails
+          message: flightDetails,
+          departure_city: flightDraft.departureCity || 'Not specified',
+          destination_city: flightDraft.destinationCity || 'Not specified',
+          departure_date: flightDraft.departureDate || new Date().toISOString().split('T')[0],
+          arrival_date: flightDraft.returnDate || flightDraft.departureDate || new Date().toISOString().split('T')[0],
+          class: flightDraft.cabinClass || 'Economy',
+          passengers: (flightDraft.adults || 1) + (flightDraft.children || 0),
+          'No. of Passengers': (flightDraft.adults || 1) + (flightDraft.children || 0),
+          fare_type: 'Regular',
+          flight_preference: flightDraft.notes || 'None',
+          flight_preference___special_request: flightDraft.notes || 'None',
+          'Flight Preference / Special Request': flightDraft.notes || 'None',
+          trip_type: flightDraft.tripType || ''
         }
       };
 
