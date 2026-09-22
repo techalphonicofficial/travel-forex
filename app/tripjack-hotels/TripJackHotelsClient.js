@@ -643,6 +643,65 @@ export default function TripJackHotelsClient() {
     }, []);
 
     useEffect(() => {
+        try {
+            const saved = sessionStorage.getItem(
+                'tripjack_hotel_search_results'
+            );
+
+            if (!saved) return;
+
+            const parsed = JSON.parse(saved);
+
+            if (Array.isArray(parsed?.hotels)) {
+                setHotels(parsed.hotels);
+                setSearched(true);
+            }
+
+            if (parsed?.form) {
+                setForm(parsed.form);
+            }
+
+            if (parsed?.selectedCity) {
+                setSelectedCity(parsed.selectedCity);
+
+                selectedCityNameRef.current =
+                    getCityName(parsed.selectedCity);
+            }
+
+            if (Array.isArray(parsed?.availableHids)) {
+                setAvailableHids(parsed.availableHids);
+            }
+
+            if (parsed?.correlationId) {
+                setCorerectionId(parsed.correlationId);
+            }
+
+            // Restore price range
+            if (Array.isArray(parsed?.hotels) && parsed.hotels.length > 0) {
+                const prices = parsed.hotels
+                    .map((hotel) => getHotelPrice(hotel))
+                    .filter((price) => price > 0);
+
+                if (prices.length > 0) {
+                    const max =
+                        Math.ceil(Math.max(...prices) / 1000) * 1000;
+
+                    setPriceRange([0, max]);
+                }
+            }
+        } catch (error) {
+            console.error(
+                'Unable to restore hotel search results:',
+                error
+            );
+
+            sessionStorage.removeItem(
+                'tripjack_hotel_search_results'
+            );
+        }
+    }, []);
+
+    useEffect(() => {
         let cancelled = false;
 
         const loadNationalities = async () => {
@@ -1157,9 +1216,25 @@ export default function TripJackHotelsClient() {
 
 
             const resultHotels = extractHotels(response);
-            setCorerectionId(response.data.correlationId)
+
+            const searchContext = {
+                form,
+                selectedCity,
+                availableHids,
+                correlationId: response?.data?.correlationId || null,
+                response,
+                hotels: resultHotels,
+            };
+
+            setCorerectionId(response?.data?.correlationId || null);
             setHotels(resultHotels);
             setSearched(true);
+
+            // Save complete search result
+            sessionStorage.setItem(
+                'tripjack_hotel_search_results',
+                JSON.stringify(searchContext)
+            );
 
             // Reset price range based on new results
             if (resultHotels.length > 0) {
@@ -1243,7 +1318,7 @@ export default function TripJackHotelsClient() {
                 'tripjack_hotel_search',
                 JSON.stringify({
                     rooms: form.rooms,
-                    correlationId:hotel.correctionId,
+                    correlationId: hotel.correctionId,
                     destination: form.destination,
                 })
             );
@@ -1261,7 +1336,7 @@ export default function TripJackHotelsClient() {
             checkOut: form.checkOut,
             currency: form.currency,
             nationality: String(form.nationality || ''),
-            correlationId:correctionId
+            correlationId: correctionId
         });
 
         router.push(

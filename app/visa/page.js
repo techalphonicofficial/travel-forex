@@ -3,7 +3,7 @@ import VisaClient from './VisaClient';
 
 export const dynamic = 'force-dynamic';
 
-const PIPELINE_FORM_ENDPOINT = 'http://192.168.0.166:5000/api/v1/crm/pipelines/17/form';
+const PIPELINE_FORM_ENDPOINT = 'http://192.168.0.197:5001/api/v1/crm/pipelines/17/form';
 const CRM_API_KEY = process.env.CRM_PIPELINE_FORM_API_KEY || process.env.CRM_COMPANY_INFO_API_KEY || 'pt_dc9eae82075b27c1408392fa7d7e0e632ef9e846f6e4e33e';
 
 const getPipelineForm = async () => {
@@ -26,7 +26,7 @@ const getPipelineForm = async () => {
 
 const getVisaPageData = async () => {
   try {
-    const res = await fetch('http://192.168.0.166:5000/api/v1/pages/slug/visa', {
+    const res = await fetch('http://192.168.0.197:5001/api/v1/pages/slug/visa', {
       headers: { accept: 'application/json' },
       next: { revalidate: 60 }
     });

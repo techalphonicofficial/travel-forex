@@ -22,7 +22,7 @@ export const metadata = {
   keywords: 'travel packages, holiday packages, international tours, customized holidays, Bali, Maldives, Europe tours',
 };
 
-const PIPELINE_15_ENDPOINT = 'http://192.168.0.166:5000/api/v1/crm/pipelines/15/form';
+const PIPELINE_15_ENDPOINT = 'http://192.168.0.197:5001/api/v1/crm/pipelines/15/form';
 const CRM_API_KEY = process.env.CRM_PIPELINE_FORM_API_KEY || process.env.CRM_COMPANY_INFO_API_KEY || 'pt_dc9eae82075b27c1408392fa7d7e0e632ef9e846f6e4e33e';
 
 const getPipelineForm = async () => {

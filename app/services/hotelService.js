@@ -67,6 +67,14 @@ const hotelService = {
         );
 
         return response.data;
+    },
+
+     async createBooking(){
+        const response = await axios.get(
+            `${API_URL}/tripjack/hotels/nationalities`
+        );
+
+        return response.data;
     }
 };
 

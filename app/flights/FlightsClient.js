@@ -1,381 +1,1934 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
-import toast from 'react-hot-toast';
-import { getMediaUrl, getStoredAuth, getStoredToken } from '@/utils/api';
-import TrustedPartners from '@/components/TrustedPartners';
+import {
+    ArrowLeftRight,
+    Calendar3,
+    ChevronDown,
+    GeoAlt,
+    Search,
+    People,
+    Plus,
+    X,
+} from 'react-bootstrap-icons';
+
+import airports from './airports.json';
+import flightService from '../services/flightBookingService';
+
 import './flights.css';
 
-const getInputType = (fieldType) => {
-  const typeMap = { phone: 'tel', mobile: 'tel', integer: 'number', decimal: 'number', datetime: 'datetime-local' };
-  const supportedTypes = ['text', 'email', 'tel', 'number', 'date', 'datetime-local', 'url', 'time'];
-  const normalizedType = typeMap[fieldType] || fieldType;
-  return supportedTypes.includes(normalizedType) ? normalizedType : 'text';
+
+
+
+/* =========================================================
+   CONSTANTS
+========================================================= */
+
+const today = new Date().toISOString().split('T')[0];
+
+const cabinClasses = [
+    {
+        value: 'ECONOMY',
+        label: 'Economy',
+    },
+    {
+        value: 'PREMIUM_ECONOMY',
+        label: 'Premium Economy',
+    },
+    {
+        value: 'BUSINESS',
+        label: 'Business',
+    },
+    {
+        value: 'FIRST',
+        label: 'First Class',
+    },
+];
+
+
+/* =========================================================
+   AIRPORT DATA
+========================================================= */
+
+/* =========================================================
+   AIRPORT DATA
+========================================================= */
+
+const toText = (value) => {
+    if (value === null || value === undefined) {
+        return '';
+    }
+
+    if (Array.isArray(value)) {
+        return value
+            .map((item) => toText(item))
+            .filter(Boolean)
+            .join(' ');
+    }
+
+    if (typeof value === 'object') {
+        return Object.values(value)
+            .map((item) => toText(item))
+            .filter(Boolean)
+            .join(' ');
+    }
+
+    return String(value).trim();
 };
 
-const getFormPayload = (formElement, fields, pipelineId) => {
-  const data = new FormData(formElement);
-  const payload = {
-    pipeline_id: pipelineId || 8,
-    name: '',
-    email: '',
-    phone: '',
-    source: 'Flight Landing Page',
-    notes: '',
-    custom_fields: {},
-  };
 
-  fields.forEach((field) => {
-    const value = field.fieldType === 'multiselect'
-      ? data.getAll(field.fieldKey).filter(Boolean)
-      : data.get(field.fieldKey);
-    const normalizedValue = field.fieldType === 'checkbox' ? Boolean(value) : value;
+const airportList = Array.isArray(airports)
+    ? airports
+          .filter((airport) => {
+              const iataCode = toText(
+                  airport?.iata_code
+              );
 
-    if (field.fieldKey === 'name' || field.fieldKey === 'full_name' || field.fieldKey === 'first_name' || field.fieldKey === 'your_name_') {
-      payload.name = payload.name || normalizedValue || '';
+              const hasIata =
+                  iataCode.length === 3;
+
+              const isNotHeliport =
+                  toText(
+                      airport?.type
+                  ).toLowerCase() !==
+                  'heliport';
+
+              const hasScheduledService =
+                  toText(
+                      airport?.scheduled_service
+                  ).toLowerCase() !==
+                  'no';
+
+              return (
+                  hasIata &&
+                  isNotHeliport &&
+                  hasScheduledService
+              );
+          })
+          .map((airport) => ({
+              code: toText(
+                  airport?.iata_code
+              ).toUpperCase(),
+
+              name: toText(
+                  airport?.name
+              ),
+
+              city: toText(
+                  airport?.municipality
+              ),
+
+              country: toText(
+                  airport?.iso_country
+              ),
+
+              keywords: toText(
+                  airport?.keywords
+              ),
+
+              type: toText(
+                  airport?.type
+              ),
+          }))
+    : [];
+
+
+/* =========================================================
+   AIRPORT SEARCH
+========================================================= */
+
+const getAirportSuggestions = (value) => {
+    const query = String(value || '')
+        .trim()
+        .toLowerCase();
+
+    if (!query) {
+        return [];
     }
-    if (field.fieldKey === 'email' || field.fieldKey === 'email_address') {
-      payload.email = payload.email || normalizedValue || '';
-    }
-    if (field.fieldKey === 'phone' || field.fieldKey === 'mobile_number' || field.fieldKey === 'contact_number') {
-      payload.phone = payload.phone || normalizedValue || '';
-    }
 
-    if (!String(field.id).startsWith('base_')) {
-      payload.custom_fields[field.fieldKey] = normalizedValue;
-    }
-  });
+    return airportList
+        .map((airport) => {
+            const code =
+                airport.code.toLowerCase();
 
-  payload.notes = fields.map(f => {
-    const val = payload.custom_fields[f.fieldKey] || payload[f.fieldKey];
-    return val ? `- ${f.label}: ${val}` : null;
-  }).filter(Boolean).join('\n');
+            const city =
+                airport.city.toLowerCase();
 
-  return payload;
+            const name =
+                airport.name.toLowerCase();
+
+            const keywords =
+                airport.keywords.toLowerCase();
+
+            let score = 0;
+
+            /*
+             * Exact matches
+             */
+            if (code === query) {
+                score += 200;
+            }
+
+            if (city === query) {
+                score += 180;
+            }
+
+            if (name === query) {
+                score += 160;
+            }
+
+            /*
+             * Starts with
+             */
+            if (code.startsWith(query)) {
+                score += 130;
+            }
+
+            if (city.startsWith(query)) {
+                score += 120;
+            }
+
+            if (name.startsWith(query)) {
+                score += 110;
+            }
+
+            /*
+             * Contains
+             */
+            if (city.includes(query)) {
+                score += 80;
+            }
+
+            if (name.includes(query)) {
+                score += 60;
+            }
+
+            if (keywords.includes(query)) {
+                score += 40;
+            }
+
+            return {
+                ...airport,
+                score,
+            };
+        })
+        .filter((airport) => airport.score > 0)
+        .sort((a, b) => {
+            if (b.score !== a.score) {
+                return b.score - a.score;
+            }
+
+            return (
+                a.city.localeCompare(
+                    b.city
+                ) ||
+                a.name.localeCompare(
+                    b.name
+                )
+            );
+        })
+        .slice(0, 8);
 };
 
-function FlightsDynamicField({ field, defaultValue }) {
-  const isTextarea = field.fieldType === 'textarea';
-  const isSelect = field.fieldType === 'select';
-  const isMultiSelect = field.fieldType === 'multiselect';
-  const isWideField = isTextarea || field.fieldKey.includes('notes') || field.fieldKey.includes('address') || field.fieldKey.includes('request');
-  const requiredMark = field.isRequired ? ' *' : '';
-  const commonProps = {
-    id: field.fieldKey,
-    name: field.fieldKey,
-    required: field.isRequired,
-    defaultValue: defaultValue || '',
-  };
 
-  return (
-    <div className={`flights-field ${isWideField ? 'full-width' : ''}`}>
-      <label htmlFor={field.fieldKey}>{field.label}{requiredMark}</label>
-      {isTextarea ? (
-        <textarea {...commonProps} rows="2" placeholder={`Enter ${field.label.toLowerCase()}`} style={{ resize: 'vertical' }} />
-      ) : isSelect || isMultiSelect ? (
-        <select {...commonProps} multiple={isMultiSelect}>
-          {!isMultiSelect && <option value="">Select {field.label}</option>}
-          {(field.options || []).map((opt) => {
-            const val = typeof opt === 'string' ? opt : (opt.value || opt.id || opt.label);
-            const lbl = typeof opt === 'string' ? opt : (opt.label || opt.name || val);
-            return <option key={val} value={val}>{lbl}</option>;
-          })}
-        </select>
-      ) : (
-        <input {...commonProps} type={getInputType(field.fieldType)} placeholder={`Enter ${field.label.toLowerCase()}`} />
-      )}
-    </div>
-  );
-}
+/* =========================================================
+   SEGMENT
+========================================================= */
+
+const createSegment = () => ({
+    from: '',
+    fromCode: '',
+    to: '',
+    toCode: '',
+    date: today,
+});
+
+
+/* =========================================================
+   POPULAR ROUTES
+========================================================= */
 
 const popularRoutes = [
-  { id: 1, from: 'Delhi (DEL)', to: 'Bali (DPS)', price: '₹ 28,500', duration: '7h 15m', airline: 'VietJet Air', type: 'Direct/1-Stop' },
-  { id: 2, from: 'Mumbai (BOM)', to: 'Dubai (DXB)', price: '₹ 19,800', duration: '3h 30m', airline: 'Emirates', type: 'Direct' },
-  { id: 3, from: 'Bangalore (BLR)', to: 'Singapore (SIN)', price: '₹ 22,400', duration: '4h 45m', airline: 'Singapore Airlines', type: 'Direct' },
-  { id: 4, from: 'Delhi (DEL)', to: 'London (LHR)', price: '₹ 54,900', duration: '9h 20m', airline: 'Air India', type: 'Direct' },
-  { id: 5, from: 'Mumbai (BOM)', to: 'Phuket (HKT)', price: '₹ 23,200', duration: '4h 10m', airline: 'IndiGo', type: 'Direct' },
-  { id: 6, from: 'Delhi (DEL)', to: 'Paris (CDG)', price: '₹ 58,600', duration: '9h 40m', airline: 'Air France', type: 'Direct' }
+    {
+        from: 'Delhi',
+        fromCode: 'DEL',
+        to: 'Mumbai',
+        toCode: 'BOM',
+    },
+    {
+        from: 'Delhi',
+        fromCode: 'DEL',
+        to: 'Bengaluru',
+        toCode: 'BLR',
+    },
+    {
+        from: 'Mumbai',
+        fromCode: 'BOM',
+        to: 'Dubai',
+        toCode: 'DXB',
+    },
+    {
+        from: 'Delhi',
+        fromCode: 'DEL',
+        to: 'Dubai',
+        toCode: 'DXB',
+    },
+    {
+        from: 'Bengaluru',
+        fromCode: 'BLR',
+        to: 'Singapore',
+        toCode: 'SIN',
+    },
+    {
+        from: 'Delhi',
+        fromCode: 'DEL',
+        to: 'London',
+        toCode: 'LHR',
+    },
 ];
 
-const airlinePartners = [
-  { name: 'Air India', logo: 'https://upload.wikimedia.org/wikipedia/commons/d/d2/Air_India_Logo_2023.svg' },
-  { name: 'IndiGo', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/IndiGo_logo.svg/320px-IndiGo_logo.svg.png' },
-  { name: 'Emirates', logo: 'https://upload.wikimedia.org/wikipedia/commons/d/d0/Emirates_logo.svg' },
-  { name: 'Singapore Airlines', logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/6/67/Singapore_Airlines_Logo.svg/200px-Singapore_Airlines_Logo.svg.png' },
-  { name: 'Qatar Airways', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Qatar_Airways_Logo.svg/320px-Qatar_Airways_Logo.svg.png' },
-  { name: 'Lufthansa', logo: 'https://upload.wikimedia.org/wikipedia/commons/b/b8/Lufthansa_Logo_2018.svg' }
-];
 
-const faqs = [
-  { q: 'How early should I book flight tickets for the best price?', a: 'For international flights, it is recommended to book 45–60 days in advance. For domestic travels, 14–21 days prior to departure generally yields the best discount options.' },
-  { q: 'Can I request wheelchair assistance or special meals through your portal?', a: 'Yes, absolutely! You can write your special requests in the query notes section of the inquiry form, and our ticketing executives will add them to your reservation.' },
-  { q: 'What is the baggage allowance for international flights?', a: 'Baggage allowance varies by airline and class. Generally, economy class permits 1 piece of check-in baggage (up to 23 kg or 30 kg depending on carrier) and 7 kg cabin baggage. This will be specified in your flight quote.' },
-  { q: 'Are ticket cancellation or rescheduling charges applicable?', a: 'Yes, cancellations and rescheduling are subject to individual airline policies plus a nominal agency processing fee. We recommend selecting flexible fare options if your travel plans are tentative.' }
-];
+/* =========================================================
+   AIRPORT AUTOCOMPLETE COMPONENT
+========================================================= */
 
-export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCityConfig, pageData }) {
+function AirportAutocomplete({
+    label,
+    placeholder,
+    value,
+    code,
+    onSelect,
+}) {
+    const [open, setOpen] = useState(false);
 
-  const heroSection = pageData?.details?.find(d => d.key === 'hero_key');
-  const whyBookSection = pageData?.details?.find(d => d.section === 'team_grid' && d.key === 'book-key');
-  const faqSection = pageData?.details?.find(d => d.section === 'faq_accordion');
-  const partnersSection = pageData?.details?.find(d => d.section === 'team_grid' && d.key === 'our_trusted_partner');
+    const suggestions =
+        getAirportSuggestions(value);
 
-  const partnersTitle = partnersSection?.title || (pageData ? '' : 'Our Trusted Airline Partners');
-  const dynamicAirlinePartners = partnersSection?.json_data?.team?.map(p => ({
-    name: p.name,
-    logo: p.img?.startsWith('http') ? p.img : `http://192.168.0.166:5000${p.img}`
-  })) || (pageData ? [] : airlinePartners);
 
-  const heroTitle = heroSection?.title || (pageData ? '' : '✈ Global Airline Tickets');
-  const heroHeading = heroSection?.json_data?.heading_content || (pageData ? '' : 'Fly Anywhere, For Less');
-  const heroDesc = heroSection?.json_data?.story_desc ?? (pageData ? '' : 'Book international and domestic flight tickets at exclusive discount rates. We compare corporate fares and group discounts to give you lower prices than major travel portals.');
-  const heroPoints = heroSection?.json_data?.stats || (pageData ? [] : [{ value: '✔ Zero Booking Fees' }, { value: '✔ Instant Confirmation' }, { value: '✔ 24/7 Ticketing Support' }]);
+    const handleChange = (event) => {
+        const nextValue =
+            event.target.value;
 
-  const heroBgImage = getMediaUrl(heroSection?.json_data?.media_url || pageData?.feature_image);
+        /*
+         * User changed the text,
+         * so old airport code should be cleared.
+         */
+        onSelect({
+            name: nextValue,
+            code: '',
+        });
 
-  const whyBookTitle = whyBookSection?.title || (pageData ? '' : 'Why Book Flights with Us?');
-  const whyBookDesc = whyBookSection?.json_data?.heading_content || (pageData ? '' : 'Experience seamless ticketing and premium post-booking customer assistance.');
-  const whyBookPoints = whyBookSection?.json_data?.team || (pageData ? [] : [
-    { name: 'Exclusive Corporate Fares', bio: 'Access special contract fares and companion discounts not listed on online booking engines, helping you save up to 15% on tickets.', img: '🛡' },
-    { name: 'No Hidden Conveniences Fees', bio: 'Unlike OTA portals that add hefty convenience fees at checkout, our quotation lists clean, final pricing with no surprises.', img: '💼' },
-    { name: '24/7 Schedule Monitoring', bio: 'Our helpdesk monitors flights round the clock to immediately support you with alternative routes, rescheduling, or refunds in case of airline delays.', img: '📢' }
-  ]);
+        setOpen(true);
+    };
 
-  const faqTitle = faqSection?.title || (pageData ? '' : 'Frequently Asked Questions');
-  const faqDesc = faqSection?.json_data?.heading_content || (pageData ? '' : 'Get answers to common flight booking questions.');
-  const dynamicFaqs = faqSection?.json_data?.faqs || (pageData ? [] : faqs);
 
-  const router = useRouter();
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [activeFaqIndex, setActiveFaqIndex] = useState(null);
-  const [tripType, setTripType] = useState('One-way');
+    const handleSelect = (airport) => {
+        onSelect({
+            name:
+                airport.city ||
+                airport.name,
 
-  const activeConfig = useMemo(() => {
-    if (tripType === 'Multi-city') return multiCityConfig;
-    if (tripType === 'Round-trip') return roundTripConfig;
-    return oneWayConfig;
-  }, [tripType, oneWayConfig, roundTripConfig, multiCityConfig]);
+            code:
+                airport.code,
+        });
 
-  const fields = useMemo(() => {
-    if (activeConfig?.fields && activeConfig.fields.length > 0) {
-      return activeConfig.fields;
-    }
-    return [
-      { id: 'full_name', fieldKey: 'full_name', label: 'Full Name', fieldType: 'text', isRequired: true },
-      { id: 'email', fieldKey: 'email', label: 'Email Address', fieldType: 'email', isRequired: false },
-      { id: 'phone', fieldKey: 'phone', label: 'Mobile Number', fieldType: 'tel', isRequired: true },
-      { id: 'passengers', fieldKey: 'passengers', label: 'No. of Passengers', fieldType: 'number', isRequired: true },
-      { id: 'departure_city', fieldKey: 'departure_city', label: 'Departure City', fieldType: 'text', isRequired: true },
-      { id: 'destination_city', fieldKey: 'destination_city', label: 'Destination City', fieldType: 'text', isRequired: true },
-      { id: 'departure_date', fieldKey: 'departure_date', label: 'Departure Date', fieldType: 'date', isRequired: true },
-      ...(tripType === 'One-way' ? [] : [{ id: 'arrival_date', fieldKey: 'arrival_date', label: 'Arrival Date', fieldType: 'date', isRequired: false }]),
-      { id: 'fare_type', fieldKey: 'fare_type', label: 'Fare Type', fieldType: 'select', options: [{ label: 'Regular', value: 'Regular' }, { label: 'Student', value: 'Student' }], isRequired: true },
-      { id: 'class', fieldKey: 'class', label: 'Class', fieldType: 'select', options: [{ label: 'Economy', value: 'Economy' }, { label: 'Premium Economy', value: 'Premium Economy' }, { label: 'Business', value: 'Business' }, { label: 'First Class', value: 'First Class' }], isRequired: true },
-      { id: 'flight_preference', fieldKey: 'flight_preference', label: 'Flight Preference / Special Request', fieldType: 'textarea', isRequired: false },
-    ];
-  }, [activeConfig, tripType]);
+        setOpen(false);
+    };
 
-  useEffect(() => {
-    const token = getStoredToken();
-    setIsLoggedIn(Boolean(token));
-    const auth = getStoredAuth();
-    setCurrentUser(auth);
-  }, []);
 
-  const handleSearchSubmit = async (e) => {
-    const token = getStoredToken();
-    if (!token) {
-      toast.error('Please login first to continue.');
-      router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`);
-      return;
-    }
+    return (
+        <div className="tj-airport-autocomplete">
 
-    e.preventDefault();
-    const form = e.currentTarget;
-    setLoading(true);
+            <label className="tj-label">
+                {label}
+            </label>
 
-    try {
-      const payload = getFormPayload(form, fields, activeConfig?.id);
+            <div className="tj-location-field">
 
-      const response = await fetch('/api/contact-leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+                <GeoAlt />
 
-      const resData = await response.json();
-      if (!response.ok || !resData?.success) {
-        throw new Error(resData?.message || 'Failed to submit inquiry.');
-      }
+                <div className="flex-grow-1">
 
-      toast.success('Your flight inquiry has been sent! Our ticketing desk will contact you shortly.');
-      form.reset();
-    } catch (err) {
-      toast.error(err.message || 'Unable to process request. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+                    <small>
+                        {label === 'FROM'
+                            ? 'Departure'
+                            : 'Destination'}
+                    </small>
 
-  const handleSelectRoute = (route) => {
-    const fromEl = document.getElementById('departure_city') || document.getElementById('from_city');
-    const toEl = document.getElementById('destination_city') || document.getElementById('to_city');
-    if (fromEl) fromEl.value = route.from.split(' (')[0];
-    if (toEl) toEl.value = route.to.split(' (')[0];
-    document.getElementById('flights-search-widget')?.scrollIntoView({ behavior: 'smooth' });
-    toast.success(`Selected flight route: ${route.from} to ${route.to}`);
-  };
-
-  return (
-    <main className="flights-page">
-      {/* 1. HERO SECTION */}
-      <section
-        className="flights-hero"
-        style={heroBgImage ? {
-          backgroundImage: `url('${heroBgImage}')`,
-        } : {}}
-      >
-        <div className="container">
-          <div className="flights-hero-grid">
-            <div className="flights-hero-copy">
-              {heroTitle && <span>{heroTitle}</span>}
-              {heroHeading && (
-                <h1>
-                  {heroHeading.split(' ').slice(0, -1).join(' ')}{' '}
-                  <span style={{ color: 'var(--color-secondary)' }}>
-                    {heroHeading.split(' ').slice(-1)[0] || ''}
-                  </span>
-                </h1>
-              )}
-              {heroSection?.json_data?.story_desc !== undefined ? (
-                <div dangerouslySetInnerHTML={{ __html: heroDesc }} className="flights-hero-desc" />
-              ) : (
-                <p>{heroDesc}</p>
-              )}
-              <div className="flights-hero-badges">
-                {heroPoints.map((pt, idx) => {
-                  let text = (pt.value || pt.title || '').trim();
-                  let hasTick = false;
-
-                  if (text.startsWith('✔') || text.startsWith('✓')) {
-                    hasTick = true;
-                    text = text.substring(1).trim();
-                  }
-
-                  return (
-                    <span key={idx} className="flights-tag-badge">
-                      {hasTick && <span style={{ color: '#fdce2e', marginRight: '4px' }}>{'\u2713'}</span>}
-                      {text}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* SEARCH WIDGET CARD */}
-            <div className="flights-search-card" id="flights-search-widget">
-              {/* Trip type selectors */}
-              <div className="flights-trip-toggle">
-                {['One-way', 'Round-trip', 'Multi-city'].map(type => (
-                  <button
-                    key={type}
-                    type="button"
-                    className={`flights-trip-btn ${tripType === type ? 'active' : ''}`}
-                    onClick={() => setTripType(type)}
-                  >
-                    {type}
-                  </button>
-                ))}
-              </div>
-
-              <form onSubmit={handleSearchSubmit} className="flights-form">
-                {fields.length > 0 ? (
-                  fields.map(field => (
-                    <FlightsDynamicField
-                      key={field.id || field.fieldKey}
-                      field={field}
-                      defaultValue={currentUser ? currentUser[field.fieldKey] || '' : ''}
+                    <input
+                        type="text"
+                        value={value}
+                        onChange={
+                            handleChange
+                        }
+                        onFocus={() => {
+                            if (value) {
+                                setOpen(true);
+                            }
+                        }}
+                        placeholder={
+                            placeholder
+                        }
+                        autoComplete="off"
                     />
-                  ))
-                ) : (
-                  <p style={{ gridColumn: '1 / -1', textAlign: 'center', opacity: 0.7 }}>Form is unavailable right now.</p>
-                )}
 
-                <button type="submit" className="flights-search-submit" disabled={loading} style={{ gridColumn: '1 / -1' }}>
-                  {loading ? 'Submitting Inquiry...' : `Request ${tripType} Quote`}
-                </button>
-              </form>
+                    {code && (
+                        <span className="tj-selected-airport-code">
+                            {code}
+                        </span>
+                    )}
+
+                </div>
+
             </div>
-          </div>
+
+
+            {open && value && (
+                <div className="tj-airport-dropdown">
+
+                    {suggestions.length > 0 ? (
+                        suggestions.map(
+                            (airport) => (
+                                <button
+                                    key={`${airport.code}-${airport.name}`}
+                                    type="button"
+                                    className="tj-airport-option"
+                                    onMouseDown={(
+                                        event
+                                    ) =>
+                                        event.preventDefault()
+                                    }
+                                    onClick={() =>
+                                        handleSelect(
+                                            airport
+                                        )
+                                    }
+                                >
+
+                                    <div className="tj-airport-code">
+                                        {
+                                            airport.code
+                                        }
+                                    </div>
+
+                                    <div className="tj-airport-info">
+
+                                        <strong>
+                                            {
+                                                airport.city ||
+                                                airport.name
+                                            }
+                                        </strong>
+
+                                        <span>
+                                            {
+                                                airport.name
+                                            }
+                                        </span>
+
+                                        {airport.country && (
+                                            <small>
+                                                {
+                                                    airport.country
+                                                }
+                                            </small>
+                                        )}
+
+                                    </div>
+
+                                </button>
+                            )
+                        )
+                    ) : (
+                        <div className="tj-airport-empty">
+                            No airport found
+                        </div>
+                    )}
+
+                </div>
+            )}
+
         </div>
-      </section>
+    );
+}
 
 
-      {/* 3. AIRLINE PARTNERS (REPLACED WITH TRUSTED PARTNERS MARQUEE) */}
-      {(partnersSection || !pageData) && (
-        <TrustedPartners
-          category="airlines"
-          customPartners={dynamicAirlinePartners}
-          title={partnersTitle}
-        />
-      )}
+/* =========================================================
+   MAIN COMPONENT
+========================================================= */
 
-      {/* 4. WHY BOOK WITH US */}
-      {(whyBookSection || !pageData) && (
-        <section className="flights-section container">
-          <div className="flights-section-head text-center">
-            <h2>{whyBookTitle}</h2>
-            <p>{whyBookDesc}</p>
-          </div>
-          <div className="flights-features-grid">
-            {whyBookPoints.map((pt, idx) => {
-              const icons = ['🛡', '💼', '📢', '⭐', '✈️'];
-              const icon = pt.img || icons[idx % icons.length];
-              return (
-                <div key={idx} className="flights-feature-box">
-                  <div className="feature-icon">{icon}</div>
-                  <h3>{pt.name}</h3>
-                  <p>{pt.bio}</p>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
+export default function FlightsClient() {
 
-      {/* 5. FAQS */}
-      {(faqSection || !pageData) && (
-        <section className="flights-section container" style={{ maxWidth: '800px' }}>
-          <div className="flights-section-head text-center">
-            <h2>{faqTitle}</h2>
-            <p>{faqDesc}</p>
-          </div>
-          <div className="flights-faq-list">
-            {dynamicFaqs.map((faq, idx) => {
-              const isOpen = activeFaqIndex === idx;
-              return (
-                <div key={idx} className="flights-faq-item">
-                  <button type="button" className="faq-question-btn" onClick={() => setActiveFaqIndex(isOpen ? null : idx)}>
-                    <span>{faq.q}</span>
-                    <span className="faq-arrow" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0)' }}>▼</span>
-                  </button>
-                  {isOpen && (
-                    <div className="faq-answer-panel">
-                      <p>{faq.a}</p>
+    const router = useRouter();
+
+
+    /* =====================================================
+       SEARCH STATE
+    ===================================================== */
+
+    const [tripType, setTripType] =
+        useState('ONE_WAY');
+
+
+    const [search, setSearch] =
+        useState({
+            from: '',
+            fromCode: '',
+
+            to: '',
+            toCode: '',
+
+            departureDate: today,
+            returnDate: '',
+
+            adults: 1,
+            children: 0,
+            infants: 0,
+
+            cabinClass: 'ECONOMY',
+
+            directFlight: false,
+        });
+
+
+    const [segments, setSegments] =
+        useState([
+            createSegment(),
+            createSegment(),
+        ]);
+
+
+    const [passengerOpen, setPassengerOpen] =
+        useState(false);
+
+
+    const [loading, setLoading] =
+        useState(false);
+
+
+    /* =====================================================
+       PASSENGERS
+    ===================================================== */
+
+    const totalPassengers =
+        Number(search.adults) +
+        Number(search.children) +
+        Number(search.infants);
+
+
+    /* =====================================================
+       UPDATE SEARCH
+    ===================================================== */
+
+    const updateSearch = (
+        field,
+        value
+    ) => {
+        setSearch((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+
+    /* =====================================================
+       SWAP
+    ===================================================== */
+
+    const swapAirports = () => {
+        setSearch((prev) => ({
+            ...prev,
+
+            from: prev.to,
+            fromCode: prev.toCode,
+
+            to: prev.from,
+            toCode: prev.fromCode,
+        }));
+    };
+
+
+    /* =====================================================
+       PASSENGER UPDATE
+    ===================================================== */
+
+    const updatePassenger = (
+        type,
+        value
+    ) => {
+
+        setSearch((prev) => {
+
+            const current =
+                Number(prev[type]);
+
+
+            const next = Math.max(
+                type === 'adults'
+                    ? 1
+                    : 0,
+
+                current + value
+            );
+
+
+            /*
+             * Infant cannot exceed adults.
+             */
+            if (
+                type === 'infants' &&
+                next >
+                    Number(prev.adults)
+            ) {
+                return prev;
+            }
+
+
+            return {
+                ...prev,
+                [type]: next,
+            };
+        });
+    };
+
+
+    /* =====================================================
+       MULTI CITY UPDATE
+    ===================================================== */
+
+    const updateSegment = (
+        index,
+        field,
+        value
+    ) => {
+
+        setSegments((prev) =>
+            prev.map(
+                (segment, i) =>
+                    i === index
+                        ? {
+                              ...segment,
+                              [field]:
+                                  value,
+                          }
+                        : segment
+            )
+        );
+    };
+
+
+    /* =====================================================
+       ADD SEGMENT
+    ===================================================== */
+
+    const addSegment = () => {
+
+        if (segments.length >= 6) {
+            toast.error(
+                'Maximum 6 sectors allowed.'
+            );
+
+            return;
+        }
+
+
+        setSegments((prev) => [
+            ...prev,
+            createSegment(),
+        ]);
+    };
+
+
+    /* =====================================================
+       REMOVE SEGMENT
+    ===================================================== */
+
+    const removeSegment = (
+        index
+    ) => {
+
+        if (segments.length <= 2) {
+            return;
+        }
+
+
+        setSegments((prev) =>
+            prev.filter(
+                (_, i) => i !== index
+            )
+        );
+    };
+
+
+    /* =====================================================
+       POPULAR ROUTE
+    ===================================================== */
+
+    const selectPopularRoute = (
+        route
+    ) => {
+
+        setSearch((prev) => ({
+            ...prev,
+
+            from: route.from,
+            fromCode:
+                route.fromCode,
+
+            to: route.to,
+            toCode:
+                route.toCode,
+        }));
+
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        });
+    };
+
+
+    /* =====================================================
+       VALIDATION
+    ===================================================== */
+
+    const validateSearch = () => {
+
+        /*
+         * MULTI CITY
+         */
+        if (
+            tripType ===
+            'MULTI_CITY'
+        ) {
+
+            const invalid =
+                segments.some(
+                    (segment) =>
+                        !segment.fromCode ||
+                        !segment.toCode ||
+                        !segment.date
+                );
+
+
+            if (invalid) {
+                toast.error(
+                    'Please select departure and destination airports for all sectors.'
+                );
+
+                return false;
+            }
+
+
+            const sameRoute =
+                segments.some(
+                    (segment) =>
+                        segment.fromCode.toUpperCase() ===
+                        segment.toCode.toUpperCase()
+                );
+
+
+            if (sameRoute) {
+                toast.error(
+                    'Departure and destination cannot be same.'
+                );
+
+                return false;
+            }
+
+
+            return true;
+        }
+
+
+        /*
+         * NORMAL SEARCH
+         */
+        if (!search.fromCode) {
+            toast.error(
+                'Please select a departure airport.'
+            );
+
+            return false;
+        }
+
+
+        if (!search.toCode) {
+            toast.error(
+                'Please select a destination airport.'
+            );
+
+            return false;
+        }
+
+
+        if (
+            search.fromCode.toUpperCase() ===
+            search.toCode.toUpperCase()
+        ) {
+            toast.error(
+                'Departure and destination cannot be same.'
+            );
+
+            return false;
+        }
+
+
+        if (!search.departureDate) {
+            toast.error(
+                'Please select departure date.'
+            );
+
+            return false;
+        }
+
+
+        /*
+         * ROUND TRIP
+         */
+        if (
+            tripType ===
+            'ROUND_TRIP'
+        ) {
+
+            if (!search.returnDate) {
+                toast.error(
+                    'Please select return date.'
+                );
+
+                return false;
+            }
+
+
+            if (
+                search.returnDate <
+                search.departureDate
+            ) {
+                toast.error(
+                    'Return date cannot be before departure date.'
+                );
+
+                return false;
+            }
+        }
+
+
+        return true;
+    };
+
+
+    /* =====================================================
+       BUILD TRIPJACK PAYLOAD
+    ===================================================== */
+
+    const buildSearchPayload = () => {
+
+        let routeInfos = [];
+
+
+        /*
+         * MULTI CITY
+         */
+        if (
+            tripType ===
+            'MULTI_CITY'
+        ) {
+
+            routeInfos =
+                segments.map(
+                    (segment) => ({
+                        fromCityOrAirport: {
+                            code:
+                                segment.fromCode
+                                    .trim()
+                                    .toUpperCase(),
+                        },
+
+                        toCityOrAirport: {
+                            code:
+                                segment.toCode
+                                    .trim()
+                                    .toUpperCase(),
+                        },
+
+                        travelDate:
+                            segment.date,
+                    })
+                );
+
+        } else {
+
+            /*
+             * ONE WAY
+             */
+            routeInfos = [
+                {
+                    fromCityOrAirport: {
+                        code:
+                            search.fromCode
+                                .trim()
+                                .toUpperCase(),
+                    },
+
+                    toCityOrAirport: {
+                        code:
+                            search.toCode
+                                .trim()
+                                .toUpperCase(),
+                    },
+
+                    travelDate:
+                        search.departureDate,
+                },
+            ];
+
+
+            /*
+             * ROUND TRIP
+             */
+            if (
+                tripType ===
+                'ROUND_TRIP'
+            ) {
+
+                routeInfos.push({
+                    fromCityOrAirport: {
+                        code:
+                            search.toCode
+                                .trim()
+                                .toUpperCase(),
+                    },
+
+                    toCityOrAirport: {
+                        code:
+                            search.fromCode
+                                .trim()
+                                .toUpperCase(),
+                    },
+
+                    travelDate:
+                        search.returnDate,
+                });
+            }
+        }
+
+
+        return {
+            searchQuery: {
+
+                cabinClass:
+                    search.cabinClass,
+
+
+                paxInfo: {
+
+                    ADULT: String(
+                        search.adults
+                    ),
+
+                    CHILD: String(
+                        search.children
+                    ),
+
+                    INFANT: String(
+                        search.infants
+                    ),
+                },
+
+
+                routeInfos,
+
+
+                searchModifiers: {
+
+                    isDirectFlight:
+                        Boolean(
+                            search.directFlight
+                        ),
+
+                    isConnectingFlight:
+                        !search.directFlight,
+                },
+            },
+        };
+    };
+
+
+    /* =====================================================
+       SEARCH
+    ===================================================== */
+
+    const handleSearch = async (
+        event
+    ) => {
+
+        event.preventDefault();
+
+
+        if (!validateSearch()) {
+            return;
+        }
+
+
+        setLoading(true);
+
+
+        try {
+
+            const payload =
+                buildSearchPayload();
+
+
+            const response =
+                await flightService.search(
+                    payload
+                );
+
+
+            /*
+             * Save complete search
+             * context for result page.
+             */
+            sessionStorage.setItem(
+                'tripjack_flight_search',
+
+                JSON.stringify({
+                    search,
+                    tripType,
+                    segments,
+                    request:
+                        payload,
+                    response,
+                })
+            );
+
+
+            router.push(
+                '/flights/results'
+            );
+
+        } catch (error) {
+
+            console.error(
+                'Flight search error:',
+                error
+            );
+
+
+            toast.error(
+                error?.message ||
+                    'Unable to search flights.'
+            );
+
+        } finally {
+
+            setLoading(false);
+        }
+    };
+
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
+
+    return (
+        <main className="tj-flight-page">
+
+            {/* =================================================
+                HERO
+            ================================================= */}
+
+            <section className="tj-flight-hero">
+
+                <div className="container">
+
+                    <div className="tj-hero-copy text-center text-white">
+
+                        <span className="tj-eyebrow">
+                            TRIPJACK FLIGHTS
+                        </span>
+
+                        <h1>
+                            Search. Compare. Fly.
+                        </h1>
+
+                        <p>
+                            Find the right flight,
+                            compare fares and book
+                            your journey with ease.
+                        </p>
+
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
 
-    </main>
-  );
+
+                    {/* =================================================
+                        SEARCH CARD
+                    ================================================= */}
+
+                    <div className="tj-search-shell">
+
+                        {/* TRIP TYPE */}
+
+                        <div className="tj-search-tabs">
+
+                            {[
+                                [
+                                    'ONE_WAY',
+                                    'One Way',
+                                ],
+                                [
+                                    'ROUND_TRIP',
+                                    'Round Trip',
+                                ],
+                                [
+                                    'MULTI_CITY',
+                                    'Multi City',
+                                ],
+                            ].map(
+                                ([
+                                    value,
+                                    label,
+                                ]) => (
+                                    <button
+                                        key={
+                                            value
+                                        }
+                                        type="button"
+                                        className={
+                                            tripType ===
+                                            value
+                                                ? 'active'
+                                                : ''
+                                        }
+                                        onClick={() => {
+
+                                            setTripType(
+                                                value
+                                            );
+
+
+                                            if (
+                                                value ===
+                                                'MULTI_CITY'
+                                            ) {
+
+                                                setSegments(
+                                                    [
+                                                        createSegment(),
+                                                        createSegment(),
+                                                    ]
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        {
+                                            label
+                                        }
+                                    </button>
+                                )
+                            )}
+
+                        </div>
+
+
+                        <form
+                            onSubmit={
+                                handleSearch
+                            }
+                            className="p-3 p-md-4"
+                        >
+
+                            {/* =================================================
+                                ONE WAY / ROUND TRIP
+                            ================================================= */}
+
+                            {tripType !==
+                            'MULTI_CITY' ? (
+                                <>
+
+                                    <div className="row g-2">
+
+                                        {/* FROM */}
+
+                                        <div className="col-12 col-lg-5">
+
+                                            <AirportAutocomplete
+                                                label="FROM"
+                                                placeholder="Delhi"
+                                                value={
+                                                    search.from
+                                                }
+                                                code={
+                                                    search.fromCode
+                                                }
+                                                onSelect={({
+                                                    name,
+                                                    code,
+                                                }) => {
+
+                                                    setSearch(
+                                                        (
+                                                            prev
+                                                        ) => ({
+                                                            ...prev,
+
+                                                            from:
+                                                                name,
+
+                                                            fromCode:
+                                                                code,
+                                                        })
+                                                    );
+                                                }}
+                                            />
+
+                                        </div>
+
+
+                                        {/* SWAP */}
+
+                                        <div className="col-12 col-lg-2 d-flex justify-content-center align-items-center">
+
+                                            <button
+                                                type="button"
+                                                className="tj-swap"
+                                                onClick={
+                                                    swapAirports
+                                                }
+                                                aria-label="Swap airports"
+                                            >
+                                                <ArrowLeftRight />
+                                            </button>
+
+                                        </div>
+
+
+                                        {/* TO */}
+
+                                        <div className="col-12 col-lg-5">
+
+                                            <AirportAutocomplete
+                                                label="TO"
+                                                placeholder="Mumbai"
+                                                value={
+                                                    search.to
+                                                }
+                                                code={
+                                                    search.toCode
+                                                }
+                                                onSelect={({
+                                                    name,
+                                                    code,
+                                                }) => {
+
+                                                    setSearch(
+                                                        (
+                                                            prev
+                                                        ) => ({
+                                                            ...prev,
+
+                                                            to:
+                                                                name,
+
+                                                            toCode:
+                                                                code,
+                                                        })
+                                                    );
+                                                }}
+                                            />
+
+                                        </div>
+
+                                    </div>
+
+
+                                    {/* =================================================
+                                        DETAILS
+                                    ================================================= */}
+
+                                    <div className="row g-2 mt-2">
+
+                                        {/* DEPARTURE */}
+
+                                        <div className="col-12 col-md-6 col-lg-3">
+
+                                            <label className="tj-label">
+                                                DEPARTURE
+                                            </label>
+
+                                            <div className="tj-simple-field">
+
+                                                <Calendar3 />
+
+                                                <input
+                                                    type="date"
+                                                    min={
+                                                        today
+                                                    }
+                                                    value={
+                                                        search.departureDate
+                                                    }
+                                                    onChange={(
+                                                        event
+                                                    ) =>
+                                                        updateSearch(
+                                                            'departureDate',
+                                                            event
+                                                                .target
+                                                                .value
+                                                        )
+                                                    }
+                                                />
+
+                                            </div>
+
+                                        </div>
+
+
+                                        {/* RETURN */}
+
+                                        {tripType ===
+                                            'ROUND_TRIP' && (
+                                            <div className="col-12 col-md-6 col-lg-3">
+
+                                                <label className="tj-label">
+                                                    RETURN
+                                                </label>
+
+                                                <div className="tj-simple-field">
+
+                                                    <Calendar3 />
+
+                                                    <input
+                                                        type="date"
+                                                        min={
+                                                            search.departureDate ||
+                                                            today
+                                                        }
+                                                        value={
+                                                            search.returnDate
+                                                        }
+                                                        onChange={(
+                                                            event
+                                                        ) =>
+                                                            updateSearch(
+                                                                'returnDate',
+                                                                event
+                                                                    .target
+                                                                    .value
+                                                            )
+                                                        }
+                                                    />
+
+                                                </div>
+
+                                            </div>
+                                        )}
+
+
+                                        {/* PASSENGERS */}
+
+                                        <div className="col-12 col-md-6 col-lg-3 position-relative">
+
+                                            <label className="tj-label">
+                                                TRAVELLERS
+                                            </label>
+
+                                            <button
+                                                type="button"
+                                                className="tj-simple-field tj-click-field w-100 text-start"
+                                                onClick={() =>
+                                                    setPassengerOpen(
+                                                        (
+                                                            prev
+                                                        ) =>
+                                                            !prev
+                                                    )
+                                                }
+                                            >
+
+                                                <People />
+
+                                                <span>
+                                                    {
+                                                        totalPassengers
+                                                    }{' '}
+                                                    Traveller
+                                                    {totalPassengers !==
+                                                    1
+                                                        ? 's'
+                                                        : ''}
+                                                </span>
+
+                                                <ChevronDown className="ms-auto" />
+
+                                            </button>
+
+
+                                            {passengerOpen && (
+                                                <div className="tj-passenger-popover">
+
+                                                    {[
+                                                        [
+                                                            'adults',
+                                                            'Adults',
+                                                            '12+ years',
+                                                        ],
+                                                        [
+                                                            'children',
+                                                            'Children',
+                                                            '2–11 years',
+                                                        ],
+                                                        [
+                                                            'infants',
+                                                            'Infants',
+                                                            'Below 2 years',
+                                                        ],
+                                                    ].map(
+                                                        ([
+                                                            key,
+                                                            label,
+                                                            sub,
+                                                        ]) => (
+                                                            <div
+                                                                className="tj-pax-row"
+                                                                key={
+                                                                    key
+                                                                }
+                                                            >
+
+                                                                <div>
+
+                                                                    <strong>
+                                                                        {
+                                                                            label
+                                                                        }
+                                                                    </strong>
+
+                                                                    <small>
+                                                                        {
+                                                                            sub
+                                                                        }
+                                                                    </small>
+
+                                                                </div>
+
+
+                                                                <div className="tj-counter">
+
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() =>
+                                                                            updatePassenger(
+                                                                                key,
+                                                                                -1
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        −
+                                                                    </button>
+
+                                                                    <b>
+                                                                        {
+                                                                            search[
+                                                                                key
+                                                                            ]
+                                                                        }
+                                                                    </b>
+
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() =>
+                                                                            updatePassenger(
+                                                                                key,
+                                                                                1
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        +
+                                                                    </button>
+
+                                                                </div>
+
+                                                            </div>
+                                                        )
+                                                    )}
+
+                                                </div>
+                                            )}
+
+                                        </div>
+
+
+                                        {/* CABIN */}
+
+                                        <div className="col-12 col-md-6 col-lg-3">
+
+                                            <label className="tj-label">
+                                                CLASS
+                                            </label>
+
+                                            <div className="tj-simple-field">
+
+                                                <select
+                                                    value={
+                                                        search.cabinClass
+                                                    }
+                                                    onChange={(
+                                                        event
+                                                    ) =>
+                                                        updateSearch(
+                                                            'cabinClass',
+                                                            event
+                                                                .target
+                                                                .value
+                                                        )
+                                                    }
+                                                >
+
+                                                    {cabinClasses.map(
+                                                        (
+                                                            cabin
+                                                        ) => (
+                                                            <option
+                                                                key={
+                                                                    cabin.value
+                                                                }
+                                                                value={
+                                                                    cabin.value
+                                                                }
+                                                            >
+                                                                {
+                                                                    cabin.label
+                                                                }
+                                                            </option>
+                                                        )
+                                                    )}
+
+                                                </select>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </>
+                            ) : (
+
+                                /* =================================================
+                                   MULTI CITY
+                                ================================================= */
+
+                                <div className="tj-multicity-list">
+
+                                    {segments.map(
+                                        (
+                                            segment,
+                                            index
+                                        ) => (
+                                            <div
+                                                className="tj-multi-row"
+                                                key={
+                                                    index
+                                                }
+                                            >
+
+                                                <div className="tj-sector-number">
+                                                    {index +
+                                                        1}
+                                                </div>
+
+
+                                                {/* FROM */}
+
+                                                <div className="tj-multi-airport">
+
+                                                    <AirportAutocomplete
+                                                        label="FROM"
+                                                        placeholder="Delhi"
+                                                        value={
+                                                            segment.from
+                                                        }
+                                                        code={
+                                                            segment.fromCode
+                                                        }
+                                                        onSelect={({
+                                                            name,
+                                                            code,
+                                                        }) =>
+                                                            updateSegment(
+                                                                index,
+                                                                'from',
+                                                                name
+                                                            ) ||
+                                                            updateSegment(
+                                                                index,
+                                                                'fromCode',
+                                                                code
+                                                            )
+                                                        }
+                                                    />
+
+                                                </div>
+
+
+                                                {/* TO */}
+
+                                                <div className="tj-multi-airport">
+
+                                                    <AirportAutocomplete
+                                                        label="TO"
+                                                        placeholder="Mumbai"
+                                                        value={
+                                                            segment.to
+                                                        }
+                                                        code={
+                                                            segment.toCode
+                                                        }
+                                                        onSelect={({
+                                                            name,
+                                                            code,
+                                                        }) => {
+
+                                                            updateSegment(
+                                                                index,
+                                                                'to',
+                                                                name
+                                                            );
+
+                                                            updateSegment(
+                                                                index,
+                                                                'toCode',
+                                                                code
+                                                            );
+                                                        }}
+                                                    />
+
+                                                </div>
+
+
+                                                {/* DATE */}
+
+                                                <div>
+
+                                                    <label className="tj-label">
+                                                        DATE
+                                                    </label>
+
+                                                    <div className="tj-simple-field">
+
+                                                        <Calendar3 />
+
+                                                        <input
+                                                            type="date"
+                                                            min={
+                                                                today
+                                                            }
+                                                            value={
+                                                                segment.date
+                                                            }
+                                                            onChange={(
+                                                                event
+                                                            ) =>
+                                                                updateSegment(
+                                                                    index,
+                                                                    'date',
+                                                                    event
+                                                                        .target
+                                                                        .value
+                                                                )
+                                                            }
+                                                        />
+
+                                                    </div>
+
+                                                </div>
+
+
+                                                {/* DELETE */}
+
+                                                {segments.length >
+                                                    2 && (
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-outline-danger tj-delete-sector"
+                                                        onClick={() =>
+                                                            removeSegment(
+                                                                index
+                                                            )
+                                                        }
+                                                    >
+                                                        <Trash3 />
+                                                    </button>
+                                                )}
+
+                                            </div>
+                                        )
+                                    )}
+
+
+                                    <button
+                                        type="button"
+                                        className="tj-add-sector"
+                                        onClick={
+                                            addSegment
+                                        }
+                                    >
+                                        <Plus />
+                                        Add another city
+                                    </button>
+
+                                </div>
+                            )}
+
+
+                            {/* =================================================
+                                BOTTOM
+                            ================================================= */}
+
+                            <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center justify-content-between gap-3 mt-4">
+
+                                <label className="tj-switch">
+
+                                    <input
+                                        type="checkbox"
+                                        checked={
+                                            search.directFlight
+                                        }
+                                        onChange={(
+                                            event
+                                        ) =>
+                                            updateSearch(
+                                                'directFlight',
+                                                event
+                                                    .target
+                                                    .checked
+                                            )
+                                        }
+                                    />
+
+                                    <span />
+
+                                    Direct flights only
+
+                                </label>
+
+
+                                <button
+                                    type="submit"
+                                    className="tj-search-button"
+                                    disabled={
+                                        loading
+                                    }
+                                >
+
+                                    <Search />
+
+                                    {loading
+                                        ? 'Searching Flights...'
+                                        : 'Search Flights'}
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            {/* =================================================
+                POPULAR ROUTES
+            ================================================= */}
+
+            <section className="container py-5">
+
+                <div className="mb-4">
+
+                    <span className="tj-section-kicker">
+                        EXPLORE
+                    </span>
+
+                    <h2 className="tj-section-title">
+                        Popular flight routes
+                    </h2>
+
+                    <p className="text-muted mb-0">
+                        Quickly search some of the
+                        popular routes.
+                    </p>
+
+                </div>
+
+
+                <div className="row g-3">
+
+                    {popularRoutes.map(
+                        (route) => (
+                            <div
+                                className="col-12 col-md-6 col-lg-4"
+                                key={`${route.fromCode}-${route.toCode}`}
+                            >
+
+                                <button
+                                    type="button"
+                                    className="tj-route-card w-100"
+                                    onClick={() =>
+                                        selectPopularRoute(
+                                            route
+                                        )
+                                    }
+                                >
+
+                                    <div>
+
+                                        <strong>
+                                            {
+                                                route.fromCode
+                                            }
+                                        </strong>
+
+                                        <span>
+                                            {
+                                                route.from
+                                            }
+                                        </span>
+
+                                    </div>
+
+
+                                    <ArrowLeftRight />
+
+
+                                    <div>
+
+                                        <strong>
+                                            {
+                                                route.toCode
+                                            }
+                                        </strong>
+
+                                        <span>
+                                            {
+                                                route.to
+                                            }
+                                        </span>
+
+                                    </div>
+
+                                </button>
+
+                            </div>
+                        )
+                    )}
+
+                </div>
+
+            </section>
+
+
+            {/* =================================================
+                FEATURES
+            ================================================= */}
+
+            <section className="tj-trust-strip">
+
+                <div className="container">
+
+                    <div className="row g-4">
+
+                        <div className="col-12 col-md-4">
+
+                            <div className="tj-feature-box">
+
+                                <span className="tj-feature-icon">
+                                    01
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        Live flight search
+                                    </strong>
+
+                                    <p>
+                                        Search available
+                                        flight options
+                                        through TripJack.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div className="col-12 col-md-4">
+
+                            <div className="tj-feature-box">
+
+                                <span className="tj-feature-icon">
+                                    02
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        Compare options
+                                    </strong>
+
+                                    <p>
+                                        Review schedules,
+                                        fares and flight
+                                        choices.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div className="col-12 col-md-4">
+
+                            <div className="tj-feature-box">
+
+                                <span className="tj-feature-icon">
+                                    03
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        Simple booking
+                                    </strong>
+
+                                    <p>
+                                        Select your flight
+                                        and continue to
+                                        passenger details.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+    );
 }

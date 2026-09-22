@@ -16,9 +16,11 @@
     "postcss": "^8.5.21",
     "react": "19.2.4",
     "react-bootstrap": "^2.10.10",
+    "react-bootstrap-icons": "^1.11.6",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.72.0",
-    "react-hot-toast": "^2.6.0",
+    "react-hot-toast": "^2.6.1",
+    "react-icons": "^5.7.0",
     "react-toastify": "^11.1.0",
     "sweetalert2": "^11.26.25",
     "zustand": "^5.0.12"

@@ -1,4 +1,4 @@
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.0.166:5000/api/v1';
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.0.197:5001/api/v1';
 const AIRPORTS_API_KEY = process.env.CRM_COMPANY_INFO_API_KEY;
 
 export const dynamic = 'force-dynamic';

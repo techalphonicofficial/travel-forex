@@ -2,7 +2,7 @@ import InsuranceClient from './InsuranceClient';
 
 export const revalidate = 60;
 
-const PIPELINE_INSURANCE = 'http://192.168.0.166:5000/api/v1/crm/pipelines/26/form';
+const PIPELINE_INSURANCE = 'http://192.168.0.197:5001/api/v1/crm/pipelines/26/form';
 const CRM_API_KEY = process.env.CRM_PIPELINE_FORM_API_KEY || process.env.CRM_COMPANY_INFO_API_KEY || 'pt_dc9eae82075b27c1408392fa7d7e0e632ef9e846f6e4e33e';
 
 const fetchPipeline = async (endpoint) => {
@@ -74,7 +74,7 @@ const normalizeFormConfig = (formConfig) => {
 
 const fetchPage = async () => {
   try {
-    const res = await fetch('http://192.168.0.166:5000/api/v1/pages/slug/insurance', {
+    const res = await fetch('http://192.168.0.197:5001/api/v1/pages/slug/insurance', {
       headers: { accept: '*/*' },
       next: { revalidate: 60 }
     });

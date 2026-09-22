@@ -18,8 +18,7 @@ import {
     Collapse
 } from 'react-bootstrap';
 import hotelService from '../services/hotelService';
-import Swal from 'sweetalert2';
-
+import toast, { Toaster } from 'react-hot-toast';
 /* =========================================================
    SMALL HELPERS
    ========================================================= */
@@ -656,7 +655,9 @@ const PlanRow = ({
     open,
     onToggle,
     onSelect,
-    nights
+    nights,
+    isUnavailable,
+    isChecking
 }) => {
     const pricing = option?.pricing || option?.price || {};
     const currency = pricing.currency || 'INR';
@@ -805,13 +806,21 @@ const PlanRow = ({
                         ≈ {money(perNight, currency)} / night
                     </div>
                 )}
-
                 <Button
-                    variant="success"
-                    className="hd-btn mt-2"
+                    className={`hd-btn mt-2 ${isUnavailable
+                            ? 'room-action-unavailable'
+                            : isChecking
+                                ? 'room-action-checking'
+                                : 'room-action-available'
+                        }`}
+                    disabled={isUnavailable || isChecking}
                     onClick={() => onSelect?.(option)}
                 >
-                    Select room
+                    {isChecking
+                        ? 'CHECKING...'
+                        : isUnavailable
+                            ? 'UNAVAILABLE'
+                            : 'SELECT ROOM'}
                 </Button>
             </div>
         </div>
@@ -832,7 +841,7 @@ const HotelDetails = ({
     nationality,
     correlationId
 }) => {
-   const router=useRouter()
+    const router = useRouter()
     const [photoIndex, setPhotoIndex] = useState(null);
     const [openPlan, setOpenPlan] = useState(null);
     const [showAllAmenities, setShowAllAmenities] = useState(false);
@@ -842,6 +851,30 @@ const HotelDetails = ({
     const [pricingError, setPricingError] = useState('');
     const [pricingData, setPricingData] = useState(null);
     const [reviewHash, setReviewHash] = useState(null)
+
+    const [unavailableOptions, setUnavailableOptions] = useState([]);
+    const [checkingOptionId, setCheckingOptionId] = useState(null);
+
+    useEffect(() => {
+        try {
+            const saved = sessionStorage.getItem(
+                'tripjack_unavailable_hotel_options'
+            );
+
+            if (!saved) return;
+
+            const parsed = JSON.parse(saved);
+
+            if (Array.isArray(parsed)) {
+                setUnavailableOptions(parsed);
+            }
+        } catch (error) {
+            console.error(
+                'Unable to restore unavailable hotel options:',
+                error
+            );
+        }
+    }, []);
 
     const pricedHotel = useMemo(() => {
         if (!hotel) return null;
@@ -1193,17 +1226,83 @@ const HotelDetails = ({
        RENDER
        ===================================================== */
 
+    const getOptionUniqueId = (option) => {
+        return String(
+            option?.optionId ||
+            option?.id ||
+            option?.roomId ||
+            option?.roomName ||
+            ''
+        );
+    };
 
+    const markOptionUnavailable = (option) => {
+        const optionId = getOptionUniqueId(option);
+
+        if (!optionId) return;
+
+        setUnavailableOptions((current) => {
+            if (current.includes(optionId)) {
+                return current;
+            }
+
+            const updated = [...current, optionId];
+
+            try {
+                sessionStorage.setItem(
+                    'tripjack_unavailable_hotel_options',
+                    JSON.stringify(updated)
+                );
+            } catch (error) {
+                console.error(
+                    'Unable to save unavailable hotel option:',
+                    error
+                );
+            }
+
+            return updated;
+        });
+    };
 
 
     //Handle hotel selection 
     const onSelectRoom = async (option) => {
+        const optionId = getOptionUniqueId(option);
+
+        if (!optionId) {
+            toast.error(
+                'Room option is unavailable. Please choose another room.'
+            );
+            return;
+        }
+
+        // Already checked and unavailable
+        if (unavailableOptions.includes(optionId)) {
+            toast.error(
+                'This room is no longer available. Please choose another room.'
+            );
+            return;
+        }
+
+        // Prevent duplicate API call
+        if (checkingOptionId === optionId) {
+            return;
+        }
+
         try {
+            setCheckingOptionId(optionId);
+
             const payload = {
                 optionId: option?.optionId,
-                reviewHash: pricingData?.reviewHash || reviewHash,
+
+                reviewHash:
+                    pricingData?.reviewHash ||
+                    reviewHash,
+
                 correlationId:
-                    pricingData?.correlationId || correlationId,
+                    pricingData?.correlationId ||
+                    correlationId,
+
                 hid: String(
                     hotel?.tjHotelId ||
                     hotel?.hotelId ||
@@ -1213,11 +1312,12 @@ const HotelDetails = ({
 
             const response = await hotelService.review(payload);
 
-            console.log('Review Response:', response);
-
             const reviewData = response?.data;
 
+            // ==========================================
             // OPTION SOLD OUT
+            // ==========================================
+
             const soldOutError =
                 reviewData?.errors?.find(
                     (error) =>
@@ -1225,44 +1325,29 @@ const HotelDetails = ({
                 );
 
             if (soldOutError) {
-                await Swal.fire({
-                    icon: 'warning',
-                    title: 'Room No Longer Available',
-                    text: 'This room option is no longer available. Please select another room.',
-                    confirmButtonText: 'Choose Another Room',
-                    confirmButtonColor: '#198754',
-                });
+                markOptionUnavailable(option);
+
+                toast.error(
+                    'This room is no longer available. Please choose another room.'
+                );
 
                 return;
             }
 
+            // ==========================================
             // OTHER TRIPJACK ERRORS
+            // ==========================================
+
             if (reviewData?.status?.success === false) {
-                await Swal.fire({
-                    icon: 'error',
-                    title: 'Unable to Continue',
-                    text:
-                        reviewData?.errors?.[0]?.message ||
-                        'Unable to review this room. Please try again.',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#198754',
-                });
+                markOptionUnavailable(option);
+
+                toast.error(
+                    reviewData?.errors?.[0]?.message ||
+                    'Unable to review this room. Please try again.'
+                );
 
                 return;
             }
-
-            // ==========================================
-            // REVIEW SUCCESS
-            // ==========================================
-
-            console.log(
-                'Review Successful:',
-                reviewData
-            );
-
-            /*
-             * Guest Details page ke liye complete context save
-             */
             const bookingContext = {
                 hotel: {
                     hotelId: String(
@@ -1271,6 +1356,7 @@ const HotelDetails = ({
                         hotel?.hid ||
                         ''
                     ),
+
                     hotelName:
                         hotel?.name ||
                         hotel?.hotelName ||
@@ -1303,7 +1389,10 @@ const HotelDetails = ({
                 JSON.stringify(bookingContext)
             );
 
-            // Guest Details page
+            // ==========================================
+            // GO TO GUEST DETAILS
+            // ==========================================
+
             router.push(
                 '/tripjack-hotels/guest-details'
             );
@@ -1314,893 +1403,906 @@ const HotelDetails = ({
                 error
             );
 
-            await Swal.fire({
-                icon: 'error',
-                title: 'Something Went Wrong',
-                text:
-                    error?.response?.data?.message ||
-                    error?.message ||
-                    'Unable to review the selected room. Please try again.',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#198754',
-            });
+            const message =
+                error?.response?.data?.message ||
+                error?.response?.data?.error ||
+                error?.message ||
+                'Unable to review the selected room. Please try again.';
+
+            toast.error(message);
+
+        } finally {
+            setCheckingOptionId(null);
         }
     };
-
     return (
-        <div className="hd-root">
-            <style>{STYLES}</style>
+        <>
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    duration: 3500,
+                    style: {
+                        fontSize: '14px',
+                        borderRadius: '10px',
+                    },
+                }}
+            />
 
-            <Container className="pt-3 pt-lg-4 pb-5">
-                {/* ---------- back ---------- */}
+            <div className="hd-root">
+                <style>{STYLES}</style>
 
-                {onBack && (
-                    <button
-                        type="button"
-                        className="hd-back mb-3"
-                        onClick={onBack}
-                    >
-                        <Icon name="back" />
-                        Back to hotels
-                    </button>
-                )}
+                <Container className="pt-3 pt-lg-4 pb-5">
+                    {/* ---------- back ---------- */}
 
-                {/* ---------- header ---------- */}
-
-                <header className="hd-card hd-header mb-3">
-                    <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
-                        {vm.propertyType && (
-                            <span className="hd-chip hd-chip-quiet">
-                                {vm.propertyType}
-                            </span>
-                        )}
-
-                        {vm.chainName && (
-                            <span className="hd-chip hd-chip-quiet">
-                                {vm.brandName
-                                    ? `${vm.chainName} · ${vm.brandName}`
-                                    : vm.chainName}
-                            </span>
-                        )}
-                    </div>
-
-                    <div className="d-flex flex-wrap align-items-center gap-2 gap-md-3">
-                        <h1 className="hd-title">{name}</h1>
-                        <Stars count={stars} />
-                    </div>
-
-                    {vm.tagline && (
-                        <p className="hd-tagline">{vm.tagline}</p>
+                    {onBack && (
+                        <button
+                            type="button"
+                            className="hd-back mb-3"
+                            onClick={onBack}
+                        >
+                            <Icon name="back" />
+                            Back to hotels
+                        </button>
                     )}
 
-                    <div className="d-flex flex-wrap align-items-center gap-3 mt-2">
-                        {vm.address && (
-                            <span className="hd-meta">
-                                <Icon name="pin" />
-                                {vm.address}
-                            </span>
-                        )}
+                    {/* ---------- header ---------- */}
 
-                        {mapsLink && (
-                            <a
-                                className="hd-link"
-                                href={mapsLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                View on map
-                            </a>
-                        )}
-                    </div>
-                </header>
+                    <header className="hd-card hd-header mb-3">
+                        <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
+                            {vm.propertyType && (
+                                <span className="hd-chip hd-chip-quiet">
+                                    {vm.propertyType}
+                                </span>
+                            )}
 
-                {/* ---------- gallery ---------- */}
-
-                {galleryImages.length > 0 && (
-                    <div className="hd-gallery-wrap mb-3">
-                        <div
-                            className={`hd-gallery hd-g-${galleryImages.length}`}
-                        >
-                            {galleryImages.map((src, index) => (
-                                <button
-                                    type="button"
-                                    key={src}
-                                    className={`hd-cell ${index === 0 ? 'is-main' : ''
-                                        } ${index > 0 ? 'd-none d-md-block' : ''}`}
-                                    onClick={() => openGallery(index)}
-                                    aria-label={`Open photo ${index + 1} of ${images.length}`}
-                                >
-                                    <SafeImg
-                                        src={src}
-                                        alt={`${name} photo ${index + 1}`}
-                                        loading={index === 0 ? 'eager' : 'lazy'}
-                                    />
-                                </button>
-                            ))}
+                            {vm.chainName && (
+                                <span className="hd-chip hd-chip-quiet">
+                                    {vm.brandName
+                                        ? `${vm.chainName} · ${vm.brandName}`
+                                        : vm.chainName}
+                                </span>
+                            )}
                         </div>
 
-                        <button
-                            type="button"
-                            className="hd-allphotos"
-                            onClick={() => openGallery(0)}
-                        >
-                            <Icon name="camera" />
-                            {images.length > 1
-                                ? `View all ${images.length} photos`
-                                : 'View photo'}
-                        </button>
-                    </div>
-                )}
-
-                {/* ---------- section nav ---------- */}
-
-                <nav className="hd-nav mb-3" aria-label="Page sections">
-                    {navItems.map((item) => (
-                        <button
-                            type="button"
-                            key={item.id}
-                            className={`hd-nav-item ${activeSection === item.id ? 'is-active' : ''
-                                }`}
-                            onClick={() => scrollToId(item.id)}
-                        >
-                            {item.label}
-                        </button>
-                    ))}
-                </nav>
-
-                <Row className="g-4">
-                    {/* =================================================
-                        LEFT
-                    ================================================= */}
-
-                    <Col xs={12} lg={8}>
-                        {/* ---------- overview ---------- */}
-
-                        <section id="overview" className="hd-card hd-section">
-                            <h2 className="hd-h2">About this hotel</h2>
-
-                            {vm.overview ? (
-                                <p className="hd-body">{vm.overview}</p>
-                            ) : (
-                                vm.infoBlocks.length === 0 && (
-                                    <p className="text-muted mb-0">
-                                        Hotel description is not available.
-                                    </p>
-                                )
-                            )}
-
-                            {facts.length > 0 && (
-                                <div className="hd-facts">
-                                    {facts.map((fact) => (
-                                        <div
-                                            className="hd-fact"
-                                            key={fact.label}
-                                        >
-                                            <span className="hd-fact-icon">
-                                                <Icon name={fact.icon} />
-                                            </span>
-
-                                            <div>
-                                                <div className="hd-fact-label">
-                                                    {fact.label}
-                                                </div>
-
-                                                {fact.href ? (
-                                                    <a
-                                                        className="hd-fact-value"
-                                                        href={fact.href}
-                                                    >
-                                                        {fact.value}
-                                                    </a>
-                                                ) : (
-                                                    <div className="hd-fact-value">
-                                                        {fact.value}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {vm.infoBlocks.length > 0 && (
-                                <div className="hd-info-grid">
-                                    {vm.infoBlocks.map((block) => (
-                                        <div key={block.key}>
-                                            <h3 className="hd-h3">
-                                                {block.title}
-                                            </h3>
-
-                                            <p className="hd-body mb-0">
-                                                {block.text}
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </section>
-
-
-                        {pricingLoading && (
-                            <div className="text-center py-5">
-                                <div
-                                    className="spinner-border text-success mb-3"
-                                    role="status"
-                                >
-                                    <span className="visually-hidden">
-                                        Loading...
-                                    </span>
-                                </div>
-
-                                <div className="fw-semibold">
-                                    Fetching latest room prices...
-                                </div>
-
-                                <div className="text-muted small mt-1">
-                                    Please wait while we check availability.
-                                </div>
-                            </div>
-                        )}
-
-                        {pricingError && !pricingLoading && (
-                            <div className="alert alert-danger">
-                                <div className="fw-semibold mb-1">
-                                    Unable to load room pricing
-                                </div>
-
-                                <div className="small">
-                                    {pricingError}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* ---------- rooms ---------- */}
-
-                        <section id="rooms" className="hd-card hd-section">
-                            <div className="d-flex align-items-center justify-content-between gap-2 mb-3">
-                                <h2 className="hd-h2 mb-0">Choose your room</h2>
-
-                                {options.length > 0 && (
-                                    <span className="hd-chip hd-chip-quiet">
-                                        {plural(options.length, 'option')}
-                                    </span>
-                                )}
-                            </div>
-
-                            {options.length === 0 ? (
-                                <div className="text-center text-muted py-4">
-                                    No rooms are available for these dates.
-                                    {onBack && (
-                                        <div className="mt-3">
-                                            <Button
-                                                variant="outline-success"
-                                                className="hd-btn"
-                                                onClick={onBack}
-                                            >
-                                                Change search
-                                            </Button>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="d-flex flex-column gap-3">
-                                    {groups.map((group) => (
-                                        <div className="hd-room" key={group.key}>
-                                            <div className="hd-room-head">
-                                                <h3 className="hd-room-title">
-                                                    {group.title}
-                                                </h3>
-
-                                                <div className="hd-chips">
-                                                    {group.rooms.map(
-                                                        (room, index) => (
-                                                            <span
-                                                                className="hd-chip hd-chip-quiet"
-                                                                key={index}
-                                                            >
-                                                                <Icon
-                                                                    name="user"
-                                                                    size={13}
-                                                                />
-                                                                {group.rooms
-                                                                    .length > 1
-                                                                    ? `Room ${index + 1
-                                                                    }: `
-                                                                    : ''}
-                                                                {guestText(room)}
-                                                            </span>
-                                                        )
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            <div className="hd-plans">
-                                                {group.plans.map(
-                                                    (option, index) => {
-                                                        const planKey =
-                                                            option?.optionId ||
-                                                            `${group.key}-${index}`;
-
-                                                        return (
-                                                            <PlanRow
-                                                                key={planKey}
-                                                                option={option}
-                                                                nights={nights}
-                                                                isLowest={
-                                                                    options.length >
-                                                                    1 &&
-                                                                    option?.optionId ===
-                                                                    lowestId
-                                                                }
-                                                                open={
-                                                                    openPlan ===
-                                                                    planKey
-                                                                }
-                                                                onToggle={() =>
-                                                                    setOpenPlan(
-                                                                        (current) =>
-                                                                            current ===
-                                                                                planKey
-                                                                                ? null
-                                                                                : planKey
-                                                                    )
-                                                                }
-                                                                onSelect={
-                                                                    onSelectRoom
-                                                                }
-                                                            />
-                                                        );
-                                                    }
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </section>
-
-                        {/* ---------- amenities ---------- */}
-
-                        {amenities.length > 0 && (
-                            <section
-                                id="amenities"
-                                className="hd-card hd-section"
-                            >
-                                <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                                    <h2 className="hd-h2 mb-0">
-                                        Amenities
-                                        <span className="hd-count">
-                                            {amenities.length}
-                                        </span>
-                                    </h2>
-
-                                    {amenities.length > 18 && (
-                                        <input
-                                            type="search"
-                                            className="hd-search"
-                                            placeholder="Search amenities"
-                                            value={amenityQuery}
-                                            onChange={(event) =>
-                                                setAmenityQuery(
-                                                    event.target.value
-                                                )
-                                            }
-                                            aria-label="Search amenities"
-                                        />
-                                    )}
-                                </div>
-
-                                {shownAmenities.length === 0 ? (
-                                    <p className="text-muted mb-0">
-                                        No amenity matches your search.
-                                    </p>
-                                ) : (
-                                    <ul className="hd-amenities">
-                                        {shownAmenities.map((item) => (
-                                            <li key={item}>
-                                                <Icon name="check" size={15} />
-                                                <span>{item}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-
-                                {!amenityQuery &&
-                                    filteredAmenities.length > 18 && (
-                                        <Button
-                                            variant="outline-success"
-                                            className="hd-btn mt-3"
-                                            onClick={() =>
-                                                setShowAllAmenities(
-                                                    (value) => !value
-                                                )
-                                            }
-                                        >
-                                            {showAllAmenities
-                                                ? 'Show fewer'
-                                                : `Show all ${filteredAmenities.length} amenities`}
-                                        </Button>
-                                    )}
-                            </section>
-                        )}
-
-                        {/* ---------- location ---------- */}
-
-                        {hasLocation && (
-                            <section
-                                id="location"
-                                className="hd-card hd-section"
-                            >
-                                <h2 className="hd-h2">Location</h2>
-
-                                {vm.address && (
-                                    <p className="hd-meta mb-2">
-                                        <Icon name="pin" />
-                                        {vm.address}
-                                    </p>
-                                )}
-
-                                {vm.locationText && (
-                                    <p className="hd-body">
-                                        {vm.locationText}
-                                    </p>
-                                )}
-
-                                {vm.hasCoords && (
-                                    <div className="hd-map">
-                                        <iframe
-                                            title={`Map of ${name}`}
-                                            src={`https://www.google.com/maps?q=${vm.lat},${vm.lng}&z=15&output=embed`}
-                                            loading="lazy"
-                                            referrerPolicy="no-referrer-when-downgrade"
-                                            allowFullScreen
-                                        />
-                                    </div>
-                                )}
-
-                                {mapsLink && (
-                                    <a
-                                        className="btn btn-outline-success hd-btn mt-3"
-                                        href={mapsLink}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        Open in Google Maps
-                                    </a>
-                                )}
-
-                                {(vm.distances.places.length > 0 ||
-                                    vm.distances.airports.length > 0) && (
-                                        <div className="hd-distances">
-                                            {vm.distances.places.length > 0 && (
-                                                <div>
-                                                    <h3 className="hd-h3">
-                                                        What&apos;s nearby
-                                                    </h3>
-
-                                                    <ul className="hd-dist-list">
-                                                        {vm.distances.places.map(
-                                                            (place) => (
-                                                                <li
-                                                                    key={`${place.name}-${place.distance}`}
-                                                                >
-                                                                    <span>
-                                                                        {place.name}
-                                                                    </span>
-                                                                    <span className="hd-dist">
-                                                                        {place.distance}
-                                                                    </span>
-                                                                </li>
-                                                            )
-                                                        )}
-                                                    </ul>
-                                                </div>
-                                            )}
-
-                                            {vm.distances.airports.length > 0 && (
-                                                <div>
-                                                    <h3 className="hd-h3">
-                                                        Nearest airports
-                                                    </h3>
-
-                                                    <ul className="hd-dist-list">
-                                                        {vm.distances.airports.map(
-                                                            (place) => (
-                                                                <li
-                                                                    key={`${place.name}-${place.distance}`}
-                                                                >
-                                                                    <span>
-                                                                        {place.name}
-                                                                    </span>
-                                                                    <span className="hd-dist">
-                                                                        {place.distance}
-                                                                    </span>
-                                                                </li>
-                                                            )
-                                                        )}
-                                                    </ul>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                            </section>
-                        )}
-
-                        {/* ---------- policies ---------- */}
-
-                        {hasPolicies && (
-                            <section
-                                id="policies"
-                                className="hd-card hd-section"
-                            >
-                                <h2 className="hd-h2">Policies & good to know</h2>
-
-                                <Accordion
-                                    flush
-                                    defaultActiveKey="cancel"
-                                    className="hd-accordion"
-                                >
-                                    {options.length > 0 && (
-                                        <Accordion.Item eventKey="cancel">
-                                            <Accordion.Header>
-                                                Cancellation
-                                            </Accordion.Header>
-
-                                            <Accordion.Body>
-                                                <p className="mb-2">
-                                                    {vm.allNonRefundable
-                                                        ? 'All available rates for these dates are non-refundable. The full amount is charged if you cancel or do not show up.'
-                                                        : 'Cancellation terms depend on the rate you choose. Open "Show price breakdown & cancellation" on any room to see the exact dates and charges.'}
-                                                </p>
-                                            </Accordion.Body>
-                                        </Accordion.Item>
-                                    )}
-
-                                    {facts.length > 0 && (
-                                        <Accordion.Item eventKey="checkin">
-                                            <Accordion.Header>
-                                                Check-in & check-out
-                                            </Accordion.Header>
-
-                                            <Accordion.Body>
-                                                <ul className="hd-plain-list">
-                                                    {vm.checkIn.checkin_from && (
-                                                        <li>
-                                                            Check-in from{' '}
-                                                            <strong>
-                                                                {vm.checkIn.checkin_from}
-                                                            </strong>
-                                                            {vm.checkIn.checkin_till &&
-                                                                `, until ${vm.checkIn.checkin_till}`}
-                                                        </li>
-                                                    )}
-
-                                                    {vm.checkIn.checkout_from && (
-                                                        <li>
-                                                            Check-out by{' '}
-                                                            <strong>
-                                                                {vm.checkIn.checkout_from}
-                                                            </strong>
-                                                        </li>
-                                                    )}
-
-                                                    {vm.checkIn.checkin_min_age && (
-                                                        <li>
-                                                            Minimum check-in age:{' '}
-                                                            <strong>
-                                                                {vm.checkIn.checkin_min_age}
-                                                            </strong>
-                                                        </li>
-                                                    )}
-                                                </ul>
-                                            </Accordion.Body>
-                                        </Accordion.Item>
-                                    )}
-
-                                    {vm.feesBlocks.length > 0 && (
-                                        <Accordion.Item eventKey="fees">
-                                            <Accordion.Header>
-                                                Fees & deposits
-                                            </Accordion.Header>
-
-                                            <Accordion.Body>
-                                                <PolicyBlocks
-                                                    blocks={vm.feesBlocks}
-                                                />
-                                            </Accordion.Body>
-                                        </Accordion.Item>
-                                    )}
-
-                                    {vm.instructionBlocks.length > 0 && (
-                                        <Accordion.Item eventKey="instructions">
-                                            <Accordion.Header>
-                                                Important instructions
-                                            </Accordion.Header>
-
-                                            <Accordion.Body>
-                                                <PolicyBlocks
-                                                    blocks={vm.instructionBlocks}
-                                                />
-                                            </Accordion.Body>
-                                        </Accordion.Item>
-                                    )}
-
-                                    {vm.knowBlocks.length > 0 && (
-                                        <Accordion.Item eventKey="know">
-                                            <Accordion.Header>
-                                                Know before you go
-                                            </Accordion.Header>
-
-                                            <Accordion.Body>
-                                                <PolicyBlocks
-                                                    blocks={vm.knowBlocks}
-                                                />
-                                            </Accordion.Body>
-                                        </Accordion.Item>
-                                    )}
-
-                                    {(vm.languages.length > 0 ||
-                                        vm.payments.length > 0) && (
-                                            <Accordion.Item eventKey="more">
-                                                <Accordion.Header>
-                                                    Payments & languages
-                                                </Accordion.Header>
-
-                                                <Accordion.Body>
-                                                    {vm.payments.length > 0 && (
-                                                        <div className="mb-3">
-                                                            <div className="fw-semibold mb-2">
-                                                                Accepted at the hotel
-                                                            </div>
-
-                                                            <div className="hd-chips">
-                                                                {vm.payments.map(
-                                                                    (item) => (
-                                                                        <span
-                                                                            className="hd-chip hd-chip-quiet"
-                                                                            key={item}
-                                                                        >
-                                                                            {item}
-                                                                        </span>
-                                                                    )
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {vm.languages.length > 0 && (
-                                                        <div>
-                                                            <div className="fw-semibold mb-2">
-                                                                Languages spoken
-                                                            </div>
-
-                                                            <div className="hd-chips">
-                                                                {vm.languages.map(
-                                                                    (item) => (
-                                                                        <span
-                                                                            className="hd-chip hd-chip-quiet"
-                                                                            key={item}
-                                                                        >
-                                                                            {item}
-                                                                        </span>
-                                                                    )
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </Accordion.Body>
-                                            </Accordion.Item>
-                                        )}
-                                </Accordion>
-                            </section>
-                        )}
-                    </Col>
-
-                    {/* =================================================
-                        RIGHT — SUMMARY
-                    ================================================= */}
-
-                    <Col xs={12} lg={4} className="d-none d-lg-block">
-                        <aside className="hd-card hd-summary">
-                            <h2 className="hd-h2">Your stay</h2>
-
-                            <div className="hd-sum-row">
-                                <span>Hotel</span>
-                                <strong>{name}</strong>
-                            </div>
-
-                            {checkIn && checkOut && (
-                                <div className="hd-sum-row">
-                                    <span>Dates</span>
-                                    <strong>
-                                        {formatDate(checkIn)} –{' '}
-                                        {formatDate(checkOut)}
-                                        {nights ? ` (${plural(nights, 'night')})` : ''}
-                                    </strong>
-                                </div>
-                            )}
-
-                            {cheapestGuests && cheapestGuests.rooms > 0 && (
-                                <div className="hd-sum-row">
-                                    <span>Guests</span>
-                                    <strong>
-                                        {plural(cheapestGuests.rooms, 'room')},{' '}
-                                        {plural(cheapestGuests.adults, 'adult')}
-                                        {cheapestGuests.children > 0 &&
-                                            `, ${cheapestGuests.children} ${cheapestGuests.children === 1
-                                                ? 'child'
-                                                : 'children'
-                                            }`}
-                                    </strong>
-                                </div>
-                            )}
-
-                            {cheapest?.mealBasis && (
-                                <div className="hd-sum-row">
-                                    <span>Meal plan</span>
-                                    <strong>{cheapest.mealBasis}</strong>
-                                </div>
-                            )}
-
-                            {cheapestCancel && cheapest?.cancellation && (
-                                <div className="hd-sum-row">
-                                    <span>Cancellation</span>
-                                    <strong
-                                        className={`hd-cancel-${cheapestCancel.tone}`}
-                                    >
-                                        {cheapest.cancellation.isRefundable
-                                            ? 'Refundable'
-                                            : 'Non-refundable'}
-                                    </strong>
-                                </div>
-                            )}
-
-                            <hr className="hd-hr" />
-
-                            {cheapestTotal !== null && (
-                                <>
-                                    <div className="hd-price-note">
-                                        {options.length > 1
-                                            ? 'Starting from'
-                                            : 'Total'}
-                                    </div>
-
-                                    <div className="hd-price hd-price-lg">
-                                        {money(cheapestTotal, currency)}
-                                    </div>
-
-                                    <div className="hd-price-note">
-                                        Taxes & fees included
-                                        {nights
-                                            ? ` · ≈ ${money(
-                                                cheapestTotal / nights,
-                                                currency
-                                            )} / night`
-                                            : ''}
-                                    </div>
-                                </>
-                            )}
-
-                            <Button
-                                variant="success"
-                                className="hd-btn w-100 mt-3"
-                                onClick={() => onSelectRoom?.(cheapest)}
-                                disabled={!cheapest}
-                            >
-                                Select lowest-price room
-                            </Button>
-
-                            <Button
-                                variant="outline-success"
-                                className="hd-btn w-100 mt-2"
-                                onClick={() => scrollToId('rooms')}
-                                disabled={options.length === 0}
-                            >
-                                Compare all rooms
-                            </Button>
-                        </aside>
-                    </Col>
-                </Row>
-            </Container>
-
-            {/* ---------- mobile sticky booking bar ---------- */}
-
-            {cheapestTotal !== null && (
-                <div className="hd-mobilebar d-lg-none">
-                    <div>
-                        <div className="hd-price-note">
-                            {options.length > 1 ? 'From' : 'Total'}
+                        <div className="d-flex flex-wrap align-items-center gap-2 gap-md-3">
+                            <h1 className="hd-title">{name}</h1>
+                            <Stars count={stars} />
                         </div>
 
-                        <div className="hd-price">
-                            {money(cheapestTotal, currency)}
-                        </div>
-                    </div>
-
-                    <Button
-                        variant="success"
-                        className="hd-btn"
-                        onClick={() => scrollToId('rooms')}
-                    >
-                        View rooms
-                    </Button>
-                </div>
-            )}
-
-            {/* ---------- lightbox ---------- */}
-
-            <Modal
-                show={photoIndex !== null}
-                onHide={closeGallery}
-                fullscreen
-                className="hd-lightbox"
-                style={{ zIndex: 99999 }}
-            >
-                <Modal.Header closeButton closeVariant="white">
-                    <Modal.Title as="div" className="hd-lb-title">
-                        {name}
-                        <span className="hd-lb-count">
-                            {(photoIndex ?? 0) + 1} / {imageCount}
-                        </span>
-                    </Modal.Title>
-                </Modal.Header>
-
-                <Modal.Body>
-                    <div className="hd-lb-stage">
-                        <button
-                            type="button"
-                            className="hd-lb-nav is-prev"
-                            onClick={prevPhoto}
-                            aria-label="Previous photo"
-                        >
-                            <Icon name="left" size={26} />
-                        </button>
-
-                        {photoIndex !== null && images[photoIndex] && (
-                            <SafeImg
-                                key={images[photoIndex]}
-                                src={images[photoIndex]}
-                                alt={`${name} photo ${photoIndex + 1}`}
-                                className="hd-lb-image"
-                                loading="eager"
-                            />
+                        {vm.tagline && (
+                            <p className="hd-tagline">{vm.tagline}</p>
                         )}
 
-                        <button
-                            type="button"
-                            className="hd-lb-nav is-next"
-                            onClick={nextPhoto}
-                            aria-label="Next photo"
-                        >
-                            <Icon name="right" size={26} />
-                        </button>
-                    </div>
+                        <div className="d-flex flex-wrap align-items-center gap-3 mt-2">
+                            {vm.address && (
+                                <span className="hd-meta">
+                                    <Icon name="pin" />
+                                    {vm.address}
+                                </span>
+                            )}
 
-                    <div className="hd-thumbs">
-                        {images
-                            .slice(thumbStart, thumbEnd)
-                            .map((src, offset) => {
-                                const index = thumbStart + offset;
+                            {mapsLink && (
+                                <a
+                                    className="hd-link"
+                                    href={mapsLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    View on map
+                                </a>
+                            )}
+                        </div>
+                    </header>
 
-                                return (
+                    {/* ---------- gallery ---------- */}
+
+                    {galleryImages.length > 0 && (
+                        <div className="hd-gallery-wrap mb-3">
+                            <div
+                                className={`hd-gallery hd-g-${galleryImages.length}`}
+                            >
+                                {galleryImages.map((src, index) => (
                                     <button
                                         type="button"
                                         key={src}
-                                        className={`hd-thumb ${index === photoIndex
-                                            ? 'is-active'
-                                            : ''
-                                            }`}
-                                        onClick={() => setPhotoIndex(index)}
-                                        aria-label={`Go to photo ${index + 1}`}
+                                        className={`hd-cell ${index === 0 ? 'is-main' : ''
+                                            } ${index > 0 ? 'd-none d-md-block' : ''}`}
+                                        onClick={() => openGallery(index)}
+                                        aria-label={`Open photo ${index + 1} of ${images.length}`}
                                     >
-                                        <SafeImg src={src} alt="" />
+                                        <SafeImg
+                                            src={src}
+                                            alt={`${name} photo ${index + 1}`}
+                                            loading={index === 0 ? 'eager' : 'lazy'}
+                                        />
                                     </button>
-                                );
-                            })}
+                                ))}
+                            </div>
+
+                            <button
+                                type="button"
+                                className="hd-allphotos"
+                                onClick={() => openGallery(0)}
+                            >
+                                <Icon name="camera" />
+                                {images.length > 1
+                                    ? `View all ${images.length} photos`
+                                    : 'View photo'}
+                            </button>
+                        </div>
+                    )}
+
+                    {/* ---------- section nav ---------- */}
+
+                    <nav className="hd-nav mb-3" aria-label="Page sections">
+                        {navItems.map((item) => (
+                            <button
+                                type="button"
+                                key={item.id}
+                                className={`hd-nav-item ${activeSection === item.id ? 'is-active' : ''
+                                    }`}
+                                onClick={() => scrollToId(item.id)}
+                            >
+                                {item.label}
+                            </button>
+                        ))}
+                    </nav>
+
+                    <Row className="g-4">
+                        {/* =================================================
+                        LEFT
+                    ================================================= */}
+
+                        <Col xs={12} lg={8}>
+                            {/* ---------- overview ---------- */}
+
+                            <section id="overview" className="hd-card hd-section">
+                                <h2 className="hd-h2">About this hotel</h2>
+
+                                {vm.overview ? (
+                                    <p className="hd-body">{vm.overview}</p>
+                                ) : (
+                                    vm.infoBlocks.length === 0 && (
+                                        <p className="text-muted mb-0">
+                                            Hotel description is not available.
+                                        </p>
+                                    )
+                                )}
+
+                                {facts.length > 0 && (
+                                    <div className="hd-facts">
+                                        {facts.map((fact) => (
+                                            <div
+                                                className="hd-fact"
+                                                key={fact.label}
+                                            >
+                                                <span className="hd-fact-icon">
+                                                    <Icon name={fact.icon} />
+                                                </span>
+
+                                                <div>
+                                                    <div className="hd-fact-label">
+                                                        {fact.label}
+                                                    </div>
+
+                                                    {fact.href ? (
+                                                        <a
+                                                            className="hd-fact-value"
+                                                            href={fact.href}
+                                                        >
+                                                            {fact.value}
+                                                        </a>
+                                                    ) : (
+                                                        <div className="hd-fact-value">
+                                                            {fact.value}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {vm.infoBlocks.length > 0 && (
+                                    <div className="hd-info-grid">
+                                        {vm.infoBlocks.map((block) => (
+                                            <div key={block.key}>
+                                                <h3 className="hd-h3">
+                                                    {block.title}
+                                                </h3>
+
+                                                <p className="hd-body mb-0">
+                                                    {block.text}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </section>
+
+
+                            {pricingLoading && (
+                                <div className="text-center py-5">
+                                    <div
+                                        className="spinner-border text-success mb-3"
+                                        role="status"
+                                    >
+                                        <span className="visually-hidden">
+                                            Loading...
+                                        </span>
+                                    </div>
+
+                                    <div className="fw-semibold">
+                                        Fetching latest room prices...
+                                    </div>
+
+                                    <div className="text-muted small mt-1">
+                                        Please wait while we check availability.
+                                    </div>
+                                </div>
+                            )}
+
+                            {pricingError && !pricingLoading && (
+                                <div className="alert alert-danger">
+                                    <div className="fw-semibold mb-1">
+                                        Unable to load room pricing
+                                    </div>
+
+                                    <div className="small">
+                                        {pricingError}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ---------- rooms ---------- */}
+
+                            <section id="rooms" className="hd-card hd-section">
+                                <div className="d-flex align-items-center justify-content-between gap-2 mb-3">
+                                    <h2 className="hd-h2 mb-0">Choose your room</h2>
+
+                                    {options.length > 0 && (
+                                        <span className="hd-chip hd-chip-quiet">
+                                            {plural(options.length, 'option')}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {options.length === 0 ? (
+                                    <div className="text-center text-muted py-4">
+                                        No rooms are available for these dates.
+                                        {onBack && (
+                                            <div className="mt-3">
+                                                <Button
+                                                    variant="outline-success"
+                                                    className="hd-btn"
+                                                    onClick={onBack}
+                                                >
+                                                    Change search
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="d-flex flex-column gap-3">
+                                        {groups.map((group) => (
+                                            <div className="hd-room" key={group.key}>
+                                                <div className="hd-room-head">
+                                                    <h3 className="hd-room-title">
+                                                        {group.title}
+                                                    </h3>
+
+                                                    <div className="hd-chips">
+                                                        {group.rooms.map(
+                                                            (room, index) => (
+                                                                <span
+                                                                    className="hd-chip hd-chip-quiet"
+                                                                    key={index}
+                                                                >
+                                                                    <Icon
+                                                                        name="user"
+                                                                        size={13}
+                                                                    />
+                                                                    {group.rooms
+                                                                        .length > 1
+                                                                        ? `Room ${index + 1
+                                                                        }: `
+                                                                        : ''}
+                                                                    {guestText(room)}
+                                                                </span>
+                                                            )
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="hd-plans">
+                                                    {group.plans.map(
+                                                        (option, index) => {
+                                                            const planKey =
+                                                                option?.optionId ||
+                                                                `${group.key}-${index}`;
+
+                                                            return (
+                                                                <PlanRow
+                                                                    key={planKey}
+                                                                    option={option}
+                                                                    nights={nights}
+                                                                    isLowest={
+                                                                        options.length > 1 &&
+                                                                        option?.optionId === lowestId
+                                                                    }
+                                                                    open={
+                                                                        openPlan === planKey
+                                                                    }
+                                                                    isUnavailable={unavailableOptions.includes(
+                                                                        getOptionUniqueId(option)
+                                                                    )}
+                                                                    isChecking={
+                                                                        checkingOptionId ===
+                                                                        getOptionUniqueId(option)
+                                                                    }
+                                                                    onToggle={() =>
+                                                                        setOpenPlan(
+                                                                            (current) =>
+                                                                                current === planKey
+                                                                                    ? null
+                                                                                    : planKey
+                                                                        )
+                                                                    }
+                                                                    onSelect={onSelectRoom}
+                                                                />
+                                                            );
+                                                        }
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </section>
+
+                            {/* ---------- amenities ---------- */}
+
+                            {amenities.length > 0 && (
+                                <section
+                                    id="amenities"
+                                    className="hd-card hd-section"
+                                >
+                                    <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                                        <h2 className="hd-h2 mb-0">
+                                            Amenities
+                                            <span className="hd-count">
+                                                {amenities.length}
+                                            </span>
+                                        </h2>
+
+                                        {amenities.length > 18 && (
+                                            <input
+                                                type="search"
+                                                className="hd-search"
+                                                placeholder="Search amenities"
+                                                value={amenityQuery}
+                                                onChange={(event) =>
+                                                    setAmenityQuery(
+                                                        event.target.value
+                                                    )
+                                                }
+                                                aria-label="Search amenities"
+                                            />
+                                        )}
+                                    </div>
+
+                                    {shownAmenities.length === 0 ? (
+                                        <p className="text-muted mb-0">
+                                            No amenity matches your search.
+                                        </p>
+                                    ) : (
+                                        <ul className="hd-amenities">
+                                            {shownAmenities.map((item) => (
+                                                <li key={item}>
+                                                    <Icon name="check" size={15} />
+                                                    <span>{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+
+                                    {!amenityQuery &&
+                                        filteredAmenities.length > 18 && (
+                                            <Button
+                                                variant="outline-success"
+                                                className="hd-btn mt-3"
+                                                onClick={() =>
+                                                    setShowAllAmenities(
+                                                        (value) => !value
+                                                    )
+                                                }
+                                            >
+                                                {showAllAmenities
+                                                    ? 'Show fewer'
+                                                    : `Show all ${filteredAmenities.length} amenities`}
+                                            </Button>
+                                        )}
+                                </section>
+                            )}
+
+                            {/* ---------- location ---------- */}
+
+                            {hasLocation && (
+                                <section
+                                    id="location"
+                                    className="hd-card hd-section"
+                                >
+                                    <h2 className="hd-h2">Location</h2>
+
+                                    {vm.address && (
+                                        <p className="hd-meta mb-2">
+                                            <Icon name="pin" />
+                                            {vm.address}
+                                        </p>
+                                    )}
+
+                                    {vm.locationText && (
+                                        <p className="hd-body">
+                                            {vm.locationText}
+                                        </p>
+                                    )}
+
+                                    {vm.hasCoords && (
+                                        <div className="hd-map">
+                                            <iframe
+                                                title={`Map of ${name}`}
+                                                src={`https://www.google.com/maps?q=${vm.lat},${vm.lng}&z=15&output=embed`}
+                                                loading="lazy"
+                                                referrerPolicy="no-referrer-when-downgrade"
+                                                allowFullScreen
+                                            />
+                                        </div>
+                                    )}
+
+                                    {mapsLink && (
+                                        <a
+                                            className="btn btn-outline-success hd-btn mt-3"
+                                            href={mapsLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            Open in Google Maps
+                                        </a>
+                                    )}
+
+                                    {(vm.distances.places.length > 0 ||
+                                        vm.distances.airports.length > 0) && (
+                                            <div className="hd-distances">
+                                                {vm.distances.places.length > 0 && (
+                                                    <div>
+                                                        <h3 className="hd-h3">
+                                                            What&apos;s nearby
+                                                        </h3>
+
+                                                        <ul className="hd-dist-list">
+                                                            {vm.distances.places.map(
+                                                                (place) => (
+                                                                    <li
+                                                                        key={`${place.name}-${place.distance}`}
+                                                                    >
+                                                                        <span>
+                                                                            {place.name}
+                                                                        </span>
+                                                                        <span className="hd-dist">
+                                                                            {place.distance}
+                                                                        </span>
+                                                                    </li>
+                                                                )
+                                                            )}
+                                                        </ul>
+                                                    </div>
+                                                )}
+
+                                                {vm.distances.airports.length > 0 && (
+                                                    <div>
+                                                        <h3 className="hd-h3">
+                                                            Nearest airports
+                                                        </h3>
+
+                                                        <ul className="hd-dist-list">
+                                                            {vm.distances.airports.map(
+                                                                (place) => (
+                                                                    <li
+                                                                        key={`${place.name}-${place.distance}`}
+                                                                    >
+                                                                        <span>
+                                                                            {place.name}
+                                                                        </span>
+                                                                        <span className="hd-dist">
+                                                                            {place.distance}
+                                                                        </span>
+                                                                    </li>
+                                                                )
+                                                            )}
+                                                        </ul>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                </section>
+                            )}
+
+                            {/* ---------- policies ---------- */}
+
+                            {hasPolicies && (
+                                <section
+                                    id="policies"
+                                    className="hd-card hd-section"
+                                >
+                                    <h2 className="hd-h2">Policies & good to know</h2>
+
+                                    <Accordion
+                                        flush
+                                        defaultActiveKey="cancel"
+                                        className="hd-accordion"
+                                    >
+                                        {options.length > 0 && (
+                                            <Accordion.Item eventKey="cancel">
+                                                <Accordion.Header>
+                                                    Cancellation
+                                                </Accordion.Header>
+
+                                                <Accordion.Body>
+                                                    <p className="mb-2">
+                                                        {vm.allNonRefundable
+                                                            ? 'All available rates for these dates are non-refundable. The full amount is charged if you cancel or do not show up.'
+                                                            : 'Cancellation terms depend on the rate you choose. Open "Show price breakdown & cancellation" on any room to see the exact dates and charges.'}
+                                                    </p>
+                                                </Accordion.Body>
+                                            </Accordion.Item>
+                                        )}
+
+                                        {facts.length > 0 && (
+                                            <Accordion.Item eventKey="checkin">
+                                                <Accordion.Header>
+                                                    Check-in & check-out
+                                                </Accordion.Header>
+
+                                                <Accordion.Body>
+                                                    <ul className="hd-plain-list">
+                                                        {vm.checkIn.checkin_from && (
+                                                            <li>
+                                                                Check-in from{' '}
+                                                                <strong>
+                                                                    {vm.checkIn.checkin_from}
+                                                                </strong>
+                                                                {vm.checkIn.checkin_till &&
+                                                                    `, until ${vm.checkIn.checkin_till}`}
+                                                            </li>
+                                                        )}
+
+                                                        {vm.checkIn.checkout_from && (
+                                                            <li>
+                                                                Check-out by{' '}
+                                                                <strong>
+                                                                    {vm.checkIn.checkout_from}
+                                                                </strong>
+                                                            </li>
+                                                        )}
+
+                                                        {vm.checkIn.checkin_min_age && (
+                                                            <li>
+                                                                Minimum check-in age:{' '}
+                                                                <strong>
+                                                                    {vm.checkIn.checkin_min_age}
+                                                                </strong>
+                                                            </li>
+                                                        )}
+                                                    </ul>
+                                                </Accordion.Body>
+                                            </Accordion.Item>
+                                        )}
+
+                                        {vm.feesBlocks.length > 0 && (
+                                            <Accordion.Item eventKey="fees">
+                                                <Accordion.Header>
+                                                    Fees & deposits
+                                                </Accordion.Header>
+
+                                                <Accordion.Body>
+                                                    <PolicyBlocks
+                                                        blocks={vm.feesBlocks}
+                                                    />
+                                                </Accordion.Body>
+                                            </Accordion.Item>
+                                        )}
+
+                                        {vm.instructionBlocks.length > 0 && (
+                                            <Accordion.Item eventKey="instructions">
+                                                <Accordion.Header>
+                                                    Important instructions
+                                                </Accordion.Header>
+
+                                                <Accordion.Body>
+                                                    <PolicyBlocks
+                                                        blocks={vm.instructionBlocks}
+                                                    />
+                                                </Accordion.Body>
+                                            </Accordion.Item>
+                                        )}
+
+                                        {vm.knowBlocks.length > 0 && (
+                                            <Accordion.Item eventKey="know">
+                                                <Accordion.Header>
+                                                    Know before you go
+                                                </Accordion.Header>
+
+                                                <Accordion.Body>
+                                                    <PolicyBlocks
+                                                        blocks={vm.knowBlocks}
+                                                    />
+                                                </Accordion.Body>
+                                            </Accordion.Item>
+                                        )}
+
+                                        {(vm.languages.length > 0 ||
+                                            vm.payments.length > 0) && (
+                                                <Accordion.Item eventKey="more">
+                                                    <Accordion.Header>
+                                                        Payments & languages
+                                                    </Accordion.Header>
+
+                                                    <Accordion.Body>
+                                                        {vm.payments.length > 0 && (
+                                                            <div className="mb-3">
+                                                                <div className="fw-semibold mb-2">
+                                                                    Accepted at the hotel
+                                                                </div>
+
+                                                                <div className="hd-chips">
+                                                                    {vm.payments.map(
+                                                                        (item) => (
+                                                                            <span
+                                                                                className="hd-chip hd-chip-quiet"
+                                                                                key={item}
+                                                                            >
+                                                                                {item}
+                                                                            </span>
+                                                                        )
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {vm.languages.length > 0 && (
+                                                            <div>
+                                                                <div className="fw-semibold mb-2">
+                                                                    Languages spoken
+                                                                </div>
+
+                                                                <div className="hd-chips">
+                                                                    {vm.languages.map(
+                                                                        (item) => (
+                                                                            <span
+                                                                                className="hd-chip hd-chip-quiet"
+                                                                                key={item}
+                                                                            >
+                                                                                {item}
+                                                                            </span>
+                                                                        )
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </Accordion.Body>
+                                                </Accordion.Item>
+                                            )}
+                                    </Accordion>
+                                </section>
+                            )}
+                        </Col>
+
+                        {/* =================================================
+                        RIGHT — SUMMARY
+                    ================================================= */}
+
+                        <Col xs={12} lg={4} className="d-none d-lg-block">
+                            <aside className="hd-card hd-summary">
+                                <h2 className="hd-h2">Your stay</h2>
+
+                                <div className="hd-sum-row">
+                                    <span>Hotel</span>
+                                    <strong>{name}</strong>
+                                </div>
+
+                                {checkIn && checkOut && (
+                                    <div className="hd-sum-row">
+                                        <span>Dates</span>
+                                        <strong>
+                                            {formatDate(checkIn)} –{' '}
+                                            {formatDate(checkOut)}
+                                            {nights ? ` (${plural(nights, 'night')})` : ''}
+                                        </strong>
+                                    </div>
+                                )}
+
+                                {cheapestGuests && cheapestGuests.rooms > 0 && (
+                                    <div className="hd-sum-row">
+                                        <span>Guests</span>
+                                        <strong>
+                                            {plural(cheapestGuests.rooms, 'room')},{' '}
+                                            {plural(cheapestGuests.adults, 'adult')}
+                                            {cheapestGuests.children > 0 &&
+                                                `, ${cheapestGuests.children} ${cheapestGuests.children === 1
+                                                    ? 'child'
+                                                    : 'children'
+                                                }`}
+                                        </strong>
+                                    </div>
+                                )}
+
+                                {cheapest?.mealBasis && (
+                                    <div className="hd-sum-row">
+                                        <span>Meal plan</span>
+                                        <strong>{cheapest.mealBasis}</strong>
+                                    </div>
+                                )}
+
+                                {cheapestCancel && cheapest?.cancellation && (
+                                    <div className="hd-sum-row">
+                                        <span>Cancellation</span>
+                                        <strong
+                                            className={`hd-cancel-${cheapestCancel.tone}`}
+                                        >
+                                            {cheapest.cancellation.isRefundable
+                                                ? 'Refundable'
+                                                : 'Non-refundable'}
+                                        </strong>
+                                    </div>
+                                )}
+
+                                <hr className="hd-hr" />
+
+                                {cheapestTotal !== null && (
+                                    <>
+                                        <div className="hd-price-note">
+                                            {options.length > 1
+                                                ? 'Starting from'
+                                                : 'Total'}
+                                        </div>
+
+                                        <div className="hd-price hd-price-lg">
+                                            {money(cheapestTotal, currency)}
+                                        </div>
+
+                                        <div className="hd-price-note">
+                                            Taxes & fees included
+                                            {nights
+                                                ? ` · ≈ ${money(
+                                                    cheapestTotal / nights,
+                                                    currency
+                                                )} / night`
+                                                : ''}
+                                        </div>
+                                    </>
+                                )}
+
+                                <Button
+                                    variant="success"
+                                    className="hd-btn w-100 mt-3"
+                                    onClick={() => onSelectRoom?.(cheapest)}
+                                    disabled={!cheapest}
+                                >
+                                    Select lowest-price room
+                                </Button>
+
+                                <Button
+                                    variant="outline-success"
+                                    className="hd-btn w-100 mt-2"
+                                    onClick={() => scrollToId('rooms')}
+                                    disabled={options.length === 0}
+                                >
+                                    Compare all rooms
+                                </Button>
+                            </aside>
+                        </Col>
+                    </Row>
+                </Container>
+
+                {/* ---------- mobile sticky booking bar ---------- */}
+
+                {cheapestTotal !== null && (
+                    <div className="hd-mobilebar d-lg-none">
+                        <div>
+                            <div className="hd-price-note">
+                                {options.length > 1 ? 'From' : 'Total'}
+                            </div>
+
+                            <div className="hd-price">
+                                {money(cheapestTotal, currency)}
+                            </div>
+                        </div>
+
+                        <Button
+                            variant="success"
+                            className="hd-btn"
+                            onClick={() => scrollToId('rooms')}
+                        >
+                            View rooms
+                        </Button>
                     </div>
-                </Modal.Body>
-            </Modal>
-        </div>
+                )}
+
+                {/* ---------- lightbox ---------- */}
+
+                <Modal
+                    show={photoIndex !== null}
+                    onHide={closeGallery}
+                    fullscreen
+                    className="hd-lightbox"
+                    style={{ zIndex: 99999 }}
+                >
+                    <Modal.Header closeButton closeVariant="white">
+                        <Modal.Title as="div" className="hd-lb-title">
+                            {name}
+                            <span className="hd-lb-count">
+                                {(photoIndex ?? 0) + 1} / {imageCount}
+                            </span>
+                        </Modal.Title>
+                    </Modal.Header>
+
+                    <Modal.Body>
+                        <div className="hd-lb-stage">
+                            <button
+                                type="button"
+                                className="hd-lb-nav is-prev"
+                                onClick={prevPhoto}
+                                aria-label="Previous photo"
+                            >
+                                <Icon name="left" size={26} />
+                            </button>
+
+                            {photoIndex !== null && images[photoIndex] && (
+                                <SafeImg
+                                    key={images[photoIndex]}
+                                    src={images[photoIndex]}
+                                    alt={`${name} photo ${photoIndex + 1}`}
+                                    className="hd-lb-image"
+                                    loading="eager"
+                                />
+                            )}
+
+                            <button
+                                type="button"
+                                className="hd-lb-nav is-next"
+                                onClick={nextPhoto}
+                                aria-label="Next photo"
+                            >
+                                <Icon name="right" size={26} />
+                            </button>
+                        </div>
+
+                        <div className="hd-thumbs">
+                            {images
+                                .slice(thumbStart, thumbEnd)
+                                .map((src, offset) => {
+                                    const index = thumbStart + offset;
+
+                                    return (
+                                        <button
+                                            type="button"
+                                            key={src}
+                                            className={`hd-thumb ${index === photoIndex
+                                                ? 'is-active'
+                                                : ''
+                                                }`}
+                                            onClick={() => setPhotoIndex(index)}
+                                            aria-label={`Go to photo ${index + 1}`}
+                                        >
+                                            <SafeImg src={src} alt="" />
+                                        </button>
+                                    );
+                                })}
+                        </div>
+                    </Modal.Body>
+                </Modal>
+            </div>
+        </>
     );
 };
 

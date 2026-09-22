@@ -2,7 +2,7 @@ import 'server-only';
 
 import { normalizeThemePayload } from '@/utils/themeVariables';
 
-const THEME_COLOURS_ENDPOINT = 'http://192.168.0.166:5000/api/v1/crm/settings/theme-colours';
+const THEME_COLOURS_ENDPOINT = 'http://192.168.0.197:5001/api/v1/crm/settings/theme-colours';
 const THEME_COLOURS_API_KEY =
   process.env.CRM_THEME_COLOURS_API_KEY ||
   process.env.CRM_COMPANY_INFO_API_KEY ||

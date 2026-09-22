@@ -129,14 +129,14 @@ export default function InsuranceClient({ pageData, formConfig }) {
   const heroHeadingLarge = heroSection?.json_data?.heading_content;
   const heroDesc = heroSection?.json_data?.body;
   const heroMediaUrl = heroSection?.json_data?.media_url;
-  const fullHeroMediaUrl = heroMediaUrl ? (heroMediaUrl.startsWith('http') ? heroMediaUrl : `http://192.168.0.166:5000${heroMediaUrl}`) : null;
+  const fullHeroMediaUrl = heroMediaUrl ? (heroMediaUrl.startsWith('http') ? heroMediaUrl : `http://192.168.0.197:5001${heroMediaUrl}`) : null;
   console.log(fullHeroMediaUrl, "fullHeroMediaUrl");
 
   const partnersTitle = partnersSection?.title !== undefined ? partnersSection.title : 'Our Trusted Insurance Partners';
   const dynamicPartners = partnersSection?.json_data?.team !== undefined ? 
     (partnersSection.json_data.team?.map(p => ({
       name: p.name,
-      logo: p.img?.startsWith('http') ? p.img : `http://192.168.0.166:5000${p.img}`
+      logo: p.img?.startsWith('http') ? p.img : `http://192.168.0.197:5001${p.img}`
     })) || []) : null;
 
   const benefitsTitle = benefitsSection?.title !== undefined ? benefitsSection.title : 'Why You Need Coverage';

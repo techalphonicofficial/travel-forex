@@ -1,0 +1,611 @@
+* {
+    box-sizing: border-box;
+}
+
+.flight-results-page {
+    min-height: 100vh;
+    background: #f3f4f6;
+    color: #171717;
+    padding-bottom: 60px;
+}
+
+.results-container {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+}
+
+
+/* =========================
+   TOP SEARCH
+========================= */
+
+.top-search-area {
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+    padding: 14px 0;
+}
+
+.search-summary {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+}
+
+.search-box {
+    min-width: 150px;
+    padding: 9px 14px;
+    border: 1px solid #d7dbe2;
+    border-radius: 8px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.search-box small {
+    color: #777;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.search-box strong {
+    font-size: 15px;
+    margin-top: 3px;
+}
+
+.search-box span {
+    color: #777;
+    font-size: 11px;
+}
+
+.swap-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0878ff;
+    font-size: 23px;
+    width: 30px;
+}
+
+.modify-btn {
+    margin-left: auto;
+    padding: 0 22px;
+    border: 0;
+    border-radius: 8px;
+    background: #0d47a1;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+/* =========================
+   DATE STRIP
+========================= */
+
+.date-strip {
+    margin: 14px 0;
+    background: #fff;
+    border-radius: 16px;
+    padding: 7px;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+}
+
+.date-item {
+    flex: 1;
+    min-width: 115px;
+    padding: 10px 8px;
+    text-align: center;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.date-item span {
+    font-size: 12px;
+    color: #555;
+}
+
+.date-item strong {
+    font-size: 13px;
+    color: #444;
+}
+
+.date-item.active {
+    background: #eef7ff;
+    border-bottom: 3px solid #1688ff;
+}
+
+.date-item.active strong {
+    color: #0878ff;
+}
+
+.date-arrow {
+    width: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1688ff;
+    font-size: 25px;
+}
+
+
+/* =========================
+   LAYOUT
+========================= */
+
+.results-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 18px;
+    align-items: start;
+}
+
+
+/* =========================
+   FILTERS
+========================= */
+
+.filters-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.filter-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 17px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+}
+
+.filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filter-header strong {
+    font-size: 17px;
+}
+
+.filter-header button {
+    border: 0;
+    background: transparent;
+    color: #0878ff;
+    font-size: 13px;
+}
+
+.filter-tag {
+    display: inline-flex;
+    margin-top: 14px;
+    padding: 7px 10px;
+    border: 1px solid #d9dfe7;
+    border-radius: 7px;
+    font-size: 13px;
+    gap: 8px;
+}
+
+.filter-card h4 {
+    margin: 0 0 14px;
+    font-size: 16px;
+}
+
+.filter-search {
+    width: 100%;
+    height: 38px;
+    padding: 0 11px;
+    border: 1px solid #d7dbe2;
+    border-radius: 7px;
+    margin-bottom: 10px;
+}
+
+.check-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 0;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.check-row input {
+    width: 17px;
+    height: 17px;
+}
+
+.time-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+}
+
+.time-grid button {
+    padding: 10px 5px;
+    border: 1px solid #dce1e8;
+    background: #fff;
+    border-radius: 7px;
+    font-size: 11px;
+    color: #555;
+}
+
+.time-grid strong {
+    display: block;
+    color: #222;
+}
+
+
+/* =========================
+   RESULTS HEADER
+========================= */
+
+.results-title-row {
+    margin-bottom: 12px;
+}
+
+.results-title-row h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.results-title-row p {
+    margin: 5px 0 0;
+    color: #777;
+    font-size: 13px;
+}
+
+
+/* =========================
+   SORT BAR
+========================= */
+
+.sort-bar {
+    background: #fff;
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin-bottom: 14px;
+    padding: 5px;
+    box-shadow: 0 2px 7px rgba(0, 0, 0, .04);
+}
+
+.sort-option {
+    padding: 9px 12px;
+    text-align: center;
+    border-right: 1px solid #e1e1e1;
+    cursor: pointer;
+}
+
+.sort-option:last-child {
+    border-right: 0;
+}
+
+.sort-option strong {
+    display: block;
+    font-size: 13px;
+}
+
+.sort-option span {
+    display: block;
+    color: #777;
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+.sort-option.active {
+    background: #f1f1f1;
+    border-radius: 8px;
+}
+
+
+/* =========================
+   FLIGHT CARD
+========================= */
+
+.flight-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.flight-card {
+    background: #fff;
+    border-radius: 15px;
+    min-height: 145px;
+    padding: 20px 18px;
+    display: grid;
+    grid-template-columns: 1.25fr .85fr 1fr .85fr 1.05fr;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, .07);
+    border: 1px solid #eee;
+    transition: .2s ease;
+}
+
+.flight-card:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .11);
+    transform: translateY(-1px);
+}
+
+
+/* Airline */
+
+.airline-column {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.airline-logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    background: #eef3ff;
+    color: #173f9f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.airline-column strong {
+    display: block;
+    font-size: 15px;
+}
+
+.airline-column span {
+    display: block;
+    margin-top: 3px;
+    color: #777;
+    font-size: 12px;
+}
+
+
+/* Time */
+
+.flight-time {
+    text-align: center;
+}
+
+.flight-time strong {
+    display: block;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.flight-time span {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.flight-time small {
+    display: block;
+    color: #888;
+    font-size: 10px;
+    margin-top: 3px;
+}
+
+
+/* Duration */
+
+.flight-duration {
+    text-align: center;
+}
+
+.flight-duration>span {
+    color: #666;
+    font-size: 12px;
+}
+
+.flight-duration small {
+    color: #777;
+    font-size: 11px;
+}
+
+.flight-line {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 5px 0;
+}
+
+.flight-line i {
+    flex: 1;
+    height: 1px;
+    background: #bbb;
+}
+
+.flight-line b {
+    font-size: 13px;
+    color: #777;
+}
+
+
+/* Price */
+
+.flight-price {
+    border-left: 1px solid #e0e0e0;
+    padding-left: 18px;
+    text-align: right;
+}
+
+.flight-price strong {
+    display: block;
+    font-size: 19px;
+}
+
+.flight-price small {
+    display: block;
+    color: #888;
+    font-size: 10px;
+    margin: 2px 0 9px;
+}
+
+.flight-price button {
+    border: 1px solid #0878ff;
+    background: #fff;
+    color: #0878ff;
+    border-radius: 7px;
+    padding: 8px 13px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.flight-price button:hover {
+    background: #0878ff;
+    color: #fff;
+}
+
+
+/* =========================
+   LOADING
+========================= */
+
+.loading-box {
+    background: #fff;
+    padding: 50px;
+    text-align: center;
+    border-radius: 15px;
+    margin-top: 50px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1000px) {
+
+    .results-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .filters-panel {
+        display: none;
+    }
+
+    .search-summary {
+        overflow-x: auto;
+    }
+
+    .search-box {
+        min-width: 140px;
+    }
+
+    .modify-btn {
+        min-width: 130px;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .results-container {
+        width: min(100% - 20px, 1180px);
+    }
+
+    .search-summary {
+        padding-bottom: 3px;
+    }
+
+    .date-strip {
+        overflow-x: auto;
+    }
+
+    .date-item {
+        min-width: 105px;
+    }
+
+    .results-title-row h1 {
+        font-size: 20px;
+    }
+
+    .sort-bar {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .sort-option:nth-child(2) {
+        border-right: 0;
+    }
+
+    .flight-card {
+        position: relative;
+    }
+
+    .flight-card-unavailable {
+        position: relative;
+        opacity: 0.58;
+        background: #f8fafc;
+        border-color: #fecaca !important;
+    }
+
+    .flight-unavailable-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 20;
+
+        display: inline-flex;
+        align-items: center;
+
+        padding: 5px 10px;
+
+        border-radius: 6px;
+
+        background: #fee2e2;
+        color: #b91c1c;
+
+        font-size: 11px;
+        font-weight: 700;
+
+        line-height: 1;
+        white-space: nowrap;
+
+        pointer-events: none;
+    }
+
+    .airline-column {
+        grid-column: 1 / -1;
+    }
+
+    .flight-duration {
+        order: 3;
+    }
+
+    .flight-price {
+        order: 4;
+        border-left: 0;
+        border-top: 1px solid #eee;
+        padding: 14px 0 0;
+        text-align: left;
+        grid-column: 1 / -1;
+    }
+
+    .flight-price button {
+        width: 100%;
+    }
+
+    .flight-btn-unavailable {
+        background: #fee2e2 !important;
+        color: #b91c1c !important;
+        border: 1px solid #fecaca !important;
+        cursor: not-allowed !important;
+        opacity: 1 !important;
+        box-shadow: none !important;
+    }
+
+    .flight-btn-unavailable:hover {
+        background: #fee2e2 !important;
+        color: #b91c1c !important;
+        border-color: #fecaca !important;
+    }
+}

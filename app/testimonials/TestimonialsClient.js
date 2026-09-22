@@ -6,7 +6,7 @@ import Image from 'next/image';
 const getMediaUrl = (path) => {
   if (!path) return '';
   if (path.startsWith('http') || path.startsWith('data:')) return path;
-  return `http://192.168.0.166:5000${path}`;
+  return `http://192.168.0.197:5001${path}`;
 };
 
 const extractData = (htmlStr) => {
