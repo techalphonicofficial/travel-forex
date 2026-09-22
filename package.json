@@ -20,6 +20,7 @@
     "react-hook-form": "^7.72.0",
     "react-hot-toast": "^2.6.0",
     "react-toastify": "^11.1.0",
+    "sweetalert2": "^11.26.25",
     "zustand": "^5.0.12"
   },
   "devDependencies": {

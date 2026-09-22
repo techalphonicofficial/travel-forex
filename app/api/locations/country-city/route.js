@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE_URL = 'https://admin.travel-forex.com/api/v1';
+const DEFAULT_API_BASE_URL = 'http://192.168.0.166:5000/api/v1';
 
 const getBackendBaseUrl = () => {
   const configuredBase = process.env.NEXT_PUBLIC_BASE_URL || DEFAULT_API_BASE_URL;

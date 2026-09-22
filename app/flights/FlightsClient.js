@@ -126,7 +126,7 @@ export default function FlightsClient({ roundTripConfig, oneWayConfig, multiCity
   const partnersTitle = partnersSection?.title || (pageData ? '' : 'Our Trusted Airline Partners');
   const dynamicAirlinePartners = partnersSection?.json_data?.team?.map(p => ({
     name: p.name,
-    logo: p.img?.startsWith('http') ? p.img : `https://admin.travel-forex.com${p.img}`
+    logo: p.img?.startsWith('http') ? p.img : `http://192.168.0.166:5000${p.img}`
   })) || (pageData ? [] : airlinePartners);
 
   const heroTitle = heroSection?.title || (pageData ? '' : '✈ Global Airline Tickets');

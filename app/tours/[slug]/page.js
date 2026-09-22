@@ -1,13 +1,13 @@
 import { notFound } from 'next/navigation';
 import TourDetailClient from './TourDetailClient';
 
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://admin.travel-forex.com/api/v1';
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://192.168.0.166:5000/api/v1';
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80';
 
 const getMediaUrl = (path) => {
   if (!path) return null;
   if (path.startsWith('http')) return path;
-  return `https://admin.travel-forex.com${path.startsWith('/') ? '' : '/'}${path}`;
+  return `http://192.168.0.166:5000${path.startsWith('/') ? '' : '/'}${path}`;
 };
 
 const transformApiPackageToTourDetail = (pkg) => {

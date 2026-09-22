@@ -2154,3 +2154,9 @@ nav,
     padding: 48px 0;
   }
 }
+
+/* // swal z index  */
+
+.swal2-container {
+    z-index: 99999 !important;
+}

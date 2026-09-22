@@ -3,7 +3,7 @@ const nextConfig = {
   env: {
     project: process.env.project || process.env.NEXT_PUBLIC_PROJECT || process.env.PROJECT || 'Travel_Holiday',
   },
-  allowedDevOrigins: ['192.168.1.7', '192.168.29.220', '192.168.1.28'],
+  allowedDevOrigins: ['192.168.1.7', '192.168.29.220', '192.168.1.28','192.168.0.166'],
   images: {
     remotePatterns: [
       {

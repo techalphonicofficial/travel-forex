@@ -983,7 +983,7 @@ const getLogoUrl = (logo) => {
   if (/^(https?:|data:|blob:)/i.test(logo)) return logo;
   if (!String(logo).startsWith('/uploads')) return logo;
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'https://admin.travel-forex.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_IMAGE_URL || 'http://192.168.0.166:5000';
   return `${baseUrl.replace(/\/$/, '')}/${String(logo).replace(/^\//, '')}`;
 };
 
