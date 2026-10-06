@@ -10,6 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import bookingsData from '@/data/bookings.json';
 import { useWishlist } from '@/components/WishlistProvider';
 import { getStoredToken, createRazorpayOrder, getCancellationRules, getCustomerBookings, getMediaUrl, getMyPackageReturnRequests, getStoredAuth, getTripInquiries, payRemainingPackageBooking, submitPackageReturnRequest, submitPackageReview, verifyRazorpayPayment, getCustomerProfile, changeCustomerPassword, clearAuthSession } from '@/utils/api';
+import BookingDetailsModal from './BookingDetailsModal';
 
 const NAV_ITEMS = [
   { id: 'bookings', label: 'My Bookings', icon: '📋' },
@@ -422,14 +423,14 @@ export default function ProfilePage() {
     toast.success('Signed out successfully');
     router.push('/');
   }, [router]);
-  
+
   // --- Profile State ---
   const [profile, setProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  
+
   useEffect(() => {
     const loadProfile = async () => {
       const token = getStoredToken();
@@ -472,13 +473,15 @@ export default function ProfilePage() {
       setSavingProfile(false);
     }
   };
-  const [bookingView, setBookingView] = useState('package');
+  const [bookingPage, setBookingPage] = useState(1);
+  const [bookingLimit] = useState(10);
   const [reviewingBookingId, setReviewingBookingId] = useState(null);
   const [user, setUser] = useState(defaultDashboardUser);
   const [customerBookings, setCustomerBookings] = useState([]);
-  const [bookingSummary, setBookingSummary] = useState({ total: 0, totals: {} });
+  const [bookingSummary, setBookingSummary] = useState({ total: 0, page: 1, totalPages: 1 });
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [bookingsError, setBookingsError] = useState('');
+  // Retained state for the profile dashboard's existing summary and request panels.
   const [returnRequestedBookingIds, setReturnRequestedBookingIds] = useState(() => new Set());
   const [returnRequests, setReturnRequests] = useState([]);
   const [returnRequestSummary, setReturnRequestSummary] = useState({ total: 0 });
@@ -496,14 +499,15 @@ export default function ProfilePage() {
   const cancellationCloseTimerRef = useRef(null);
   const cancellationReasonRef = useRef(null);
   const { items: wishlist, removeFromWishlist } = useWishlist();
+  const [bookingTypeFilter, setBookingTypeFilter] = useState("ALL");
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
-  const loadCustomerBookings = useCallback(async ({ silent = false } = {}) => {
+  const loadCustomerBookings = useCallback(async (page = 1, { silent = false } = {}) => {
     const auth = getStoredAuth() || {};
     const customerId = getCustomerId(auth);
-
     if (!customerId) {
       setCustomerBookings([]);
-      setBookingSummary({ total: 0, totals: {} });
+      setBookingSummary({ total: 0, page: 1, totalPages: 1 });
       setBookingsLoading(false);
       setBookingsError('Please login to view your bookings.');
       return;
@@ -511,25 +515,30 @@ export default function ProfilePage() {
 
     if (!silent) setBookingsLoading(true);
     setBookingsError('');
-
-    const result = await getCustomerBookings({ customerId, page: 1, limit: 20 });
-    const data = result?.data || {};
-
-    if (result?.success) {
-      setCustomerBookings(Array.isArray(data.rows) ? data.rows : []);
-      setBookingSummary({
-        total: Number(data.total) || 0,
-        totals: data.totals || {},
-        page: Number(data.page) || 1,
-        totalPages: Number(data.total_pages) || 1,
-      });
-    } else {
-      setCustomerBookings([]);
-      setBookingsError(result?.message || 'Unable to load your bookings.');
+    try {
+      const result = await getCustomerBookings({ customerId, page, limit: bookingLimit, type: bookingTypeFilter });
+      const payload = result?.data || {};
+      const rows = Array.isArray(payload) ? payload : (Array.isArray(payload.rows) ? payload.rows : []);
+      if (result?.success) {
+        setCustomerBookings(rows);
+        const meta = result.pagination || payload.pagination || payload;
+        setBookingSummary({
+          total: Number(meta.totalRecords ?? meta.total ?? rows.length) || 0,
+          page: Number(meta.currentPage ?? meta.page ?? page) || page,
+          totalPages: Number(meta.totalPages ?? meta.total_pages ?? 1) || 1,
+          limit: Number(meta.limit) || bookingLimit,
+        });
+        setBookingPage(Number(meta.currentPage ?? meta.page ?? page) || page);
+      } else {
+        setCustomerBookings([]);
+        setBookingsError(result?.message || 'Unable to load your bookings.');
+      }
+    } catch (error) {
+      setBookingsError(error?.message || 'Unable to load your bookings.');
+    } finally {
+      setBookingsLoading(false);
     }
-
-    setBookingsLoading(false);
-  }, []);
+  }, [bookingLimit]);
 
   const loadCustomBookings = useCallback(async () => {
     const auth = getStoredAuth() || {};
@@ -632,14 +641,12 @@ export default function ProfilePage() {
         name: auth.name || auth.full_name || auth.firstName || auth.email || defaultDashboardUser.name,
         email: auth.email || '',
       });
-      loadCustomerBookings();
-      loadCustomBookings();
-      loadReturnRequests();
-      loadCancellationRules();
+      loadCustomerBookings(bookingTypeFilter);
+
     }, 0);
 
     return () => window.clearTimeout(loadTimer);
-  }, [loadCancellationRules, loadCustomerBookings, loadCustomBookings, loadReturnRequests]);
+  }, [loadCancellationRules, loadCustomerBookings, loadCustomBookings, loadReturnRequests,bookingTypeFilter]);
 
   useEffect(() => () => {
     if (cancellationCloseTimerRef.current) {
@@ -790,392 +797,558 @@ export default function ProfilePage() {
     setCancellation({ bookingId: '', reason: '', message: '', error: '', submitting: false });
   };
 
-  const submitCancellationRequest = async (booking) => {
-    const bookingId = booking.id || booking.booking_reference || '';
 
-    if (!bookingId) {
-      setCancellation({ bookingId: '', reason: '', message: '', error: 'Booking id is missing for this cancellation.', submitting: false });
-      return;
-    }
+  // ---------- helpers ----------
+  const inr = (n) =>
+    `₹${Number(n || 0).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
 
-    setCancellation((current) => ({ ...current, bookingId, submitting: true, message: 'Submitting return request...', error: '' }));
+  const formatDateTime = (value) =>
+    value && !Number.isNaN(new Date(value).getTime())
+      ? new Date(value).toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+      : "—";
 
-    const remainingAmount = Math.round(Number(booking.amounts?.remaining_amount) || 0);
-    const cancellationReason = cancellationReasonRef.current?.value?.trim() || '';
-    const response = await submitPackageReturnRequest({
-      bookingId,
-      payload: {
-        departure_date: getBookingDepartureDate(booking),
-        cancel_remaining: remainingAmount > 0,
-        cancel_remaining_amount: remainingAmount,
-        reason: cancellationReason || 'Customer requested cancellation',
-      },
+  // "2026-10-03" -> "03 Oct 2026" (no timezone shift)
+  const formatDateOnly = (value) => {
+    if (!value) return "—";
+    const [y, m, d] = String(value).slice(0, 10).split("-").map(Number);
+    if (!y || !m || !d) return "—";
+    return new Date(y, m - 1, d).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
-
-    if (response.success) {
-      const successMessage = response.message || 'Return request submitted successfully.';
-      setCancellation((current) => ({
-        ...current,
-        bookingId,
-        submitting: false,
-        message: '',
-        error: '',
-      }));
-      toast.success(successMessage, {
-        position: 'top-right',
-        autoClose: 5000,
-        hideProgressBar: false,
-        pauseOnHover: true,
-        closeOnClick: true,
-        theme: 'colored',
-      });
-      setReturnRequestedBookingIds((current) => {
-        const next = new Set(current);
-        next.add(String(bookingId));
-        if (booking.booking_reference) next.add(String(booking.booking_reference));
-        return next;
-      });
-      cancellationCloseTimerRef.current = window.setTimeout(() => {
-        setCancellation({ bookingId: '', reason: '', message: '', error: '', submitting: false });
-        cancellationCloseTimerRef.current = null;
-      }, 5000);
-      await loadCustomerBookings({ silent: true });
-      await loadReturnRequests({ silent: true });
-    } else {
-      const errorMessage = response.message || 'Unable to submit return request.';
-      toast.error(errorMessage, {
-        position: 'top-right',
-        autoClose: 5000,
-        hideProgressBar: false,
-        pauseOnHover: true,
-        closeOnClick: true,
-        theme: 'colored',
-      });
-      if (errorMessage.toLowerCase().includes('pending return request') || errorMessage.toLowerCase().includes('already exists')) {
-        setReturnRequestedBookingIds((current) => {
-          const next = new Set(current);
-          next.add(String(bookingId));
-          if (booking.booking_reference) next.add(String(booking.booking_reference));
-          return next;
-        });
-      }
-      setCancellation((current) => ({
-        ...current,
-        bookingId,
-        submitting: false,
-        message: '',
-        error: errorMessage,
-      }));
-    }
   };
 
-  const BookingCard = ({ booking }) => (
-    <div
+  const nightsBetween = (from, to) => {
+    if (!from || !to) return 0;
+    const a = new Date(String(from).slice(0, 10));
+    const b = new Date(String(to).slice(0, 10));
+    const diff = Math.round((b - a) / 86400000);
+    return diff > 0 ? diff : 0;
+  };
+
+  const placeLabel = (item) =>
+    item
+      ? `${item.city || item.name || item.code || ""}${item.code ? ` (${item.code})` : ""
+      }`
+      : "—";
+
+  const prettyStatus = (v, fallback = "PENDING") =>
+    String(v || fallback).replace(/_/g, " ");
+
+  const badgeStyle = (value) => {
+    const text = String(value || "").toLowerCase();
+    if (/fail|cancel|reject|refund/.test(text)) {
+      return { background: "#fee2e2", color: "#991b1b", border: "1px solid #dc2626" };
+    }
+    if (/booked|success|confirmed|paid|completed/.test(text)) {
+      return { background: "#dcfce7", color: "#14532d", border: "1px solid #16a34a" };
+    }
+    return { background: "#fef3c7", color: "#92400e", border: "1px solid #d97706" };
+  };
+
+  const badge = (value, prefix = "") => (
+    <span
       style={{
-        background: 'var(--color-bg-card)',
-        borderRadius: 'var(--radius-xl)',
-        overflow: 'hidden',
-        border: '1px solid var(--color-border)',
-        boxShadow: 'var(--shadow-sm)',
-        display: 'flex',
-        gap: 0,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "6px 11px",
+        borderRadius: "6px",
+        fontSize: "12px",
+        fontWeight: 800,
+        letterSpacing: "0.2px",
+        lineHeight: 1.3,
+        whiteSpace: "nowrap",
+        ...badgeStyle(value),
       }}
     >
-      <div style={{ position: 'relative', width: 120, flexShrink: 0 }}>
-        <Image
-          src={booking.image}
-          alt={booking.tourTitle}
-          fill
-          sizes="120px"
-          style={{ objectFit: 'cover' }}
-        />
-      </div>
-      <div style={{ padding: '16px 20px', flex: 1, minWidth: 0 }}>
-        <div className="d-flex align-items-start justify-content-between gap-2 flex-wrap">
-          <div>
-            <h3 style={{ fontWeight: 700, fontSize: 15, color: 'var(--color-text-primary)', marginBottom: 4 }}>
-              {booking.tourTitle}
-            </h3>
-            <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 8 }}>
-              📅 {booking.date} – {booking.endDate} &nbsp;·&nbsp; 👥 {booking.travelers} travelers
-            </div>
-          </div>
-          <span
-            className={`badge ${booking.status === 'Upcoming' ? 'badge-primary' : 'badge-success'}`}
-            style={{ flexShrink: 0 }}
-          >
-            {booking.status}
-          </span>
-        </div>
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
-          <div>
-            <span style={{ fontWeight: 800, fontSize: 18, color: 'var(--color-primary)', fontFamily: 'Poppins, sans-serif' }}>
-              ${booking.totalPrice.toLocaleString()}
-            </span>
-            <span style={{ fontSize: 12, color: 'var(--color-text-muted)', marginLeft: 4 }}>total</span>
-          </div>
-          <div className="d-flex gap-2 flex-wrap">
-            <Link href={`/tours/${booking.tourSlug}`} className="btn-secondary btn-sm">
-              View Tour
-            </Link>
-            <button
-              className="btn-secondary btn-sm"
-              onClick={() => setReviewingBookingId(reviewingBookingId === booking.id ? null : booking.id)}
-              type="button"
-            >
-              {reviewingBookingId === booking.id ? 'Close Review' : 'Add Review'}
-            </button>
-            {booking.status === 'Upcoming' && (
-              <Link href={`/booking/confirmation`} className="btn-primary btn-sm">
-                E-Ticket
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
+      {prefix}
+      {value}
+    </span>
+  );
+
+  // Pull a readable failure reason from whatever the API gave us
+  const getFailureInfo = (booking) => {
+    const bd = booking.booking_data || {};
+    const err =
+      bd.bookingError ||
+      bd.error ||
+      bd.tripjack?.bookError ||
+      bd.tripjack?.book?.errors?.[0] ||
+      null;
+
+    const message =
+      (typeof err === "string" ? err : err?.message || err?.errMsg || err?.details) ||
+      booking.failure_reason ||
+      booking.error_message ||
+      booking.failure_message ||
+      bd.failureReason ||
+      "";
+
+    return {
+      message,
+      failedAt: err?.failedAt || booking.updated_at,
+    };
+  };
+
+  // Fare / baggage changes reported by provider (flight)
+  const getFlightAlerts = (booking) => {
+    const alerts = booking.booking_data?.review?.alerts || [];
+    const rows = [];
+    alerts.forEach((alert) => {
+      Object.entries(alert.miscAlert || {}).forEach(([sector, changes]) => {
+        (changes || []).forEach((c) =>
+          rows.push(`${sector} · ${c.key}: ${c.oldValue} → ${c.newValue}`)
+        );
+      });
+    });
+    return rows;
+  };
+
+  const Fact = ({ label, value }) => (
+    <div>
+      <span>{label}</span>
+      <strong>{value}</strong>
     </div>
   );
 
-  const ApiBookingCard = ({ booking }) => {
-    const amounts = booking.amounts || {};
-    const remainingAmount = Math.round(Number(amounts.remaining_amount) || 0);
-    const bookingId = booking.id || booking.booking_reference || '';
-    const isPayingRemaining = remainingPayment.bookingId === bookingId && Boolean(remainingPayment.message) && !remainingPayment.error;
-    const isCancellationOpen = cancellation.bookingId === bookingId;
-    const isCancelling = isCancellationOpen && cancellation.submitting;
-    const statusText = `${booking.payment_status || ''} ${booking.status || ''}`.toLowerCase();
-    const isCancelled = statusText.includes('cancel');
-    const hasReturnRequest = hasExistingReturnRequest(booking) || returnRequestedBookingIds.has(String(bookingId)) || (
-      booking.booking_reference ? returnRequestedBookingIds.has(String(booking.booking_reference)) : false
+  // ---------- component ----------
+  const ApiBookingCard = ({ booking, onViewDetails }) => {
+    const bd = booking.booking_data || {};
+    const type = String(booking.booking_type || "FLIGHT").toUpperCase();
+    const isHotel = type === "HOTEL";
+
+    const status = prettyStatus(booking.status);
+    const paymentStatus = prettyStatus(booking.payment_status);
+    const isFailed = /fail|reject|cancel/i.test(booking.status || "");
+    const paymentOk = /success|paid|captured/i.test(booking.payment_status || "");
+
+    const amount = Number(
+      booking.amount ??
+      (isHotel
+        ? bd.tripjack?.summary?.amount
+        : bd.review?.totalPriceInfo?.totalFareDetail?.fC?.TF) ??
+      0
     );
-    const route = Array.isArray(booking.route) ? booking.route.filter(Boolean).join(' -> ') : '';
-    const packageSlug = booking.package_slug || booking.package?.slug || '';
-    const packageHref = packageSlug
-      ? `/tours?destination=${encodeURIComponent(booking.route?.[0] || 'destination')}&view=itinerary&package=${encodeURIComponent(packageSlug)}`
-      : '/tours';
+
+    // ----- FLIGHT data -----
+    const segments = isHotel
+      ? []
+      : bd.review?.tripInfos?.flatMap((t) => t.sI || []) ||
+      bd.selectedFare?.flatMap((f) => f.flight?.sI || []) ||
+      [];
+    const first = segments[0];
+    const last = segments[segments.length - 1];
+    const fareInfo = bd.review?.tripInfos?.[0]?.totalPriceList?.[0]?.fd?.ADULT;
+    const seats = (bd.seatSelection?.seats || [])
+      .map((s) => s.seat?.seatNo)
+      .filter(Boolean);
+
+    // ----- HOTEL data -----
+    const hotelSummary = bd.tripjack?.summary;
+    const hotelName = bd.hotel?.hotelName || hotelSummary?.hotel?.name || "Hotel booking";
+    const hotelCity = hotelSummary?.hotel?.city;
+    const hotelAddress = hotelSummary?.hotel?.address;
+    const hotelRating = hotelSummary?.hotel?.rating;
+    const checkIn = bd.search?.checkIn || hotelSummary?.stay?.checkIn;
+    const checkOut = bd.search?.checkOut || hotelSummary?.stay?.checkOut;
+    const nights = nightsBetween(checkIn, checkOut);
+    const room = hotelSummary?.rooms?.[0];
+    const roomCount = bd.search?.rooms?.length || hotelSummary?.rooms?.length || 0;
+    const refundable =
+      hotelSummary?.cancellation?.refundable ??
+      bd.tripjack?.review?.option?.cancellation?.isRefundable;
+
+    // ----- passengers / guests -----
+    const people = isHotel
+      ? bd.guests || []
+      : bd.passengers || bd.travellerInfo || [];
+    const primaryName = (() => {
+      const p = isHotel ? bd.primaryGuest || people[0] : people[0];
+      return p ? `${p.firstName || ""} ${p.lastName || ""}`.trim() : "";
+    })();
+
+    // ----- failure -----
+    const failure = isFailed ? getFailureInfo(booking) : null;
+    const flightAlerts = isFailed && !isHotel ? getFlightAlerts(booking) : [];
+
+    const title = isHotel
+      ? hotelName
+      : first
+        ? `${placeLabel(first.da)} → ${placeLabel(last?.aa)}`
+        : "Flight booking";
+
+    const handleView = () => onViewDetails?.(booking);
 
     return (
-      <article className="dashboard-booking-card">
-        <div className="dashboard-booking-media">
-          <Image
-            src={getBookingImage(booking)}
-            alt={booking.package_name || booking.package?.name || 'Package booking'}
-            fill
-            sizes="180px"
-            style={{ objectFit: 'cover' }}
-          />
-        </div>
-        <div className="dashboard-booking-body">
-          <div className="dashboard-booking-top">
-            <div>
-              <h3>{booking.package_name || booking.package?.name || 'Booked package'}</h3>
-              <p>{route || 'Custom route'}{booking.duration ? ` - ${booking.duration}` : ''}</p>
-            </div>
-            <span className={`badge ${getPaymentBadgeClass(booking.payment_status)}`}>
-              {String(booking.payment_status || 'Booked').replace(/_/g, ' ')}
+      <article className="flight-booking-card">
+        {/* ---------- head ---------- */}
+        <div className="flight-booking-head">
+          <div className="flight-booking-title">
+            <span className="flight-booking-eyebrow">
+              {isHotel ? "🏨 HOTEL" : "✈ FLIGHT"} · {booking.provider || "TRAVEL"}
             </span>
+
+            <h3>{title}</h3>
+
+            {isHotel && (hotelCity || hotelAddress) && (
+              <p style={{ marginBottom: 2 }}>
+                {[hotelAddress, hotelCity].filter(Boolean).join(", ")}
+                {hotelRating ? ` · ${hotelRating}★` : ""}
+              </p>
+            )}
+
+            <p>
+              Booking reference:{" "}
+              <strong>
+                {booking.booking_reference || booking.provider_reference || booking.id}
+              </strong>
+            </p>
           </div>
-          <div className="dashboard-booking-meta">
-            <div><span>Booked on</span><strong>{formatBookingDate(booking.created_at)}</strong></div>
-            <div><span>Total</span><strong>{formatMoney(amounts.package_total)}</strong></div>
-            <div><span>Paid</span><strong>{formatMoney(amounts.paid_amount)}</strong></div>
-            <div><span>Balance</span><strong>{formatMoney(amounts.remaining_amount)}</strong></div>
+
+          <div
+            className="flight-booking-badges"
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              gap: "8px",
+            }}
+          >
+            {badge(status)}
+            {badge(paymentStatus, "Payment: ")}
           </div>
-          <div className="dashboard-booking-meta" style={{ marginTop: 8, gridTemplateColumns: 'repeat(3, 1fr)' }}>
-            <div><span>Departure</span><strong>{booking.departure_date || booking.travel_dates?.departure_date ? formatBookingDate(booking.departure_date || booking.travel_dates?.departure_date) : 'N/A'}</strong></div>
-            <div><span>From Date</span><strong>{booking.from_date || booking.travel_dates?.from_date ? formatBookingDate(booking.from_date || booking.travel_dates?.from_date) : 'N/A'}</strong></div>
-            <div><span>To Date</span><strong>{booking.to_date || booking.travel_dates?.to_date ? formatBookingDate(booking.to_date || booking.travel_dates?.to_date) : 'N/A'}</strong></div>
-          </div>
-          {booking.hotels?.length ? (
-            <div className="dashboard-booking-hotels">
-              {booking.hotels.slice(0, 3).map((hotel) => <span key={hotel.id || hotel.name}>{hotel.name}</span>)}
-              {booking.hotels.length > 3 ? <span>+{booking.hotels.length - 3} more</span> : null}
-            </div>
-          ) : null}
-          <div className="dashboard-booking-actions">
-            <Link href={packageHref} className="btn-secondary btn-sm">View Package</Link>
-            <button className="btn-secondary btn-sm" onClick={() => setReviewingBookingId(reviewingBookingId === booking.id ? null : booking.id)} type="button">
-              {reviewingBookingId === booking.id ? 'Close Review' : 'Add Review'}
-            </button>
-            {remainingAmount > 0 ? (
-              <button className="btn-primary btn-sm" disabled={isPayingRemaining} onClick={() => startRemainingPayment(booking)} type="button">
-                {isPayingRemaining ? 'Please wait...' : `Pay Balance ${formatMoney(remainingAmount)}`}
-              </button>
-            ) : null}
-            {hasReturnRequest ? (
-              <button className="btn-danger-soft btn-sm is-disabled" disabled type="button">
-                Cancellation Requested
-              </button>
-            ) : !isCancelled ? (
-              <button className="btn-danger-soft btn-sm" disabled={isCancelling} onClick={() => openCancellationRules(booking)} type="button">
-                {isCancelling ? 'Submitting...' : 'Cancel Booking'}
-              </button>
-            ) : null}
-            <Link href="/booking/confirmation" className="btn-primary btn-sm">View Receipt</Link>
-          </div>
-          {isCancellationOpen ? (
-            <div className="dashboard-cancel-panel">
-              {cancellation.error ? <div className="dashboard-payment-error">{cancellation.error}</div> : null}
-              <div className="dashboard-cancel-head">
-                <div>
-                  <span>Cancellation rules</span>
-                  <strong>Review before sending a return request</strong>
-                </div>
-                <button type="button" onClick={closeCancellationRules} aria-label="Close cancellation rules">x</button>
-              </div>
-              {cancellationRulesLoading ? (
-                <div className="dashboard-cancel-loading">Loading latest cancellation rules...</div>
+        </div>
+
+        {/* ---------- failure box ---------- */}
+        {isFailed && (
+          <div
+            role="alert"
+            style={{
+              margin: "14px 0 0",
+              padding: "12px 14px",
+              borderRadius: 8,
+              background: "#fef2f2",
+              border: "1px solid #fca5a5",
+              color: "#7f1d1d",
+              fontSize: 13,
+              lineHeight: 1.5,
+            }}
+          >
+            <strong style={{ display: "block", marginBottom: 4 }}>
+              Booking failed
+            </strong>
+            <div>
+              Reason:{" "}
+              {failure?.message ? (
+                <strong>{failure.message}</strong>
               ) : (
-                <div className="dashboard-cancel-rules">
-                  {cancellationRules.map((rule) => (
-                    <article key={rule.id || `${rule.min_days_before_departure}-${rule.max_days_before_departure}`}>
-                      <div>
-                        <span>{getCancellationRuleWindow(rule)}</span>
-                        <strong>{Number(rule.refund_percentage) || 0}% refund</strong>
-                      </div>
-                      <p>{rule.description || `${Number(rule.cancellation_percentage) || 0}% cancellation charge applies.`}</p>
-                      <small>{Number(rule.cancellation_percentage) || 0}% cancellation charge</small>
-                    </article>
-                  ))}
+                "Provider ne reason share nahi kiya."
+              )}
+            </div>
+
+            {failure?.failedAt && (
+              <div style={{ opacity: 0.85 }}>
+                Failed at: {formatDateTime(failure.failedAt)}
+              </div>
+            )}
+
+            {paymentOk && (
+              <div style={{ marginTop: 6, fontWeight: 600 }}>
+                Payment successful hai, lekin booking confirm nahi hui. Refund
+                check karna hoga.
+              </div>
+            )}
+
+            {flightAlerts.length > 0 && (
+              <ul style={{ margin: "8px 0 0", paddingLeft: 18 }}>
+                {flightAlerts.map((row) => (
+                  <li key={row}>{row}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+        {/* ---------- FLIGHT body ---------- */}
+        {!isHotel &&
+          (segments.length ? (
+            <div className="flight-segments">
+              {segments.map((segment, index) => (
+                <div
+                  className="flight-segment"
+                  key={`${segment.id || segment.fD?.fN || "segment"}-${index}`}
+                >
+                  <div className="flight-airline">
+                    <span className="flight-airline-mark">✈</span>
+                    <div>
+                      <strong>
+                        {segment.fD?.aI?.name || segment.fD?.aI?.code || "Airline"}
+                      </strong>
+                      <small>
+                        {segment.fD?.aI?.code || ""} {segment.fD?.fN || ""}
+                      </small>
+                    </div>
+                  </div>
+
+                  <div className="flight-route">
+                    <div>
+                      <strong>{segment.da?.code || "—"}</strong>
+                      <span>{segment.da?.city || segment.da?.name || ""}</span>
+                      <small>{formatDateTime(segment.dt)}</small>
+                    </div>
+
+                    <div className="flight-route-line">
+                      <span>
+                        {segment.duration ? `${segment.duration} min` : "Flight"}
+                      </span>
+                      <i />
+                    </div>
+
+                    <div className="flight-arrival">
+                      <strong>{segment.aa?.code || "—"}</strong>
+                      <span>{segment.aa?.city || segment.aa?.name || ""}</span>
+                      <small>{formatDateTime(segment.at)}</small>
+                    </div>
+                  </div>
+
+                  {segment.cT > 0 && index < segments.length - 1 && (
+                    <small style={{ display: "block", marginTop: 6, opacity: 0.7 }}>
+                      Layover at {segment.aa?.code}: {segment.cT} min
+                    </small>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flight-booking-muted">
+              Flight itinerary details are not available.
+            </div>
+          ))}
+
+        {/* ---------- HOTEL body ---------- */}
+        {isHotel &&
+          (checkIn || checkOut ? (
+            <div className="flight-segments">
+              <div className="flight-segment">
+                <div className="flight-airline">
+                  <span className="flight-airline-mark">🛏</span>
+                  <div>
+                    <strong>{room?.name || "Room"}</strong>
+                    <small>{room?.mealBasis || ""}</small>
+                  </div>
+                </div>
+
+                <div className="flight-route">
+                  <div>
+                    <strong>Check-in</strong>
+                    <span>{formatDateOnly(checkIn)}</span>
+                    <small>from {hotelSummary?.hotel?.checkInFrom || "—"}</small>
+                  </div>
+
+                  <div className="flight-route-line">
+                    <span>
+                      {nights ? `${nights} night${nights > 1 ? "s" : ""}` : "Stay"}
+                    </span>
+                    <i />
+                  </div>
+
+                  <div className="flight-arrival">
+                    <strong>Check-out</strong>
+                    <span>{formatDateOnly(checkOut)}</span>
+                    <small>by {hotelSummary?.hotel?.checkOutFrom || "—"}</small>
+                  </div>
+                </div>
+              </div>
+
+              {refundable !== undefined && refundable !== null && (
+                <div style={{ marginTop: 10 }}>
+                  {badge(
+                    refundable ? "Refundable" : "Non-refundable",
+                    ""
+                  )}
                 </div>
               )}
-              {cancellationRulesError ? <div className="dashboard-cancel-note">{cancellationRulesError}</div> : null}
-              <label>
-                Reason optional
-                <textarea
-                  key={`cancellation-reason-${bookingId}`}
-                  ref={cancellationReasonRef}
-                  defaultValue={cancellation.reason}
-                  placeholder="Tell us why you want to cancel, if you want to share"
-                />
-              </label>
-              <div className="dashboard-cancel-actions">
-                <button className="btn-secondary btn-sm" type="button" onClick={closeCancellationRules}>Keep Booking</button>
-                <button className="btn-danger-soft btn-sm" type="button" disabled={isCancelling} onClick={() => submitCancellationRequest(booking)}>
-                  {isCancelling ? 'Submitting...' : 'Confirm Return Request'}
-                </button>
-              </div>
             </div>
-          ) : null}
-          {remainingPayment.bookingId === bookingId && remainingPayment.message ? (
-            <div className="dashboard-payment-message">{remainingPayment.message}</div>
-          ) : null}
-          {remainingPayment.bookingId === bookingId && remainingPayment.error ? (
-            <div className="dashboard-payment-error">{remainingPayment.error}</div>
-          ) : null}
-        </div>
-      </article>
-    );
-  };
-
-  const ReturnRequestCard = ({ request }) => {
-    const booking = request.booking || {};
-    const amounts = booking.amounts || {};
-    const requested = request.requested || {};
-    const rule = request.cancellation_rule || {};
-    const packageSlug = booking.package_slug || '';
-    const packageHref = packageSlug
-      ? `/tours?destination=${encodeURIComponent(booking.route?.[0] || 'destination')}&view=itinerary&package=${encodeURIComponent(packageSlug)}`
-      : '/tours';
-
-    return (
-      <article className="dashboard-return-card">
-        <div className="dashboard-return-head">
-          <div>
-            <span>{request.booking_reference || booking.booking_reference || 'Return request'}</span>
-            <h3>{booking.package_name || 'Package return request'}</h3>
-            <p>Requested on {formatBookingDate(request.created_at)} · Departure {formatBookingDate(request.departure_date)}</p>
-          </div>
-          <span className={`badge ${getReturnStatusBadgeClass(request.status)}`}>
-            {String(request.status || 'pending').replace(/_/g, ' ')}
-          </span>
-        </div>
-
-        <div className="dashboard-booking-meta">
-          <div><span>Package total</span><strong>{formatMoney(amounts.package_total)}</strong></div>
-          <div><span>Paid</span><strong>{formatMoney(amounts.paid_amount)}</strong></div>
-          <div><span>Refund requested</span><strong>{formatMoney(requested.refund_amount)}</strong></div>
-          <div><span>Balance cancel</span><strong>{formatMoney(requested.cancel_remaining_amount)}</strong></div>
-        </div>
-
-        <div className="dashboard-return-rule">
-          <div>
-            <span>Applied rule</span>
-            <strong>{Number(rule.refund_percentage) || 0}% refund · {Number(rule.cancellation_percentage) || 0}% cancellation charge</strong>
-          </div>
-          <p>{rule.description || 'Cancellation rule will be reviewed by the team.'}</p>
-          {Number.isFinite(Number(rule.days_before_departure)) ? <small>{Number(rule.days_before_departure)} days before departure</small> : null}
-        </div>
-
-        {request.reason ? <p className="dashboard-custom-notes">Reason: {request.reason}</p> : null}
-        {request.admin_notes ? <p className="dashboard-custom-notes">Admin note: {request.admin_notes}</p> : null}
-
-        <div className="dashboard-booking-actions">
-          <Link href={packageHref} className="btn-secondary btn-sm">View Package</Link>
-          <Link href="/booking/confirmation" className="btn-primary btn-sm">View Receipt</Link>
-        </div>
-      </article>
-    );
-  };
-
-  const CustomBookingCard = ({ inquiry }) => {
-    const primaryMedia = inquiry.destination_gallery?.find((item) => item.is_primary && item.media_type !== 'video') || inquiry.destination_gallery?.find((item) => item.media_type !== 'video');
-    const cities = Array.isArray(inquiry.cities) ? inquiry.cities.map((city) => city.name).filter(Boolean) : [];
-    const rooms = Array.isArray(inquiry.rooms) ? inquiry.rooms : [];
-    const adults = rooms.reduce((total, room) => total + (Number(room.adults) || 0), 0);
-    const children = rooms.reduce((total, room) => total + (Number(room.children) || 0), 0);
-
-    return (
-      <article className="dashboard-booking-card">
-        <div className="dashboard-booking-media">
-          <Image
-            src={getMediaUrl(primaryMedia?.url) || 'https://images.unsplash.com/photo-1500835556837-99ac94a94552?auto=format&fit=crop&w=900&q=80'}
-            alt={primaryMedia?.alt_text || inquiry.destination || 'Customized booking'}
-            fill
-            sizes="180px"
-            style={{ objectFit: 'cover' }}
-          />
-        </div>
-        <div className="dashboard-booking-body">
-          <div className="dashboard-booking-top">
-            <div>
-              <span>{inquiry.source ? String(inquiry.source).replace(/_/g, ' ') : 'Customized booking'}</span>
-              <h3>{inquiry.destination || 'Custom destination'}</h3>
-              <p>{cities.length ? cities.join(' -> ') : 'Custom route'}{inquiry.duration ? ` - ${inquiry.duration}` : ''}</p>
+          ) : (
+            <div className="flight-booking-muted">
+              Hotel stay details are not available.
             </div>
-            <span className={`badge ${String(inquiry.status || '').toLowerCase() === 'new' ? 'badge-primary' : 'badge-success'}`}>
-              {String(inquiry.status || 'new').replace(/_/g, ' ')}
-            </span>
+          ))}
+
+        {/* ---------- footer ---------- */}
+        <div className="flight-booking-footer">
+          <div className="flight-booking-facts">
+            <Fact label="Booked on" value={formatDateTime(booking.created_at)} />
+
+            {isHotel ? (
+              <>
+                <Fact label="Guests" value={people.length || "—"} />
+                <Fact label="Rooms" value={roomCount || "—"} />
+              </>
+            ) : (
+              <>
+                <Fact label="Passengers" value={people.length || "—"} />
+                {fareInfo?.cc && <Fact label="Cabin" value={fareInfo.cc} />}
+                {fareInfo?.bI?.iB && (
+                  <Fact label="Check-in bag" value={fareInfo.bI.iB} />
+                )}
+                {seats.length > 0 && <Fact label="Seats" value={seats.join(", ")} />}
+              </>
+            )}
+
+            {primaryName && (
+              <Fact label={isHotel ? "Primary guest" : "Lead passenger"} value={primaryName} />
+            )}
+
+            <Fact
+              label="Provider booking ID"
+              value={booking.provider_booking_id || "—"}
+            />
           </div>
-          <div className="dashboard-booking-meta">
-            <div><span>Departure</span><strong>{inquiry.departure_date || 'Not selected'}</strong></div>
-            <div><span>From</span><strong>{inquiry.departure_city || 'Not shared'}</strong></div>
-            <div><span>Travellers</span><strong>{Number(inquiry.total_travellers) || adults + children || 0}</strong></div>
-            <div><span>Travel type</span><strong>{inquiry.travel_with || 'Custom'}</strong></div>
+
+          <div className="flight-booking-total">
+            <span>Total amount</span>
+            <strong>{inr(amount)}</strong>
           </div>
-          <div className="dashboard-booking-hotels">
-            <span>{adults} adults</span>
-            {children ? <span>{children} children</span> : null}
-            {rooms.length ? <span>{rooms.length} room plan{rooms.length > 1 ? 's' : ''}</span> : null}
-            {inquiry.total_amount && Number(inquiry.total_amount) > 0 ? <span>{formatMoney(inquiry.total_amount)}</span> : null}
-          </div>
-          {inquiry.notes ? <p className="dashboard-custom-notes">{inquiry.notes}</p> : null}
-          <div className="dashboard-booking-actions">
-            <Link href={`/customize?dest=${encodeURIComponent(inquiry.destination || '')}`} className="btn-secondary btn-sm">
-              Customize Again
-            </Link>
-            <Link href={`/itineraries/${encodeURIComponent(inquiry.id)}?from=dashboard&review=1#reviews`} className="btn-primary btn-sm">
-              View Inquiry
-            </Link>
-          </div>
+        </div>
+
+        {/* ---------- action ---------- */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            marginTop: "16px",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setSelectedBooking?.(booking)}
+
+            style={{
+              background: "linear-gradient(135deg, #3b82f6, #2563eb)",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "8px",
+              padding: "10px 20px",
+              fontSize: "14px",
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              boxShadow: "0 3px 8px rgba(37, 99, 235, 0.25)",
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(135deg, #2563eb, #1d4ed8)";
+              e.currentTarget.style.boxShadow = "0 5px 12px rgba(37, 99, 235, 0.35)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(135deg, #3b82f6, #2563eb)";
+              e.currentTarget.style.boxShadow = "0 3px 8px rgba(37, 99, 235, 0.25)";
+            }}
+          >
+            View Details
+            <span style={{ fontSize: "16px" }}>→</span>
+          </button>
         </div>
       </article>
     );
   };
+
+
+
+
+  const filteredCustomerBookings = customerBookings.filter((booking) => {
+    if (bookingTypeFilter === "ALL") return true;
+
+    const type = String(
+      booking.booking_type || booking.bookingType || booking.type || ""
+    ).toUpperCase();
+
+    return type === bookingTypeFilter;
+  });
 
   return (
     <div style={{ paddingBottom: 80 }}>
       <style jsx global>{`
+        .customer-bookings-section { min-width: 0; }
+        .customer-bookings-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:22px; }
+        .customer-bookings-heading h2 { margin:0 0 5px; color:var(--color-text-primary); font:800 clamp(20px,2.5vw,26px) Poppins,sans-serif; }
+        .customer-bookings-heading p { margin:0; color:var(--color-text-muted); font-size:13px; }
+        .flight-booking-count { color:var(--color-text-muted); font-size:13px; margin-bottom:12px; }
+        .flight-booking-list { display:grid; gap:16px; }
+        .flight-booking-card { min-width:0; padding:clamp(14px,2.5vw,22px); border:1px solid var(--color-border); border-radius:16px; background:var(--color-bg-card); box-shadow:var(--shadow-sm); }
+        .flight-booking-head { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
+        .flight-booking-title { min-width:0; }
+        .flight-booking-eyebrow { color:var(--color-primary); font-size:10px; font-weight:900; letter-spacing:.7px; }
+        .flight-booking-title h3 { margin:5px 0; color:var(--color-text-primary); font-size:clamp(16px,2vw,20px); font-weight:900; overflow-wrap:anywhere; }
+        .flight-booking-title p { margin:0; color:var(--color-text-muted); font-size:12px; overflow-wrap:anywhere; }
+        .flight-booking-title p strong { color:var(--color-text-primary); }
+        .flight-booking-badges { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:6px; }
+        .flight-segments { margin-top:17px; border:1px solid var(--color-border); border-radius:12px; overflow:hidden; }
+        .flight-segment { display:grid; grid-template-columns:minmax(120px,.65fr) minmax(0,1.7fr); gap:16px; align-items:center; padding:14px; }
+        .flight-segment + .flight-segment { border-top:1px dashed var(--color-border); }
+        .flight-airline { display:flex; align-items:center; gap:9px; min-width:0; }
+        .flight-airline-mark { display:grid; place-items:center; flex:0 0 34px; height:34px; border-radius:10px; background:color-mix(in srgb,var(--color-primary) 10%,transparent); color:var(--color-primary); }
+        .flight-airline strong,.flight-airline small { display:block; overflow-wrap:anywhere; }
+        .flight-airline strong { font-size:12px; color:var(--color-text-primary); }
+        .flight-airline small { color:var(--color-text-muted); font-size:11px; }
+        .flight-route { display:grid; grid-template-columns:minmax(60px,1fr) minmax(60px,1fr) minmax(60px,1fr); gap:10px; align-items:center; min-width:0; }
+        .flight-route > div:not(.flight-route-line) { display:flex; flex-direction:column; min-width:0; }
+        .flight-route strong { font-size:16px; color:var(--color-text-primary); }
+        .flight-route span,.flight-route small { color:var(--color-text-muted); font-size:10px; overflow-wrap:anywhere; }
+        .flight-route-line { display:flex; flex-direction:column; align-items:center; gap:5px; color:var(--color-text-muted); }
+        .flight-route-line i { display:block; width:100%; height:1px; background:var(--color-border); position:relative; }
+        .flight-route-line i:after { content:''; position:absolute; right:0; top:-3px; width:7px; height:7px; border-top:1px solid var(--color-text-muted); border-right:1px solid var(--color-text-muted); transform:rotate(45deg); }
+        .flight-arrival { text-align:right; }
+        .flight-booking-footer { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-top:15px; padding-top:14px; border-top:1px solid var(--color-border); }
+        .flight-booking-facts { display:flex; flex-wrap:wrap; gap:20px; min-width:0; }
+        .flight-booking-facts div,.flight-booking-total { display:flex; flex-direction:column; gap:3px; min-width:0; }
+        .flight-booking-facts span,.flight-booking-total span { color:var(--color-text-muted); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.35px; }
+        .flight-booking-facts strong { color:var(--color-text-primary); font-size:11px; overflow-wrap:anywhere; }
+        .flight-booking-total { text-align:right; flex-shrink:0; }
+        .flight-booking-total strong { color:var(--color-primary); font-size:19px; font-weight:900; white-space:nowrap; }
+        .booking-pagination { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:18px; padding:12px 0; color:var(--color-text-muted); font-size:12px; }
+        .booking-pagination > div { display:flex; gap:8px; }
+        .flight-booking-empty { display:grid; justify-items:center; text-align:center; gap:8px; padding:44px 16px; border:1px dashed var(--color-border); border-radius:14px; background:var(--color-bg-card); }
+        .flight-booking-empty > div { display:grid; place-items:center; width:52px; height:52px; border-radius:50%; background:color-mix(in srgb,var(--color-primary) 10%,transparent); color:var(--color-primary); font-size:25px; }
+        .flight-booking-empty h3,.flight-booking-empty p { margin:0; }
+        .flight-booking-empty h3 { color:var(--color-text-primary); font-size:16px; font-weight:800; }
+        .flight-booking-empty p { color:var(--color-text-muted); font-size:13px; }
+        .flight-booking-skeleton { display:grid; gap:12px; }
+        .flight-booking-skeleton span { display:block; height:150px; border-radius:14px; background:linear-gradient(90deg,#f1f5f9,#e2e8f0,#f1f5f9); background-size:200% 100%; animation:booking-shimmer 1.4s infinite; }
+        @keyframes booking-shimmer { to { background-position:-200% 0; } }
+        @media(max-width:700px) {
+          .customer-bookings-heading { align-items:flex-start; }
+          .flight-booking-head { flex-direction:column; }
+          .flight-booking-badges { justify-content:flex-start; }
+          .flight-segment { grid-template-columns:1fr; gap:12px; }
+          .flight-booking-footer { align-items:flex-start; flex-direction:column; }
+          .flight-booking-total { text-align:left; }
+        }
+        @media(max-width:420px) {
+          .booking-pagination { align-items:flex-start; flex-direction:column; }
+          .flight-route { gap:6px; }
+          .flight-route strong { font-size:14px; }
+          .flight-route span,.flight-route small { font-size:9px; }
+        }
+
         .booking-review-form { display: grid; gap: 14px; margin-top: 14px; padding: 18px; border: 1px solid var(--color-border); border-radius: var(--radius-xl); background: var(--color-bg-card); box-shadow: var(--shadow-sm); }
         .booking-review-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
         .booking-review-head strong { color: var(--color-text-primary); font-size: 16px; font-weight: 800; }
@@ -1359,96 +1532,131 @@ export default function ProfilePage() {
           {/* Content */}
           <div>
             {/* My Bookings */}
+
             {activeTab === 'bookings' && (
-              <div>
-                <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: 22, color: 'var(--color-text-primary)', marginBottom: 24 }}>
-                  My Bookings
-                </h2>
-                <div className="dashboard-booking-tabs" role="tablist" aria-label="Booking type">
-                  <button type="button" className={bookingView === 'package' ? 'active' : ''} onClick={() => setBookingView('package')}>
-                    My Booking
-                  </button>
-                  <button type="button" className={bookingView === 'returns' ? 'active' : ''} onClick={() => setBookingView('returns')}>
-                    Return Requests
+              <section className="customer-bookings-section">
+                <div className="customer-bookings-heading">
+                  <div>
+                    <h2>My Bookings</h2>
+                    <p>View your flight itinerary, booking status and payment details.</p>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn-secondary btn-sm"
+                    onClick={() => loadCustomerBookings(bookingPage)}
+                    disabled={bookingsLoading}
+                  >
+                    {bookingsLoading ? 'Refreshing…' : '↻ Refresh'}
                   </button>
                 </div>
 
-                {bookingView === 'package' ? (
-                  bookingsLoading ? (
-                    <div className="dashboard-booking-state">Loading your bookings...</div>
-                  ) : bookingsError ? (
-                    <div className="dashboard-booking-state">{bookingsError}</div>
-                  ) : dashboardBookings.length ? (
-                    <>
-                      <div className="dashboard-booking-summary">
-                        <div><span>Total booked</span><strong>{formatMoney(bookingSummary.totals?.package_total)}</strong></div>
-                        <div><span>Paid amount</span><strong>{formatMoney(bookingSummary.totals?.paid_amount)}</strong></div>
-                        <div><span>Remaining</span><strong>{formatMoney(bookingSummary.totals?.remaining_amount)}</strong></div>
-                      </div>
-                      <div className="d-flex flex-column gap-4">
-                        {dashboardBookings.map((booking) => (
-                          <div key={booking.id}>
-                            <ApiBookingCard booking={booking} />
-                            {reviewingBookingId === booking.id ? (
-                              <PackageReviewForm
-                                booking={booking}
-                                onSubmitted={() => setReviewingBookingId(null)}
-                                user={user}
-                              />
-                            ) : null}
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="dashboard-booking-state">No package bookings found yet.</div>
-                  )
-                ) : bookingView === 'customized' ? (
-                  customBookingsLoading ? (
-                    <div className="dashboard-booking-state">Loading customized bookings...</div>
-                  ) : customBookingsError ? (
-                    <div className="dashboard-booking-state">{customBookingsError}</div>
-                  ) : customBookings.length ? (
-                    <>
-                      <div className="dashboard-booking-summary">
-                        <div><span>Total requests</span><strong>{customBookingSummary.total}</strong></div>
-                        <div><span>Current page</span><strong>{customBookingSummary.page || 1}</strong></div>
-                        <div><span>API total</span><strong>{customBookingSummary.apiTotal || customBookingSummary.total}</strong></div>
-                      </div>
-                      <div className="d-flex flex-column gap-4">
-                        {customBookings.map((inquiry) => (
-                          <CustomBookingCard key={inquiry.id} inquiry={inquiry} />
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="dashboard-booking-state">No customized bookings found yet.</div>
-                  )
-                ) : (
-                  returnRequestsLoading ? (
-                    <div className="dashboard-booking-state">Loading return requests...</div>
-                  ) : returnRequestsError ? (
-                    <div className="dashboard-booking-state">{returnRequestsError}</div>
-                  ) : returnRequests.length ? (
-                    <>
-                      <div className="dashboard-booking-summary">
-                        <div><span>Total requests</span><strong>{returnRequestSummary.total}</strong></div>
-                        <div><span>Pending</span><strong>{returnRequests.filter((request) => String(request.status || '').toLowerCase() === 'pending').length}</strong></div>
-                        <div><span>Refund requested</span><strong>{formatMoney(returnRequests.reduce((total, request) => total + (Number(request.requested?.refund_amount) || 0), 0))}</strong></div>
-                      </div>
-                      <div className="d-flex flex-column gap-4">
-                        {returnRequests.map((request) => (
-                          <ReturnRequestCard key={request.id} request={request} />
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="dashboard-booking-state">No return requests found yet.</div>
-                  )
-                )}
-              </div>
-            )}
+                {/* Booking filters */}
+                <div className="booking-type-filters">
+                  {[
+                    { label: 'All', value: 'ALL' },
+                    { label: 'Hotel', value: 'HOTEL' },
+                    { label: 'Flight', value: 'FLIGHT' },
+                  ].map((filter) => (
+                    <button
+                      key={filter.value}
+                      type="button"
+                      className={`booking-filter-btn ${bookingTypeFilter === filter.value ? 'active' : ''
+                        }`}
+                      onClick={() => setBookingTypeFilter(filter.value)}
+                      aria-pressed={bookingTypeFilter === filter.value}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
 
+                {bookingsError ? (
+                  <div className="dashboard-booking-state" role="alert">
+                    <p>{bookingsError}</p>
+                    <button
+                      type="button"
+                      className="btn-primary btn-sm"
+                      onClick={() => loadCustomerBookings(bookingPage)}
+                    >
+                      Try again
+                    </button>
+                  </div>
+                ) : bookingsLoading ? (
+                  <div className="flight-booking-skeleton" aria-label="Loading bookings">
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                ) : filteredCustomerBookings.length ? (
+                  <>
+                    <div className="flight-booking-count">
+                      {filteredCustomerBookings.length} booking
+                      {filteredCustomerBookings.length === 1 ? '' : 's'} found
+                    </div>
+
+                    <div className="flight-booking-list">
+                      {filteredCustomerBookings.map((booking) => (
+                        <ApiBookingCard
+                          key={booking.id || booking.booking_reference}
+                          booking={booking}
+                        />
+                      ))}
+                    </div>
+
+                   
+                      <nav className="booking-pagination" aria-label="Bookings pagination">
+                        <span>
+                          Page {bookingSummary.page} of {bookingSummary.totalPages}
+                        </span>
+                        <div>
+                          <button
+                            type="button"
+                            className="btn-secondary btn-sm"
+                            disabled={bookingsLoading || bookingSummary.page <= 1}
+                            onClick={() =>
+                              loadCustomerBookings(bookingSummary.page - 1)
+                            }
+                          >
+                            Previous
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-primary btn-sm"
+                            disabled={
+                              bookingsLoading ||
+                              bookingSummary.page >= bookingSummary.totalPages
+                            }
+                            onClick={() =>
+                              loadCustomerBookings(bookingSummary.page + 1)
+                            }
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </nav>
+                   
+                  </>
+                ) : (
+                  <div className="flight-booking-empty">
+                    <div>✈</div>
+                    <h3>
+                      {bookingTypeFilter === 'ALL'
+                        ? 'No bookings yet'
+                        : `No ${bookingTypeFilter.toLowerCase()} bookings found`}
+                    </h3>
+                    <p>
+                      {bookingTypeFilter === 'ALL'
+                        ? 'Your confirmed bookings will appear here.'
+                        : `You don't have any ${bookingTypeFilter.toLowerCase()} bookings yet.`}
+                    </p>
+                    <Link href="/tours" className="btn-primary btn-sm">
+                      Explore trips
+                    </Link>
+                  </div>
+                )}
+              </section>
+            )}
             {/* Upcoming */}
             {activeTab === 'upcoming' && (
               <div>
@@ -1563,7 +1771,7 @@ export default function ProfilePage() {
                 <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: 22, marginBottom: 24 }}>
                   My Profile
                 </h2>
-                
+
                 {loadingProfile ? (
                   <div className="dashboard-booking-state">Loading your profile...</div>
                 ) : profile ? (
@@ -1647,6 +1855,12 @@ export default function ProfilePage() {
         </div>
       </div>
       <ToastContainer newestOnTop />
+      {selectedBooking && (
+        <BookingDetailsModal
+          booking={selectedBooking}
+          onClose={() => setSelectedBooking(null)}
+        />
+      )}
     </div>
   );
 }

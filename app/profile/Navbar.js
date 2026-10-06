@@ -51,7 +51,7 @@ const packageCols = [
 
 const serviceCols = [
   [
-    { name: 'Hotels Booking', tag: 'LIVE', tagClr: '#059669', tagBg: '#ecfdf5', href: '/hotels' },
+    { name: 'Hotels Booking', tag: 'LIVE', tagClr: '#059669', tagBg: '#ecfdf5', href: '/tripjack-hotels' },
     { name: 'Flight Booking', tag: 'BEST RATES', tagClr: '#026eb5', tagBg: '#e0f2fe', href: '#flight', isFlightAction: true },
   ],
   [
@@ -60,7 +60,7 @@ const serviceCols = [
   ]
 ];
 
-const HOTEL_HREF = '/tripjack-hotels';
+const HOTEL_HREF = '/hotels';
 
 const currencyOptions = [
   { code: 'INR', name: 'Indian Rupee', country: 'India', symbol: 'Rs' },
@@ -648,7 +648,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
       label: 'Services',
       hasSub: true,
       subItems: [
-        { label: 'Hotels Booking', href: HOTEL_HREF || '/tripjack-hotels' },
+        { label: 'Hotels Booking', href: HOTEL_HREF || '/hotels' },
         { label: 'Flight Booking', href: '/flights' },
         { label: 'Domestic Trips', href: '/packages?type=DOMESTIC' },
         { label: 'International Trips', href: '/packages?type=INTERNATIONAL' },
@@ -1456,7 +1456,7 @@ export default function Navbar({ brand, companyInfo }) {
     if (pathname?.startsWith('/forex')) {
       return getLogoUrl(companyInfo?.currency_logo_url) || brand?.logo || '/forex-logo-new.png';
     }
-    const itsRoutes = ['/hotels', '/tours', '/visa', '/insurance', '/eurorail', '/events', '/conferences', '/flights', '/destinations', '/packages', '/themes'];
+    const itsRoutes = ['/hotels', '/tours', '/visa', '/insurance', '/eurorail', '/events', '/conferences', '192.168.0.197:5001', '/destinations', '/packages', '/themes'];
     if (itsRoutes.some(route => pathname?.startsWith(route))) {
       return getLogoUrl(companyInfo?.its_logo_url) || brand?.logo || '/ITS-new.jpg';
     }
@@ -2401,7 +2401,7 @@ export default function Navbar({ brand, companyInfo }) {
               }}
                 className="d-none d-xl-flex desktop-nav-ul"
               >
-                <Link href="/flights" className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: '1.125rem', transition: 'color 0.2s', padding: '0.375rem 2px' }}>
+                <Link href="192.168.0.197:5001" className="header-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#FFD700', textDecoration: 'none', fontWeight: 600, fontSize: '1.125rem', transition: 'color 0.2s', padding: '0.375rem 2px' }}>
                   <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
                   Flights
                 </Link>

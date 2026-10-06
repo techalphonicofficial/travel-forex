@@ -120,6 +120,20 @@ const flightService = {
             payload
         );
     },
+
+    fareValidate(payload) {
+        return request(
+            '/bookings',
+            payload
+        );
+    },
+
+    continueToPay(bookingId) {
+        return request(
+            `/bookings/continue-to-pay/${bookingId}`
+        );
+    }
+
 };
 
 export default flightService;

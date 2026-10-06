@@ -32,7 +32,7 @@ const hotelService = {
 
     book: async (payload) => {
         const response = await axios.post(
-            `${API_URL}/tripjack/hotels/book`,
+            `${API_URL}/bookings/hotel`,
             payload
         );
 

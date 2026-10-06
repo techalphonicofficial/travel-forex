@@ -2160,3 +2160,115 @@ nav,
 .swal2-container {
     z-index: 99999 !important;
 }
+
+.booking-type-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+
+.booking-filter-btn {
+  padding: 8px 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: transparent;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.booking-filter-btn:hover {
+  background: #f3f4f6;
+}
+
+.booking-filter-btn.active {
+  background: #111827;
+  color: #fff;
+  border-color: #111827;
+}
+
+/* =========================================================
+   MULTI CITY AIRPORT AUTOCOMPLETE FIX
+   ========================================================= */
+
+.tj-multicity-list {
+    position: relative;
+    overflow: visible !important;
+}
+
+/* Every multi-city row */
+.tj-multi-row {
+    position: relative;
+    overflow: visible !important;
+}
+
+/* The row containing the currently focused autocomplete
+   must stay above the other rows */
+.tj-multi-row:focus-within {
+    z-index: 100;
+}
+
+/* Airport wrapper */
+.tj-multi-airport {
+    position: relative;
+    overflow: visible !important;
+}
+
+/* Autocomplete wrapper */
+.tj-airport-autocomplete {
+    position: relative;
+    z-index: 101;
+}
+
+/* Dropdown */
+.tj-airport-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+
+    z-index: 9999;
+
+    background: #ffffff;
+    border: 1px solid #dbe3ef;
+    border-radius: 12px;
+
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+
+    max-height: 320px;
+    overflow-y: auto;
+
+    /* IMPORTANT */
+    isolation: isolate;
+}
+
+/* Dropdown options */
+.tj-airport-option {
+    position: relative;
+    z-index: 10000;
+
+    width: 100%;
+    border: 0;
+    background: #fff;
+
+    display: flex;
+    align-items: center;
+
+    padding: 12px 14px;
+
+    text-align: left;
+    cursor: pointer;
+}
+
+.tj-airport-option:hover {
+    background: #f5f8fc;
+}
+
+/* Keep dropdown above following rows */
+.tj-multi-row:has(.tj-airport-dropdown) {
+    z-index: 1000;
+}

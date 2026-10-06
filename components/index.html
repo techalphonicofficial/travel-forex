@@ -1,0 +1,871 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Latest News</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2563eb"
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="h-16 flex items-center justify-between gap-4">
+
+                <!-- Logo -->
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-900">
+                        📰 Latest News
+                    </h1>
+                    <p class="hidden sm:block text-xs text-gray-500">
+                        Powered by NewsData.io
+                    </p>
+                </div>
+
+                <!-- Search -->
+                <div class="relative w-full max-w-sm">
+                    <input
+                        id="searchInput"
+                        type="text"
+                        placeholder="Search news..."
+                        class="w-full border border-gray-300 rounded-lg
+                               px-4 py-2.5 pr-10
+                               focus:outline-none focus:ring-2
+                               focus:ring-blue-500"
+                    />
+
+                    <span class="absolute right-3 top-2.5 text-gray-400">
+                        🔍
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+    </header>
+
+
+    <!-- Main -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- Filters -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+
+            <div class="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+
+                <div>
+                    <h2 class="font-semibold text-gray-800">
+                        Latest Headlines
+                    </h2>
+
+                    <p id="resultCount" class="text-sm text-gray-500 mt-1">
+                        Loading news...
+                    </p>
+                </div>
+
+                <!-- Category -->
+                <select
+                    id="categoryFilter"
+                    class="border border-gray-300 rounded-lg px-4 py-2
+                           focus:outline-none focus:ring-2
+                           focus:ring-blue-500"
+                >
+                    <option value="all">All Categories</option>
+                    <option value="top">Top</option>
+                    <option value="business">Business</option>
+                    <option value="technology">Technology</option>
+                    <option value="sports">Sports</option>
+                    <option value="politics">Politics</option>
+                    <option value="world">World</option>
+                    <option value="entertainment">Entertainment</option>
+                    <option value="health">Health</option>
+                    <option value="science">Science</option>
+                    <option value="lifestyle">Lifestyle</option>
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- Loading -->
+        <div id="loading" class="flex justify-center items-center py-20">
+
+            <div class="text-center">
+
+                <div
+                    class="w-10 h-10 border-4 border-gray-300
+                           border-t-blue-600 rounded-full
+                           animate-spin mx-auto"
+                ></div>
+
+                <p class="mt-4 text-gray-600">
+                    Loading latest news...
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Error -->
+        <div
+            id="error"
+            class="hidden bg-red-50 border border-red-200
+                   text-red-700 rounded-xl p-5 mb-6"
+        >
+            <div class="font-semibold">
+                ⚠️ Unable to load news
+            </div>
+
+            <p id="errorMessage" class="text-sm mt-1"></p>
+
+            <button
+                onclick="loadNews()"
+                class="mt-3 bg-red-600 hover:bg-red-700
+                       text-white px-4 py-2 rounded-lg text-sm"
+            >
+                Try Again
+            </button>
+        </div>
+
+
+        <!-- News Grid -->
+        <div
+            id="newsContainer"
+            class="hidden grid grid-cols-1 sm:grid-cols-2
+                   lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        ></div>
+
+
+        <!-- No Results -->
+        <div
+            id="noResults"
+            class="hidden text-center py-20"
+        >
+            <div class="text-5xl mb-4">
+                🔎
+            </div>
+
+            <h3 class="text-xl font-semibold text-gray-800">
+                No news found
+            </h3>
+
+            <p class="text-gray-500 mt-1">
+                Try another search or category.
+            </p>
+        </div>
+
+
+        <!-- Load More -->
+        <div
+            id="loadMoreContainer"
+            class="hidden text-center mt-10"
+        >
+
+            <button
+                id="loadMoreBtn"
+                onclick="loadMoreNews()"
+                class="bg-blue-600 hover:bg-blue-700
+                       text-white font-medium
+                       px-6 py-3 rounded-lg
+                       transition disabled:opacity-50"
+            >
+                Load More News
+            </button>
+
+        </div>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer class="border-t bg-white mt-10">
+
+        <div class="max-w-7xl mx-auto px-4 py-6 text-center">
+
+            <p class="text-sm text-gray-500">
+                News data provided by NewsData.io
+            </p>
+
+        </div>
+
+    </footer>
+
+
+<script>
+
+    // ==========================================
+    // API CONFIG
+    // ==========================================
+
+    const API_KEY = "pub_7a09ea99e8aa4ea38380577fc9d759e8";
+
+    const API_URL =
+        `https://newsdata.io/api/1/latest?apikey=pub_7a09ea99e8aa4ea38380577fc9d759e8&q=Kashmir&country=in&language=en`;
+
+
+    // ==========================================
+    // STATE
+    // ==========================================
+
+    let allNews = [];
+
+    let nextPage = null;
+
+    let isLoading = false;
+
+
+    // ==========================================
+    // DOM
+    // ==========================================
+
+    const newsContainer =
+        document.getElementById("newsContainer");
+
+    const loading =
+        document.getElementById("loading");
+
+    const errorBox =
+        document.getElementById("error");
+
+    const errorMessage =
+        document.getElementById("errorMessage");
+
+    const noResults =
+        document.getElementById("noResults");
+
+    const loadMoreContainer =
+        document.getElementById("loadMoreContainer");
+
+    const loadMoreBtn =
+        document.getElementById("loadMoreBtn");
+
+    const searchInput =
+        document.getElementById("searchInput");
+
+    const categoryFilter =
+        document.getElementById("categoryFilter");
+
+    const resultCount =
+        document.getElementById("resultCount");
+
+
+    // ==========================================
+    // INITIAL LOAD
+    // ==========================================
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+        loadNews();
+
+    });
+
+
+    // ==========================================
+    // FETCH NEWS
+    // ==========================================
+
+    async function loadNews() {
+
+        if (isLoading) return;
+
+        isLoading = true;
+
+        showLoading();
+
+        try {
+
+            const response = await fetch(API_URL);
+
+            if (!response.ok) {
+                throw new Error(
+                    `HTTP Error: ${response.status}`
+                );
+            }
+
+            const data = await response.json();
+
+            console.log("News API Response:", data);
+
+            if (data.status !== "success") {
+
+                throw new Error(
+                    data.message || "API returned an error"
+                );
+
+            }
+
+            const results = data.results || [];
+
+            allNews = results;
+
+            nextPage = data.nextPage || null;
+
+            renderNews();
+
+            hideLoading();
+
+        } catch (error) {
+
+            console.error("News API Error:", error);
+
+            hideLoading();
+
+            showError(error.message);
+
+        } finally {
+
+            isLoading = false;
+
+        }
+
+    }
+
+
+    // ==========================================
+    // LOAD MORE
+    // ==========================================
+
+    async function loadMoreNews() {
+
+        if (!nextPage || isLoading) return;
+
+        isLoading = true;
+
+        loadMoreBtn.disabled = true;
+
+        loadMoreBtn.innerText = "Loading...";
+
+        try {
+
+            const url =
+                `${API_URL}&page=${encodeURIComponent(nextPage)}`;
+
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error(
+                    `HTTP Error: ${response.status}`
+                );
+            }
+
+            const data = await response.json();
+
+            if (data.status !== "success") {
+                throw new Error(
+                    data.message || "Unable to load more news"
+                );
+            }
+
+            const newResults = data.results || [];
+
+            // Avoid duplicate articles
+            const existingIds =
+                new Set(
+                    allNews.map(news => news.article_id)
+                );
+
+            const uniqueResults =
+                newResults.filter(
+                    news => !existingIds.has(news.article_id)
+                );
+
+            allNews.push(...uniqueResults);
+
+            nextPage = data.nextPage || null;
+
+            renderNews();
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Unable to load more news: " +
+                error.message
+            );
+
+        } finally {
+
+            isLoading = false;
+
+            loadMoreBtn.disabled = false;
+
+            loadMoreBtn.innerText = "Load More News";
+
+        }
+
+    }
+
+
+    // ==========================================
+    // RENDER NEWS
+    // ==========================================
+
+    function renderNews() {
+
+        const search =
+            searchInput.value
+                .trim()
+                .toLowerCase();
+
+        const category =
+            categoryFilter.value;
+
+
+        const filteredNews =
+            allNews.filter(news => {
+
+                // Search
+                const matchesSearch =
+                    !search ||
+                    (news.title || "")
+                        .toLowerCase()
+                        .includes(search) ||
+                    (news.description || "")
+                        .toLowerCase()
+                        .includes(search) ||
+                    (news.source_name || "")
+                        .toLowerCase()
+                        .includes(search);
+
+
+                // Category
+                const categories =
+                    Array.isArray(news.category)
+                        ? news.category
+                        : [];
+
+                const matchesCategory =
+                    category === "all" ||
+                    categories
+                        .map(c => c.toLowerCase())
+                        .includes(category.toLowerCase());
+
+
+                return matchesSearch && matchesCategory;
+
+            });
+
+
+        newsContainer.innerHTML = "";
+
+
+        if (filteredNews.length === 0) {
+
+            newsContainer.classList.add("hidden");
+
+            noResults.classList.remove("hidden");
+
+            loadMoreContainer.classList.add("hidden");
+
+            resultCount.innerText =
+                "0 news found";
+
+            return;
+
+        }
+
+
+        noResults.classList.add("hidden");
+
+        newsContainer.classList.remove("hidden");
+
+
+        resultCount.innerText =
+            `${filteredNews.length} news found`;
+
+
+        filteredNews.forEach(news => {
+
+            newsContainer.appendChild(
+                createNewsCard(news)
+            );
+
+        });
+
+
+        // Load More visibility
+        if (nextPage && !search && category === "all") {
+
+            loadMoreContainer.classList.remove("hidden");
+
+        } else {
+
+            loadMoreContainer.classList.add("hidden");
+
+        }
+
+    }
+
+
+    // ==========================================
+    // NEWS CARD
+    // ==========================================
+
+    function createNewsCard(news) {
+
+        const card =
+            document.createElement("article");
+
+
+        card.className =
+            "bg-white rounded-xl overflow-hidden " +
+            "shadow-sm hover:shadow-lg transition " +
+            "border border-gray-100 flex flex-col";
+
+
+        // Image
+        const imageWrapper =
+            document.createElement("div");
+
+        imageWrapper.className =
+            "h-48 bg-gray-200 overflow-hidden";
+
+
+        const image =
+            document.createElement("img");
+
+        image.className =
+            "w-full h-full object-cover " +
+            "hover:scale-105 transition duration-300";
+
+
+        image.src =
+            news.image_url ||
+            "https://placehold.co/800x450?text=No+Image";
+
+
+        image.alt =
+            escapeHtml(news.title || "News");
+
+
+        image.onerror = function () {
+
+            this.src =
+                "https://placehold.co/800x450?text=No+Image";
+
+        };
+
+
+        imageWrapper.appendChild(image);
+
+
+        // Content
+        const content =
+            document.createElement("div");
+
+        content.className =
+            "p-5 flex flex-col flex-1";
+
+
+        // Category
+        const categories =
+            Array.isArray(news.category)
+                ? news.category
+                : [];
+
+
+        const categoryText =
+            categories.length
+                ? categories[0]
+                : "News";
+
+
+        const categoryBadge =
+            document.createElement("span");
+
+        categoryBadge.className =
+            "inline-flex w-fit px-2.5 py-1 " +
+            "rounded-full bg-blue-50 text-blue-700 " +
+            "text-xs font-semibold capitalize mb-3";
+
+
+        categoryBadge.innerText =
+            categoryText;
+
+
+        // Title
+        const title =
+            document.createElement("h2");
+
+        title.className =
+            "text-lg font-bold text-gray-900 " +
+            "leading-snug line-clamp-3";
+
+
+        title.innerText =
+            news.title || "Untitled News";
+
+
+        // Description
+        const description =
+            document.createElement("p");
+
+        description.className =
+            "text-sm text-gray-600 mt-3 " +
+            "line-clamp-3 flex-1";
+
+
+        description.innerText =
+            news.description ||
+            "No description available.";
+
+
+        // Meta
+        const meta =
+            document.createElement("div");
+
+        meta.className =
+            "border-t border-gray-100 mt-4 pt-4";
+
+
+        const source =
+            document.createElement("div");
+
+        source.className =
+            "flex items-center justify-between gap-2";
+
+
+        const sourceName =
+            document.createElement("span");
+
+        sourceName.className =
+            "text-xs font-semibold text-gray-700 truncate";
+
+
+        sourceName.innerText =
+            news.source_name ||
+            "Unknown Source";
+
+
+        const date =
+            document.createElement("span");
+
+        date.className =
+            "text-xs text-gray-400 whitespace-nowrap";
+
+
+        date.innerText =
+            formatDate(news.pubDate);
+
+
+        source.appendChild(sourceName);
+
+        source.appendChild(date);
+
+
+        // Read Button
+        const readButton =
+            document.createElement("a");
+
+        readButton.href =
+            news.link || "#";
+
+        readButton.target =
+            "_blank";
+
+        readButton.rel =
+            "noopener noreferrer";
+
+
+        readButton.className =
+            "block text-center mt-4 " +
+            "bg-blue-600 hover:bg-blue-700 " +
+            "text-white text-sm font-medium " +
+            "py-2.5 rounded-lg transition";
+
+
+        readButton.innerText =
+            "Read Full News →";
+
+
+        meta.appendChild(source);
+
+
+        content.appendChild(categoryBadge);
+        content.appendChild(title);
+        content.appendChild(description);
+        content.appendChild(meta);
+        content.appendChild(readButton);
+
+
+        card.appendChild(imageWrapper);
+        card.appendChild(content);
+
+
+        return card;
+
+    }
+
+
+    // ==========================================
+    // SEARCH
+    // ==========================================
+
+    searchInput.addEventListener(
+        "input",
+        debounce(() => {
+
+            renderNews();
+
+        }, 300)
+    );
+
+
+    // ==========================================
+    // CATEGORY
+    // ==========================================
+
+    categoryFilter.addEventListener(
+        "change",
+        () => {
+
+            renderNews();
+
+        }
+    );
+
+
+    // ==========================================
+    // DATE FORMAT
+    // ==========================================
+
+    function formatDate(dateString) {
+
+        if (!dateString) {
+            return "Unknown date";
+        }
+
+        const date =
+            new Date(dateString.replace(" ", "T") + "Z");
+
+
+        if (isNaN(date.getTime())) {
+            return dateString;
+        }
+
+
+        return date.toLocaleDateString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            }
+        );
+
+    }
+
+
+    // ==========================================
+    // LOADING
+    // ==========================================
+
+    function showLoading() {
+
+        loading.classList.remove("hidden");
+
+        newsContainer.classList.add("hidden");
+
+        errorBox.classList.add("hidden");
+
+        noResults.classList.add("hidden");
+
+        loadMoreContainer.classList.add("hidden");
+
+        resultCount.innerText =
+            "Loading news...";
+
+    }
+
+
+    function hideLoading() {
+
+        loading.classList.add("hidden");
+
+    }
+
+
+    // ==========================================
+    // ERROR
+    // ==========================================
+
+    function showError(message) {
+
+        errorBox.classList.remove("hidden");
+
+        errorMessage.innerText =
+            message || "Something went wrong.";
+
+        newsContainer.classList.add("hidden");
+
+        resultCount.innerText =
+            "Failed to load news";
+
+    }
+
+
+    // ==========================================
+    // DEBOUNCE
+    // ==========================================
+
+    function debounce(callback, delay) {
+
+        let timer;
+
+        return function (...args) {
+
+            clearTimeout(timer);
+
+            timer =
+                setTimeout(
+                    () => callback.apply(this, args),
+                    delay
+                );
+
+        };
+
+    }
+
+
+    // ==========================================
+    // BASIC HTML ESCAPE
+    // ==========================================
+
+    function escapeHtml(value) {
+
+        const div =
+            document.createElement("div");
+
+        div.textContent =
+            value;
+
+        return div.innerHTML;
+
+    }
+
+</script>
+
+</body>
+</html>

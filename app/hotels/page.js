@@ -1,4 +1,4 @@
-import HotelsClient from './HotelsClient';
+import HotelsClient from './hotelsClient';
 import { getPageBySlug } from '@/utils/api';
 
 export const dynamic = 'force-dynamic';

@@ -10,6 +10,7 @@ import {
     Search,
     People,
     Plus,
+    Trash3,
     X,
 } from 'react-bootstrap-icons';
 
@@ -17,6 +18,7 @@ import airports from './airports.json';
 import flightService from '../services/flightBookingService';
 
 import './flights.css';
+import toast from 'react-hot-toast';
 
 
 
@@ -80,57 +82,57 @@ const toText = (value) => {
 
 const airportList = Array.isArray(airports)
     ? airports
-          .filter((airport) => {
-              const iataCode = toText(
-                  airport?.iata_code
-              );
+        .filter((airport) => {
+            const iataCode = toText(
+                airport?.iata_code
+            );
 
-              const hasIata =
-                  iataCode.length === 3;
+            const hasIata =
+                iataCode.length === 3;
 
-              const isNotHeliport =
-                  toText(
-                      airport?.type
-                  ).toLowerCase() !==
-                  'heliport';
+            const isNotHeliport =
+                toText(
+                    airport?.type
+                ).toLowerCase() !==
+                'heliport';
 
-              const hasScheduledService =
-                  toText(
-                      airport?.scheduled_service
-                  ).toLowerCase() !==
-                  'no';
+            const hasScheduledService =
+                toText(
+                    airport?.scheduled_service
+                ).toLowerCase() !==
+                'no';
 
-              return (
-                  hasIata &&
-                  isNotHeliport &&
-                  hasScheduledService
-              );
-          })
-          .map((airport) => ({
-              code: toText(
-                  airport?.iata_code
-              ).toUpperCase(),
+            return (
+                hasIata &&
+                isNotHeliport &&
+                hasScheduledService
+            );
+        })
+        .map((airport) => ({
+            code: toText(
+                airport?.iata_code
+            ).toUpperCase(),
 
-              name: toText(
-                  airport?.name
-              ),
+            name: toText(
+                airport?.name
+            ),
 
-              city: toText(
-                  airport?.municipality
-              ),
+            city: toText(
+                airport?.municipality
+            ),
 
-              country: toText(
-                  airport?.iso_country
-              ),
+            country: toText(
+                airport?.iso_country
+            ),
 
-              keywords: toText(
-                  airport?.keywords
-              ),
+            keywords: toText(
+                airport?.keywords
+            ),
 
-              type: toText(
-                  airport?.type
-              ),
-          }))
+            type: toText(
+                airport?.type
+            ),
+        }))
     : [];
 
 
@@ -385,7 +387,7 @@ function AirportAutocomplete({
 
 
             {open && value && (
-                <div className="tj-airport-dropdown">
+                <div className="tj-airport-dropdown" >
 
                     {suggestions.length > 0 ? (
                         suggestions.map(
@@ -579,7 +581,7 @@ export default function FlightsClient() {
             if (
                 type === 'infants' &&
                 next >
-                    Number(prev.adults)
+                Number(prev.adults)
             ) {
                 return prev;
             }
@@ -608,10 +610,10 @@ export default function FlightsClient() {
                 (segment, i) =>
                     i === index
                         ? {
-                              ...segment,
-                              [field]:
-                                  value,
-                          }
+                            ...segment,
+                            [field]:
+                                value,
+                        }
                         : segment
             )
         );
@@ -1018,7 +1020,7 @@ export default function FlightsClient() {
 
             toast.error(
                 error?.message ||
-                    'Unable to search flights.'
+                'Unable to search flights.'
             );
 
         } finally {
@@ -1097,7 +1099,7 @@ export default function FlightsClient() {
                                         type="button"
                                         className={
                                             tripType ===
-                                            value
+                                                value
                                                 ? 'active'
                                                 : ''
                                         }
@@ -1144,7 +1146,7 @@ export default function FlightsClient() {
                             ================================================= */}
 
                             {tripType !==
-                            'MULTI_CITY' ? (
+                                'MULTI_CITY' ? (
                                 <>
 
                                     <div className="row g-2">
@@ -1290,41 +1292,41 @@ export default function FlightsClient() {
 
                                         {tripType ===
                                             'ROUND_TRIP' && (
-                                            <div className="col-12 col-md-6 col-lg-3">
+                                                <div className="col-12 col-md-6 col-lg-3">
 
-                                                <label className="tj-label">
-                                                    RETURN
-                                                </label>
+                                                    <label className="tj-label">
+                                                        RETURN
+                                                    </label>
 
-                                                <div className="tj-simple-field">
+                                                    <div className="tj-simple-field">
 
-                                                    <Calendar3 />
+                                                        <Calendar3 />
 
-                                                    <input
-                                                        type="date"
-                                                        min={
-                                                            search.departureDate ||
-                                                            today
-                                                        }
-                                                        value={
-                                                            search.returnDate
-                                                        }
-                                                        onChange={(
-                                                            event
-                                                        ) =>
-                                                            updateSearch(
-                                                                'returnDate',
+                                                        <input
+                                                            type="date"
+                                                            min={
+                                                                search.departureDate ||
+                                                                today
+                                                            }
+                                                            value={
+                                                                search.returnDate
+                                                            }
+                                                            onChange={(
                                                                 event
-                                                                    .target
-                                                                    .value
-                                                            )
-                                                        }
-                                                    />
+                                                            ) =>
+                                                                updateSearch(
+                                                                    'returnDate',
+                                                                    event
+                                                                        .target
+                                                                        .value
+                                                                )
+                                                            }
+                                                        />
+
+                                                    </div>
 
                                                 </div>
-
-                                            </div>
-                                        )}
+                                            )}
 
 
                                         {/* PASSENGERS */}
@@ -1356,7 +1358,7 @@ export default function FlightsClient() {
                                                     }{' '}
                                                     Traveller
                                                     {totalPassengers !==
-                                                    1
+                                                        1
                                                         ? 's'
                                                         : ''}
                                                 </span>
@@ -1432,7 +1434,7 @@ export default function FlightsClient() {
                                                                     <b>
                                                                         {
                                                                             search[
-                                                                                key
+                                                                            key
                                                                             ]
                                                                         }
                                                                     </b>
@@ -1651,22 +1653,51 @@ export default function FlightsClient() {
 
                                                 {segments.length >
                                                     2 && (
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-outline-danger tj-delete-sector"
-                                                        onClick={() =>
-                                                            removeSegment(
-                                                                index
-                                                            )
-                                                        }
-                                                    >
-                                                        <Trash3 />
-                                                    </button>
-                                                )}
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-danger tj-delete-sector"
+                                                            onClick={() =>
+                                                                removeSegment(
+                                                                    index
+                                                                )
+                                                            }
+                                                        >
+                                                            <Trash3 />
+                                                        </button>
+                                                    )}
 
                                             </div>
                                         )
                                     )}
+
+                                    <div className="row g-2 mt-3" style={{display:"flex",justifyContent:"end"}}>
+                                        <div className="col-12 col-md-6 col-lg-3">
+                                            <label className="tj-label">
+                                                CLASS
+                                            </label>
+
+                                            <div className="tj-simple-field">
+                                                <select
+                                                    value={search.cabinClass}
+                                                    onChange={(event) =>
+                                                        updateSearch(
+                                                            'cabinClass',
+                                                            event.target.value
+                                                        )
+                                                    }
+                                                >
+                                                    {cabinClasses.map((cabin) => (
+                                                        <option
+                                                            key={cabin.value}
+                                                            value={cabin.value}
+                                                        >
+                                                            {cabin.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
 
 
                                     <button

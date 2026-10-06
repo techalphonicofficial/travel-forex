@@ -15,6 +15,7 @@ import {
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import hotelService from '@/app/services/hotelService';
+import toast from 'react-hot-toast';
 
 
 const INITIAL_GUEST = {
@@ -337,9 +338,9 @@ export default function GuestDetailsPage() {
             previous.map((guest, guestIndex) =>
                 guestIndex === index
                     ? {
-                          ...guest,
-                          [field]: value
-                      }
+                        ...guest,
+                        [field]: value
+                    }
                     : guest
             )
         );
@@ -476,305 +477,307 @@ export default function GuestDetailsPage() {
         );
     };
 
-    const handleContinue = async (
-        event
-    ) => {
-        event.preventDefault();
 
+
+    const handleContinue = async (event) => {
+        event.preventDefault();
         setPageError('');
 
+        if (submitting) return;
+
         if (!validateAll()) {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
 
             await Swal.fire({
                 icon: 'warning',
                 title: 'Check guest details',
-                text:
-                    'Please complete all required details.',
+                text: 'Please complete all required details.',
                 confirmButtonText: 'OK',
-                confirmButtonColor:
-                    '#198754'
+                confirmButtonColor: '#198754'
             });
-
             return;
         }
 
         try {
             setSubmitting(true);
 
+            // 1. Get authenticated user
+            const auth = JSON.parse(
+                localStorage.getItem('wl_auth') || 'null'
+            );
+
+            const userId =
+                typeof auth === 'string'
+                    ? auth
+                    : auth?.id || auth?.user?.id;
+
+            if (
+                !userId ||
+                !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)
+            ) {
+                toast.error('User session expired. Please login again.');
+                router.push('/login');
+                return;
+            }
+
+            // 2. Validate booking amount
+            const amount = Number(totalPrice);
+
+            if (!Number.isFinite(amount) || amount <= 0) {
+                throw new Error('Invalid booking amount.');
+            }
+
+            // 3. Prepare primary guest
             const primaryGuest =
                 guests.find(
                     (guest) =>
-                        guest.type ===
-                            'ADULT' &&
-                        guest.isPrimary
+                        guest.type === 'ADULT' && guest.isPrimary
                 ) ||
-                guests.find(
-                    (guest) =>
-                        guest.type ===
-                        'ADULT'
-                );
+                guests.find((guest) => guest.type === 'ADULT');
 
-            /*
-             * Complete booking snapshot.
-             * This stays in DB and will later be used
-             * by backend after ICICI payment webhook.
-             */
+            // 4. Prepare complete booking data
             const bookingData = {
                 source: 'TRIPJACK_HOTEL',
-
-                hotel:
-                    bookingContext?.hotel ||
-                    null,
-
-                search:
-                    bookingContext?.search ||
-                    null,
+                hotel: bookingContext?.hotel || null,
+                search: bookingContext?.search || null,
 
                 tripjack: {
                     correlationId:
                         bookingContext?.correlationId ||
                         review?.correlationId ||
                         null,
-
-                    reviewHash:
-                        bookingContext?.reviewHash ||
-                        null,
-
-                    bookingId:
-                        review?.bookingId ||
-                        null,
-
-                    review:
-                        review || null,
-
+                    reviewHash: bookingContext?.reviewHash || null,
+                    bookingId: review?.bookingId || null,
+                    review: review || null,
                     selectedOption:
                         bookingContext?.selectedOption ||
                         option ||
                         null
                 },
 
-                guests: guests.map(
-                    (guest) => ({
-                        roomIndex:
-                            guest.roomIndex,
+                guests: guests.map((guest) => ({
+                    roomIndex: guest.roomIndex,
+                    guestIndex: guest.guestIndex,
+                    type: guest.type,
+                    title: guest.title,
+                    firstName: guest.firstName.trim(),
+                    lastName: guest.lastName.trim(),
+                    gender: guest.gender,
+                    dob: guest.dob || null,
+                    email: guest.email.trim() || null,
+                    mobile: guest.mobile.trim() || null,
+                    pan: guest.pan.trim().toUpperCase() || null,
+                    passportNumber:
+                        guest.passportNumber.trim() || null,
+                    passportExpiry: guest.passportExpiry || null,
+                    nationality: guest.nationality || 'IN',
+                    isPrimary: Boolean(guest.isPrimary)
+                })),
 
-                        guestIndex:
-                            guest.guestIndex,
-
-                        type:
-                            guest.type,
-
-                        title:
-                            guest.title,
-
-                        firstName:
-                            guest.firstName.trim(),
-
-                        lastName:
-                            guest.lastName.trim(),
-
-                        gender:
-                            guest.gender,
-
-                        dob:
-                            guest.dob ||
-                            null,
-
-                        email:
-                            guest.email.trim() ||
-                            null,
-
-                        mobile:
-                            guest.mobile.trim() ||
-                            null,
-
-                        pan:
-                            guest.pan
-                                .trim()
-                                .toUpperCase() ||
-                            null,
-
-                        passportNumber:
-                            guest.passportNumber
-                                .trim() ||
-                            null,
-
-                        passportExpiry:
-                            guest.passportExpiry ||
-                            null,
-
-                        nationality:
-                            guest.nationality ||
-                            'IN',
-
-                        isPrimary:
-                            Boolean(
-                                guest.isPrimary
-                            )
-                    })
-                ),
-
-                primaryGuest:
-                    primaryGuest
-                        ? {
-                              title:
-                                  primaryGuest.title,
-
-                              firstName:
-                                  primaryGuest.firstName.trim(),
-
-                              lastName:
-                                  primaryGuest.lastName.trim(),
-
-                              email:
-                                  primaryGuest.email.trim(),
-
-                              mobile:
-                                  primaryGuest.mobile.trim()
-                          }
-                        : null
+                primaryGuest: primaryGuest
+                    ? {
+                        title: primaryGuest.title,
+                        firstName: primaryGuest.firstName.trim(),
+                        lastName: primaryGuest.lastName.trim(),
+                        email: primaryGuest.email.trim(),
+                        mobile: primaryGuest.mobile.trim()
+                    }
+                    : null
             };
 
-            const amount =
-                Number(totalPrice) || 0;
+            // 5. Save draft before API call
+            // Do not store PAN, passport or full guest details here.
+            const paymentDraft = {
+                bookingType: 'HOTEL',
+                provider: 'TRIPJACK',
+                amount,
+                currency,
+                correlationId:
+                    bookingContext?.correlationId ||
+                    review?.correlationId ||
+                    null,
+                hotelName,
+                savedAt: new Date().toISOString()
+            };
 
-            /*
-             * IMPORTANT:
-             * No fetch here.
-             * Booking is created through hotelService.
-             */
-            const result =
-                await hotelService.createBooking({
-                    bookingType: 'HOTEL',
+            sessionStorage.setItem(
+                'tripjack_hotel_payment_draft',
+                JSON.stringify(paymentDraft)
+            );
 
-                    provider:
-                        'TRIPJACK',
+            // 6. Prepare booking payload
+            const bookingPayload = {
+                userId,
+                bookingType: 'HOTEL',
+                provider: 'TRIPJACK',
 
-                    providerBookingId:
-                        review?.bookingId ||
-                        null,
+                providerBookingId:
+                    review?.bookingId || null,
 
-                    providerReference:
-                        review?.bookingId ||
-                        null,
+                providerReference:
+                    review?.bookingId || null,
 
-                    status:
-                        'INITIATED',
+                amount,
+                currency,
 
-                    paymentStatus:
-                        'PENDING',
+                correlationId: paymentDraft.correlationId,
 
-                    amount,
+                bookingData
+            };
 
-                    currency,
+            console.log(
+                'Hotel Continue To Pay Payload:',
+                bookingPayload
+            );
 
-                    correlationId:
-                        bookingContext?.correlationId ||
-                        review?.correlationId ||
-                        null,
+            // 7. Create booking + initiate ICICI payment
+            const result = await hotelService.book(bookingPayload);
 
-                    bookingData
-                });
+            console.log('Hotel Booking/Payment Response:', result);
 
+            // 8. Validate backend response
             if (!result?.success) {
                 throw new Error(
                     result?.message ||
-                        'Unable to create booking.'
+                    'Unable to initiate payment.'
                 );
             }
 
-            const booking =
-                result?.data;
+            // 9. Get booking response
+            const booking = result?.data?.booking || null;
 
-            if (!booking?.id) {
+            // 10. Get ICICI payment response
+            const payment = result?.data?.payment || null;
+
+            if (!payment) {
+                throw new Error('Payment information not received.');
+            }
+
+            // 11. Get ICICI redirect URL
+            const redirectUrl =
+                payment?.response?.redirectURI ||
+                payment?.response?.redirectUrl ||
+                payment?.redirectURI ||
+                payment?.redirectUrl ||
+                null;
+
+            if (!redirectUrl) {
+                console.error('ICICI payment response:', payment);
                 throw new Error(
-                    'Booking was created but booking ID is missing.'
+                    'ICICI payment redirect URL not received.'
                 );
             }
 
-            /*
-             * Keep internal booking information
-             * for payment page.
-             */
+            // 12. Get transaction context
+            const tranCtx =
+                payment?.response?.tranCtx ||
+                payment?.tranCtx ||
+                null;
+
+            if (!tranCtx) {
+                throw new Error(
+                    'Payment transaction context not received.'
+                );
+            }
+
+            // 13. Save booking + payment in session
+            const paymentFlow = {
+                ...paymentDraft,
+
+                booking: {
+                    id: booking?.id || null,
+                    bookingReference:
+                        booking?.booking_reference ||
+                        booking?.bookingReference ||
+                        null,
+                    tripjackBookingId:
+                        booking?.provider_booking_id ||
+                        review?.bookingId ||
+                        null,
+                    status: booking?.status || 'INITIATED',
+                    paymentStatus:
+                        booking?.payment_status || 'PENDING'
+                },
+
+                payment: {
+                    paymentId: payment?.paymentId || null,
+                    merchantTxnNo:
+                        payment?.merchantTxnNo || null,
+                    gateway:
+                        payment?.gateway || 'ICICI_ORANGE_PG',
+                    status: payment?.status || 'pending',
+                    tranCtx,
+                    redirectURI: redirectUrl,
+                    initiatedAt: new Date().toISOString()
+                },
+
+                updatedAt: new Date().toISOString()
+            };
+
+            sessionStorage.setItem(
+                'tripjack_hotel_payment_draft',
+                JSON.stringify(paymentFlow)
+            );
+
             sessionStorage.setItem(
                 'tripjack_booking',
                 JSON.stringify({
-                    id:
-                        booking.id,
-
+                    id: booking?.id || null,
                     bookingReference:
-                        booking.booking_reference ||
-                        booking.bookingReference,
-
+                        booking?.booking_reference ||
+                        booking?.bookingReference ||
+                        null,
                     amount,
-
                     currency,
-
-                    bookingType:
-                        'HOTEL',
-
-                    provider:
-                        'TRIPJACK'
+                    bookingType: 'HOTEL',
+                    provider: 'TRIPJACK',
+                    paymentStatus:
+                        booking?.payment_status || 'PENDING',
+                    paymentId: payment?.paymentId || null,
+                    merchantTxnNo:
+                        payment?.merchantTxnNo || null,
+                    savedAt: new Date().toISOString()
                 })
             );
 
-            /*
-             * Keep guest information locally
-             * for payment flow/UI if required.
-             */
             sessionStorage.setItem(
                 'tripjack_guest_details',
                 JSON.stringify({
-                    bookingId:
-                        booking.id,
-
-                    bookingReference:
-                        booking.booking_reference ||
-                        booking.bookingReference,
-
-                    guests,
-
-                    bookingData
+                    bookingId: booking?.id || null,
+                    primaryGuest: bookingData.primaryGuest,
+                    hotelName
                 })
             );
 
-            /*
-             * Payment page.
-             *
-             * ICICI payment happens here.
-             * TripJack BOOK API is NOT called
-             * from frontend.
-             */
-            router.push(
-                `/tripjack-hotels/payment?bookingId=${encodeURIComponent(
-                    booking.id
-                )}`
+            // 14. Redirect to ICICI, same as flight
+            toast.success(
+                'Booking created. Redirecting to payment...'
             );
+
+            const paymentRedirectUrl =
+                `${redirectUrl}?tranCtx=${encodeURIComponent(tranCtx)}`;
+
+            console.log(
+                'Hotel ICICI Payment Redirect:',
+                paymentRedirectUrl
+            );
+
+            window.location.href = paymentRedirectUrl;
+
         } catch (error) {
             console.error(
-                'Guest Details Submit Error:',
+                'Hotel booking/payment initiation error:',
                 error
             );
 
-            setPageError(
+            const message =
+                error?.response?.data?.message ||
                 error?.message ||
-                    'Unable to continue to payment.'
-            );
+                'Unable to continue to payment.';
 
-            await Swal.fire({
-                icon: 'error',
-                title: 'Unable to Continue',
-                text:
-                    error?.message ||
-                    'Something went wrong while creating the booking.',
-                confirmButtonText: 'OK',
-                confirmButtonColor:
-                    '#198754'
-            });
+            setPageError(message);
+
+            toast.error(message);
         } finally {
             setSubmitting(false);
         }
@@ -895,19 +898,17 @@ export default function GuestDetailsPage() {
 
                                         {childCount >
                                             0 &&
-                                            ` • ${childCount} Child${
-                                                childCount !==
+                                            ` • ${childCount} Child${childCount !==
                                                 1
-                                                    ? 'ren'
-                                                    : ''
+                                                ? 'ren'
+                                                : ''
                                             }`}
 
-                                        {` • ${roomInfo.length} Room${
-                                            roomInfo.length !==
-                                            1
+                                        {` • ${roomInfo.length} Room${roomInfo.length !==
+                                                1
                                                 ? 's'
                                                 : ''
-                                        }`}
+                                            }`}
                                     </div>
                                 </Col>
 
@@ -941,21 +942,21 @@ export default function GuestDetailsPage() {
                     {/* REQUIREMENTS */}
                     {(compliance.panRequired ||
                         compliance.passportRequired) && (
-                        <Alert
-                            variant="warning"
-                            className="py-2 small"
-                        >
-                            <strong>
-                                Additional details:
-                            </strong>{' '}
+                            <Alert
+                                variant="warning"
+                                className="py-2 small"
+                            >
+                                <strong>
+                                    Additional details:
+                                </strong>{' '}
 
-                            {compliance.panRequired &&
-                                'PAN is required. '}
+                                {compliance.panRequired &&
+                                    'PAN is required. '}
 
-                            {compliance.passportRequired &&
-                                'Passport details are required.'}
-                        </Alert>
-                    )}
+                                {compliance.passportRequired &&
+                                    'Passport details are required.'}
+                            </Alert>
+                        )}
 
                     {pageError && (
                         <Alert
@@ -1034,11 +1035,11 @@ export default function GuestDetailsPage() {
                                                                 item
                                                             ) =>
                                                                 item.roomIndex ===
-                                                                    guest.roomIndex &&
+                                                                guest.roomIndex &&
                                                                 item.guestIndex ===
-                                                                    guest.guestIndex &&
+                                                                guest.guestIndex &&
                                                                 item.type ===
-                                                                    guest.type
+                                                                guest.type
                                                         );
 
                                                     return (
@@ -1049,7 +1050,7 @@ export default function GuestDetailsPage() {
                                                             <div className="d-flex justify-content-between align-items-center mb-3">
                                                                 <div className="fw-semibold">
                                                                     {guest.type ===
-                                                                    'ADULT'
+                                                                        'ADULT'
                                                                         ? 'Adult'
                                                                         : 'Child'}{' '}
                                                                     {guest.guestIndex +
@@ -1058,20 +1059,20 @@ export default function GuestDetailsPage() {
 
                                                                 {guest.type ===
                                                                     'ADULT' && (
-                                                                    <Form.Check
-                                                                        type="radio"
-                                                                        name="primaryGuest"
-                                                                        label="Primary guest"
-                                                                        checked={
-                                                                            guest.isPrimary
-                                                                        }
-                                                                        onChange={() =>
-                                                                            setPrimaryGuest(
-                                                                                guestIndex
-                                                                            )
-                                                                        }
-                                                                    />
-                                                                )}
+                                                                        <Form.Check
+                                                                            type="radio"
+                                                                            name="primaryGuest"
+                                                                            label="Primary guest"
+                                                                            checked={
+                                                                                guest.isPrimary
+                                                                            }
+                                                                            onChange={() =>
+                                                                                setPrimaryGuest(
+                                                                                    guestIndex
+                                                                                )
+                                                                            }
+                                                                        />
+                                                                    )}
                                                             </div>
 
                                                             <Row className="g-3">
@@ -1122,7 +1123,7 @@ export default function GuestDetailsPage() {
                                                                             </option>
 
                                                                             {guest.type ===
-                                                                            'ADULT' ? (
+                                                                                'ADULT' ? (
                                                                                 <>
                                                                                     <option value="Mr">
                                                                                         Mr
@@ -1337,209 +1338,209 @@ export default function GuestDetailsPage() {
                                                                 {/* CHILD DOB */}
                                                                 {guest.type ===
                                                                     'CHILD' && (
-                                                                    <Col
-                                                                        xs={
-                                                                            12
-                                                                        }
-                                                                        sm={
-                                                                            4
-                                                                        }
-                                                                    >
-                                                                        <Form.Group>
-                                                                            <Form.Label>
-                                                                                Date of Birth
-                                                                            </Form.Label>
-
-                                                                            <Form.Control
-                                                                                type="date"
-                                                                                max={getTodayString()}
-                                                                                value={
-                                                                                    guest.dob
-                                                                                }
-                                                                                onChange={(
-                                                                                    e
-                                                                                ) =>
-                                                                                    updateGuest(
-                                                                                        guestIndex,
-                                                                                        'dob',
-                                                                                        e
-                                                                                            .target
-                                                                                            .value
-                                                                                    )
-                                                                                }
-                                                                                onBlur={() =>
-                                                                                    handleBlur(
-                                                                                        guestIndex,
-                                                                                        'dob'
-                                                                                    )
-                                                                                }
-                                                                                isInvalid={Boolean(
-                                                                                    getFieldError(
-                                                                                        guestIndex,
-                                                                                        'dob'
-                                                                                    )
-                                                                                )}
-                                                                            />
-
-                                                                            <Form.Text className="text-muted">
-                                                                                {guest.dob
-                                                                                    ? formatIndianDate(
-                                                                                          guest.dob
-                                                                                      )
-                                                                                    : 'DD/MM/YYYY'}
-                                                                            </Form.Text>
-
-                                                                            <Form.Control.Feedback type="invalid">
-                                                                                {getFieldError(
-                                                                                    guestIndex,
-                                                                                    'dob'
-                                                                                )}
-                                                                            </Form.Control.Feedback>
-                                                                        </Form.Group>
-                                                                    </Col>
-                                                                )}
-
-                                                                {/* EMAIL */}
-                                                                {guest.type ===
-                                                                    'ADULT' && (
-                                                                    <Col
-                                                                        xs={
-                                                                            12
-                                                                        }
-                                                                        sm={
-                                                                            4
-                                                                        }
-                                                                    >
-                                                                        <Form.Group>
-                                                                            <Form.Label>
-                                                                                Email
-                                                                            </Form.Label>
-
-                                                                            <Form.Control
-                                                                                type="email"
-                                                                                placeholder="name@example.com"
-                                                                                value={
-                                                                                    guest.email
-                                                                                }
-                                                                                onChange={(
-                                                                                    e
-                                                                                ) =>
-                                                                                    updateGuest(
-                                                                                        guestIndex,
-                                                                                        'email',
-                                                                                        e
-                                                                                            .target
-                                                                                            .value
-                                                                                    )
-                                                                                }
-                                                                                onBlur={() =>
-                                                                                    handleBlur(
-                                                                                        guestIndex,
-                                                                                        'email'
-                                                                                    )
-                                                                                }
-                                                                                isInvalid={Boolean(
-                                                                                    getFieldError(
-                                                                                        guestIndex,
-                                                                                        'email'
-                                                                                    )
-                                                                                )}
-                                                                            />
-
-                                                                            <Form.Control.Feedback type="invalid">
-                                                                                {getFieldError(
-                                                                                    guestIndex,
-                                                                                    'email'
-                                                                                )}
-                                                                            </Form.Control.Feedback>
-                                                                        </Form.Group>
-                                                                    </Col>
-                                                                )}
-
-                                                                {/* MOBILE */}
-                                                                {guest.type ===
-                                                                    'ADULT' && (
-                                                                    <Col
-                                                                        xs={
-                                                                            12
-                                                                        }
-                                                                        sm={
-                                                                            4
-                                                                        }
-                                                                    >
-                                                                        <Form.Group>
-                                                                            <Form.Label>
-                                                                                Mobile
-                                                                            </Form.Label>
-
-                                                                            <div className="d-flex">
-                                                                                <div
-                                                                                    className="form-control bg-light text-center rounded-end-0"
-                                                                                    style={{
-                                                                                        maxWidth:
-                                                                                            '58px'
-                                                                                    }}
-                                                                                >
-                                                                                    +91
-                                                                                </div>
+                                                                        <Col
+                                                                            xs={
+                                                                                12
+                                                                            }
+                                                                            sm={
+                                                                                4
+                                                                            }
+                                                                        >
+                                                                            <Form.Group>
+                                                                                <Form.Label>
+                                                                                    Date of Birth
+                                                                                </Form.Label>
 
                                                                                 <Form.Control
-                                                                                    className="rounded-start-0"
-                                                                                    type="tel"
-                                                                                    inputMode="numeric"
-                                                                                    maxLength={
-                                                                                        10
-                                                                                    }
-                                                                                    placeholder="10-digit mobile"
+                                                                                    type="date"
+                                                                                    max={getTodayString()}
                                                                                     value={
-                                                                                        guest.mobile
+                                                                                        guest.dob
                                                                                     }
                                                                                     onChange={(
                                                                                         e
                                                                                     ) =>
                                                                                         updateGuest(
                                                                                             guestIndex,
-                                                                                            'mobile',
-                                                                                            e.target.value
-                                                                                                .replace(
-                                                                                                    /\D/g,
-                                                                                                    ''
-                                                                                                )
-                                                                                                .slice(
-                                                                                                    0,
-                                                                                                    10
-                                                                                                )
+                                                                                            'dob',
+                                                                                            e
+                                                                                                .target
+                                                                                                .value
                                                                                         )
                                                                                     }
                                                                                     onBlur={() =>
                                                                                         handleBlur(
                                                                                             guestIndex,
-                                                                                            'mobile'
+                                                                                            'dob'
                                                                                         )
                                                                                     }
                                                                                     isInvalid={Boolean(
                                                                                         getFieldError(
                                                                                             guestIndex,
-                                                                                            'mobile'
+                                                                                            'dob'
                                                                                         )
                                                                                     )}
                                                                                 />
-                                                                            </div>
 
-                                                                            {getFieldError(
-                                                                                guestIndex,
-                                                                                'mobile'
-                                                                            ) && (
-                                                                                <div className="text-danger small mt-1">
+                                                                                <Form.Text className="text-muted">
+                                                                                    {guest.dob
+                                                                                        ? formatIndianDate(
+                                                                                            guest.dob
+                                                                                        )
+                                                                                        : 'DD/MM/YYYY'}
+                                                                                </Form.Text>
+
+                                                                                <Form.Control.Feedback type="invalid">
                                                                                     {getFieldError(
                                                                                         guestIndex,
-                                                                                        'mobile'
+                                                                                        'dob'
                                                                                     )}
+                                                                                </Form.Control.Feedback>
+                                                                            </Form.Group>
+                                                                        </Col>
+                                                                    )}
+
+                                                                {/* EMAIL */}
+                                                                {guest.type ===
+                                                                    'ADULT' && (
+                                                                        <Col
+                                                                            xs={
+                                                                                12
+                                                                            }
+                                                                            sm={
+                                                                                4
+                                                                            }
+                                                                        >
+                                                                            <Form.Group>
+                                                                                <Form.Label>
+                                                                                    Email
+                                                                                </Form.Label>
+
+                                                                                <Form.Control
+                                                                                    type="email"
+                                                                                    placeholder="name@example.com"
+                                                                                    value={
+                                                                                        guest.email
+                                                                                    }
+                                                                                    onChange={(
+                                                                                        e
+                                                                                    ) =>
+                                                                                        updateGuest(
+                                                                                            guestIndex,
+                                                                                            'email',
+                                                                                            e
+                                                                                                .target
+                                                                                                .value
+                                                                                        )
+                                                                                    }
+                                                                                    onBlur={() =>
+                                                                                        handleBlur(
+                                                                                            guestIndex,
+                                                                                            'email'
+                                                                                        )
+                                                                                    }
+                                                                                    isInvalid={Boolean(
+                                                                                        getFieldError(
+                                                                                            guestIndex,
+                                                                                            'email'
+                                                                                        )
+                                                                                    )}
+                                                                                />
+
+                                                                                <Form.Control.Feedback type="invalid">
+                                                                                    {getFieldError(
+                                                                                        guestIndex,
+                                                                                        'email'
+                                                                                    )}
+                                                                                </Form.Control.Feedback>
+                                                                            </Form.Group>
+                                                                        </Col>
+                                                                    )}
+
+                                                                {/* MOBILE */}
+                                                                {guest.type ===
+                                                                    'ADULT' && (
+                                                                        <Col
+                                                                            xs={
+                                                                                12
+                                                                            }
+                                                                            sm={
+                                                                                4
+                                                                            }
+                                                                        >
+                                                                            <Form.Group>
+                                                                                <Form.Label>
+                                                                                    Mobile
+                                                                                </Form.Label>
+
+                                                                                <div className="d-flex">
+                                                                                    <div
+                                                                                        className="form-control bg-light text-center rounded-end-0"
+                                                                                        style={{
+                                                                                            maxWidth:
+                                                                                                '58px'
+                                                                                        }}
+                                                                                    >
+                                                                                        +91
+                                                                                    </div>
+
+                                                                                    <Form.Control
+                                                                                        className="rounded-start-0"
+                                                                                        type="tel"
+                                                                                        inputMode="numeric"
+                                                                                        maxLength={
+                                                                                            10
+                                                                                        }
+                                                                                        placeholder="10-digit mobile"
+                                                                                        value={
+                                                                                            guest.mobile
+                                                                                        }
+                                                                                        onChange={(
+                                                                                            e
+                                                                                        ) =>
+                                                                                            updateGuest(
+                                                                                                guestIndex,
+                                                                                                'mobile',
+                                                                                                e.target.value
+                                                                                                    .replace(
+                                                                                                        /\D/g,
+                                                                                                        ''
+                                                                                                    )
+                                                                                                    .slice(
+                                                                                                        0,
+                                                                                                        10
+                                                                                                    )
+                                                                                            )
+                                                                                        }
+                                                                                        onBlur={() =>
+                                                                                            handleBlur(
+                                                                                                guestIndex,
+                                                                                                'mobile'
+                                                                                            )
+                                                                                        }
+                                                                                        isInvalid={Boolean(
+                                                                                            getFieldError(
+                                                                                                guestIndex,
+                                                                                                'mobile'
+                                                                                            )
+                                                                                        )}
+                                                                                    />
                                                                                 </div>
-                                                                            )}
-                                                                        </Form.Group>
-                                                                    </Col>
-                                                                )}
+
+                                                                                {getFieldError(
+                                                                                    guestIndex,
+                                                                                    'mobile'
+                                                                                ) && (
+                                                                                        <div className="text-danger small mt-1">
+                                                                                            {getFieldError(
+                                                                                                guestIndex,
+                                                                                                'mobile'
+                                                                                            )}
+                                                                                        </div>
+                                                                                    )}
+                                                                            </Form.Group>
+                                                                        </Col>
+                                                                    )}
 
                                                                 {/* PAN */}
                                                                 {guest.type ===
@@ -1722,8 +1723,8 @@ export default function GuestDetailsPage() {
                                                                                     <Form.Text className="text-muted">
                                                                                         {guest.passportExpiry
                                                                                             ? formatIndianDate(
-                                                                                                  guest.passportExpiry
-                                                                                              )
+                                                                                                guest.passportExpiry
+                                                                                            )
                                                                                             : 'DD/MM/YYYY'}
                                                                                     </Form.Text>
 

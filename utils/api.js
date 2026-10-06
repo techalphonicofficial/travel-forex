@@ -2,8 +2,8 @@ import axios from 'axios';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 const BASE_IMAGE_URL = process.env.NEXT_PUBLIC_BASE_IMAGE_URL;
-const DEFAULT_API_BASE_URL = 'http://192.168.0.197:5001/api/v1';
-const DEFAULT_MEDIA_BASE_URL = 'http://192.168.0.197:5001';
+const DEFAULT_API_BASE_URL = 'https://admin.travel-forex.com/api/v1';
+const DEFAULT_MEDIA_BASE_URL = 'https://admin.travel-forex.com';
 export const AUTH_STORAGE_KEY = 'wl_auth';
 export const TOKEN_STORAGE_KEY = 'wl_token';
 export const AUTH_CHANGED_EVENT = 'wl_auth_changed';
@@ -239,7 +239,7 @@ export const getMediaUrl = (path) => {
   if (!base || base === '/') {
     base = DEFAULT_MEDIA_BASE_URL;
   }
-  
+
   return `${base.replace(/\/$/, '')}/${String(path).replace(/^\//, '')}`;
 };
 
@@ -492,13 +492,13 @@ export const getHomePage = async () => {
     const response = typeof window === 'undefined'
       ? await apiClient.get('/pages/slug/home')
       : await axios.get('/api/pages/slug/home', {
-          params: { _t: Date.now() },
-          headers: {
-            'Cache-Control': 'no-cache',
-            Pragma: 'no-cache',
-          },
-          validateStatus: () => true,
-        });
+        params: { _t: Date.now() },
+        headers: {
+          'Cache-Control': 'no-cache',
+          Pragma: 'no-cache',
+        },
+        validateStatus: () => true,
+      });
 
     if (!response.data?.success && response.status >= 400) {
       console.warn('Home page CMS unavailable:', response.data?.message || `HTTP ${response.status}`);
@@ -726,13 +726,13 @@ export const getPackages = async (filters = {}) => {
     const response = typeof window === 'undefined'
       ? await apiClient.get('/packages', { params })
       : await axios.get('/api/packages', {
-          params: { ...params, _t: Date.now() },
-          headers: {
-            'Cache-Control': 'no-cache',
-            Pragma: 'no-cache',
-          },
-          validateStatus: () => true,
-        });
+        params: { ...params, _t: Date.now() },
+        headers: {
+          'Cache-Control': 'no-cache',
+          Pragma: 'no-cache',
+        },
+        validateStatus: () => true,
+      });
     return normalizeApiData(response) || [];
   } catch (error) {
     console.error('Error fetching packages:', error);
@@ -846,30 +846,61 @@ export const validateBookingCoupon = async (payload) => {
   }
 };
 
-export const getCustomerBookings = async ({ customerId, page = 1, limit = 20, status = '' } = {}) => {
+
+export const getCustomerBookings = async ({
+  customerId,
+  page = 1,
+  limit = 20,
+  status = '',
+} = {}) => {
   if (!customerId) {
-    return { success: false, message: 'Customer id is required.', data: { rows: [] } };
+    return {
+      success: false,
+      message: 'Customer id is required.',
+      data: [],
+    };
   }
 
   try {
     const token = getStoredToken();
-    const response = await axios.get(`/api/bookings/customer/${encodeURIComponent(customerId)}`, {
-      params: {
-        page,
-        limit,
-        ...(status ? { status } : {}),
-      },
-      headers: {
-        accept: 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      validateStatus: () => true,
-    });
 
-    return response.data || { success: false, message: 'Unable to load bookings', data: { rows: [] } };
+    const response = await axios.get(
+      `${BASE_URL}/bookings/user/${encodeURIComponent(customerId)}`,
+      {
+        params: {
+          page,
+          limit,
+          ...(status ? { status } : {}),
+        },
+        headers: {
+          accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        validateStatus: () => true,
+      }
+    );
+
+    if (response.status < 200 || response.status >= 300) {
+      return {
+        success: false,
+        message: response.data?.message || 'Unable to load bookings',
+        data: [],
+      };
+    }
+
+    return response.data || {
+      success: false,
+      message: 'Unable to load bookings',
+      data: [],
+    };
   } catch (error) {
     console.warn('Customer bookings unavailable:', error?.message || error);
-    return { success: false, message: 'Unable to load bookings', data: { rows: [] } };
+
+    return {
+      success: false,
+      message: 'Unable to load bookings',
+      data: [],
+    };
   }
 };
 
@@ -1136,6 +1167,16 @@ export const getPipelineForm = async (pipelineId) => {
     return null;
   } catch (error) {
     console.error(`Error fetching pipeline form for ${pipelineId}:`, error);
+    return null;
+  }
+};
+
+export const getBookingDetailsByBookingReference = async (bookingReference) => {
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/bookings/booking-details/${encodeURIComponent(bookingReference)}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching booking details for ${bookingReference}:`, error);
     return null;
   }
 };
