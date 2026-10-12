@@ -841,6 +841,7 @@ const HotelDetails = ({
     nationality,
     correlationId
 }) => {
+    
     const router = useRouter()
     const [photoIndex, setPhotoIndex] = useState(null);
     const [openPlan, setOpenPlan] = useState(null);

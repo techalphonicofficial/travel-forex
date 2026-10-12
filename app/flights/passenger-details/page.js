@@ -1644,7 +1644,7 @@ export default function PassengerDetailsPage() {
                     >
                         {saving
                             ? 'Saving...'
-                            : 'Continue to payment'}
+                            : 'Continue to Seat Selection'}
                         <span>
                             →
                         </span>

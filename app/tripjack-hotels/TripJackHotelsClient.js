@@ -25,7 +25,6 @@ import hotelService from '../services/hotelService';
 import TripJackHotelCard from './TripJackHotelCard';
 import HotelDetails from './HotelDetails';
 import HotelSearchForm from './HotelSearchForm';
-import HotelFilters from './HotelFilters';
 
 /* =========================================================
    CONSTANTS
@@ -136,7 +135,7 @@ const extractHids = (response) => {
     const hotels = response?.data?.hotels;
 
     if (!Array.isArray(hotels)) {
-        console.warn('TripJack HIDs: hotels array not found');
+        console.warn('Travel Forex HIDs: hotels array not found');
         return [];
     }
 
@@ -198,6 +197,7 @@ const getHotelImage = (hotel) => {
         if (heroImage?.links) {
             return (
                 heroImage.links?.original ||
+                heroImage.links?.XXL?.href ||
                 heroImage.links?.large ||
                 heroImage.links?.medium ||
                 heroImage.links?.small ||
@@ -210,6 +210,7 @@ const getHotelImage = (hotel) => {
         if (firstImage?.links) {
             return (
                 firstImage.links?.original ||
+                firstImage.links?.XXL?.href ||
                 firstImage.links?.large ||
                 firstImage.links?.medium ||
                 firstImage.links?.small ||
@@ -237,6 +238,7 @@ const getHotelImages = (hotel) => {
                 if (!img?.links) return null;
                 return (
                     img.links?.original ||
+                    img.links?.XXL?.href ||
                     img.links?.large ||
                     img.links?.medium ||
                     img.links?.small ||
@@ -300,39 +302,54 @@ const getHotelRating = (hotel) => {
     );
 };
 
-const getHotelPrice = (hotel) => {
-    // Check options array first
-    const options = hotel?.options || [];
-    let minPrice = Infinity;
-
-    for (const opt of options) {
-        const price =
-            opt?.price ||
-            opt?.totalPrice ||
-            opt?.amount ||
-            opt?.pricing?.price ||
-            opt?.pricing?.total ||
-            opt?.netPrice ||
-            opt?.grossPrice ||
-            0;
-
-        const numPrice = Number(price);
-        if (numPrice > 0 && numPrice < minPrice) {
-            minPrice = numPrice;
-        }
+const toPositivePrice = (...values) => {
+    for (const value of values) {
+        if (value === null || value === undefined || value === '') continue;
+        const parsed = typeof value === 'number'
+            ? value
+            : Number(String(value).replace(/[,₹\s]/g, ''));
+        if (Number.isFinite(parsed) && parsed > 0) return parsed;
     }
+    return 0;
+};
 
-    if (minPrice !== Infinity) return minPrice;
+// TripJack listing price is commonly returned as option.pricing.totalPrice.
+// Always use the lowest valid option price so range filters match the card price.
+const getHotelPrice = (hotel) => {
+    const options = Array.isArray(hotel?.options) ? hotel.options : [];
+    const optionPrices = options
+        .filter((option) => {
+            const status = option?.status ?? option?.availability ?? option?.isAvailable;
+            if (status === false) return false;
+            if (typeof status === 'string' && status.toLowerCase() === 'unavailable') return false;
+            return true;
+        })
+        .map((option) => toPositivePrice(
+            option?.pricing?.totalPrice,
+            option?.totalPrice,
+            option?.price,
+            option?.amount,
+            option?.pricing?.total,
+            option?.pricing?.price,
+            option?.grossPrice,
+            option?.netPrice,
+            option?.pricing?.basePrice
+        ))
+        .filter((price) => price > 0);
 
-    // Fallback to direct fields
-    return Number(
-        hotel?.price ||
-        hotel?.minPrice ||
-        hotel?.startingPrice ||
-        hotel?.pricePerNight ||
-        hotel?.pricing?.price ||
-        hotel?.rooms?.[0]?.price ||
-        0
+    if (optionPrices.length) return Math.min(...optionPrices);
+
+    return toPositivePrice(
+        hotel?.pricing?.totalPrice,
+        hotel?.totalPrice,
+        hotel?.price,
+        hotel?.minPrice,
+        hotel?.startingPrice,
+        hotel?.pricePerNight,
+        hotel?.pricing?.total,
+        hotel?.pricing?.price,
+        hotel?.rooms?.[0]?.pricing?.totalPrice,
+        hotel?.rooms?.[0]?.price
     );
 };
 
@@ -346,35 +363,29 @@ const getHotelCurrency = (hotel) => {
 };
 
 const getAmenities = (hotel) => {
-    // Check hotelContent for amenities
-    const contentAmenities = hotel?.hotelContent?.amenities;
-    if (Array.isArray(contentAmenities)) {
-        return contentAmenities
+    const normalizeAmenities = (source) => {
+        const list = Array.isArray(source)
+            ? source
+            : source && typeof source === 'object'
+                ? Object.values(source)
+                : [];
+        return list
             .map((item) => {
                 if (typeof item === 'string') return item;
-                return item?.name || item?.label || item?.title;
+                return item?.name || item?.label || item?.title || item?.amenityName;
             })
-            .filter(Boolean)
-            .slice(0, 5);
+            .filter(Boolean);
+    };
+
+    const contentAmenities = hotel?.hotelContent?.amenities;
+    if (contentAmenities) {
+        const normalized = normalizeAmenities(contentAmenities);
+        if (normalized.length) return normalized;
     }
 
-    const amenities =
-        hotel?.amenities ||
-        hotel?.facilities ||
-        hotel?.propertyAmenities ||
-        [];
-
-    if (!Array.isArray(amenities)) {
-        return [];
-    }
-
-    return amenities
-        .map((item) => {
-            if (typeof item === 'string') return item;
-            return item?.name || item?.label || item?.title;
-        })
-        .filter(Boolean)
-        .slice(0, 5);
+    return normalizeAmenities(
+        hotel?.amenities || hotel?.facilities || hotel?.propertyAmenities || []
+    ).slice(0, 15);
 };
 
 const isHotelActive = (hotel) => {
@@ -416,6 +427,91 @@ const getCancellationPolicy = (hotel) => {
         }
     }
     return null;
+};
+
+
+const isHotelRefundable = (hotel) => {
+    const options = Array.isArray(hotel?.options) ? hotel.options : [];
+    return options.some((option) => {
+        if (typeof option?.cancellation?.isRefundable === 'boolean') {
+            return option.cancellation.isRefundable;
+        }
+        if (typeof option?.isRefundable === 'boolean') {
+            return option.isRefundable;
+        }
+        const policy = String(
+            option?.cancellationPolicy ||
+            option?.cancellation?.policy ||
+            option?.cancellation?.type ||
+            ''
+        ).toLowerCase();
+        return policy.includes('free cancellation') ||
+            (policy.includes('refund') && !policy.includes('non-refundable') && !policy.includes('non refundable'));
+    });
+};
+
+const normalizeLabel = (value) => String(value || '').trim();
+
+const getMealBases = (hotel) => {
+    const values = (Array.isArray(hotel?.options) ? hotel.options : [])
+        .flatMap((option) => [
+            option?.mealBasis,
+            option?.mealPlan,
+            option?.boardBasis,
+            ...(Array.isArray(option?.inclusions) ? option.inclusions : []),
+        ])
+        .filter(Boolean)
+        .map((value) => typeof value === 'string' ? value : value?.name || value?.label || '')
+        .filter(Boolean);
+    return [...new Set(values.map(normalizeLabel))];
+};
+
+const getPropertyType = (hotel) => {
+    const type = hotel?.hotelContent?.property_type || hotel?.property_type ||
+        hotel?.propertyType || hotel?.type || '';
+    if (typeof type === 'string') return type.trim();
+    return String(type?.name || type?.label || type?.type || '').trim();
+};
+
+const getHotelAddressText = (hotel) => {
+    const address = hotel?.hotelContent?.locale?.address ||
+        hotel?.hotelContent?.address ||
+        hotel?.address ||
+        hotel?.location ||
+        '';
+    if (typeof address === 'string') return address;
+    return [
+        address?.line1, address?.line2, address?.city, address?.cityName,
+        address?.state, address?.country, address?.postalCode,
+    ].filter(Boolean).join(', ');
+};
+
+const getPopularPlace = (hotel) => {
+    const address = hotel?.hotelContent?.locale?.address ||
+        hotel?.hotelContent?.address || hotel?.address || hotel?.location;
+    if (typeof address === 'string') {
+        const parts = address.split(',').map((part) => part.trim()).filter(Boolean);
+        return parts.length > 1 ? parts[0] : (parts[0] || '');
+    }
+    return address?.locality || address?.area || address?.district ||
+        address?.cityName || address?.city || hotel?.hotelContent?.locale?.city ||
+        hotel?.hotelContent?.city || '';
+};
+
+const hotelMatchesPopularFilter = (hotel, filter) => {
+    const meals = getMealBases(hotel).map((item) => item.toLowerCase());
+    const breakfast = meals.some((item) => item.includes('breakfast') || item.includes('bed and breakfast') || item === 'bb');
+    const refundable = isHotelRefundable(hotel);
+    const fiveStar = getHotelRating(hotel) >= 5;
+    switch (filter) {
+        case 'breakfast': return breakfast;
+        case 'free-cancellation': return refundable;
+        case 'cancellation-breakfast': return refundable && breakfast;
+        case 'five-star': return fiveStar;
+        case 'five-star-breakfast': return fiveStar && breakfast;
+        case 'five-star-cancellation': return fiveStar && refundable;
+        default: return true;
+    }
 };
 
 const extractHotels = (response) => {
@@ -557,6 +653,257 @@ function LoadingCard() {
     );
 }
 
+
+/* =========================================================
+   TRIPJACK FILTER UI - uses existing teal theme
+========================================================= */
+
+function TripJackHotelFilters({
+    hotels = [],
+    filterRating,
+    setFilterRating,
+    priceRange,
+    setPriceRange,
+    maxPrice,
+    filterAmenities,
+    setFilterAmenities,
+    allAmenities,
+    filterRefundable,
+    setFilterRefundable,
+    filterAvailable,
+    setFilterAvailable,
+    filterMealBases,
+    setFilterMealBases,
+    filterPropertyTypes,
+    setFilterPropertyTypes,
+    filterPlaces,
+    setFilterPlaces,
+    filterPopular,
+    setFilterPopular,
+    filterSearch,
+    setFilterSearch,
+    selectedPriceBands,
+    setSelectedPriceBands,
+    onReset,
+}) {
+    const priceBands = [
+        { id: '0-3000', label: 'Up to ₹3,000', min: 0, max: 3000 },
+        { id: '3001-4000', label: '₹3,001 – ₹4,000', min: 3001, max: 4000 },
+        { id: '4001-5500', label: '₹4,001 – ₹5,500', min: 4001, max: 5500 },
+        { id: '5501-7500', label: '₹5,501 – ₹7,500', min: 5501, max: 7500 },
+        { id: '7501-14000', label: '₹7,501 – ₹14,000', min: 7501, max: 14000 },
+        { id: '14001-plus', label: '₹14,001+', min: 14001, max: Infinity },
+    ];
+    const mealOptions = [
+        { id: 'room only', label: 'Room Only' },
+        { id: 'breakfast', label: 'Breakfast' },
+        { id: 'half board', label: 'Half Board' },
+        { id: 'dinner', label: 'Dinner' },
+        { id: 'full board', label: 'Full Board' },
+    ];
+    const popularOptions = [
+        { id: 'breakfast', label: 'Breakfast Included' },
+        { id: 'free-cancellation', label: 'Free Cancellation' },
+        { id: 'cancellation-breakfast', label: 'Free Cancellation + Breakfast' },
+        { id: 'five-star', label: '5 Star' },
+        { id: 'five-star-breakfast', label: '5 Star + Breakfast' },
+        { id: 'five-star-cancellation', label: '5 Star + Free Cancellation' },
+    ];
+    const ratingOptions = [5, 4, 3, 2, 1];
+    const propertyTypes = useMemo(() => {
+        const defaults = ['Hotel', 'Apartment', 'GuestHouse', 'Resort', 'Hostel', 'Villa'];
+        const actual = hotels.map(getPropertyType).filter(Boolean);
+        return [...new Set([...defaults, ...actual])].sort((a, b) => {
+            const ai = defaults.findIndex((x) => x.toLowerCase() === a.toLowerCase());
+            const bi = defaults.findIndex((x) => x.toLowerCase() === b.toLowerCase());
+            if (ai >= 0 && bi >= 0) return ai - bi;
+            if (ai >= 0) return -1;
+            if (bi >= 0) return 1;
+            return a.localeCompare(b);
+        });
+    }, [hotels]);
+    const mealValues = useMemo(() => {
+        const actual = hotels.flatMap(getMealBases).map((x) => x.trim()).filter(Boolean);
+        const preferred = mealOptions.map((x) => x.label);
+        return [...new Set([...preferred, ...actual])];
+    }, [hotels]);
+    const places = useMemo(() => [...new Set(hotels.map(getPopularPlace).filter(Boolean))].sort().slice(0, 20), [hotels]);
+    const toggleArray = (value, values, setter) => {
+        setter(values.includes(value) ? values.filter((item) => item !== value) : [...values, value]);
+    };
+    const countFor = (predicate) => hotels.filter((hotel) => isHotelActive(hotel) && predicate(hotel)).length;
+    const Check = ({ checked, onChange, children, count }) => (
+        <Form.Check
+            type="checkbox"
+            className="tj-filter-check mb-2"
+            checked={checked}
+            onChange={onChange}
+            label={<span className="d-flex align-items-center justify-content-between gap-2"><span>{children}</span>{Number.isFinite(count) && <span className="text-muted small">({count})</span>}</span>}
+        />
+    );
+    const Section = ({ title, children }) => (
+        <div className="tj-filter-section">
+            <h6 className="fw-bold mb-3">{title}</h6>
+            {children}
+        </div>
+    );
+
+    return (
+        <div className="tj-filter-sidebar">
+            <Form.Control
+                type="search"
+                value={filterSearch}
+                onChange={(event) => setFilterSearch(event.target.value)}
+                placeholder="Search hotel or locality"
+                aria-label="Search hotel or locality"
+                className="mb-3"
+            />
+            <Check checked={filterRefundable} onChange={(event) => setFilterRefundable(event.target.checked)}>
+                Free Cancellation Available
+            </Check>
+            <Check checked={filterAvailable} onChange={(event) => setFilterAvailable(event.target.checked)}>
+                Available options only
+            </Check>
+
+            <Section title="Star Category">
+                {ratingOptions.map((rating) => (
+                    <Check
+                        key={rating}
+                        checked={filterRating === rating}
+                        onChange={() => setFilterRating(filterRating === rating ? 0 : rating)}
+                        count={countFor((hotel) => getHotelRating(hotel) >= rating && getHotelRating(hotel) < rating + 1)}
+                    >
+                        <span className="text-warning">{'★'.repeat(rating)}{'☆'.repeat(5 - rating)}</span>
+                    </Check>
+                ))}
+            </Section>
+
+            <Section title="Meal Basis">
+                {mealValues.map((meal) => (
+                    <Check
+                        key={meal}
+                        checked={filterMealBases.includes(meal.toLowerCase())}
+                        onChange={() => toggleArray(meal.toLowerCase(), filterMealBases, setFilterMealBases)}
+                        count={countFor((hotel) => getMealBases(hotel).some((value) => value.toLowerCase().includes(meal.toLowerCase())))}
+                    >
+                        {meal}
+                    </Check>
+                ))}
+            </Section>
+
+            <Section title="Price Range">
+                {priceBands.map((band) => (
+                    <Check
+                        key={band.id}
+                        checked={selectedPriceBands.includes(band.id)}
+                        onChange={() => toggleArray(band.id, selectedPriceBands, setSelectedPriceBands)}
+                        count={countFor((hotel) => {
+                            const price = getHotelPrice(hotel);
+                            return price > 0 && price >= band.min && price <= band.max;
+                        })}
+                    >
+                        {band.label}
+                    </Check>
+                ))}
+                <div className="small text-muted mt-3 mb-1">
+                    Custom range: {formatPrice(priceRange[0])} – {formatPrice(priceRange[1])}
+                </div>
+                <Form.Range
+                    min={0}
+                    max={Math.max(1000, maxPrice)}
+                    step={500}
+                    value={Math.min(priceRange[1], Math.max(1000, maxPrice))}
+                    onChange={(event) => {
+                        const upper = Number(event.target.value);
+                        setSelectedPriceBands([]);
+                        setPriceRange([priceRange[0], upper]);
+                    }}
+                    aria-label="Maximum hotel price"
+                />
+                <div className="d-flex gap-2">
+                    <Form.Control
+                        type="number"
+                        min="0"
+                        value={priceRange[0]}
+                        aria-label="Minimum price"
+                        onChange={(event) => {
+                            setSelectedPriceBands([]);
+                            setPriceRange([Math.max(0, Number(event.target.value) || 0), priceRange[1]]);
+                        }}
+                    />
+                    <Form.Control
+                        type="number"
+                        min={priceRange[0]}
+                        value={priceRange[1]}
+                        aria-label="Maximum price"
+                        onChange={(event) => {
+                            setSelectedPriceBands([]);
+                            setPriceRange([priceRange[0], Math.max(priceRange[0], Number(event.target.value) || 0)]);
+                        }}
+                    />
+                </div>
+            </Section>
+
+            <Section title="Property Type">
+                {propertyTypes.map((type) => (
+                    <Check
+                        key={type}
+                        checked={filterPropertyTypes.includes(type.toLowerCase())}
+                        onChange={() => toggleArray(type.toLowerCase(), filterPropertyTypes, setFilterPropertyTypes)}
+                        count={countFor((hotel) => getPropertyType(hotel).toLowerCase() === type.toLowerCase())}
+                    >
+                        {type}
+                    </Check>
+                ))}
+            </Section>
+
+            {places.length > 0 && (
+                <Section title="Popular Places">
+                    {places.map((place) => (
+                        <Check
+                            key={place}
+                            checked={filterPlaces.includes(place.toLowerCase())}
+                            onChange={() => toggleArray(place.toLowerCase(), filterPlaces, setFilterPlaces)}
+                            count={countFor((hotel) => getPopularPlace(hotel).toLowerCase() === place.toLowerCase())}
+                        >
+                            {place}
+                        </Check>
+                    ))}
+                </Section>
+            )}
+
+            <Section title="Popular Filters">
+                {popularOptions.map((option) => (
+                    <Check
+                        key={option.id}
+                        checked={filterPopular.includes(option.id)}
+                        onChange={() => toggleArray(option.id, filterPopular, setFilterPopular)}
+                        count={countFor((hotel) => hotelMatchesPopularFilter(hotel, option.id))}
+                    >
+                        {option.label}
+                    </Check>
+                ))}
+            </Section>
+
+            <Section title="Amenities">
+                {allAmenities.map((amenity) => (
+                    <Check
+                        key={amenity}
+                        checked={filterAmenities.includes(amenity)}
+                        onChange={() => toggleArray(amenity, filterAmenities, setFilterAmenities)}
+                    >
+                        {amenity}
+                    </Check>
+                ))}
+            </Section>
+
+            <Button variant="outline-secondary" className="w-100 mt-2" onClick={onReset}>
+                Reset All Filters
+            </Button>
+        </div>
+    );
+}
+
 /* =========================================================
    MAIN COMPONENT
 ========================================================= */
@@ -592,6 +939,12 @@ export default function TripJackHotelsClient() {
     const [filterAmenities, setFilterAmenities] = useState([]);
     const [filterRefundable, setFilterRefundable] = useState(false);
     const [filterAvailable, setFilterAvailable] = useState(false);
+    const [filterMealBases, setFilterMealBases] = useState([]);
+    const [filterPropertyTypes, setFilterPropertyTypes] = useState([]);
+    const [filterPlaces, setFilterPlaces] = useState([]);
+    const [filterPopular, setFilterPopular] = useState([]);
+    const [filterSearch, setFilterSearch] = useState('');
+    const [selectedPriceBands, setSelectedPriceBands] = useState([]);
 
     /* =====================================================
        CITY STATE
@@ -755,7 +1108,7 @@ export default function TripJackHotelsClient() {
                 }
 
                 console.error(
-                    'Failed to load TripJack nationalities:',
+                    'Failed to load Travel Forex nationalities:',
                     error
                 );
 
@@ -819,7 +1172,7 @@ export default function TripJackHotelsClient() {
                     return;
                 }
 
-                console.error('TripJack city search error:', err);
+                console.error('Travel Forex city search error:', err);
                 setCitySuggestions([]);
                 setShowCitySuggestions(false);
             } finally {
@@ -887,91 +1240,96 @@ export default function TripJackHotelsClient() {
     ===================================================== */
 
     const filteredHotels = useMemo(() => {
-        let result = [...hotels];
+        let result = [...hotels].filter((hotel) => isHotelActive(hotel));
+        const searchTerm = filterSearch.trim().toLowerCase();
 
-        // Filter: Active only
-        result = result.filter((hotel) => isHotelActive(hotel));
-
-        // Filter: Rating
-        if (filterRating > 0) {
-            result = result.filter(
-                (hotel) => getHotelRating(hotel) >= filterRating
+        if (searchTerm) {
+            result = result.filter((hotel) =>
+                `${getHotelName(hotel)} ${getHotelAddressText(hotel)} ${getPopularPlace(hotel)}`
+                    .toLowerCase()
+                    .includes(searchTerm)
             );
         }
 
-        // Filter: Price range
-        result = result.filter((hotel) => {
-            const price = getHotelPrice(hotel);
-            if (price === 0) return true; // Include price-on-request
-            return price >= priceRange[0] && price <= priceRange[1];
-        });
-
-        // Filter: Availability
-        if (filterAvailable) {
-            result = result.filter((hotel) => hasAvailability(hotel));
+        if (filterRating > 0) {
+            result = result.filter((hotel) => getHotelRating(hotel) >= filterRating);
         }
 
-        // Filter: Refundable
-        if (filterRefundable) {
+        if (selectedPriceBands.length > 0) {
+            const bands = [
+                { id: '0-3000', min: 0, max: 3000 },
+                { id: '3001-4000', min: 3001, max: 4000 },
+                { id: '4001-5500', min: 4001, max: 5500 },
+                { id: '5501-7500', min: 5501, max: 7500 },
+                { id: '7501-14000', min: 7501, max: 14000 },
+                { id: '14001-plus', min: 14001, max: Infinity },
+            ].filter((band) => selectedPriceBands.includes(band.id));
             result = result.filter((hotel) => {
-                const policy = getCancellationPolicy(hotel);
-                return policy && policy.toLowerCase().includes('refund');
+                const price = getHotelPrice(hotel);
+                return price > 0 && bands.some((band) => price >= band.min && price <= band.max);
+            });
+        } else {
+            result = result.filter((hotel) => {
+                const price = getHotelPrice(hotel);
+                if (price === 0) return true;
+                return price >= priceRange[0] && price <= priceRange[1];
             });
         }
 
-        // Filter: Amenities
+        if (filterAvailable) result = result.filter((hotel) => hasAvailability(hotel));
+        if (filterRefundable) result = result.filter(isHotelRefundable);
+
         if (filterAmenities.length > 0) {
             result = result.filter((hotel) => {
-                const hotelAmenities = getAmenities(hotel).map((a) =>
-                    a.toLowerCase()
-                );
-                return filterAmenities.every((a) =>
-                    hotelAmenities.includes(a.toLowerCase())
-                );
+                const hotelAmenities = getAmenities(hotel).map((amenity) => amenity.toLowerCase());
+                return filterAmenities.every((amenity) => hotelAmenities.includes(amenity.toLowerCase()));
             });
         }
 
-        // Sort
+        if (filterMealBases.length > 0) {
+            result = result.filter((hotel) => {
+                const meals = getMealBases(hotel).map((meal) => meal.toLowerCase());
+                return filterMealBases.some((selected) => meals.some((meal) => meal.includes(selected)));
+            });
+        }
+
+        if (filterPropertyTypes.length > 0) {
+            result = result.filter((hotel) => filterPropertyTypes.includes(getPropertyType(hotel).toLowerCase()));
+        }
+
+        if (filterPlaces.length > 0) {
+            result = result.filter((hotel) => filterPlaces.includes(getPopularPlace(hotel).toLowerCase()));
+        }
+
+        if (filterPopular.length > 0) {
+            result = result.filter((hotel) => filterPopular.every((selected) => hotelMatchesPopularFilter(hotel, selected)));
+        }
+
         switch (sortBy) {
             case 'price-low':
-                result.sort(
-                    (a, b) => getHotelPrice(a) - getHotelPrice(b)
-                );
+                result.sort((a, b) => getHotelPrice(a) - getHotelPrice(b));
                 break;
             case 'price-high':
-                result.sort(
-                    (a, b) => getHotelPrice(b) - getHotelPrice(a)
-                );
+                result.sort((a, b) => getHotelPrice(b) - getHotelPrice(a));
                 break;
             case 'rating':
-                result.sort(
-                    (a, b) => getHotelRating(b) - getHotelRating(a)
-                );
+                result.sort((a, b) => getHotelRating(b) - getHotelRating(a));
                 break;
             case 'name':
-                result.sort((a, b) =>
-                    getHotelName(a).localeCompare(getHotelName(b))
-                );
+                result.sort((a, b) => getHotelName(a).localeCompare(getHotelName(b)));
                 break;
             default:
-                // Recommended: available first, then by rating
                 result.sort((a, b) => {
-                    const aAvail = hasAvailability(a) ? 1 : 0;
-                    const bAvail = hasAvailability(b) ? 1 : 0;
-                    if (aAvail !== bAvail) return bAvail - aAvail;
+                    const availabilityDifference = Number(hasAvailability(b)) - Number(hasAvailability(a));
+                    if (availabilityDifference) return availabilityDifference;
                     return getHotelRating(b) - getHotelRating(a);
                 });
         }
-
         return result;
     }, [
-        hotels,
-        filterRating,
-        priceRange,
-        filterAvailable,
-        filterRefundable,
-        filterAmenities,
-        sortBy,
+        hotels, filterSearch, filterRating, priceRange, selectedPriceBands,
+        filterAvailable, filterRefundable, filterAmenities, filterMealBases,
+        filterPropertyTypes, filterPlaces, filterPopular, sortBy,
     ]);
 
     /* =====================================================
@@ -1011,7 +1369,7 @@ export default function TripJackHotelsClient() {
         const countryName = getCityCountry(city) || 'INDIA';
 
         if (!regionId) {
-            setError('Selected city does not have a valid TripJack region.');
+            setError('Selected city does not have a valid Travel Forex region.');
             return;
         }
 
@@ -1287,6 +1645,12 @@ export default function TripJackHotelsClient() {
         setFilterAmenities([]);
         setFilterRefundable(false);
         setFilterAvailable(false);
+        setFilterMealBases([]);
+        setFilterPropertyTypes([]);
+        setFilterPlaces([]);
+        setFilterPopular([]);
+        setFilterSearch('');
+        setSelectedPriceBands([]);
     };
 
     /* =====================================================
@@ -1324,7 +1688,7 @@ export default function TripJackHotelsClient() {
             );
         } catch (storageError) {
             console.error(
-                'Unable to save TripJack hotel search context:',
+                'Unable to save Travel Forex hotel search context:',
                 storageError
             );
         }
@@ -1452,24 +1816,32 @@ export default function TripJackHotelsClient() {
                                             Filters
                                         </h5>
 
-                                        <HotelFilters
+                                        <TripJackHotelFilters
+                                            hotels={hotels}
                                             filterRating={filterRating}
                                             setFilterRating={setFilterRating}
-
                                             priceRange={priceRange}
                                             setPriceRange={setPriceRange}
                                             maxPrice={maxPrice}
-
                                             filterAmenities={filterAmenities}
                                             setFilterAmenities={setFilterAmenities}
                                             allAmenities={allAmenities}
-
                                             filterRefundable={filterRefundable}
                                             setFilterRefundable={setFilterRefundable}
-
                                             filterAvailable={filterAvailable}
                                             setFilterAvailable={setFilterAvailable}
-
+                                            filterMealBases={filterMealBases}
+                                            setFilterMealBases={setFilterMealBases}
+                                            filterPropertyTypes={filterPropertyTypes}
+                                            setFilterPropertyTypes={setFilterPropertyTypes}
+                                            filterPlaces={filterPlaces}
+                                            setFilterPlaces={setFilterPlaces}
+                                            filterPopular={filterPopular}
+                                            setFilterPopular={setFilterPopular}
+                                            filterSearch={filterSearch}
+                                            setFilterSearch={setFilterSearch}
+                                            selectedPriceBands={selectedPriceBands}
+                                            setSelectedPriceBands={setSelectedPriceBands}
                                             onReset={resetFilters}
                                         />
                                     </Card>
@@ -1482,7 +1854,7 @@ export default function TripJackHotelsClient() {
                                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-3">
                                     <div>
                                         <span className="tj-eyebrow-text">
-                                            TRIPJACK COLLECTION
+                                            Travel Forex COLLECTION
                                         </span>
 
                                         <h2 className="fw-bold mb-0 mt-1">
@@ -1627,7 +1999,13 @@ export default function TripJackHotelsClient() {
                                             {(filterRating > 0 ||
                                                 filterAmenities.length > 0 ||
                                                 filterRefundable ||
-                                                filterAvailable) && (
+                                                filterAvailable ||
+                                                filterMealBases.length > 0 ||
+                                                filterPropertyTypes.length > 0 ||
+                                                filterPlaces.length > 0 ||
+                                                filterPopular.length > 0 ||
+                                                filterSearch ||
+                                                selectedPriceBands.length > 0) && (
                                                     <Button
                                                         variant="outline-primary"
                                                         className="mt-3"
@@ -1729,21 +2107,34 @@ export default function TripJackHotelsClient() {
                 </Offcanvas.Header>
 
                 <Offcanvas.Body>
-                    <HotelFilters
-                        filterRating={filterRating}
-                        setFilterRating={setFilterRating}
-                        priceRange={priceRange}
-                        setPriceRange={setPriceRange}
-                        maxPrice={maxPrice}
-                        filterAmenities={filterAmenities}
-                        setFilterAmenities={setFilterAmenities}
-                        allAmenities={allAmenities}
-                        filterRefundable={filterRefundable}
-                        setFilterRefundable={setFilterRefundable}
-                        filterAvailable={filterAvailable}
-                        setFilterAvailable={setFilterAvailable}
-                        onReset={resetFilters}
-                    />
+                    <TripJackHotelFilters
+                                            hotels={hotels}
+                                            filterRating={filterRating}
+                                            setFilterRating={setFilterRating}
+                                            priceRange={priceRange}
+                                            setPriceRange={setPriceRange}
+                                            maxPrice={maxPrice}
+                                            filterAmenities={filterAmenities}
+                                            setFilterAmenities={setFilterAmenities}
+                                            allAmenities={allAmenities}
+                                            filterRefundable={filterRefundable}
+                                            setFilterRefundable={setFilterRefundable}
+                                            filterAvailable={filterAvailable}
+                                            setFilterAvailable={setFilterAvailable}
+                                            filterMealBases={filterMealBases}
+                                            setFilterMealBases={setFilterMealBases}
+                                            filterPropertyTypes={filterPropertyTypes}
+                                            setFilterPropertyTypes={setFilterPropertyTypes}
+                                            filterPlaces={filterPlaces}
+                                            setFilterPlaces={setFilterPlaces}
+                                            filterPopular={filterPopular}
+                                            setFilterPopular={setFilterPopular}
+                                            filterSearch={filterSearch}
+                                            setFilterSearch={setFilterSearch}
+                                            selectedPriceBands={selectedPriceBands}
+                                            setSelectedPriceBands={setSelectedPriceBands}
+                                            onReset={resetFilters}
+                                        />
 
                     <div className="d-grid mt-4">
                         <Button
@@ -2105,6 +2496,31 @@ export default function TripJackHotelsClient() {
 
                 .tj-filter-sidebar {
                     font-size: 14px;
+                }
+
+                .tj-filter-section {
+                    border-top: 1px dashed #dce4ec;
+                    padding-top: 16px;
+                    margin-top: 16px;
+                }
+
+                .tj-filter-section h6 {
+                    color: #1f2937;
+                    font-size: 14px;
+                }
+
+                .tj-filter-sidebar .form-control,
+                .tj-filter-sidebar .form-select {
+                    border-radius: 10px;
+                    font-size: 13px;
+                }
+
+                .tj-filter-sidebar .form-check {
+                    min-height: 24px;
+                }
+
+                .tj-filter-sidebar .form-check-label {
+                    width: 100%;
                 }
 
                 .tj-filter-icon {

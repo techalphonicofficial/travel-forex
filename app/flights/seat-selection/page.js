@@ -1605,20 +1605,18 @@ export default function SeatSelectionPage() {
                         </div>
 
                         <h1>
-                            Select your seats
+                            {isReviewed ? 'Review Your Booking' : 'Select your seats'}
                         </h1>
 
                         <p>
-                            Choose a seat for each
-                            passenger. Seat prices are
-                            taken from the live
-                            TripJack seat map.
+                            {isReviewed
+                                ? 'Your flight has been reviewed. Continue to payment when you are ready.'
+                                : 'Choose a seat for each passenger. Seat selection is optional; you can continue without selecting seats.'}
                         </p>
                     </header>
 
-                    {/* SECTOR TABS */}
-
-                    {maps.length > 1 && (
+                    {/* SECTOR TABS: only before review */}
+                    {!isReviewed && maps.length > 1 && (
                         <div className="tabs">
                             {maps.map(
                                 (map, index) => (
@@ -1649,8 +1647,8 @@ export default function SeatSelectionPage() {
 
                     <div className="layout">
 
-                        {/* MAIN */}
-
+                        {/* SEAT SELECTION: hide after successful review */}
+                        {!isReviewed && (
                         <section className="main">
 
                             {/* PASSENGERS */}
@@ -2149,10 +2147,11 @@ export default function SeatSelectionPage() {
                                 </span>
                             </div>
                         </section>
+                        )}
 
                         {/* DESKTOP SUMMARY */}
 
-                        <aside className="summary card">
+                        <aside className={`summary card ${isReviewed ? 'reviewed-summary' : ''}`}>
 
                             {flightFare && (
                                 <div className="flight-fare">
@@ -2395,13 +2394,11 @@ export default function SeatSelectionPage() {
                     <button
                         type="button"
                         disabled={saving}
-                        onClick={
-                            saveAndContinue
-                        }
+                        onClick={isReviewed ? saveAndContinue : handleReviewFlight}
                     >
                         {saving
-                            ? 'Saving...'
-                            : 'Continue'}
+                            ? (isReviewed ? 'Processing...' : 'Reviewing...')
+                            : (isReviewed ? 'Continue to Pay' : 'Review Booking')}
                     </button>
                 </div>
             </main>
@@ -3482,7 +3479,7 @@ const styles = `
 @media (max-width: 640px) {
   .page {
     padding:
-      16px 10px 96px;
+      16px 10px calc(112px + env(safe-area-inset-bottom));
   }
 
   .header {
@@ -3631,6 +3628,31 @@ const styles = `
     display: none;
   }
 
+  /* Keep the booking review visible on mobile after review succeeds. */
+  .summary.reviewed-summary {
+    display: block;
+    position: static;
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 12px;
+  }
+
+  .summary.reviewed-summary .flight-fare,
+  .summary.reviewed-summary .summary-head,
+  .summary.reviewed-summary .summary-body,
+  .summary.reviewed-summary .total,
+  .summary.reviewed-summary .action {
+    display: block;
+  }
+
+  .summary.reviewed-summary .action {
+    padding: 12px;
+  }
+
+  .summary.reviewed-summary .action button {
+    width: 100%;
+  }
+
   .mobile-bar {
     position: fixed;
     z-index: 50;
@@ -3698,7 +3720,10 @@ const styles = `
   .mobile-bar button {
     width: auto;
     min-width: 132px;
-    padding: 12px 15px;
+    max-width: 52%;
+    padding: 12px 13px;
+    white-space: nowrap;
+    font-size: 12px;
   }
 }
 

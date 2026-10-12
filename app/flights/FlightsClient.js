@@ -555,45 +555,42 @@ export default function FlightsClient() {
        PASSENGER UPDATE
     ===================================================== */
 
-    const updatePassenger = (
-        type,
-        value
-    ) => {
+const updatePassenger = (type, value) => {
+    setSearch((prev) => {
+        const current = Number(prev[type]);
 
-        setSearch((prev) => {
+        const next = Math.max(
+            type === 'adults' ? 1 : 0,
+            current + value
+        );
 
-            const current =
-                Number(prev[type]);
+        // Infants cannot exceed adults
+        if (
+            type === 'infants' &&
+            next > Number(prev.adults)
+        ) {
+            return prev;
+        }
 
+        // Maximum 9 travellers overall
+        const totalTravellers =
+            Number(prev.adults) +
+            Number(prev.children) +
+            Number(prev.infants);
 
-            const next = Math.max(
-                type === 'adults'
-                    ? 1
-                    : 0,
+        const nextTotal =
+            totalTravellers + (next - current);
 
-                current + value
-            );
+        if (nextTotal > 9) {
+            return prev;
+        }
 
-
-            /*
-             * Infant cannot exceed adults.
-             */
-            if (
-                type === 'infants' &&
-                next >
-                Number(prev.adults)
-            ) {
-                return prev;
-            }
-
-
-            return {
-                ...prev,
-                [type]: next,
-            };
-        });
-    };
-
+        return {
+            ...prev,
+            [type]: next,
+        };
+    });
+};
 
     /* =====================================================
        MULTI CITY UPDATE
@@ -1048,7 +1045,7 @@ export default function FlightsClient() {
                     <div className="tj-hero-copy text-center text-white">
 
                         <span className="tj-eyebrow">
-                            TRIPJACK FLIGHTS
+                            Travel Forex FLIGHTS
                         </span>
 
                         <h1>
@@ -1891,7 +1888,7 @@ export default function FlightsClient() {
                                     <p>
                                         Search available
                                         flight options
-                                        through TripJack.
+                                        through Travel Forex.
                                     </p>
 
                                 </div>
