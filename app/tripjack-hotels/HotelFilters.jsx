@@ -1,201 +1,166 @@
 'use client';
 
-import { Form, Button } from 'react-bootstrap';
+import { useState } from 'react';
 
-const RATING_FILTERS = [0, 3, 4, 4.5, 5];
+import { money } from './hotelUtils';
 
-export default function HotelFilters({
-    filterRating,
-    setFilterRating,
+export const DEFAULT_HOTEL_FILTERS = {
+    name: '',
+    minPrice: '',
+    maxPrice: '',
+    priceBuckets: [],
+    stars: [],
+    refund: [],
+    meals: [],
+    propertyTypes: [],
+    localities: [],
+    amenities: [],
+};
 
-    priceRange,
-    setPriceRange,
-    maxPrice,
-
-    filterAmenities,
-    setFilterAmenities,
-    allAmenities,
-
-    filterRefundable,
-    setFilterRefundable,
-
-    filterAvailable,
-    setFilterAvailable,
-
-    onReset,
-}) {
+function Section({ title, onClear, children, defaultOpen = true }) {
+    const [open, setOpen] = useState(defaultOpen);
     return (
-        <div className="tj-filter-sidebar" style={{marginTop:"50px"}}>
-
-            {/* STAR RATING */}
-            <div className="mb-4">
-                <h6 className="fw-bold mb-3 d-flex align-items-center gap-2">
-                    <span className="tj-filter-icon">★</span>
-                    Star Rating
-                </h6>
-
-                <div className="d-flex flex-column gap-2">
-                    {RATING_FILTERS.map((rating) => (
-                        <Form.Check
-                            key={rating}
-                            type="radio"
-                            id={`rating-${rating}`}
-                            name="ratingFilter"
-                            label={
-                                rating === 0
-                                    ? 'All Ratings'
-                                    : `${rating}+ Stars`
-                            }
-                            checked={filterRating === rating}
-                            onChange={() => setFilterRating(rating)}
-                            className="tj-filter-check"
-                        />
-                    ))}
-                </div>
+        <div className="hb-filter">
+            <div className="hb-filter-title">
+                <button type="button" className="hb-link" style={{ color: 'inherit' }} onClick={() => setOpen((v) => !v)}>
+                    {title} {open ? '−' : '+'}
+                </button>
+                {onClear && <button type="button" className="hb-link" onClick={onClear}>Clear</button>}
             </div>
+            {open && children}
+        </div>
+    );
+}
 
-            {/* PRICE */}
-            <div className="mb-4">
-                <h6 className="fw-bold mb-3 d-flex align-items-center gap-2">
-                    <span className="tj-filter-icon">₹</span>
-                    Price Range (per night)
-                </h6>
+function CheckList({ items, selected, onToggle, limit = 8 }) {
+    const [all, setAll] = useState(false);
+    const shown = all ? items : items.slice(0, limit);
+    return (
+        <>
+            {shown.map((item) => (
+                <label className="hb-check" key={item.value}>
+                    <input type="checkbox" checked={selected.includes(item.value)} onChange={() => onToggle(item.value)} />
+                    <span>{item.label}</span>
+                    <b>{item.count}</b>
+                </label>
+            ))}
+            {items.length > limit && (
+                <button type="button" className="hb-link" onClick={() => setAll((v) => !v)}>
+                    {all ? 'Show less' : `Show all ${items.length}`}
+                </button>
+            )}
+        </>
+    );
+}
 
-                <div className="d-flex gap-2 align-items-center mb-2">
-                    <Form.Control
-                        type="number"
-                        size="sm"
-                        placeholder="Min"
-                        value={priceRange[0]}
-                        onChange={(e) =>
-                            setPriceRange([
-                                Number(e.target.value) || 0,
-                                priceRange[1],
-                            ])
-                        }
-                    />
+/* Filter sidebar (drawer on mobile) */
+export default function HotelFilters({ filters, setFilters, facets, open, onClose, resultCount }) {
+    const update = (key, value) => setFilters((prev) => ({ ...prev, [key]: value }));
+    const toggle = (key, value) =>
+        setFilters((prev) => ({
+            ...prev,
+            [key]: prev[key].includes(value) ? prev[key].filter((v) => v !== value) : [...prev[key], value],
+        }));
 
-                    <span className="text-muted">-</span>
-
-                    <Form.Control
-                        type="number"
-                        size="sm"
-                        placeholder="Max"
-                        value={priceRange[1]}
-                        onChange={(e) =>
-                            setPriceRange([
-                                priceRange[0],
-                                Number(e.target.value) || maxPrice,
-                            ])
-                        }
-                    />
-                </div>
-
-                <Form.Range
-                    min={0}
-                    max={maxPrice}
-                    value={priceRange[1]}
-                    onChange={(e) =>
-                        setPriceRange([
-                            priceRange[0],
-                            Number(e.target.value),
-                        ])
-                    }
-                />
-
-                <div className="d-flex justify-content-between small text-muted">
-                    <span>₹0</span>
-                    <span>
-                        ₹{maxPrice.toLocaleString('en-IN')}
+    return (
+        <>
+            {open && <button type="button" className="hb-backdrop" aria-label="Close filters" onClick={onClose} />}
+            <aside className={`hb-sidebar ${open ? 'open' : ''}`}>
+                <div className="hb-sidebar-head">
+                    <strong>Filters</strong>
+                    <span style={{ display: 'flex', gap: 12 }}>
+                        <button type="button" className="hb-link" onClick={() => setFilters(DEFAULT_HOTEL_FILTERS)}>Reset all</button>
+                        {open && <button type="button" className="hb-link" onClick={onClose}>✕</button>}
                     </span>
                 </div>
-            </div>
 
-            {/* AVAILABILITY */}
-            <div className="mb-4">
-                <h6 className="fw-bold mb-3 d-flex align-items-center gap-2">
-                    <span className="tj-filter-icon">✓</span>
-                    Availability
-                </h6>
+                <Section title="Search by hotel name" onClear={filters.name ? () => update('name', '') : null}>
+                    <input
+                        type="search"
+                        placeholder="e.g. Taj, Marriott"
+                        value={filters.name}
+                        onChange={(event) => update('name', event.target.value)}
+                    />
+                </Section>
 
-                <Form.Check
-                    type="switch"
-                    id="available-switch"
-                    label="Show only available hotels"
-                    checked={filterAvailable}
-                    onChange={(e) =>
-                        setFilterAvailable(e.target.checked)
-                    }
-                    className="tj-filter-check"
-                />
+                <Section
+                    title="Price per night"
+                    onClear={filters.minPrice !== '' || filters.maxPrice !== '' || filters.priceBuckets.length
+                        ? () => setFilters((prev) => ({ ...prev, minPrice: '', maxPrice: '', priceBuckets: [] }))
+                        : null}
+                >
+                    <CheckList
+                        items={facets.priceBuckets.filter((bucket) => bucket.count)}
+                        selected={filters.priceBuckets}
+                        onToggle={(value) => toggle('priceBuckets', value)}
+                    />
+                    <input
+                        type="range"
+                        className="hb-range"
+                        min={facets.minPrice}
+                        max={Math.max(facets.maxPrice, facets.minPrice + 1)}
+                        value={filters.maxPrice === '' ? facets.maxPrice : filters.maxPrice}
+                        onChange={(event) => update('maxPrice', event.target.value)}
+                    />
+                    <div className="hb-price-inputs">
+                        <label>Min<input type="number" min="0" placeholder={money(facets.minPrice)} value={filters.minPrice} onChange={(event) => update('minPrice', event.target.value)} /></label>
+                        <label>Max<input type="number" min="0" placeholder={money(facets.maxPrice)} value={filters.maxPrice} onChange={(event) => update('maxPrice', event.target.value)} /></label>
+                    </div>
+                </Section>
 
-                <Form.Check
-                    type="switch"
-                    id="refundable-switch"
-                    label="Refundable only"
-                    checked={filterRefundable}
-                    onChange={(e) =>
-                        setFilterRefundable(e.target.checked)
-                    }
-                    className="tj-filter-check mt-2"
-                />
-            </div>
-
-            {/* AMENITIES */}
-            {allAmenities.length > 0 && (
-                <div className="mb-4">
-                    <h6 className="fw-bold mb-3 d-flex align-items-center gap-2">
-                        <span className="tj-filter-icon">🏨</span>
-                        Amenities
-                    </h6>
-
-                    <div
-                        className="d-flex flex-column gap-2"
-                        style={{
-                            maxHeight: 200,
-                            overflowY: 'auto',
-                        }}
-                    >
-                        {allAmenities.map((amenity) => (
-                            <Form.Check
-                                key={amenity}
-                                type="checkbox"
-                                id={`amenity-${amenity}`}
-                                label={amenity}
-                                checked={filterAmenities.includes(
-                                    amenity
-                                )}
-                                onChange={(e) => {
-                                    if (e.target.checked) {
-                                        setFilterAmenities([
-                                            ...filterAmenities,
-                                            amenity,
-                                        ]);
-                                    } else {
-                                        setFilterAmenities(
-                                            filterAmenities.filter(
-                                                (item) =>
-                                                    item !== amenity
-                                            )
-                                        );
-                                    }
-                                }}
-                                className="tj-filter-check"
-                            />
+                <Section title="Star rating" onClear={filters.stars.length ? () => update('stars', []) : null}>
+                    <div className="hb-star-row">
+                        {[5, 4, 3, 2, 1].map((star) => (
+                            <button
+                                type="button"
+                                key={star}
+                                className={filters.stars.includes(star) ? 'active' : ''}
+                                disabled={!facets.stars[star]}
+                                onClick={() => toggle('stars', star)}
+                            >
+                                {star}★
+                                <small>{facets.stars[star] || 0}</small>
+                            </button>
                         ))}
                     </div>
-                </div>
-            )}
+                </Section>
 
-            {/* RESET */}
-            <Button
-                variant="outline-secondary"
-                size="sm"
-                className="w-100"
-                onClick={onReset}
-            >
-                Reset All Filters
-            </Button>
-        </div>
+                <Section title="Refund policy" onClear={filters.refund.length ? () => update('refund', []) : null}>
+                    <CheckList items={facets.refund.filter((item) => item.count)} selected={filters.refund} onToggle={(value) => toggle('refund', value)} />
+                </Section>
+
+                {facets.meals.length > 0 && (
+                    <Section title="Meals" onClear={filters.meals.length ? () => update('meals', []) : null}>
+                        <CheckList items={facets.meals} selected={filters.meals} onToggle={(value) => toggle('meals', value)} />
+                    </Section>
+                )}
+
+                {facets.propertyTypes.length > 1 && (
+                    <Section title="Property type" onClear={filters.propertyTypes.length ? () => update('propertyTypes', []) : null}>
+                        <CheckList items={facets.propertyTypes} selected={filters.propertyTypes} onToggle={(value) => toggle('propertyTypes', value)} />
+                    </Section>
+                )}
+
+                {facets.localities.length > 1 && (
+                    <Section title="Locality" defaultOpen={false} onClear={filters.localities.length ? () => update('localities', []) : null}>
+                        <CheckList items={facets.localities} selected={filters.localities} onToggle={(value) => toggle('localities', value)} />
+                    </Section>
+                )}
+
+                {facets.amenities.length > 0 && (
+                    <Section title="Amenities" defaultOpen={false} onClear={filters.amenities.length ? () => update('amenities', []) : null}>
+                        <CheckList items={facets.amenities} selected={filters.amenities} onToggle={(value) => toggle('amenities', value)} />
+                    </Section>
+                )}
+
+                {open && (
+                    <div style={{ position: 'sticky', bottom: -14, padding: '12px 0', background: '#fff' }}>
+                        <button type="button" className="hb-btn" style={{ width: '100%' }} onClick={onClose}>
+                            Show {resultCount} hotels
+                        </button>
+                    </div>
+                )}
+            </aside>
+        </>
     );
 }

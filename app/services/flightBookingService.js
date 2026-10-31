@@ -1,6 +1,13 @@
 const API_BASE_URL =
     process.env.NEXT_PUBLIC_BASE_URL || '';
 
+/* Logged-in user's JWT (set by utils/api setAuthSession) */
+const getAuthHeader = () => {
+    if (typeof window === 'undefined') return {};
+    const token = localStorage.getItem('wl_token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 const request = async (endpoint, payload = {}) => {
     const response = await fetch(
         `${API_BASE_URL}${endpoint}`,
@@ -8,6 +15,7 @@ const request = async (endpoint, payload = {}) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                ...getAuthHeader(),
             },
             body: JSON.stringify(payload),
         }
@@ -25,6 +33,17 @@ const request = async (endpoint, payload = {}) => {
         throw new Error(
             data?.message ||
             data?.error ||
+            'Flight request failed'
+        );
+    }
+
+    /*
+     * TripJack sends some failures with HTTP 200 and
+     * status.success = false (e.g. "Access Denied", no fares).
+     */
+    if (data?.status?.success === false) {
+        throw new Error(
+            data?.errors?.[0]?.message ||
             'Flight request failed'
         );
     }
@@ -77,57 +96,26 @@ const flightService = {
         );
     },
 
-    /**
-     * TripJack Fare Validation
-     * POST /tripjack/flight/fare-validate
+    /*
+     * Fare validate, book and booking details run only on the server
+     * after a verified payment (see createBooking / continueToPay).
      */
-    fareValidate(payload) {
-        return request(
-            '/tripjack/flight/fare-validate',
-            payload
-        );
-    },
 
     /**
-     * TripJack Flight Booking
-     * POST /tripjack/flight/book
+     * Create booking + TripJack fare validate (server sets the amount)
+     * POST /bookings  (login required)
      */
-    book(payload) {
-        return request(
-            '/tripjack/flight/book',
-            payload
-        );
-    },
-
-    /**
-     * TripJack Confirm Booking
-     * POST /tripjack/flight/confirm-book
-     */
-    confirmBook(payload) {
-        return request(
-            '/tripjack/flight/confirm-book',
-            payload
-        );
-    },
-
-    /**
-     * TripJack Booking Details
-     * POST /tripjack/flight/booking-details
-     */
-    bookingDetails(payload) {
-        return request(
-            '/tripjack/flight/booking-details',
-            payload
-        );
-    },
-
-    fareValidate(payload) {
+    createBooking(payload) {
         return request(
             '/bookings',
             payload
         );
     },
 
+    /**
+     * Start ICICI payment for a confirmed booking (login required)
+     * POST /bookings/continue-to-pay/:bookingId
+     */
     continueToPay(bookingId) {
         return request(
             `/bookings/continue-to-pay/${bookingId}`

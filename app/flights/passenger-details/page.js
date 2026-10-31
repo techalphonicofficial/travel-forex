@@ -1,1692 +1,790 @@
 'use client';
 
-import React, {
-    useEffect,
-    useMemo,
-    useState,
-} from 'react';
-
+import { useMemo, useState, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
-import toast, {
-    Toaster,
-} from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 import './passenger-details.css';
+import BookingTopBar, { getSessionExpiry, useSessionTimer } from '../BookingTopBar';
 
-const STORAGE_KEY =
-    'tripjack_passenger_flow';
+/* =========================================================
+   CONSTANTS
+========================================================= */
 
-const SOURCE_KEY =
-    'tripjack_selected_flight';
+const FLOW_KEY = 'tripjack_passenger_flow';
+const AUTH_KEY = 'wl_auth';
+const AUTH_EVENT = 'wl_auth_changed';
+const NEXT_ROUTE = '/flights/seat-selection';
 
-const createEmptyPassenger = (
-    type,
-    index
-) => ({
+const PAX_LABELS = { ADULT: 'Adult', CHILD: 'Child', INFANT: 'Infant' };
+
+/* TripJack travellerInfo.ti */
+const TITLES = {
+    ADULT: ['Mr', 'Ms', 'Mrs'],
+    CHILD: ['Master', 'Ms'],
+    INFANT: ['Master', 'Ms'],
+};
+
+/* ISO country codes sent as TripJack pNat */
+const NATIONALITIES = [
+    ['IN', 'India'], ['AE', 'United Arab Emirates'], ['US', 'United States'], ['GB', 'United Kingdom'],
+    ['CA', 'Canada'], ['AU', 'Australia'], ['NZ', 'New Zealand'], ['SG', 'Singapore'],
+    ['MY', 'Malaysia'], ['TH', 'Thailand'], ['NP', 'Nepal'], ['BD', 'Bangladesh'],
+    ['LK', 'Sri Lanka'], ['BT', 'Bhutan'], ['MV', 'Maldives'], ['SA', 'Saudi Arabia'],
+    ['QA', 'Qatar'], ['OM', 'Oman'], ['KW', 'Kuwait'], ['BH', 'Bahrain'],
+    ['DE', 'Germany'], ['FR', 'France'], ['IT', 'Italy'], ['ES', 'Spain'],
+    ['NL', 'Netherlands'], ['CH', 'Switzerland'], ['IE', 'Ireland'], ['RU', 'Russia'],
+    ['JP', 'Japan'], ['CN', 'China'], ['HK', 'Hong Kong'], ['KR', 'South Korea'],
+    ['ID', 'Indonesia'], ['PH', 'Philippines'], ['VN', 'Vietnam'], ['ZA', 'South Africa'],
+    ['KE', 'Kenya'], ['MU', 'Mauritius'], ['AF', 'Afghanistan'], ['PK', 'Pakistan'],
+];
+
+const COUNTRY_CODES = ['+91', '+971', '+1', '+44', '+61', '+65', '+60', '+977', '+880', '+94', '+966', '+974', '+968', '+965', '+973'];
+
+const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
+const GST_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const PASSPORT_REGEX = /^[A-Z0-9]{6,15}$/;
+const NAME_REGEX = /^[A-Za-z ]+$/;
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const money = (value) =>
+    `₹${(Number(value) || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+
+const formatTime = (value) => {
+    const match = String(value || '').match(/T(\d{2}:\d{2})/);
+    return match ? match[1] : '--';
+};
+
+const formatDate = (value) => {
+    if (!value) return '--';
+    const date = new Date(`${String(value).slice(0, 10)}T12:00:00`);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short' });
+};
+
+/* Age in full years on a given date (YYYY-MM-DD strings) */
+const ageOn = (dob, onDate) => {
+    if (!dob || !onDate) return null;
+    const [by, bm, bd] = dob.split('-').map(Number);
+    const [ty, tm, td] = String(onDate).slice(0, 10).split('-').map(Number);
+    if (!by || !ty) return null;
+    let age = ty - by;
+    if (tm < bm || (tm === bm && td < bd)) age -= 1;
+    return age;
+};
+
+const getTrips = (review) => {
+    const value = review?.tripInfos || [];
+    if (Array.isArray(value)) return value;
+    return Object.values(value || {}).filter(Array.isArray).flat();
+};
+
+const emptyPassenger = (type, index) => ({
     id: `${type}-${index + 1}`,
-
     type,
-
     title: '',
-
     firstName: '',
-
     lastName: '',
-
     dob: '',
-
-    nationality: 'Indian',
-
+    nationality: 'IN',
     passportNumber: '',
+    passportExpiry: '',
+    passportIssueDate: '',
+    pan: '',
+    documentId: '',
 });
 
-const getPaxInfo = (
-    bookingData
-) => {
-    const paxInfo =
-        bookingData?.request
-            ?.searchQuery
-            ?.paxInfo ||
-        bookingData?.searchQuery
-            ?.paxInfo ||
-        bookingData?.search
-            ?.paxInfo ||
-        {};
-
-    return {
-        ADULT:
-            Number(
-                paxInfo?.ADULT || 0
-            ),
-
-        CHILD:
-            Number(
-                paxInfo?.CHILD || 0
-            ),
-
-        INFANT:
-            Number(
-                paxInfo?.INFANT || 0
-            ),
-    };
-};
-
-const buildPassengers = (
-    paxInfo,
-    existingPassengers = []
-) => {
-    const passengers = [];
-
-    const types = [
-        {
-            type: 'ADULT',
-            count: paxInfo.ADULT,
-        },
-        {
-            type: 'CHILD',
-            count: paxInfo.CHILD,
-        },
-        {
-            type: 'INFANT',
-            count: paxInfo.INFANT,
-        },
-    ];
-
-    types.forEach(
-        ({ type, count }) => {
-            for (
-                let i = 0;
-                i < count;
-                i++
-            ) {
-                const id =
-                    `${type}-${i + 1}`;
-
-                const existing =
-                    existingPassengers.find(
-                        (passenger) =>
-                            passenger?.id ===
-                            id
-                    );
-
-                passengers.push(
-                    existing ||
-                    createEmptyPassenger(
-                        type,
-                        i
-                    )
-                );
-            }
-        }
+const buildPassengers = (paxInfo, existing = []) =>
+    ['ADULT', 'CHILD', 'INFANT'].flatMap((type) =>
+        Array.from({ length: Number(paxInfo?.[type] || 0) }, (_, index) => {
+            const id = `${type}-${index + 1}`;
+            const saved = existing.find((passenger) => passenger?.id === id);
+            /* old flows stored nationality as "Indian" */
+            const nationality = saved?.nationality && saved.nationality.length === 2 ? saved.nationality : 'IN';
+            return { ...emptyPassenger(type, index), ...(saved || {}), nationality };
+        })
     );
 
-    return passengers;
+/*
+ * Which traveller fields this booking needs, from TripJack
+ * review conditions + domestic / international.
+ */
+const getRequirements = (flow) => {
+    const review = flow?.review || {};
+    const c = review?.conditions || {};
+    const isDomestic = review?.searchQuery?.isDomestic !== false;
+    const fareType = String(flow?.search?.fareType || review?.searchQuery?.searchModifiers?.pft || '').toUpperCase();
+    const passport = !isDomestic || Boolean(c?.pcs?.pm);
+
+    return {
+        isDomestic,
+        passport,
+        passportIssueDate: Boolean(c?.pcs?.pid),
+        dob: {
+            ADULT: Boolean(c?.dob?.adobr) || !isDomestic,
+            CHILD: Boolean(c?.dob?.cdobr) || !isDomestic,
+            INFANT: true,
+        },
+        /* TripJack takes one PAN per booking, on the lead traveller */
+        pan: Boolean(c?.ipa) || !isDomestic,
+        documentId: Boolean(c?.dc?.ida || c?.dc?.idm) || ['STUDENT', 'SENIOR_CITIZEN'].includes(fareType),
+        documentIdRequired: Boolean(c?.dc?.idm) || ['STUDENT', 'SENIOR_CITIZEN'].includes(fareType),
+        documentIdLabel: fareType === 'SENIOR_CITIZEN' ? 'Senior citizen ID' : fareType === 'STUDENT' ? 'Student ID' : 'Student / Senior citizen ID',
+        gst: Boolean(c?.gst?.gstappl || c?.gst?.igm),
+        gstRequired: Boolean(c?.gst?.igm),
+        emergencyContact: Boolean(c?.iecr),
+        firstNameMax: Number(c?.anlm?.fN) || 32,
+        lastNameMax: Number(c?.anlm?.lN) || 32,
+        lastNameMin: Math.max(1, Number(c?.anlm?.lnml) || 1),
+    };
 };
 
-const getPassengerLabel = (
-    type,
-    index
-) => {
-    if (type === 'ADULT') {
-        return `Adult ${index + 1}`;
-    }
+/* =========================================================
+   VALIDATION
+========================================================= */
 
-    if (type === 'CHILD') {
-        return `Child ${index + 1}`;
-    }
+const validate = ({ passengers, contact, gst, emergency, req, firstTravel, lastTravel }) => {
+    const errors = {};
+    const set = (key, message) => { if (!errors[key]) errors[key] = message; };
 
-    return `Infant ${index + 1}`;
-};
+    passengers.forEach((p, i) => {
+        const k = (field) => `${i}.${field}`;
+        const first = p.firstName.trim();
+        const last = p.lastName.trim();
 
-const getPassengerTypeLabel = (
-    type
-) => {
-    if (type === 'ADULT') {
-        return 'Adult';
-    }
+        if (!p.title) set(k('title'), 'Select title');
 
-    if (type === 'CHILD') {
-        return 'Child';
-    }
+        if (!first) set(k('firstName'), 'Enter first name');
+        else if (!NAME_REGEX.test(first)) set(k('firstName'), 'Use letters only');
+        else if (first.length > req.firstNameMax) set(k('firstName'), `Max ${req.firstNameMax} characters`);
 
-    return 'Infant';
-};
+        if (!last) set(k('lastName'), 'Enter last name');
+        else if (!NAME_REGEX.test(last)) set(k('lastName'), 'Use letters only');
+        else if (last.length < req.lastNameMin) set(k('lastName'), `Min ${req.lastNameMin} characters`);
+        else if (last.length > req.lastNameMax) set(k('lastName'), `Max ${req.lastNameMax} characters`);
 
-const getBookingId = (
-    review
-) =>
-    review?.bookingId ||
-    review?.data?.bookingId ||
-    review?.booking?.bookingId ||
-    '';
+        const dobRequired = req.dob[p.type];
+        if (dobRequired && !p.dob) set(k('dob'), 'Enter date of birth');
+        if (p.dob) {
+            const ageStart = ageOn(p.dob, firstTravel);
+            const ageEnd = ageOn(p.dob, lastTravel);
+            if (ageStart === null || ageStart < 0 || p.dob > (firstTravel || '9999')) set(k('dob'), 'Enter a valid date of birth');
+            else if (p.type === 'ADULT' && ageStart < 12) set(k('dob'), 'Adult must be 12 years or older');
+            else if (p.type === 'CHILD' && (ageStart < 2 || ageStart >= 12)) set(k('dob'), 'Child must be 2–11 years on the travel date');
+            else if (p.type === 'INFANT' && ageEnd >= 2) set(k('dob'), 'Infant must be under 2 years for the whole trip');
+        }
 
-const getTotalFare = (
-    review
-) => {
-    const total =
-        review?.totalPriceInfo
-            ?.totalFareDetail
-            ?.fC
-            ?.TF ??
-        review?.data
-            ?.totalPriceInfo
-            ?.totalFareDetail
-            ?.fC
-            ?.TF ??
-        review?.totalPrice ??
-        review?.data
-            ?.totalPrice ??
-        0;
+        if (req.passport) {
+            const number = p.passportNumber.trim().toUpperCase();
+            if (!p.nationality) set(k('nationality'), 'Select nationality');
+            if (!number) set(k('passportNumber'), 'Enter passport number');
+            else if (!PASSPORT_REGEX.test(number)) set(k('passportNumber'), 'Enter a valid passport number');
+            if (!p.passportExpiry) set(k('passportExpiry'), 'Enter passport expiry date');
+            else if (lastTravel && p.passportExpiry <= lastTravel) set(k('passportExpiry'), 'Passport must be valid beyond your travel date');
+            if (req.passportIssueDate && !p.passportIssueDate) set(k('passportIssueDate'), 'Enter passport issue date');
+            if (p.passportIssueDate && firstTravel && p.passportIssueDate >= firstTravel) set(k('passportIssueDate'), 'Enter a valid issue date');
+        }
 
-    return Number(total) || 0;
-};
+        if (req.pan && i === 0) {
+            const pan = p.pan.trim().toUpperCase();
+            if (!pan) set(k('pan'), 'Enter PAN of the lead traveller');
+            else if (!PAN_REGEX.test(pan)) set(k('pan'), 'Enter a valid PAN (e.g. ABCDE1234F)');
+        }
 
-const getRouteSummary = (
-    bookingData
-) => {
-    const routeInfos =
-        bookingData?.request
-            ?.searchQuery
-            ?.routeInfos ||
-        bookingData?.request
-            ?.routeInfos ||
-        [];
-
-    if (!Array.isArray(routeInfos)) {
-        return [];
-    }
-
-    return routeInfos;
-};
-
-export default function PassengerDetailsPage() {
-    const router =
-        useRouter();
-
-    const [
-        bookingData,
-        setBookingData,
-    ] = useState(null);
-
-    const [
-        passengers,
-        setPassengers,
-    ] = useState([]);
-
-    const [
-        contact,
-        setContact,
-    ] = useState({
-        email: '',
-        mobile: '',
-        countryCode: '+91',
+        if (req.documentId && req.documentIdRequired && p.type !== 'INFANT' && !p.documentId.trim()) {
+            set(k('documentId'), `Enter ${req.documentIdLabel.toLowerCase()}`);
+        }
     });
 
-    const [
-        loading,
-        setLoading,
-    ] = useState(true);
+    if (!contact.email.trim()) set('contact.email', 'Enter email address');
+    else if (!EMAIL_REGEX.test(contact.email.trim())) set('contact.email', 'Enter a valid email address');
 
-    const [
-        saving,
-        setSaving,
-    ] = useState(false);
+    const mobile = contact.mobile.replace(/\D/g, '');
+    if (!mobile) set('contact.mobile', 'Enter mobile number');
+    else if (contact.countryCode === '+91' ? !/^[6-9]\d{9}$/.test(mobile) : (mobile.length < 6 || mobile.length > 14)) {
+        set('contact.mobile', 'Enter a valid mobile number');
+    }
 
-    /* =========================================================
-       LOAD BOOKING SESSION
-    ========================================================= */
+    if (req.emergencyContact) {
+        if (!emergency.name.trim()) set('emergency.name', 'Enter contact name');
+        if (!/^[6-9]\d{9}$/.test(emergency.mobile.replace(/\D/g, ''))) set('emergency.mobile', 'Enter a valid 10-digit mobile number');
+    }
 
-    useEffect(() => {
-        try {
-            let flow = null;
+    if (gst.enabled || req.gstRequired) {
+        if (!GST_REGEX.test(gst.gstNumber.trim().toUpperCase())) set('gst.gstNumber', 'Enter a valid 15-character GSTIN');
+        if (!gst.registeredName.trim()) set('gst.registeredName', 'Enter registered company name');
+        if (gst.email.trim() && !EMAIL_REGEX.test(gst.email.trim())) set('gst.email', 'Enter a valid email address');
+    }
 
-            const savedFlow =
-                sessionStorage.getItem(
-                    STORAGE_KEY
-                );
+    return errors;
+};
 
-            if (savedFlow) {
-                try {
-                    flow =
-                        JSON.parse(
-                            savedFlow
-                        );
-                } catch (error) {
-                    console.error(
-                        'Invalid passenger flow:',
-                        error
-                    );
+/* =========================================================
+   FIELD
+========================================================= */
+
+function Field({ label, error, hint, optional, children, wide }) {
+    return (
+        <label className={`pd-field ${error ? 'has-error' : ''} ${wide ? 'wide' : ''}`}>
+            <span className="pd-label">
+                {label}
+                {optional && <i> (optional)</i>}
+            </span>
+            {children}
+            {error ? <small className="pd-error">{error}</small> : hint ? <small className="pd-hint">{hint}</small> : null}
+        </label>
+    );
+}
+
+/* =========================================================
+   FORM (mounted once the booking flow is loaded)
+========================================================= */
+
+function TravellerForm({ flow }) {
+    const router = useRouter();
+
+    const isLoggedIn = useSyncExternalStore(
+        (onChange) => {
+            window.addEventListener('storage', onChange);
+            window.addEventListener(AUTH_EVENT, onChange);
+            return () => {
+                window.removeEventListener('storage', onChange);
+                window.removeEventListener(AUTH_EVENT, onChange);
+            };
+        },
+        () => {
+            try {
+                return Boolean(JSON.parse(localStorage.getItem(AUTH_KEY) || 'null')?.id);
+            } catch {
+                return false;
+            }
+        },
+        () => true
+    );
+
+    const review = useMemo(() => flow.review || {}, [flow]);
+    const req = useMemo(() => getRequirements(flow), [flow]);
+    const paxInfo = review?.searchQuery?.paxInfo || flow?.request?.searchQuery?.paxInfo || {};
+
+    const [passengers, setPassengers] = useState(() => buildPassengers(paxInfo, flow.passengers || []));
+    const [contact, setContact] = useState(() => ({
+        email: flow?.contact?.email || '',
+        mobile: flow?.contact?.mobile || '',
+        countryCode: flow?.contact?.countryCode || '+91',
+    }));
+    const [gst, setGst] = useState(() => ({
+        enabled: Boolean(flow?.gstInfo?.gstNumber) || req.gstRequired,
+        gstNumber: flow?.gstInfo?.gstNumber || '',
+        registeredName: flow?.gstInfo?.registeredName || '',
+        email: flow?.gstInfo?.email || '',
+        mobile: flow?.gstInfo?.mobile || '',
+        address: flow?.gstInfo?.address || '',
+    }));
+    const [emergency, setEmergency] = useState(() => ({
+        name: flow?.emergencyContact?.name || '',
+        mobile: flow?.emergencyContact?.mobile || '',
+    }));
+    const [submitted, setSubmitted] = useState(false);
+    const [saving, setSaving] = useState(false);
+
+    /* Journeys for the trip strip + age checks */
+    const journeys = useMemo(() => getTrips(review).map((trip) => {
+        const segments = Array.isArray(trip?.sI) ? trip.sI : [];
+        return { segments, first: segments[0], last: segments[segments.length - 1] };
+    }).filter((journey) => journey.first), [review]);
+
+    const firstTravel = String(journeys[0]?.first?.dt || '').slice(0, 10);
+    const lastTravel = String(journeys[journeys.length - 1]?.last?.at || '').slice(0, 10);
+
+    const fare = review?.totalPriceInfo?.totalFareDetail?.fC || {};
+    const total = Number(fare.TF || 0);
+
+    const expiresAt = getSessionExpiry(flow);
+    const secondsLeft = useSessionTimer(expiresAt);
+    const sessionExpired = secondsLeft === 0;
+
+    const errors = useMemo(
+        () => (submitted ? validate({ passengers, contact, gst, emergency, req, firstTravel, lastTravel }) : {}),
+        [submitted, passengers, contact, gst, emergency, req, firstTravel, lastTravel]
+    );
+
+    /* ---------- persistence ---------- */
+
+    const buildFlow = (overrides = {}) => {
+        const current = JSON.parse(sessionStorage.getItem(FLOW_KEY) || 'null') || flow;
+        const mobile = contact.mobile.replace(/\D/g, '');
+        return {
+            ...current,
+            passengers: passengers.map((p, index) => ({
+                ...p,
+                firstName: p.firstName.trim().replace(/\s+/g, ' '),
+                lastName: p.lastName.trim().replace(/\s+/g, ' '),
+                passportNumber: req.passport ? p.passportNumber.trim().toUpperCase() : '',
+                passportExpiry: req.passport ? p.passportExpiry : '',
+                passportIssueDate: req.passport ? p.passportIssueDate : '',
+                nationality: req.passport ? p.nationality : p.nationality || 'IN',
+                pan: req.pan && index === 0 ? p.pan.trim().toUpperCase() : '',
+                documentId: req.documentId && p.type !== 'INFANT' ? p.documentId.trim() : '',
+                isLead: index === 0,
+            })),
+            contact: { email: contact.email.trim(), mobile, countryCode: contact.countryCode },
+            gstInfo: gst.enabled || req.gstRequired
+                ? {
+                    gstNumber: gst.gstNumber.trim().toUpperCase(),
+                    registeredName: gst.registeredName.trim(),
+                    email: gst.email.trim(),
+                    mobile: gst.mobile.replace(/\D/g, ''),
+                    address: gst.address.trim(),
                 }
-            }
-
-            /*
-             * Fallback:
-             * If passenger flow doesn't exist,
-             * create it from selected flight.
-             */
-
-            if (!flow) {
-                const selectedFlight =
-                    sessionStorage.getItem(
-                        SOURCE_KEY
-                    );
-
-                if (
-                    selectedFlight
-                ) {
-                    try {
-                        const selected =
-                            JSON.parse(
-                                selectedFlight
-                            );
-
-                        flow = {
-                            version: 2,
-
-                            bookingId:
-                                getBookingId(
-                                    selected?.review
-                                ),
-
-                            tripType:
-                                selected?.tripType ||
-                                null,
-
-                            search:
-                                selected?.search ||
-                                null,
-
-                            request:
-                                selected?.request ||
-                                null,
-
-                            selections:
-                                selected?.selections ||
-                                [],
-
-                            priceIds:
-                                selected?.priceIds ||
-                                [],
-
-                            review:
-                                selected?.review ||
-                                null,
-
-                            passengers: [],
-
-                            contact: {
-                                email: '',
-                                mobile: '',
-                                countryCode:
-                                    '+91',
-                            },
-
-                            payment: {
-                                status:
-                                    'PENDING',
-                                transactionId:
-                                    null,
-                            },
-
-                            booking: {
-                                status:
-                                    'NOT_STARTED',
-                                pnr: null,
-                                bookingId:
-                                    null,
-                            },
-
-                            createdAt:
-                                new Date().toISOString(),
-
-                            updatedAt:
-                                new Date().toISOString(),
-                        };
-
-                        sessionStorage.setItem(
-                            STORAGE_KEY,
-                            JSON.stringify(flow)
-                        );
-                    } catch (error) {
-                        console.error(
-                            'Unable to parse selected flight:',
-                            error
-                        );
-                    }
-                }
-            }
-
-            if (!flow) {
-                toast.error(
-                    'Flight booking session not found.'
-                );
-
-                router.replace(
-                    '/flights/results'
-                );
-
-                return;
-            }
-
-            setBookingData(flow);
-
-            const paxInfo =
-                getPaxInfo(flow);
-
-            const restoredPassengers =
-                buildPassengers(
-                    paxInfo,
-                    flow?.passengers || []
-                );
-
-            setPassengers(
-                restoredPassengers
-            );
-
-            setContact({
-                email:
-                    flow?.contact
-                        ?.email || '',
-
-                mobile:
-                    flow?.contact
-                        ?.mobile || '',
-
-                countryCode:
-                    flow?.contact
-                        ?.countryCode ||
-                    '+91',
-            });
-
-            setLoading(false);
-        } catch (error) {
-            console.error(
-                'Passenger page initialization failed:',
-                error
-            );
-
-            toast.error(
-                'Unable to load booking details.'
-            );
-
-            setLoading(false);
-        }
-    }, [router]);
-
-    /* =========================================================
-       SAVE SESSION
-    ========================================================= */
-
-    const saveSession = (
-        nextPassengers = passengers,
-        nextContact = contact
-    ) => {
-        if (!bookingData) {
-            return;
-        }
-
-        const updatedFlow = {
-            ...bookingData,
-
-            passengers:
-                nextPassengers,
-
-            contact:
-                nextContact,
-
-            updatedAt:
-                new Date().toISOString(),
+                : null,
+            emergencyContact: req.emergencyContact
+                ? { name: emergency.name.trim(), mobile: emergency.mobile.replace(/\D/g, '') }
+                : null,
+            updatedAt: new Date().toISOString(),
+            ...overrides,
         };
+    };
 
+    const persist = () => {
         try {
-            sessionStorage.setItem(
-                STORAGE_KEY,
-                JSON.stringify(
-                    updatedFlow
-                )
-            );
-
-            setBookingData(
-                updatedFlow
-            );
-        } catch (error) {
-            console.error(
-                'Unable to save passenger session:',
-                error
-            );
+            sessionStorage.setItem(FLOW_KEY, JSON.stringify(buildFlow()));
+        } catch {
+            /* storage full / disabled */
         }
     };
 
-    /* =========================================================
-       UPDATE PASSENGER
-    ========================================================= */
+    /* ---------- updates ---------- */
 
-    const updatePassenger = (
-        index,
-        field,
-        value
-    ) => {
-        setPassengers(
-            (previous) => {
-                const updated = [
-                    ...previous,
-                ];
+    const updatePassenger = (index, field, value) =>
+        setPassengers((prev) => prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)));
 
-                updated[index] = {
-                    ...updated[index],
-                    [field]: value,
-                };
+    /* ---------- continue ---------- */
 
-                saveSession(
-                    updated,
-                    contact
-                );
+    const handleContinue = () => {
+        if (saving || sessionExpired) return;
 
-                return updated;
-            }
-        );
-    };
+        setSubmitted(true);
+        const found = validate({ passengers, contact, gst, emergency, req, firstTravel, lastTravel });
+        const keys = Object.keys(found);
 
-    /* =========================================================
-       UPDATE CONTACT
-    ========================================================= */
-
-    const updateContact = (
-        field,
-        value
-    ) => {
-        const updatedContact = {
-            ...contact,
-            [field]: value,
-        };
-
-        setContact(
-            updatedContact
-        );
-
-        saveSession(
-            passengers,
-            updatedContact
-        );
-    };
-
-    /* =========================================================
-       VALIDATION
-    ========================================================= */
-
-    const validateForm = () => {
-        if (!passengers.length) {
-            toast.error(
-                'Passenger information is missing.'
-            );
-
-            return false;
-        }
-
-        for (
-            let i = 0;
-            i < passengers.length;
-            i++
-        ) {
-            const passenger =
-                passengers[i];
-
-            if (
-                !passenger.title
-            ) {
-                toast.error(
-                    `${getPassengerLabel(
-                        passenger.type,
-                        getTypeIndex(
-                            passengers,
-                            i
-                        )
-                    )}: Please select title.`
-                );
-
-                return false;
-            }
-
-            if (
-                !passenger.firstName?.trim()
-            ) {
-                toast.error(
-                    `${getPassengerLabel(
-                        passenger.type,
-                        getTypeIndex(
-                            passengers,
-                            i
-                        )
-                    )}: First name is required.`
-                );
-
-                return false;
-            }
-
-            if (
-                !passenger.lastName?.trim()
-            ) {
-                toast.error(
-                    `${getPassengerLabel(
-                        passenger.type,
-                        getTypeIndex(
-                            passengers,
-                            i
-                        )
-                    )}: Last name is required.`
-                );
-
-                return false;
-            }
-
-            if (
-                passenger.type !==
-                'ADULT' &&
-                !passenger.dob
-            ) {
-                toast.error(
-                    `${getPassengerLabel(
-                        passenger.type,
-                        getTypeIndex(
-                            passengers,
-                            i
-                        )
-                    )}: Date of birth is required.`
-                );
-
-                return false;
-            }
-        }
-
-        if (
-            !contact.email?.trim()
-        ) {
-            toast.error(
-                'Email address is required.'
-            );
-
-            return false;
-        }
-
-        const emailRegex =
-            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (
-            !emailRegex.test(
-                contact.email
-            )
-        ) {
-            toast.error(
-                'Please enter a valid email address.'
-            );
-
-            return false;
-        }
-
-        if (
-            !contact.mobile?.trim()
-        ) {
-            toast.error(
-                'Mobile number is required.'
-            );
-
-            return false;
-        }
-
-        const mobile =
-            contact.mobile.replace(
-                /\D/g,
-                ''
-            );
-
-        if (
-            mobile.length < 10
-        ) {
-            toast.error(
-                'Please enter a valid mobile number.'
-            );
-
-            return false;
-        }
-
-        return true;
-    };
-
-    /* =========================================================
-       CONTINUE
-    ========================================================= */
-    const handleContinue = async () => {
-        if (localStorage.getItem('wl_auth') === null) {
-            toast.error('Please login to continue.');
+        if (keys.length) {
+            toast.error(keys.length === 1 ? found[keys[0]] : `Please correct ${keys.length} highlighted fields.`);
+            setTimeout(() => {
+                document.querySelector('.pd-field.has-error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 50);
             return;
         }
 
-        if (saving) {
-            return;
-        }
+        persist();
 
-        if (!validateForm()) {
+        if (!isLoggedIn) {
+            toast('Please log in to continue with your booking.', { icon: '🔒' });
+            router.push(`/auth/login?redirect=${encodeURIComponent('/flights/passenger-details')}`);
             return;
         }
 
         setSaving(true);
-
         try {
-            /*
-             * Save latest passenger/contact data
-             * in your existing session storage logic.
-             */
-            saveSession(
-                passengers,
-                contact
-            );
-
-            /*
-             * Read existing TripJack booking flow.
-             */
-            const storedFlow =
-                sessionStorage.getItem(
-                    'tripjack_passenger_flow'
-                );
-
-            if (!storedFlow) {
-                throw new Error(
-                    'Booking session not found. Please select the flight again.'
-                );
-            }
-
-            const flow = JSON.parse(storedFlow);
-
-            /*
-             * Preserve the COMPLETE existing flow.
-             *
-             * We are NOT creating a new object from scratch.
-             * This is important because we don't want to lose:
-             *
-             * - bookingId
-             * - tripType
-             * - search
-             * - request
-             * - selections
-             * - priceIds
-             * - review
-             * - selectedFare
-             * - any future seat-selection data
-             */
-            const updatedFlow = {
-                ...flow,
-
-                /*
-                 * Update passenger information.
-                 */
-                passengers: passengers,
-
-                /*
-                 * Update contact information.
-                 */
-                contact: contact,
-
-                /*
-                 * Payment has NOT started yet.
-                 */
-                payment: {
-                    ...(flow.payment || {}),
-                    status: 'PENDING',
-                    transactionId:
-                        flow.payment?.transactionId || null
-                },
-
-                /*
-                 * TripJack booking has NOT started yet.
-                 */
-                booking: {
-                    ...(flow.booking || {}),
-                    status: 'NOT_STARTED',
-                    pnr:
-                        flow.booking?.pnr || null,
-                    bookingId:
-                        flow.booking?.bookingId || null
-                },
-
-                /*
-                 * Keep existing seat selection if
-                 * something was already saved.
-                 *
-                 * At this point normally it will be null.
-                 */
-                seatSelection:
-                    flow.seatSelection || null,
-
-                /*
-                 * Update timestamps.
-                 */
-                updatedAt:
-                    new Date().toISOString()
-            };
-
-            /*
-             * Save the COMPLETE updated flow.
-             */
             sessionStorage.setItem(
-                'tripjack_passenger_flow',
-                JSON.stringify(updatedFlow)
+                FLOW_KEY,
+                JSON.stringify(buildFlow({
+                    payment: { ...(flow.payment || {}), status: 'PENDING' },
+                    booking: { ...(flow.booking || {}), status: 'NOT_STARTED' },
+                    seatSelection: flow.seatSelection || null,
+                }))
             );
-
-            /*
-             * Optional: keep a separate passenger session
-             * if your existing saveSession() already uses it.
-             */
-            saveSession(
-                passengers,
-                contact
-            );
-
-            /*
-             * Debugging.
-             */
-            console.log(
-                'UPDATED TRIPJACK PASSENGER FLOW:',
-                updatedFlow
-            );
-
-            /*
-             * IMPORTANT:
-             *
-             * No Booking API here.
-             * No Payment API here.
-             * No TripJack Book API here.
-             *
-             * First user will select seats.
-             */
-            router.push(
-                '/flights/seat-selection'
-            );
-
+            router.push(NEXT_ROUTE);
         } catch (error) {
-
-            console.error(
-                'Unable to continue:',
-                error
-            );
-
-            toast.error(
-                error.message ||
-                'Unable to continue. Please try again.'
-            );
-
-        } finally {
-
+            console.error('Unable to save traveller details:', error);
+            toast.error('Unable to continue. Please try again.');
             setSaving(false);
         }
     };
-    /* =========================================================
-       COUNTS
-    ========================================================= */
 
-    const counts =
-        useMemo(
-            () =>
-                getPaxInfo(
-                    bookingData
-                ),
-            [bookingData]
-        );
+    const goBack = () => {
+        persist();
+        router.push('/flights/review');
+    };
 
-    const totalPassengers =
-        passengers.length;
-
-    const routeSummary =
-        useMemo(
-            () =>
-                getRouteSummary(
-                    bookingData
-                ),
-            [bookingData]
-        );
-
-    const totalFare =
-        useMemo(
-            () =>
-                getTotalFare(
-                    bookingData?.review
-                ),
-            [bookingData]
-        );
-
-    if (loading) {
-        return (
-            <main className="passenger-page">
-                <div className="passenger-loading">
-                    <div className="passenger-spinner" />
-
-                    <h2>
-                        Loading passenger details
-                    </h2>
-
-                    <p>
-                        Restoring your flight
-                        booking session...
-                    </p>
-                </div>
-            </main>
-        );
-    }
-
-    if (!bookingData) {
-        return null;
-    }
+    /* ---------- render ---------- */
 
     return (
         <>
-            <Toaster
-                position="top-right"
-                toastOptions={{
-                    duration: 3500,
-                    style: {
-                        fontSize:
-                            '14px',
-                        borderRadius:
-                            '12px',
-                    },
-                }}
+            <BookingTopBar
+                step={1}
+                onBack={goBack}
+                backLabel="Review"
+                secondsLeft={secondsLeft}
+                total={total}
+                totalLabel="Total fare"
+                continueLabel={saving ? 'Please wait…' : 'Continue'}
+                onContinue={handleContinue}
+                continueDisabled={saving || sessionExpired}
             />
 
-            <main className="passenger-page">
-
-                {/* =================================================
-                   TOP HEADER
-                ================================================= */}
-
-                <header className="passenger-header">
-
-                    <div className="passenger-header-inner">
-
-                        <button
-                            type="button"
-                            className="back-button"
-                            onClick={() =>
-                                router.back()
-                            }
-                        >
-                            ←
-                            <span>
-                                Back
-                            </span>
-                        </button>
-
-                        <div className="page-heading">
-                            <div className="page-eyebrow">
-                                FLIGHT BOOKING
-                            </div>
-
-                            <h1>
-                                Passenger details
-                            </h1>
-
-                            <p>
-                                Enter the details exactly
-                                as they appear on the
-                                passenger's travel document.
-                            </p>
-                        </div>
-
+            <div className="pd-container pd-layout">
+                <section className="pd-main" onBlur={persist}>
+                    <div className="pd-page-head">
+                        <h1>Traveller details</h1>
+                        <p>Enter names exactly as they appear on the {req.passport ? 'passport' : 'government-issued photo ID'}.</p>
                     </div>
 
-                </header>
-
-                {/* =================================================
-                   STEPPER
-                ================================================= */}
-
-                <div className="booking-stepper">
-
-                    <div className="step completed">
-                        <span className="step-number">
-                            ✓
-                        </span>
-
-                        <span>
-                            Review
-                        </span>
-                    </div>
-
-                    <div className="step-line active" />
-
-                    <div className="step active">
-                        <span className="step-number">
-                            2
-                        </span>
-
-                        <span>
-                            Passenger Details
-                        </span>
-                    </div>
-
-                    <div className="step-line" />
-
-                    <div className="step">
-                        <span className="step-number">
-                            3
-                        </span>
-
-                        <span>
-                            Payment
-                        </span>
-                    </div>
-
-                </div>
-
-                {/* =================================================
-                   MAIN
-                ================================================= */}
-
-                <div className="passenger-container">
-
-                    <section className="passenger-main">
-
-                        {/* Passenger heading */}
-
-                        <div className="section-heading">
-
+                    {!isLoggedIn && (
+                        <div className="pd-login">
                             <div>
-                                <span className="section-kicker">
-                                    TRAVELLERS
-                                </span>
-
-                                <h2>
-                                    Passenger information
-                                </h2>
-
-                                <p>
-                                    {totalPassengers}{' '}
-                                    passenger
-                                    {totalPassengers !== 1
-                                        ? 's'
-                                        : ''}
-                                </p>
+                                <strong>Log in to book faster</strong>
+                                <span>Your booking will be saved to your account and you can manage it anytime.</span>
                             </div>
-
+                            <button
+                                type="button"
+                                className="pd-btn pd-btn-outline"
+                                onClick={() => {
+                                    persist();
+                                    router.push(`/auth/login?redirect=${encodeURIComponent('/flights/passenger-details')}`);
+                                }}
+                            >
+                                Log in
+                            </button>
                         </div>
+                    )}
 
-                        {/* =================================================
-                           PASSENGER CARDS
-                        ================================================= */}
-
-                        {passengers.map(
-                            (
-                                passenger,
-                                index
-                            ) => {
-
-                                const typeIndex =
-                                    getTypeIndex(
-                                        passengers,
-                                        index
-                                    );
-
-                                return (
-                                    <section
-                                        key={
-                                            passenger.id
-                                        }
-                                        className="passenger-card"
-                                    >
-
-                                        <div className="passenger-card-header">
-
-                                            <div className="passenger-title">
-
-                                                <div className="passenger-icon">
-                                                    {passenger.type ===
-                                                        'INFANT'
-                                                        ? 'I'
-                                                        : passenger.type ===
-                                                            'CHILD'
-                                                            ? 'C'
-                                                            : 'A'}
-                                                </div>
-
-                                                <div>
-                                                    <h3>
-                                                        {getPassengerLabel(
-                                                            passenger.type,
-                                                            typeIndex
-                                                        )}
-                                                    </h3>
-
-                                                    <span>
-                                                        {getPassengerTypeLabel(
-                                                            passenger.type
-                                                        )}
-                                                    </span>
-                                                </div>
-
-                                            </div>
-
-                                            {index ===
-                                                0 &&
-                                                passenger.type ===
-                                                'ADULT' && (
-                                                    <span className="lead-badge">
-                                                        Lead passenger
-                                                    </span>
-                                                )}
-
-                                        </div>
-
-                                        <div className="form-grid">
-
-                                            <div className="form-field small">
-
-                                                <label>
-                                                    Title
-                                                    <span>
-                                                        *
-                                                    </span>
-                                                </label>
-
-                                                <select
-                                                    value={
-                                                        passenger.title
-                                                    }
-                                                    onChange={(
-                                                        event
-                                                    ) =>
-                                                        updatePassenger(
-                                                            index,
-                                                            'title',
-                                                            event
-                                                                .target
-                                                                .value
-                                                        )
-                                                    }
-                                                >
-                                                    <option value="">
-                                                        Select
-                                                    </option>
-
-                                                    <option value="Mr">
-                                                        Mr
-                                                    </option>
-
-                                                    <option value="Mrs">
-                                                        Mrs
-                                                    </option>
-
-                                                    <option value="Ms">
-                                                        Ms
-                                                    </option>
-
-                                                    <option value="Miss">
-                                                        Miss
-                                                    </option>
-
-                                                    <option value="Master">
-                                                        Master
-                                                    </option>
-                                                </select>
-
-                                            </div>
-
-                                            <div className="form-field">
-
-                                                <label>
-                                                    First name
-                                                    <span>
-                                                        *
-                                                    </span>
-                                                </label>
-
-                                                <input
-                                                    type="text"
-                                                    value={
-                                                        passenger.firstName
-                                                    }
-                                                    placeholder="Enter first name"
-                                                    onChange={(
-                                                        event
-                                                    ) =>
-                                                        updatePassenger(
-                                                            index,
-                                                            'firstName',
-                                                            event
-                                                                .target
-                                                                .value
-                                                        )
-                                                    }
-                                                />
-
-                                            </div>
-
-                                            <div className="form-field">
-
-                                                <label>
-                                                    Last name
-                                                    <span>
-                                                        *
-                                                    </span>
-                                                </label>
-
-                                                <input
-                                                    type="text"
-                                                    value={
-                                                        passenger.lastName
-                                                    }
-                                                    placeholder="Enter last name"
-                                                    onChange={(
-                                                        event
-                                                    ) =>
-                                                        updatePassenger(
-                                                            index,
-                                                            'lastName',
-                                                            event
-                                                                .target
-                                                                .value
-                                                        )
-                                                    }
-                                                />
-
-                                            </div>
-
-                                            <div className="form-field">
-
-                                                <label>
-                                                    Date of birth
-                                                    {passenger.type !==
-                                                        'ADULT' && (
-                                                            <span>
-                                                                *
-                                                            </span>
-                                                        )}
-                                                </label>
-
-                                                <input
-                                                    type="date"
-                                                    value={
-                                                        passenger.dob
-                                                    }
-                                                    onChange={(
-                                                        event
-                                                    ) =>
-                                                        updatePassenger(
-                                                            index,
-                                                            'dob',
-                                                            event
-                                                                .target
-                                                                .value
-                                                        )
-                                                    }
-                                                />
-
-                                            </div>
-
-                                            <div className="form-field">
-
-                                                <label>
-                                                    Nationality
-                                                </label>
-
-                                                <select
-                                                    value={
-                                                        passenger.nationality
-                                                    }
-                                                    onChange={(
-                                                        event
-                                                    ) =>
-                                                        updatePassenger(
-                                                            index,
-                                                            'nationality',
-                                                            event
-                                                                .target
-                                                                .value
-                                                        )
-                                                    }
-                                                >
-                                                    <option value="Indian">
-                                                        Indian
-                                                    </option>
-
-                                                    <option value="Other">
-                                                        Other
-                                                    </option>
-                                                </select>
-
-                                            </div>
-
-                                            <div className="form-field">
-
-                                                <label>
-                                                    Passport number
-                                                    <small>
-                                                        Optional
-                                                    </small>
-                                                </label>
-
-                                                <input
-                                                    type="text"
-                                                    value={
-                                                        passenger.passportNumber
-                                                    }
-                                                    placeholder="Enter passport number"
-                                                    onChange={(
-                                                        event
-                                                    ) =>
-                                                        updatePassenger(
-                                                            index,
-                                                            'passportNumber',
-                                                            event
-                                                                .target
-                                                                .value
-                                                                .toUpperCase()
-                                                        )
-                                                    }
-                                                />
-
-                                            </div>
-
-                                        </div>
-
-                                        <div className="name-note">
-                                            Please make sure the passenger
-                                            name matches the travel document.
-                                        </div>
-
-                                    </section>
-                                );
-                            }
-                        )}
-
-                        {/* =================================================
-                           CONTACT
-                        ================================================= */}
-
-                        <section className="passenger-card contact-card">
-
-                            <div className="passenger-card-header">
-
-                                <div className="passenger-title">
-
-                                    <div className="passenger-icon contact-icon">
-                                        @
-                                    </div>
-
-                                    <div>
-                                        <h3>
-                                            Contact details
-                                        </h3>
-
-                                        <span>
-                                            Booking confirmation
-                                            will be sent here
-                                        </span>
-                                    </div>
-
-                                </div>
-
+                    {/* TRIP STRIP */}
+                    <div className="pd-card pd-trip">
+                        {journeys.map((journey, index) => (
+                            <div className="pd-trip-row" key={index}>
+                                <strong>{journey.first?.da?.code} → {journey.last?.aa?.code}</strong>
+                                <span>{formatDate(journey.first?.dt)} • {formatTime(journey.first?.dt)} – {formatTime(journey.last?.at)}</span>
+                                <small>{[...new Set(journey.segments.map((s) => s?.fD?.aI?.name))].join(' + ')}</small>
                             </div>
+                        ))}
+                        <span className={`pd-trip-type ${req.isDomestic ? '' : 'intl'}`}>
+                            {req.isDomestic ? 'Domestic' : 'International'}
+                        </span>
+                    </div>
 
-                            <div className="form-grid contact-grid">
+                    {/* TRAVELLERS */}
+                    {passengers.map((p, index) => {
+                        const label = `${PAX_LABELS[p.type]} ${passengers.slice(0, index + 1).filter((item) => item.type === p.type).length}`;
+                        const e = (field) => errors[`${index}.${field}`];
+                        const showDob = req.dob[p.type] || p.type !== 'ADULT';
 
-                                <div className="form-field">
-
-                                    <label>
-                                        Email address
-                                        <span>
-                                            *
-                                        </span>
-                                    </label>
-
-                                    <input
-                                        type="email"
-                                        value={
-                                            contact.email
-                                        }
-                                        placeholder="example@email.com"
-                                        onChange={(
-                                            event
-                                        ) =>
-                                            updateContact(
-                                                'email',
-                                                event
-                                                    .target
-                                                    .value
-                                            )
-                                        }
-                                    />
-
-                                </div>
-
-                                <div className="form-field">
-
-                                    <label>
-                                        Mobile number
-                                        <span>
-                                            *
-                                        </span>
-                                    </label>
-
-                                    <div className="mobile-input">
-
-                                        <select
-                                            value={
-                                                contact.countryCode
-                                            }
-                                            onChange={(
-                                                event
-                                            ) =>
-                                                updateContact(
-                                                    'countryCode',
-                                                    event
-                                                        .target
-                                                        .value
-                                                )
-                                            }
-                                        >
-                                            <option value="+91">
-                                                +91
-                                            </option>
-
-                                            <option value="+1">
-                                                +1
-                                            </option>
-
-                                            <option value="+44">
-                                                +44
-                                            </option>
-
-                                            <option value="+971">
-                                                +971
-                                            </option>
-                                        </select>
-
-                                        <input
-                                            type="tel"
-                                            value={
-                                                contact.mobile
-                                            }
-                                            placeholder="Mobile number"
-                                            maxLength={
-                                                15
-                                            }
-                                            onChange={(
-                                                event
-                                            ) =>
-                                                updateContact(
-                                                    'mobile',
-                                                    event
-                                                        .target
-                                                        .value
-                                                        .replace(
-                                                            /\D/g,
-                                                            ''
-                                                        )
-                                                )
-                                            }
-                                        />
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                            <div className="contact-note">
-                                We'll use these details for
-                                booking confirmation and important
-                                flight updates.
-                            </div>
-
-                        </section>
-
-                    </section>
-
-                    {/* =================================================
-                       RIGHT SUMMARY
-                    ================================================= */}
-
-                    <aside className="booking-sidebar">
-
-                        <div className="summary-card">
-
-                            <div className="summary-header">
-
-                                <div>
-                                    <span>
-                                        YOUR TRIP
-                                    </span>
-
-                                    <h3>
-                                        Flight summary
-                                    </h3>
-                                </div>
-
-                                <div className="verified-small">
-                                    ✓ Verified
-                                </div>
-
-                            </div>
-
-                            <div className="summary-routes">
-
-                                {routeSummary.map(
-                                    (
-                                        route,
-                                        index
-                                    ) => (
-                                        <div
-                                            key={
-                                                `${route?.fromAirportCode}-${route?.toAirportCode}-${index}`
-                                            }
-                                            className="summary-route"
-                                        >
-
-                                            <div className="route-top">
-                                                <strong>
-                                                    {route?.fromAirportCode ||
-                                                        route?.fromCityOrAirport
-                                                            ?.code ||
-                                                        '--'}
-                                                </strong>
-
-                                                <span>
-                                                    →
-                                                </span>
-
-                                                <strong>
-                                                    {route?.toAirportCode ||
-                                                        route?.toCityOrAirport
-                                                            ?.code ||
-                                                        '--'}
-                                                </strong>
-                                            </div>
-
-                                            <div className="route-date">
-                                                {route?.travelDate ||
-                                                    route?.departureDate ||
-                                                    ''}
-                                            </div>
-
-                                        </div>
-                                    )
-                                )}
-
-                            </div>
-
-                            <div className="summary-divider" />
-
-                            <div className="summary-row">
-
-                                <span>
-                                    Passengers
-                                </span>
-
-                                <strong>
-                                    {counts.ADULT +
-                                        counts.CHILD +
-                                        counts.INFANT}
-                                </strong>
-
-                            </div>
-
-                            {counts.ADULT > 0 && (
-                                <div className="summary-row muted">
-                                    <span>
-                                        Adults
-                                    </span>
-
-                                    <span>
-                                        {counts.ADULT}
-                                    </span>
-                                </div>
-                            )}
-
-                            {counts.CHILD > 0 && (
-                                <div className="summary-row muted">
-                                    <span>
-                                        Children
-                                    </span>
-
-                                    <span>
-                                        {counts.CHILD}
-                                    </span>
-                                </div>
-                            )}
-
-                            {counts.INFANT > 0 && (
-                                <div className="summary-row muted">
-                                    <span>
-                                        Infants
-                                    </span>
-
-                                    <span>
-                                        {counts.INFANT}
-                                    </span>
-                                </div>
-                            )}
-
-                            <div className="summary-divider" />
-
-                            <div className="price-row">
-
-                                <div>
-                                    <span>
-                                        Total fare
-                                    </span>
-
+                        return (
+                            <article className="pd-card pd-traveller" key={p.id}>
+                                <div className="pd-traveller-head">
+                                    <strong>{label}</strong>
+                                    {index === 0 && <span className="pd-badge">Lead traveller</span>}
                                     <small>
-                                        Including taxes & fees
+                                        {p.type === 'ADULT' && '12+ years'}
+                                        {p.type === 'CHILD' && '2–11 years'}
+                                        {p.type === 'INFANT' && 'Under 2 years • travels on an adult’s lap'}
                                     </small>
                                 </div>
 
-                                <strong>
-                                    ₹
-                                    {totalFare.toLocaleString(
-                                        'en-IN'
+                                <div className="pd-grid">
+                                    <Field label="Title" error={e('title')}>
+                                        <div className="pd-titles" role="radiogroup">
+                                            {TITLES[p.type].map((title) => (
+                                                <button
+                                                    type="button"
+                                                    key={title}
+                                                    role="radio"
+                                                    aria-checked={p.title === title}
+                                                    className={p.title === title ? 'active' : ''}
+                                                    onClick={() => updatePassenger(index, 'title', title)}
+                                                >
+                                                    {title}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </Field>
+
+                                    <Field label="First & middle name" error={e('firstName')}>
+                                        <input
+                                            value={p.firstName}
+                                            maxLength={req.firstNameMax}
+                                            autoComplete="given-name"
+                                            placeholder="As on ID"
+                                            onChange={(event) => updatePassenger(index, 'firstName', event.target.value.replace(/[^A-Za-z ]/g, ''))}
+                                        />
+                                    </Field>
+
+                                    <Field label="Last name" error={e('lastName')}>
+                                        <input
+                                            value={p.lastName}
+                                            maxLength={req.lastNameMax}
+                                            autoComplete="family-name"
+                                            placeholder="As on ID"
+                                            onChange={(event) => updatePassenger(index, 'lastName', event.target.value.replace(/[^A-Za-z ]/g, ''))}
+                                        />
+                                    </Field>
+
+                                    {showDob && (
+                                        <Field label="Date of birth" optional={!req.dob[p.type]} error={e('dob')}>
+                                            <input
+                                                type="date"
+                                                value={p.dob}
+                                                max={firstTravel || undefined}
+                                                onChange={(event) => updatePassenger(index, 'dob', event.target.value)}
+                                            />
+                                        </Field>
                                     )}
-                                </strong>
 
-                            </div>
+                                    {req.passport && (
+                                        <>
+                                            <Field label="Nationality" error={e('nationality')}>
+                                                <select value={p.nationality} onChange={(event) => updatePassenger(index, 'nationality', event.target.value)}>
+                                                    {NATIONALITIES.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
+                                                </select>
+                                            </Field>
+                                            <Field label="Passport number" error={e('passportNumber')}>
+                                                <input
+                                                    value={p.passportNumber}
+                                                    maxLength={15}
+                                                    placeholder="e.g. Z1234567"
+                                                    onChange={(event) => updatePassenger(index, 'passportNumber', event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                                                />
+                                            </Field>
+                                            <Field label="Passport expiry" error={e('passportExpiry')} hint="Should be valid for 6 months after travel">
+                                                <input
+                                                    type="date"
+                                                    value={p.passportExpiry}
+                                                    min={lastTravel || undefined}
+                                                    onChange={(event) => updatePassenger(index, 'passportExpiry', event.target.value)}
+                                                />
+                                            </Field>
+                                            <Field label="Passport issue date" optional={!req.passportIssueDate} error={e('passportIssueDate')}>
+                                                <input
+                                                    type="date"
+                                                    value={p.passportIssueDate}
+                                                    max={firstTravel || undefined}
+                                                    onChange={(event) => updatePassenger(index, 'passportIssueDate', event.target.value)}
+                                                />
+                                            </Field>
+                                        </>
+                                    )}
 
+                                    {req.pan && index === 0 && (
+                                        <Field label="PAN" error={e('pan')} hint="Required once per booking, for the lead traveller">
+                                            <input
+                                                value={p.pan}
+                                                maxLength={10}
+                                                placeholder="ABCDE1234F"
+                                                onChange={(event) => updatePassenger(index, 'pan', event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                                            />
+                                        </Field>
+                                    )}
+
+                                    {req.documentId && p.type !== 'INFANT' && (
+                                        <Field label={req.documentIdLabel} optional={!req.documentIdRequired} error={e('documentId')} hint="Carry this ID at the airport">
+                                            <input
+                                                value={p.documentId}
+                                                maxLength={30}
+                                                onChange={(event) => updatePassenger(index, 'documentId', event.target.value)}
+                                            />
+                                        </Field>
+                                    )}
+                                </div>
+                            </article>
+                        );
+                    })}
+
+                    {/* CONTACT */}
+                    <section className="pd-card">
+                        <div className="pd-card-head">
+                            <h2>Contact details</h2>
+                            <small>Your ticket and booking updates will be sent here</small>
                         </div>
-
-                        <div className="secure-card">
-
-                            <div className="secure-icon">
-                                ✓
-                            </div>
-
-                            <div>
-                                <strong>
-                                    Your information is secure
-                                </strong>
-
-                                <p>
-                                    Passenger information is
-                                    stored only for this booking
-                                    session.
-                                </p>
-                            </div>
-
+                        <div className="pd-grid">
+                            <Field label="Email address" error={errors['contact.email']} wide>
+                                <input
+                                    type="email"
+                                    value={contact.email}
+                                    autoComplete="email"
+                                    placeholder="name@example.com"
+                                    onChange={(event) => setContact((prev) => ({ ...prev, email: event.target.value }))}
+                                />
+                            </Field>
+                            <Field label="Mobile number" error={errors['contact.mobile']} wide>
+                                <div className="pd-phone">
+                                    <select
+                                        value={contact.countryCode}
+                                        onChange={(event) => setContact((prev) => ({ ...prev, countryCode: event.target.value }))}
+                                    >
+                                        {COUNTRY_CODES.map((code) => <option key={code} value={code}>{code}</option>)}
+                                    </select>
+                                    <input
+                                        type="tel"
+                                        inputMode="numeric"
+                                        value={contact.mobile}
+                                        maxLength={14}
+                                        autoComplete="tel-national"
+                                        placeholder="Mobile number"
+                                        onChange={(event) => setContact((prev) => ({ ...prev, mobile: event.target.value.replace(/\D/g, '') }))}
+                                    />
+                                </div>
+                            </Field>
                         </div>
+                    </section>
 
-                    </aside>
+                    {/* EMERGENCY CONTACT */}
+                    {req.emergencyContact && (
+                        <section className="pd-card">
+                            <div className="pd-card-head">
+                                <h2>Emergency contact</h2>
+                                <small>Required by the airline for this booking</small>
+                            </div>
+                            <div className="pd-grid">
+                                <Field label="Contact name" error={errors['emergency.name']} wide>
+                                    <input value={emergency.name} onChange={(event) => setEmergency((prev) => ({ ...prev, name: event.target.value }))} />
+                                </Field>
+                                <Field label="Mobile number" error={errors['emergency.mobile']} wide>
+                                    <input
+                                        type="tel"
+                                        inputMode="numeric"
+                                        value={emergency.mobile}
+                                        maxLength={10}
+                                        onChange={(event) => setEmergency((prev) => ({ ...prev, mobile: event.target.value.replace(/\D/g, '') }))}
+                                    />
+                                </Field>
+                            </div>
+                        </section>
+                    )}
 
-                </div>
-
-                {/* =================================================
-                   MOBILE / BOTTOM ACTION
-                ================================================= */}
-
-                <div className="continue-bar">
-
-                    <div className="continue-price">
-
-                        <span>
-                            Total
-                        </span>
-
-                        <strong>
-                            ₹
-                            {totalFare.toLocaleString(
-                                'en-IN'
+                    {/* GST */}
+                    {req.gst && (
+                        <section className="pd-card">
+                            {req.gstRequired ? (
+                                <div className="pd-card-head">
+                                    <h2>GST details</h2>
+                                    <small>Mandatory for this fare</small>
+                                </div>
+                            ) : (
+                                <label className="pd-check">
+                                    <input
+                                        type="checkbox"
+                                        checked={gst.enabled}
+                                        onChange={(event) => setGst((prev) => ({ ...prev, enabled: event.target.checked }))}
+                                    />
+                                    <span>
+                                        <strong>I have a GST number</strong>
+                                        <small>Claim GST credit on this booking (optional)</small>
+                                    </span>
+                                </label>
                             )}
-                        </strong>
 
+                            {(gst.enabled || req.gstRequired) && (
+                                <div className="pd-grid pd-gst">
+                                    <Field label="GSTIN" error={errors['gst.gstNumber']}>
+                                        <input
+                                            value={gst.gstNumber}
+                                            maxLength={15}
+                                            placeholder="22AAAAA0000A1Z5"
+                                            onChange={(event) => setGst((prev) => ({ ...prev, gstNumber: event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '') }))}
+                                        />
+                                    </Field>
+                                    <Field label="Registered company name" error={errors['gst.registeredName']}>
+                                        <input value={gst.registeredName} maxLength={35} onChange={(event) => setGst((prev) => ({ ...prev, registeredName: event.target.value }))} />
+                                    </Field>
+                                    <Field label="Company email" optional error={errors['gst.email']}>
+                                        <input type="email" value={gst.email} onChange={(event) => setGst((prev) => ({ ...prev, email: event.target.value }))} />
+                                    </Field>
+                                    <Field label="Company phone" optional>
+                                        <input type="tel" inputMode="numeric" maxLength={12} value={gst.mobile} onChange={(event) => setGst((prev) => ({ ...prev, mobile: event.target.value.replace(/\D/g, '') }))} />
+                                    </Field>
+                                    <Field label="Company address" optional wide>
+                                        <input value={gst.address} maxLength={70} onChange={(event) => setGst((prev) => ({ ...prev, address: event.target.value }))} />
+                                    </Field>
+                                </div>
+                            )}
+                        </section>
+                    )}
+
+                    <p className="pd-note">
+                        By continuing, you agree to the fare rules and airline conditions of carriage. Name changes are not allowed after the ticket is issued.
+                    </p>
+                </section>
+
+                {/* SIDEBAR */}
+                <aside className="pd-sidebar">
+                    <section className="pd-card">
+                        <h2>Fare summary</h2>
+                        <div className="pd-fare-row"><span>Base fare</span><strong>{money(fare.BF)}</strong></div>
+                        <div className="pd-fare-row"><span>Taxes &amp; fees</span><strong>{money(fare.TAF)}</strong></div>
+                        <div className="pd-fare-total">
+                            <div><strong>Total amount</strong><small>Inclusive of all taxes</small></div>
+                            <strong>{money(total)}</strong>
+                        </div>
+                        <small className="pd-muted">Seats, meals and extra baggage can be added in the next step.</small>
+                    </section>
+                </aside>
+            </div>
+
+            {sessionExpired && (
+                <div className="pd-modal" role="dialog" aria-modal="true">
+                    <div className="pd-modal-card">
+                        <h3>Your session has expired</h3>
+                        <p>Flight prices and availability change frequently. Please search again to get the latest fares.</p>
+                        <button type="button" className="pd-btn" onClick={() => router.push('/flights')}>
+                            Search flights
+                        </button>
                     </div>
-
-                    <button
-                        type="button"
-                        className="continue-button"
-                        disabled={saving}
-                        onClick={
-                            handleContinue
-                        }
-                    >
-                        {saving
-                            ? 'Saving...'
-                            : 'Continue to Seat Selection'}
-                        <span>
-                            →
-                        </span>
-                    </button>
-
                 </div>
-
-            </main>
+            )}
         </>
     );
 }
 
 /* =========================================================
-   TYPE INDEX
+   PAGE
 ========================================================= */
 
-function getTypeIndex(
-    passengers,
-    currentIndex
-) {
-    const type =
-        passengers?.[currentIndex]
-            ?.type;
+export default function PassengerDetailsPage() {
+    const router = useRouter();
 
-    if (!type) {
-        return 0;
-    }
+    /* null => not hydrated, '' => no booking in progress */
+    const stored = useSyncExternalStore(
+        () => () => {},
+        () => sessionStorage.getItem(FLOW_KEY) || '',
+        () => null
+    );
 
-    let index = 0;
-
-    for (
-        let i = 0;
-        i <= currentIndex;
-        i++
-    ) {
-        if (
-            passengers?.[i]
-                ?.type === type
-        ) {
-            index++;
+    const flow = useMemo(() => {
+        if (!stored) return null;
+        try {
+            return JSON.parse(stored);
+        } catch {
+            return null;
         }
-    }
+    }, [stored]);
 
-    return index - 1;
+    return (
+        <>
+            <Toaster position="top-right" toastOptions={{ duration: 3500 }} />
+            <main className="flight-pax-page">
+                {flow?.review ? (
+                    <TravellerForm flow={flow} />
+                ) : (
+                    <div className="pd-container">
+                        <div className="pd-empty">
+                            {stored === null ? (
+                                <p>Loading traveller details…</p>
+                            ) : (
+                                <>
+                                    <h2>No booking in progress</h2>
+                                    <p>Please select a flight to continue.</p>
+                                    <button type="button" className="pd-btn" onClick={() => router.push('/flights')}>
+                                        Search flights
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </main>
+        </>
+    );
 }

@@ -1487,7 +1487,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
     company?.legalName ||
     company?.brandName ||
     company?.displayName ||
-    'Travel Holiday';
+    'Travel Forex';
   const whatsappNumber = String(company?.contact?.whatsapp || company?.contact?.phone || '').replace(/[^\d]/g, '');
   const whatsappUrl = whatsappNumber
     ? `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(`I want help with ${pkg.name}: ${currentUrl}`)}`
@@ -1495,7 +1495,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
   const mailQuote = () => {
     const subject = `Quote request: ${pkg.name}`;
     const body = [
-      `Hi Travel Holiday team,`,
+      `Hi Travel Forex team,`,
       '',
       `Please mail me the quote for ${pkg.name}.`,
       `Duration: ${getDurationLabel(pkg.duration_days)}`,
@@ -1942,7 +1942,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
 
         <section className="itn-print-brief" aria-label="Printable itinerary summary">
           <div className="itn-print-brand">
-            <span>Travel Holiday</span>
+            <span>Travel Forex</span>
             <strong>Trip itinerary - {printDate}</strong>
           </div>
           <div className="itn-print-route-map" aria-hidden="true">
@@ -2038,7 +2038,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
         <div className="itn-layout" id="trip">
           <div>
             <section className="itn-section" id="inclusions">
-              <h2>Why choose Travel Holiday?</h2>
+              <h2>Why choose Travel Forex?</h2>
               <div className="itn-proof-grid">
                 {[
                   ['Customizable package', (pkg.is_customizable === true || pkg.is_customizable === 1 || String(pkg.is_customizable) === '1' || String(pkg.is_customizable).toLowerCase() === 'true') ? 'This itinerary can be adjusted to your travel style.' : 'Our team can help you plan details.'],
@@ -2101,12 +2101,12 @@ export default function TourItineraryView({ destination, packageSlug }) {
               ) : null}
               <div className="itn-print-footer">
                 <strong>End of itinerary</strong>
-                <span>For booking changes or hotel upgrades, contact Travel Holiday before confirmation.</span>
+                <span>For booking changes or hotel upgrades, contact Travel Forex before confirmation.</span>
               </div>
             </section>
 
             <section className="itn-section itn-reviews" id="reviews">
-              <h2>Travel Holiday Original Reviews</h2>
+              <h2>Travel Forex Original Reviews</h2>
               {reviewsLoading ? (
                 <div className="itn-review-empty">Loading reviews...</div>
               ) : reviews.length ? (
@@ -2117,7 +2117,7 @@ export default function TourItineraryView({ destination, packageSlug }) {
                     <p>{reviewCount} {reviewCount === 1 ? 'review' : 'reviews'} for this package</p>
                   </div>
                   {reviews.map((review) => {
-                    const name = review.reviewer_name || review.customer?.name || 'Travel Holiday guest';
+                    const name = review.reviewer_name || review.customer?.name || 'Travel Forex guest';
                     const comment = review.comment || review.title || 'The guest rated this package highly.';
 
                     return (

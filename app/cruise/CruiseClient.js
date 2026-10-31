@@ -7,7 +7,9 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { getStoredAuth, getStoredToken, getMediaUrl } from '@/utils/api';
 
-const getInputType = (fieldType) => {
+const getInputType = (fieldType, fieldKey = '') => {
+  // the CRM sends some phone fields as plain text
+  if (/phone|mobile|whatsapp|contact_number/i.test(fieldKey)) return 'tel';
   const typeMap = { phone: 'tel', mobile: 'tel', integer: 'number', decimal: 'number', datetime: 'datetime-local' };
   const supportedTypes = ['text', 'email', 'tel', 'number', 'date', 'datetime-local', 'url', 'time'];
   const normalizedType = typeMap[fieldType] || fieldType;
@@ -63,7 +65,7 @@ function CruiseDynamicField({ field, defaultValue }) {
   const isMultiSelect = field.fieldType === 'multiselect';
   const isWideField = isTextarea || field.fieldKey.includes('requests') || field.fieldKey.includes('message');
   const requiredMark = field.isRequired ? ' *' : '';
-  const inputType = getInputType(field.fieldType);
+  const inputType = getInputType(field.fieldType, field.fieldKey);
   const minDateAttr = inputType === 'date' ? new Date().toISOString().split('T')[0] : undefined;
   
   const commonProps = {

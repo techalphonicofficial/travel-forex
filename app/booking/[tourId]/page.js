@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { PHONE_ERROR, isValidPhone } from '@/utils/phone';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
@@ -328,8 +329,11 @@ export default function BookingPage() {
                         <input
                           type="tel"
                           className={`form-input ${errors.phone ? 'is-invalid' : ''}`}
-                          placeholder="+1 (555) 000-0000"
-                          {...register('phone', { required: 'Phone is required' })}
+                          placeholder="+91 98765 43210"
+                          {...register('phone', {
+                            required: 'Phone is required',
+                            validate: (value) => isValidPhone(value) || PHONE_ERROR,
+                          })}
                           style={{ borderColor: errors.phone ? '#dc3545' : undefined }}
                         />
                         {errors.phone && <div style={{ color: '#dc3545', fontSize: 12, marginTop: 4 }}>{errors.phone.message}</div>}

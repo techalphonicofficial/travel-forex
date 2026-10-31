@@ -1,2532 +1,1047 @@
 /* =========================================================
-   FLIGHT REVIEW PAGE
-   TripJack Review UI
-========================================================= */
+   FLIGHT REVIEW (app blue theme)
+   ========================================================= */
 
-* {
+.flight-review-page {
+    --rv-primary: #1765c1;
+    --rv-primary-dark: #0f3f7c;
+    --rv-primary-soft: #eef5ff;
+    --rv-border: #e2e8f0;
+    --rv-text: #1f2937;
+    --rv-muted: #6b7280;
+    --rv-success: #15803d;
+    --rv-success-soft: #ecfdf3;
+    --rv-danger: #b91c1c;
+    --rv-danger-soft: #fef2f2;
+    --rv-warning: #b45309;
+    --rv-warning-soft: #fffbeb;
+
+    min-height: 100vh;
+    padding-bottom: 40px;
+    background: #f3f6fa;
+    color: var(--rv-text);
+}
+
+.flight-review-page *,
+.flight-review-page *::before,
+.flight-review-page *::after {
     box-sizing: border-box;
 }
 
-.flight-review-page {
-    min-height: 100vh;
-    background:
-        radial-gradient(
-            circle at 15% 0%,
-            rgba(37, 99, 235, 0.07),
-            transparent 28%
-        ),
-        #f5f7fb;
-    color: #111827;
-    padding: 32px 20px 100px;
-}
-
-.review-shell {
-    width: min(1240px, 100%);
+.rv-container {
+    width: min(1180px, calc(100% - 32px));
     margin: 0 auto;
 }
 
-/* =========================================================
-   HEADER
-========================================================= */
+.rv-muted {
+    margin: 0;
+    color: var(--rv-muted);
+    font-size: 13px;
+}
 
-.review-header {
+.rv-small {
+    margin-top: 10px;
+    font-size: 11.5px;
+}
+
+/* ---------- Layout ---------- */
+
+.rv-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    align-items: start;
+    gap: 18px;
+    padding-top: 18px;
+}
+
+.rv-main {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+}
+
+.rv-sidebar {
+    position: sticky;
+    top: calc(var(--bk-offset, 0px) + 76px);
+    display: grid;
+    gap: 14px;
+}
+
+.rv-page-head {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 24px;
-}
-
-.section-kicker {
-    display: block;
-    margin-bottom: 8px;
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-}
-
-.review-header h1 {
-    margin: 0;
-    color: #0f172a;
-    font-size: clamp(30px, 4vw, 42px);
-    line-height: 1;
-    font-weight: 800;
-    letter-spacing: -0.045em;
-}
-
-.review-header p {
-    margin: 10px 0 0;
-    color: #64748b;
-    font-size: 14px;
-}
-
-/* VERIFIED */
-
-.verified-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 13px;
-    border: 1px solid #bbf7d0;
-    border-radius: 999px;
-    background: #f0fdf4;
-    color: #15803d;
-    font-size: 12px;
-    font-weight: 800;
-    white-space: nowrap;
-}
-
-.verified-badge span {
-    display: grid;
-    width: 18px;
-    height: 18px;
-    place-items: center;
-    border-radius: 50%;
-    background: #16a34a;
-    color: white;
-    font-size: 11px;
-}
-
-/* =========================================================
-   FARE ALERT
-========================================================= */
-
-.fare-alerts {
-    display: flex;
-    gap: 13px;
-    align-items: flex-start;
-    margin-bottom: 20px;
-    padding: 14px 16px;
-    border: 1px solid #fed7aa;
-    border-radius: 14px;
-    background: #fffaf3;
-}
-
-.alert-icon {
-    display: grid;
-    flex: 0 0 30px;
-    width: 30px;
-    height: 30px;
-    place-items: center;
-    border-radius: 9px;
-    background: #f59e0b;
-    color: white;
-    font-size: 14px;
-    font-weight: 900;
-}
-
-.fare-alerts strong {
-    display: block;
-    color: #7c2d12;
-    font-size: 13px;
-}
-
-.alert-list {
-    margin-top: 4px;
-}
-
-.alert-list p {
-    margin: 3px 0 0;
-    color: #92400e;
-    font-size: 12px;
-    line-height: 1.45;
-}
-
-/* =========================================================
-   PROGRESS
-========================================================= */
-
-.review-progress {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    max-width: 700px;
-    margin: 0 auto 28px;
-}
-
-.progress-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-    color: #94a3b8;
-}
-
-.progress-item span {
-    display: grid;
-    width: 27px;
-    height: 27px;
-    flex: 0 0 27px;
-    place-items: center;
-    border: 1px solid #cbd5e1;
-    border-radius: 50%;
-    background: #fff;
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 900;
-}
-
-.progress-item strong {
-    color: #64748b;
-    font-size: 11px;
-    white-space: nowrap;
-}
-
-.progress-item.active span {
-    border-color: #2563eb;
-    background: #2563eb;
-    color: white;
-}
-
-.progress-item.active strong {
-    color: #0f172a;
-}
-
-.progress-line {
-    height: 1px;
-    flex: 1;
-    margin: 0 10px;
-    background: #dbe3ee;
-}
-
-.progress-line.active {
-    background: #2563eb;
-}
-
-/* =========================================================
-   MAIN LAYOUT
-========================================================= */
-
-.review-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 350px;
-    gap: 22px;
-    align-items: start;
-}
-
-.review-main {
-    min-width: 0;
-}
-
-.review-sidebar {
-    position: sticky;
-    top: 20px;
-    display: grid;
-    gap: 16px;
-}
-
-/* =========================================================
-   TRIP CARD
-========================================================= */
-
-.trip-card {
-    overflow: hidden;
-    margin-bottom: 18px;
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-    background: #ffffff;
-    box-shadow:
-        0 8px 28px rgba(15, 23, 42, 0.045);
-}
-
-/* HEADER */
-
-.trip-card-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 18px 20px 16px;
-    border-bottom: 1px solid #eef2f7;
-}
-
-.trip-label {
-    display: inline-flex;
-    margin-bottom: 7px;
-    padding: 5px 9px;
-    border-radius: 7px;
-    background: #eff6ff;
-    color: #2563eb;
-    font-size: 9px;
-    font-weight: 900;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.trip-card-header h2 {
-    margin: 0;
-    color: #0f172a;
-    font-size: 24px;
-    line-height: 1;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-}
-
-.trip-card-header h2 span {
-    display: inline-block;
-    margin: 0 7px;
-    color: #94a3b8;
-    font-weight: 500;
-}
-
-.trip-card-header p {
-    margin: 7px 0 0;
-    color: #64748b;
-    font-size: 12px;
-}
-
-.trip-date {
-    flex: 0 0 auto;
-    padding: 8px 11px;
-    border: 1px solid #e2e8f0;
-    border-radius: 9px;
-    background: #f8fafc;
-    color: #475569;
-    font-size: 11px;
-    font-weight: 800;
-}
-
-/* =========================================================
-   FLIGHT SUMMARY
-========================================================= */
-
-.flight-summary {
-    display: grid;
-    grid-template-columns: minmax(180px, 1.2fr) minmax(90px, 0.7fr) minmax(130px, 0.8fr) minmax(90px, 0.7fr);
-    align-items: center;
-    gap: 18px;
-    padding: 24px 20px;
-}
-
-/* AIRLINE */
-
-.airline-block {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-}
-
-.airline-logo {
-    display: grid;
-    width: 42px;
-    height: 42px;
-    flex: 0 0 42px;
-    place-items: center;
-    border-radius: 11px;
-    background: #111827;
-    color: white;
-    font-size: 11px;
-    font-weight: 900;
-    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
-}
-
-.airline-block strong {
-    display: block;
-    color: #0f172a;
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.airline-block span {
-    display: block;
-    margin-top: 3px;
-    color: #64748b;
-    font-size: 10px;
-}
-
-/* TIME */
-
-.time-block {
-    min-width: 0;
-}
-
-.time-block strong {
-    display: block;
-    color: #0f172a;
-    font-size: 25px;
-    line-height: 1;
-    font-weight: 800;
-    letter-spacing: -0.045em;
-}
-
-.time-block span {
-    display: block;
-    margin-top: 5px;
-    color: #1e293b;
-    font-size: 12px;
-    font-weight: 900;
-}
-
-.time-block small {
-    display: block;
-    margin-top: 3px;
-    overflow: hidden;
-    color: #94a3b8;
-    font-size: 10px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.time-block.arrival {
-    text-align: right;
-}
-
-/* MIDDLE */
-
-.flight-middle {
-    min-width: 0;
-    text-align: center;
-}
-
-.flight-middle > span {
-    color: #475569;
-    font-size: 11px;
-    font-weight: 700;
-}
-
-.flight-line {
-    position: relative;
-    height: 16px;
-    margin: 4px 0;
-}
-
-.flight-line::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: #cbd5e1;
-}
-
-.flight-line::after {
-    content: "✈";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    display: grid;
-    width: 22px;
-    height: 22px;
-    place-items: center;
-    transform: translate(-50%, -50%);
-    border: 1px solid #dbeafe;
-    border-radius: 50%;
-    background: white;
-    color: #2563eb;
-    font-size: 10px;
-}
-
-.flight-middle small {
-    color: #64748b;
-    font-size: 10px;
-}
-
-/* =========================================================
-   TRIP META
-========================================================= */
-
-.trip-meta {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    margin: 0 20px;
-    overflow: hidden;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-}
-
-.trip-meta > div {
-    min-width: 0;
-    padding: 11px 13px;
-    background: #f8fafc;
-}
-
-.trip-meta > div + div {
-    border-left: 1px solid #e2e8f0;
-}
-
-.trip-meta span {
-    display: block;
-    color: #94a3b8;
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-
-.trip-meta strong {
-    display: block;
-    margin-top: 4px;
-    overflow: hidden;
-    color: #334155;
-    font-size: 11px;
-    font-weight: 800;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* =========================================================
-   DETAILS TOGGLE
-========================================================= */
-
-.details-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    margin-top: 0;
-    padding: 14px 20px;
-    border: 0;
-    border-bottom: 1px solid transparent;
-    background: transparent;
-    color: #2563eb;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 800;
-    text-align: left;
-}
-
-.details-toggle:hover {
-    background: #f8fafc;
-}
-
-.details-toggle span:last-child {
-    color: #64748b;
-    font-size: 14px;
-}
-
-/* =========================================================
-   SEGMENT DETAILS
-========================================================= */
-
-.segment-details {
-    margin: 0 20px 14px;
-    overflow: hidden;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    background: #f8fafc;
-}
-
-.segment-row {
-    display: grid;
-    grid-template-columns: 30px 1fr;
     gap: 12px;
-    padding: 15px;
 }
 
-.segment-row + .segment-row {
-    border-top: 1px solid #e2e8f0;
-}
-
-.segment-number {
-    display: grid;
-    width: 28px;
-    height: 28px;
-    place-items: center;
-    border-radius: 50%;
-    background: #e0edff;
-    color: #2563eb;
-    font-size: 10px;
-    font-weight: 900;
-}
-
-.segment-content {
-    min-width: 0;
-}
-
-.segment-top {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.segment-top strong {
-    color: #0f172a;
-    font-size: 12px;
-}
-
-.segment-top span {
-    padding: 3px 6px;
-    border-radius: 5px;
-    background: #e2e8f0;
-    color: #475569;
-    font-size: 9px;
+.rv-page-head h1 {
+    margin: 0;
+    font-size: 20px;
     font-weight: 800;
 }
 
-.segment-route {
-    display: grid;
-    grid-template-columns: 1fr 100px 1fr;
+.rv-page-head p {
+    margin: 3px 0 0;
+    color: var(--rv-muted);
+    font-size: 13px;
+}
+
+.rv-link {
+    flex: 0 0 auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--rv-primary);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.rv-link:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Cards ---------- */
+
+.rv-card {
+    padding: 16px;
+    border: 1px solid var(--rv-border);
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.rv-card h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.rv-card-head {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 15px;
-    margin-top: 12px;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
-.segment-route > div:not(.segment-duration) {
-    min-width: 0;
+.rv-card-head small {
+    color: var(--rv-muted);
+    font-size: 12px;
 }
 
-.segment-route > div:last-child {
-    text-align: right;
+/* ---------- Notices ---------- */
+
+.rv-notice {
+    padding: 12px 14px;
+    border: 1px solid;
+    border-radius: 10px;
+    font-size: 13px;
 }
 
-.segment-route strong,
-.segment-route span,
-.segment-route small {
+.rv-notice strong {
     display: block;
+    margin-bottom: 3px;
 }
 
-.segment-route strong {
-    color: #0f172a;
-    font-size: 17px;
+.rv-notice ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
 }
 
-.segment-route span {
-    margin-top: 2px;
-    color: #334155;
+.rv-notice li + li {
+    margin-top: 4px;
+}
+
+.rv-notice s {
+    display: block;
+    color: var(--rv-muted);
+    font-size: 12px;
+}
+
+.rv-notice.warning {
+    border-color: #fcd34d;
+    background: var(--rv-warning-soft);
+    color: var(--rv-warning);
+}
+
+.rv-notice.success {
+    border-color: #86efac;
+    background: var(--rv-success-soft);
+    color: var(--rv-success);
+}
+
+.rv-notice.info {
+    border-color: #bfdbfe;
+    background: var(--rv-primary-soft);
+    color: var(--rv-primary-dark);
+}
+
+/* ---------- Tags / badges ---------- */
+
+.rv-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--rv-primary-soft);
+    color: var(--rv-primary);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.rv-tag {
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.rv-tag.success {
+    background: var(--rv-success-soft);
+    color: var(--rv-success);
+}
+
+.rv-tag.danger {
+    background: var(--rv-danger-soft);
+    color: var(--rv-danger);
+}
+
+.rv-tag.warning {
+    background: var(--rv-warning-soft);
+    color: var(--rv-warning);
+}
+
+/* ---------- Logo ---------- */
+
+.rv-logo {
+    flex: 0 0 auto;
+    border-radius: 8px;
+    background: #fff;
+    object-fit: contain;
+}
+
+.rv-logo-fallback {
+    display: grid;
+    place-items: center;
+    background: var(--rv-primary-soft);
+    color: var(--rv-primary);
     font-size: 11px;
     font-weight: 800;
 }
 
-.segment-route small {
-    margin-top: 2px;
-    color: #94a3b8;
-    font-size: 9px;
-}
+/* ---------- Journey ---------- */
 
-.segment-duration {
-    text-align: center;
-}
-
-.segment-duration span {
-    color: #64748b;
-    font-size: 10px;
-}
-
-.mini-line {
-    position: relative;
-    height: 10px;
-}
-
-.mini-line::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: #cbd5e1;
-}
-
-/* =========================================================
-   TRIP RULE
-========================================================= */
-
-.trip-rule {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    margin-top: 1px;
-    padding: 0 20px 17px;
-    font-size: 10px;
-}
-
-.trip-rule span {
-    color: #64748b;
-}
-
-.trip-rule strong {
-    color: #334155;
-}
-
-/* =========================================================
-   FARE RULES
-========================================================= */
-
-.rules-card {
+.rv-journey {
+    padding: 0;
     overflow: hidden;
-    margin-top: 18px;
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-    background: white;
-    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.04);
 }
 
-.rules-header {
+.rv-journey-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
     width: 100%;
-    padding: 18px 20px;
+    padding: 14px 16px;
     border: 0;
-    background: transparent;
-    cursor: pointer;
+    border-bottom: 1px solid var(--rv-border);
+    background: #fafcff;
+    color: inherit;
     text-align: left;
+    cursor: pointer;
 }
 
-.rules-header h3 {
-    margin: 0;
-    color: #0f172a;
-    font-size: 18px;
-    letter-spacing: -0.02em;
+.rv-journey-title {
+    display: grid;
+    gap: 4px;
+    justify-items: start;
 }
 
-.rules-header > span {
-    color: #64748b;
+.rv-journey-title strong {
     font-size: 16px;
 }
 
-.rules-content {
-    padding: 0 20px 20px;
-    border-top: 1px solid #eef2f7;
+.rv-journey-title small {
+    color: var(--rv-muted);
+    font-size: 12.5px;
 }
 
-.rule-block {
+.rv-journey-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.rv-chevron {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #e8eef7;
+    color: var(--rv-primary);
+    font-weight: 800;
+}
+
+.rv-journey-compact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.rv-journey-compact i {
+    flex: 1;
+    max-width: 120px;
+    border-top: 1px dashed #94a3b8;
+}
+
+.rv-segments {
+    padding: 4px 16px 16px;
+}
+
+.rv-segment {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr) 90px minmax(0, 1fr);
+    align-items: start;
+    gap: 14px;
     padding: 14px 0;
 }
 
-.rule-block + .rule-block {
-    border-top: 1px solid #eef2f7;
-}
-
-.rule-block strong {
-    display: block;
-    color: #334155;
-    font-size: 12px;
-}
-
-.rule-block pre {
-    max-height: 260px;
-    margin: 10px 0 0;
-    overflow: auto;
-    padding: 12px;
-    border-radius: 9px;
-    background: #0f172a;
-    color: #e2e8f0;
-    font-family: monospace;
-    font-size: 10px;
-    line-height: 1.5;
-    white-space: pre-wrap;
-}
-
-/* =========================================================
-   PRICE CARD
-========================================================= */
-
-.price-card {
-    padding: 21px;
-    border: 1px solid #dbe3ee;
-    border-radius: 18px;
-    background: #ffffff;
-    box-shadow:
-        0 10px 30px rgba(15, 23, 42, 0.07);
-}
-
-.price-heading {
+.rv-seg-airline {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-}
-
-.price-heading h3 {
-    margin: 0;
-    color: #0f172a;
-    font-size: 19px;
-    letter-spacing: -0.025em;
-}
-
-.price-lock {
-    display: grid;
-    width: 32px;
-    height: 32px;
-    place-items: center;
-    border-radius: 10px;
-    background: #f0fdf4;
-    font-size: 13px;
-}
-
-.price-passenger {
-    margin-top: 4px;
-    color: #64748b;
-    font-size: 10px;
-}
-
-.price-breakup {
-    margin-top: 17px;
-    padding: 13px 0;
-    border-top: 1px solid #eef2f7;
-    border-bottom: 1px solid #eef2f7;
-}
-
-.price-breakup > div {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    padding: 5px 0;
-}
-
-.price-breakup span {
-    color: #64748b;
-    font-size: 11px;
-}
-
-.price-breakup strong {
-    color: #334155;
-    font-size: 11px;
-}
-
-.breakup-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 10px 0;
-    border: 0;
-    background: transparent;
-    color: #2563eb;
-    cursor: pointer;
-    font-size: 10px;
-    font-weight: 800;
-}
-
-.fare-breakup-detail {
-    padding: 8px 0 12px;
-    border-top: 1px dashed #e2e8f0;
-}
-
-.fare-breakup-detail > div {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    padding: 4px 0;
-}
-
-.fare-breakup-detail span {
-    color: #64748b;
-    font-size: 10px;
-}
-
-.fare-breakup-detail strong {
-    color: #334155;
-    font-size: 10px;
-}
-
-.total-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    margin-top: 5px;
-    padding-top: 14px;
-    border-top: 1px solid #e2e8f0;
-}
-
-.total-row span {
-    display: block;
-    color: #0f172a;
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.total-row small {
-    display: block;
-    margin-top: 3px;
-    color: #94a3b8;
-    font-size: 9px;
-}
-
-.total-row > strong {
-    color: #0f172a;
-    font-size: 23px;
-    font-weight: 900;
-    letter-spacing: -0.035em;
-}
-
-/* =========================================================
-   CONTINUE BUTTON
-========================================================= */
-
-.continue-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     gap: 10px;
-    width: 100%;
-    margin-top: 17px;
-    padding: 14px 16px;
-    border: 0;
-    border-radius: 11px;
-    background: #2563eb;
-    color: white;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 850;
-    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
-    transition:
-        transform 0.18s ease,
-        box-shadow 0.18s ease,
-        background 0.18s ease;
 }
 
-.continue-btn:hover {
-    background: #1d4ed8;
-    transform: translateY(-1px);
-    box-shadow: 0 11px 24px rgba(37, 99, 235, 0.28);
-}
-
-.continue-btn span {
-    font-size: 16px;
-}
-
-.trust-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 7px;
-    margin-top: 12px;
-    padding-top: 11px;
-    border-top: 1px solid #f1f5f9;
-}
-
-.trust-row span {
-    font-size: 11px;
-}
-
-.trust-row p {
-    margin: 0;
-    color: #64748b;
-    font-size: 9px;
-    line-height: 1.45;
-}
-
-/* =========================================================
-   SEARCH SUMMARY
-========================================================= */
-
-.summary-card {
-    padding: 20px;
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-    background: white;
-    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.045);
-}
-
-.summary-heading h3 {
-    margin: 0;
-    color: #0f172a;
-    font-size: 17px;
-}
-
-.search-route {
+.rv-seg-airline div {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 10px;
-    margin-top: 13px;
-    padding: 11px;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    background: #f8fafc;
+    gap: 2px;
+    min-width: 0;
 }
 
-.search-route strong {
-    display: block;
-    color: #0f172a;
+.rv-seg-airline strong {
     font-size: 14px;
 }
 
-.search-route span {
-    display: block;
-    margin-top: 2px;
-    overflow: hidden;
-    color: #64748b;
-    font-size: 9px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.rv-seg-airline span {
+    font-size: 12.5px;
+    font-weight: 600;
 }
 
-.route-arrow {
-    color: #94a3b8;
-    font-size: 14px;
+.rv-seg-airline small {
+    color: var(--rv-muted);
+    font-size: 11.5px;
 }
 
-.summary-bottom {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    margin-top: 11px;
-    padding-top: 11px;
-    border-top: 1px solid #f1f5f9;
-}
-
-.summary-bottom span {
-    color: #64748b;
-    font-size: 10px;
-}
-
-.summary-bottom strong {
-    color: #334155;
-    font-size: 10px;
-}
-
-.booking-ref {
-    margin-top: 14px;
-    padding-top: 13px;
-    border-top: 1px dashed #e2e8f0;
-}
-
-.booking-ref span {
-    display: block;
-    color: #64748b;
-    font-size: 9px;
-}
-
-.booking-ref strong {
-    display: block;
-    margin-top: 4px;
-    color: #334155;
-    font-size: 10px;
-    word-break: break-all;
-}
-
-/* =========================================================
-   LOADING / EMPTY
-========================================================= */
-
-.review-loading,
-.empty-review {
+.rv-seg-point {
     display: grid;
-    min-height: 70vh;
-    place-items: center;
-    align-content: center;
+    gap: 2px;
+    min-width: 0;
+}
+
+.rv-seg-point strong {
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.rv-seg-point strong b {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.rv-seg-point sup {
+    margin-left: 2px;
+    color: var(--rv-danger);
+    font-size: 11px;
+}
+
+.rv-seg-point span {
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+.rv-seg-point small {
+    color: var(--rv-muted);
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.rv-seg-point em {
+    justify-self: start;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 600;
+}
+
+.rv-seg-end {
+    text-align: right;
+}
+
+.rv-seg-end em {
+    justify-self: end;
+}
+
+.rv-seg-duration {
+    display: grid;
+    gap: 4px;
+    justify-items: center;
+    padding-top: 4px;
+    color: var(--rv-muted);
+    font-size: 12px;
+    font-weight: 600;
     text-align: center;
 }
 
-.review-loading h2,
-.empty-review h2 {
-    margin: 15px 0 6px;
-    color: #0f172a;
+.rv-seg-duration i {
+    position: relative;
+    width: 100%;
+    border-top: 1px solid #cbd5e1;
 }
 
-.review-loading p,
-.empty-review p {
-    margin: 0;
-    color: #64748b;
+.rv-seg-duration i::after {
+    content: '✈';
+    position: absolute;
+    top: -9px;
+    right: -2px;
+    color: var(--rv-primary);
+    font-size: 12px;
+    font-style: normal;
+}
+
+.rv-seg-duration small {
+    color: var(--rv-warning);
+    font-size: 11px;
+}
+
+.rv-layover {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 12px;
+    padding: 8px 12px;
+    border: 1px dashed #fcd34d;
+    border-radius: 8px;
+    background: var(--rv-warning-soft);
+    color: #92400e;
+    font-size: 12.5px;
+    text-align: center;
+}
+
+.rv-layover em {
+    color: var(--rv-danger);
+    font-style: normal;
+    font-weight: 700;
+}
+
+.rv-baggage {
+    margin-top: 12px;
+    border: 1px solid var(--rv-border);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 12.5px;
+}
+
+.rv-baggage-head,
+.rv-baggage-row {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr 1.2fr;
+    gap: 10px;
+    padding: 8px 12px;
+}
+
+.rv-baggage-head {
+    background: #f8fafc;
+    color: var(--rv-muted);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.rv-baggage-row {
+    border-top: 1px solid var(--rv-border);
+}
+
+.rv-baggage-row span:first-child {
+    font-weight: 700;
+}
+
+/* ---------- Fare rules ---------- */
+
+.rv-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.rv-pills button {
+    padding: 6px 12px;
+    border: 1px solid var(--rv-border);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--rv-text);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.rv-pills button.active {
+    border-color: var(--rv-primary);
+    background: var(--rv-primary);
+    color: #fff;
+}
+
+.rv-tabs {
+    display: flex;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--rv-border);
+}
+
+.rv-tabs button {
+    margin-bottom: -1px;
+    padding: 8px 14px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--rv-muted);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.rv-tabs button.active {
+    border-bottom-color: var(--rv-primary);
+    color: var(--rv-primary);
+}
+
+.rv-table-wrap {
+    overflow-x: auto;
+}
+
+.rv-table {
+    width: 100%;
+    border-collapse: collapse;
     font-size: 13px;
 }
 
-.loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #dbeafe;
-    border-top-color: #2563eb;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+.rv-table th {
+    padding: 8px 10px;
+    background: #f8fafc;
+    color: var(--rv-muted);
+    font-size: 11px;
+    font-weight: 800;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
-.empty-icon {
+.rv-table td {
+    padding: 9px 10px;
+    border-top: 1px solid var(--rv-border);
+    vertical-align: top;
+}
+
+.rv-table td:not(:first-child) {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.rv-table td small {
+    display: block;
+    margin-top: 2px;
+    color: var(--rv-muted);
+    font-size: 11.5px;
+}
+
+.rv-rule-note {
+    margin: 10px 0 0;
+    font-size: 12.5px;
+}
+
+/* ---------- Add-ons ---------- */
+
+.rv-addons {
     display: grid;
-    width: 62px;
-    height: 62px;
-    place-items: center;
-    border-radius: 18px;
-    background: #eff6ff;
-    color: #2563eb;
-    font-size: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 10px;
 }
 
-.primary-btn {
-    margin-top: 18px;
-    padding: 11px 17px;
-    border: 0;
+.rv-addon {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--rv-border);
     border-radius: 10px;
-    background: #2563eb;
-    color: white;
-    cursor: pointer;
+}
+
+.rv-addon > span {
+    font-size: 20px;
+}
+
+.rv-addon div {
+    display: grid;
+}
+
+.rv-addon strong {
+    font-size: 13px;
+}
+
+.rv-addon small {
+    color: var(--rv-muted);
     font-size: 12px;
+}
+
+/* ---------- Important info ---------- */
+
+.rv-info-list {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* ---------- Fare summary ---------- */
+
+.rv-fare h2 {
+    margin-bottom: 2px;
+}
+
+.rv-fare > small {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+
+.rv-fare-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 0;
+    border: 0;
+    border-top: 1px solid var(--rv-border);
+    background: none;
+    color: var(--rv-text);
+    font-size: 13.5px;
+    text-align: left;
+}
+
+.rv-fare-toggle {
+    cursor: pointer;
+}
+
+.rv-fare-toggle i {
+    display: inline-grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    margin-left: 4px;
+    border-radius: 50%;
+    background: var(--rv-primary-soft);
+    color: var(--rv-primary);
+    font-size: 11px;
+    font-style: normal;
     font-weight: 800;
 }
 
-/* =========================================================
-   MOBILE CTA
-========================================================= */
-
-.mobile-continue {
-    display: none;
+.rv-fare-sub {
+    display: grid;
+    gap: 6px;
+    margin: -2px 0 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: var(--rv-muted);
+    font-size: 12.5px;
 }
 
-/* =========================================================
-   TABLET
-========================================================= */
-
-@media (max-width: 1050px) {
-
-    .review-layout {
-        grid-template-columns: minmax(0, 1fr) 320px;
-        gap: 16px;
-    }
-
-    .flight-summary {
-        grid-template-columns:
-            minmax(150px, 1fr)
-            minmax(80px, 0.6fr)
-            minmax(110px, 0.7fr)
-            minmax(80px, 0.6fr);
-
-        gap: 12px;
-    }
-
-    .time-block strong {
-        font-size: 22px;
-    }
-
+.rv-fare-sub div {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
 }
 
-/* =========================================================
-   TABLET / SMALL LAPTOP
-========================================================= */
-
-@media (max-width: 900px) {
-
-    .review-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .review-sidebar {
-        position: static;
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .price-card {
-        grid-column: 1 / -1;
-    }
-
+.rv-fare-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 -16px 14px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--rv-border);
+    background: var(--rv-primary-soft);
 }
 
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 700px) {
-
-    .flight-review-page {
-        padding: 20px 12px 100px;
-    }
-
-    .review-header {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 14px;
-        margin-bottom: 18px;
-    }
-
-    .review-header h1 {
-        font-size: 30px;
-    }
-
-    .review-header p {
-        font-size: 12px;
-    }
-
-    .verified-badge {
-        font-size: 10px;
-    }
-
-    /* PROGRESS */
-
-    .review-progress {
-        margin-bottom: 20px;
-    }
-
-    .progress-item {
-        gap: 6px;
-    }
-
-    .progress-item span {
-        width: 24px;
-        height: 24px;
-        flex-basis: 24px;
-    }
-
-    .progress-item strong {
-        font-size: 9px;
-    }
-
-    .progress-line {
-        margin: 0 5px;
-    }
-
-    /* TRIP */
-
-    .trip-card {
-        border-radius: 15px;
-    }
-
-    .trip-card-header {
-        padding: 15px;
-    }
-
-    .trip-card-header h2 {
-        font-size: 21px;
-    }
-
-    .trip-card-header p {
-        font-size: 10px;
-    }
-
-    .trip-date {
-        padding: 6px 8px;
-        font-size: 9px;
-    }
-
-    /* FLIGHT SUMMARY */
-
-    .flight-summary {
-        grid-template-columns: 1fr 1fr;
-        gap: 20px 10px;
-        padding: 18px 15px;
-    }
-
-    .airline-block {
-        grid-column: 1 / -1;
-    }
-
-    .time-block strong {
-        font-size: 22px;
-    }
-
-    .flight-middle {
-        grid-column: 1 / -1;
-        grid-row: 3;
-        width: 100%;
-    }
-
-    .flight-middle .flight-line {
-        max-width: 180px;
-        margin: 5px auto;
-    }
-
-    .time-block.arrival {
-        text-align: right;
-    }
-
-    /* META */
-
-    .trip-meta {
-        grid-template-columns: 1fr 1fr;
-        margin: 0 15px;
-    }
-
-    .trip-meta > div {
-        padding: 10px;
-    }
-
-    .trip-meta > div:nth-child(3) {
-        border-left: 0;
-        border-top: 1px solid #e2e8f0;
-    }
-
-    .trip-meta > div:nth-child(4) {
-        border-top: 1px solid #e2e8f0;
-    }
-
-    /* DETAILS */
-
-    .details-toggle {
-        padding: 13px 15px;
-    }
-
-    .segment-details {
-        margin: 0 15px 13px;
-    }
-
-    .segment-row {
-        padding: 13px;
-    }
-
-    .segment-route {
-        grid-template-columns: 1fr 65px 1fr;
-        gap: 8px;
-    }
-
-    .segment-route strong {
-        font-size: 15px;
-    }
-
-    /* RULE */
-
-    .trip-rule {
-        padding: 0 15px 14px;
-    }
-
-    /* SIDEBAR */
-
-    .review-sidebar {
-        display: block;
-    }
-
-    .price-card {
-        margin-top: 2px;
-    }
-
-    .summary-card {
-        margin-top: 15px;
-    }
-
-    /* DESKTOP CONTINUE HIDE */
-
-    .price-card .continue-btn {
-        display: none;
-    }
-
-    /* MOBILE FIXED BAR */
-
-    .mobile-continue {
-        position: fixed;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 1000;
-
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        gap: 12px;
-
-        padding:
-            10px
-            14px
-            calc(10px + env(safe-area-inset-bottom));
-
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-
-        background: rgba(15, 23, 42, 0.98);
-
-        color: white;
-
-        box-shadow:
-            0 -8px 25px rgba(15, 23, 42, 0.16);
-    }
-
-    .mobile-continue > div span {
-        display: block;
-        color: #94a3b8;
-        font-size: 8px;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-    }
-
-    .mobile-continue > div strong {
-        display: block;
-        margin-top: 2px;
-        color: white;
-        font-size: 18px;
-        font-weight: 900;
-    }
-
-    .mobile-continue button {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-
-        padding: 11px 16px;
-
-        border: 0;
-        border-radius: 10px;
-
-        background: #2563eb;
-        color: white;
-
-        cursor: pointer;
-
-        font-size: 11px;
-        font-weight: 850;
-    }
-
-    .mobile-continue button span {
-        font-size: 15px;
-    }
-
-    /* RULES */
-
-    .rules-card {
-        border-radius: 15px;
-    }
-
-    .rules-header {
-        padding: 16px;
-    }
-
-    .rules-header h3 {
-        font-size: 16px;
-    }
-
-    .rules-content {
-        padding: 0 15px 15px;
-    }
-
+.rv-fare-total div {
+    display: grid;
 }
 
-/* =========================================================
-   SMALL MOBILE
-========================================================= */
-
-@media (max-width: 430px) {
-
-    .flight-review-page {
-        padding-right: 10px;
-        padding-left: 10px;
-    }
-
-    .review-header h1 {
-        font-size: 27px;
-    }
-
-    .review-progress {
-        overflow-x: auto;
-    }
-
-    .progress-item {
-        min-width: max-content;
-    }
-
-    .progress-line {
-        min-width: 20px;
-    }
-
-    .trip-card-header {
-        gap: 8px;
-    }
-
-    .trip-card-header h2 {
-        font-size: 19px;
-    }
-
-    .trip-date {
-        max-width: 100px;
-        text-align: center;
-    }
-
-    .flight-summary {
-        gap: 17px 8px;
-    }
-
-    .airline-logo {
-        width: 38px;
-        height: 38px;
-        flex-basis: 38px;
-    }
-
-    .airline-block strong {
-        font-size: 12px;
-    }
-
-    .time-block strong {
-        font-size: 20px;
-    }
-
-    .trip-meta strong {
-        font-size: 10px;
-    }
-
-    .total-row > strong {
-        font-size: 20px;
-    }
-
-    .search-route {
-        padding: 9px;
-    }
-
+.rv-fare-total small {
+    color: var(--rv-muted);
+    font-size: 11px;
 }
 
-/* =========================================================
-   ACCESSIBILITY
-========================================================= */
-
-button:focus-visible {
-    outline: 3px solid rgba(37, 99, 235, 0.25);
-    outline-offset: 2px;
+.rv-fare-total > strong {
+    color: var(--rv-primary-dark);
+    font-size: 21px;
 }
 
-/* =========================================================
-   ANIMATION
-========================================================= */
+.rv-secure {
+    margin: 10px 0 0;
+    color: var(--rv-muted);
+    font-size: 11.5px;
+    text-align: center;
+}
 
-@keyframes spin {
+.rv-trip-summary h2 {
+    margin-bottom: 10px;
+}
+
+.rv-trip-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-top: 1px solid var(--rv-border);
+}
+
+.rv-trip-row div {
+    display: grid;
+}
+
+.rv-trip-row strong {
+    font-size: 13.5px;
+}
+
+.rv-trip-row small {
+    color: var(--rv-muted);
+    font-size: 12px;
+}
+
+.rv-trip-meta {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 8px;
+    border-top: 1px solid var(--rv-border);
+    font-size: 13px;
+}
+
+.rv-trip-meta span {
+    color: var(--rv-muted);
+}
+
+/* ---------- Buttons ---------- */
+
+.rv-btn {
+    padding: 11px 20px;
+    border: 1px solid var(--rv-primary);
+    border-radius: 8px;
+    background: var(--rv-primary);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.rv-btn:hover:not(:disabled) {
+    background: var(--rv-primary-dark);
+}
+
+.rv-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.rv-btn-block {
+    width: 100%;
+}
+
+.rv-btn-outline {
+    background: #fff;
+    color: var(--rv-primary);
+}
+
+.rv-btn-outline:hover:not(:disabled) {
+    background: var(--rv-primary-soft);
+}
+
+/* ---------- Empty / loading ---------- */
+
+.rv-empty {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    margin-top: 40px;
+    padding: 40px 20px;
+    border: 1px solid var(--rv-border);
+    border-radius: 12px;
+    background: #fff;
+    text-align: center;
+}
+
+.rv-empty h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.rv-empty p {
+    margin: 0;
+    color: var(--rv-muted);
+}
+
+.rv-spinner {
+    width: 34px;
+    height: 34px;
+    border: 3px solid var(--rv-primary-soft);
+    border-top-color: var(--rv-primary);
+    border-radius: 50%;
+    animation: rv-spin 0.8s linear infinite;
+}
+
+@keyframes rv-spin {
     to {
         transform: rotate(360deg);
     }
 }
 
-.fare-alert-item {
-    margin-top: 9px;
-    padding: 10px 12px;
-    border: 1px solid #fde68a;
-    border-radius: 10px;
-    background: #ffffff;
-}
+/* ---------- Modal ---------- */
 
-.fare-alert-route {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.fare-alert-route > strong {
-    color: #334155;
-    font-size: 11px;
-}
-
-.alert-route-badge {
-    padding: 3px 7px;
-    border-radius: 5px;
-    background: #fff7ed;
-    color: #c2410c;
-    font-size: 9px;
-    font-weight: 900;
-    letter-spacing: .04em;
-}
-
-.fare-alert-item .alert-change {
+.rv-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 8px;
-}
-
-.fare-alert-item .alert-change > div {
-    min-width: 0;
-}
-
-.fare-alert-item .alert-change span {
-    display: block;
-    margin-bottom: 3px;
-    color: #94a3b8;
-    font-size: 9px;
-    font-weight: 800;
-    text-transform: uppercase;
-}
-
-.fare-alert-item .alert-change del {
-    display: block;
-    color: #94a3b8;
-    font-size: 10px;
-    line-height: 1.4;
-}
-
-.fare-alert-item .alert-change b {
-    display: block;
-    color: #15803d;
-    font-size: 10px;
-    line-height: 1.4;
-}
-
-@media (max-width: 600px) {
-    .fare-alert-item .alert-change {
-        grid-template-columns: 1fr;
-        gap: 7px;
-    }
-}
-
-
-/* =========================================================
-   CUSTOMER FACING FARE RULES
-========================================================= */
-
-.fare-rule-trip {
-    padding: 18px 0;
-}
-
-.fare-rule-trip + .fare-rule-trip {
-    border-top: 1px solid #e2e8f0;
-}
-
-.fare-rule-trip-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    margin-bottom: 14px;
-}
-
-.fare-rule-trip-header > div > span {
-    display: block;
-    margin-bottom: 5px;
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-}
-
-.fare-rule-trip-header strong {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    color: #0f172a;
-    font-size: 17px;
-    font-weight: 800;
-}
-
-.fare-rule-trip-header strong b {
-    color: #94a3b8;
-    font-weight: 500;
-}
-
-.fare-rule-trip-header small {
-    padding: 6px 9px;
-    border-radius: 7px;
-    background: #f8fafc;
-    color: #64748b;
-    font-size: 9px;
-    font-weight: 700;
-}
-
-.fare-rule-list {
-    display: grid;
-    gap: 9px;
-}
-
-.fare-rule-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 11px;
-    padding: 13px;
-    border: 1px solid #e2e8f0;
-    border-radius: 11px;
-    background: #ffffff;
-    transition:
-        border-color .15s ease,
-        background .15s ease;
-}
-
-.fare-rule-item:hover {
-    border-color: #cbd5e1;
-    background: #f8fafc;
-}
-
-.fare-rule-icon {
-    display: grid;
-    width: 30px;
-    height: 30px;
-    flex: 0 0 30px;
     place-items: center;
-    border-radius: 8px;
-    background: #eff6ff;
-    color: #2563eb;
-    font-size: 13px;
-    font-weight: 900;
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.5);
 }
 
-.fare-rule-info {
-    min-width: 0;
-    flex: 1;
+.rv-modal-card {
+    width: min(420px, 100%);
+    padding: 22px;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
 }
 
-.fare-rule-info > strong {
-    display: block;
-    color: #1e293b;
-    font-size: 12px;
-    font-weight: 800;
+.rv-modal-card h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
 }
 
-.fare-rule-info > p {
-    margin: 4px 0 0;
-    color: #64748b;
-    font-size: 11px;
+.rv-modal-card p {
+    margin: 0;
+    color: var(--rv-muted);
+    font-size: 13.5px;
     line-height: 1.5;
 }
 
-.fare-rule-fee {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 15px;
-    margin-top: 8px;
+.rv-modal-prices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
 }
 
-.fare-rule-fee span {
-    color: #64748b;
-    font-size: 10px;
-}
-
-.fare-rule-fee b {
-    color: #0f172a;
-    font-weight: 800;
-}
-
-.no-fare-rules {
-    padding: 14px;
-    border: 1px dashed #cbd5e1;
-    border-radius: 10px;
+.rv-modal-prices div {
+    display: grid;
+    padding: 10px 12px;
+    border-radius: 8px;
     background: #f8fafc;
-    color: #64748b;
+}
+
+.rv-modal-prices small {
+    color: var(--rv-muted);
     font-size: 11px;
-    text-align: center;
 }
 
-@media (max-width: 600px) {
-
-    .fare-rule-trip-header {
-        align-items: flex-start;
-    }
-
-    .fare-rule-trip-header strong {
-        font-size: 15px;
-    }
-
-    .fare-rule-item {
-        padding: 11px;
-    }
-
-    .fare-rule-icon {
-        width: 27px;
-        height: 27px;
-        flex-basis: 27px;
-        font-size: 11px;
-    }
-
-    .fare-rule-info > strong {
-        font-size: 11px;
-    }
-
-    .fare-rule-info > p {
-        font-size: 10px;
-    }
-
-    .fare-rule-fee {
-        display: block;
-    }
-
-    .fare-rule-fee span {
-        display: block;
-        margin-top: 4px;
-    }
+.rv-modal-prices s {
+    color: var(--rv-muted);
+    font-size: 15px;
 }
 
-/* =========================================================
-   SELECTED FARE CARD
-========================================================= */
-
-.selected-fare-card {
-    margin-top: 18px;
-    overflow: hidden;
-
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-
-    background: #ffffff;
-
-    box-shadow:
-        0 8px 28px rgba(15, 23, 42, 0.045);
-}
-
-.selected-fare-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 18px 20px;
-
-    border-bottom: 1px solid #eef2f7;
-}
-
-.selected-fare-header h3 {
-    margin: 0;
-
-    color: #0f172a;
-
-    font-size: 20px;
-    font-weight: 800;
-
-    letter-spacing: -0.025em;
-}
-
-.selected-fare-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-
-    padding: 6px 9px;
-
-    border-radius: 999px;
-
-    background: #ecfdf5;
-    color: #15803d;
-
-    font-size: 9px;
-    font-weight: 900;
-
-    text-transform: uppercase;
-    letter-spacing: .05em;
-}
-
-/* =========================================================
-   EACH SELECTED FARE / SECTOR
-========================================================= */
-
-.selected-fare-trip {
-    padding: 0 20px;
-}
-
-.selected-fare-trip + .selected-fare-trip {
-    border-top: 1px solid #e2e8f0;
-}
-
-/* =========================================================
-   ROUTE
-========================================================= */
-
-.selected-fare-route {
-    display: grid;
-
-    grid-template-columns:
-        minmax(150px, 1fr)
-        minmax(220px, 1.5fr)
-        auto;
-
-    align-items: center;
-
-    gap: 20px;
-
-    padding: 17px 0;
-
-    border-bottom: 1px solid #eef2f7;
-}
-
-.fare-airline-mini {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-}
-
-.fare-airline-logo {
-    display: grid;
-
-    width: 34px;
-    height: 34px;
-
-    flex: 0 0 34px;
-
-    place-items: center;
-
-    border-radius: 9px;
-
-    background: #111827;
-    color: #ffffff;
-
-    font-size: 9px;
-    font-weight: 900;
-}
-
-.fare-airline-mini strong {
-    display: block;
-
-    color: #1e293b;
-
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.fare-airline-mini span {
-    display: block;
-
-    margin-top: 2px;
-
-    color: #94a3b8;
-
-    font-size: 9px;
-}
-
-.fare-route-main {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-}
-
-.fare-route-main > strong {
-    color: #0f172a;
-
-    font-size: 18px;
-    font-weight: 850;
-}
-
-.fare-route-main > span {
-    color: #94a3b8;
-
+.rv-modal-prices strong {
+    color: var(--rv-danger);
     font-size: 17px;
 }
 
-.fare-route-main em {
-    margin-left: 4px;
-
-    padding: 4px 7px;
-
-    border-radius: 5px;
-
-    background: #f1f5f9;
-
-    color: #475569;
-
-    font-size: 8px;
-    font-style: normal;
-    font-weight: 900;
-
-    text-transform: uppercase;
-}
-
-.fare-date {
-    padding: 6px 9px;
-
-    border-radius: 7px;
-
-    background: #f8fafc;
-
-    color: #64748b;
-
-    font-size: 9px;
-    font-weight: 800;
-
-    white-space: nowrap;
-}
-
-/* =========================================================
-   FEATURES
-========================================================= */
-
-.fare-features {
-    display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-
-    border-bottom: 1px solid #eef2f7;
-}
-
-.fare-feature {
+.rv-modal-actions {
     display: flex;
-    align-items: center;
-
-    min-width: 0;
-
-    gap: 9px;
-
-    padding: 13px 10px;
+    gap: 10px;
+    margin-top: 18px;
 }
 
-.fare-feature:nth-child(3n + 2),
-.fare-feature:nth-child(3n + 3) {
-    border-left: 1px solid #eef2f7;
-}
-
-.fare-feature:nth-child(n + 4) {
-    border-top: 1px solid #eef2f7;
-}
-
-.fare-feature-icon {
-    display: grid;
-
-    width: 27px;
-    height: 27px;
-
-    flex: 0 0 27px;
-
-    place-items: center;
-
-    border-radius: 7px;
-
-    background: #ecfdf5;
-
-    color: #059669;
-
+.rv-modal-actions .rv-btn {
+    flex: 1;
+    padding: 10px 12px;
     font-size: 13px;
-    font-weight: 900;
-}
-
-.fare-feature div {
-    min-width: 0;
-}
-
-.fare-feature small {
-    display: block;
-
-    color: #94a3b8;
-
-    font-size: 8px;
-    font-weight: 700;
-
-    text-transform: uppercase;
-    letter-spacing: .04em;
-}
-
-.fare-feature strong {
-    display: block;
-
-    margin-top: 3px;
-
-    overflow: hidden;
-
-    color: #1e293b;
-
-    font-size: 11px;
-    font-weight: 800;
-
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 /* =========================================================
-   POLICY ACCORDION
-========================================================= */
+   RESPONSIVE
+   ========================================================= */
 
-.fare-policy-list {
-    border-bottom: 1px solid #eef2f7;
+@media (max-width: 1099.98px) {
+    .rv-segment {
+        grid-template-columns: 170px minmax(0, 1fr) 70px minmax(0, 1fr);
+    }
 }
 
-.fare-policy {
-    border-bottom: 1px solid #eef2f7;
-}
-
-.fare-policy:last-child {
-    border-bottom: 0;
-}
-
-.fare-policy summary {
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 13px 2px;
-
-    color: #1e293b;
-
-    cursor: pointer;
-
-    list-style: none;
-
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.fare-policy summary::-webkit-details-marker {
-    display: none;
-}
-
-.fare-policy summary b {
-    color: #64748b;
-
-    font-size: 18px;
-    font-weight: 400;
-
-    transition: transform .15s ease;
-}
-
-.fare-policy[open] summary b {
-    transform: rotate(90deg);
-}
-
-.fare-policy-content {
-    padding: 0 0 14px;
-}
-
-.fare-policy-content > p {
-    margin: 0;
-
-    color: #64748b;
-
-    font-size: 10px;
-    line-height: 1.55;
-}
-
-.policy-row {
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 15px;
-
-    padding: 9px 11px;
-
-    border: 1px solid #eef2f7;
-    border-radius: 8px;
-
-    background: #f8fafc;
-}
-
-.policy-row + .policy-row {
-    margin-top: 6px;
-}
-
-.policy-row > div:first-child {
-    min-width: 0;
-}
-
-.policy-row strong {
-    display: block;
-
-    color: #475569;
-
-    font-size: 10px;
-    font-weight: 600;
-    line-height: 1.45;
-}
-
-.policy-price {
-    display: flex;
-
-    flex: 0 0 auto;
-
-    gap: 13px;
-}
-
-.policy-price span {
-    color: #64748b;
-
-    font-size: 9px;
-
-    white-space: nowrap;
-}
-
-.policy-price b {
-    color: #0f172a;
-
-    font-size: 10px;
-}
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 700px) {
-
-    .selected-fare-card {
-        margin-top: 14px;
-        border-radius: 14px;
+@media (max-width: 991.98px) {
+    .rv-layout {
+        grid-template-columns: minmax(0, 1fr);
     }
 
-    .selected-fare-header {
-        padding: 14px;
+    .rv-sidebar {
+        position: static;
     }
 
-    .selected-fare-header h3 {
-        font-size: 17px;
-    }
-
-    .selected-fare-trip {
-        padding: 0 14px;
-    }
-
-    .selected-fare-route {
-        grid-template-columns: 1fr auto;
-
-        gap: 9px;
-
-        padding: 13px 0;
-    }
-
-    .fare-airline-mini {
-        grid-column: 1 / -1;
-    }
-
-    .fare-route-main {
-        grid-column: 1;
-    }
-
-    .fare-route-main > strong {
-        font-size: 16px;
-    }
-
-    .fare-route-main em {
-        font-size: 7px;
-    }
-
-    .fare-date {
-        grid-column: 2;
-        grid-row: 2;
-    }
-
-    /*
-     * 2 columns on mobile
-     * so more information remains visible.
-     */
-
-    .fare-features {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .fare-feature {
-        padding: 10px 7px;
-    }
-
-    .fare-feature:nth-child(3n + 2),
-    .fare-feature:nth-child(3n + 3) {
-        border-left: 0;
-    }
-
-    .fare-feature:nth-child(even) {
-        border-left: 1px solid #eef2f7;
-    }
-
-    .fare-feature:nth-child(n + 3) {
-        border-top: 1px solid #eef2f7;
-    }
-
-    .fare-feature-icon {
-        width: 25px;
-        height: 25px;
-        flex-basis: 25px;
-
-        font-size: 11px;
-    }
-
-    .fare-feature small {
-        font-size: 7px;
-    }
-
-    .fare-feature strong {
-        font-size: 10px;
-    }
-
-    .fare-policy summary {
-        padding: 12px 1px;
-
-        font-size: 11px;
-    }
-
-    .policy-row {
-        display: block;
-    }
-
-    .policy-price {
-        margin-top: 7px;
-    }
-
-}
-
-/* =========================================================
-   VERY SMALL MOBILE
-========================================================= */
-
-@media (max-width: 400px) {
-
-    .fare-airline-mini strong {
-        font-size: 10px;
-    }
-
-    .fare-route-main > strong {
-        font-size: 15px;
-    }
-
-    .fare-route-main > span {
-        font-size: 14px;
-    }
-
-    .fare-route-main em {
+    .rv-sidebar .rv-btn-block {
         display: none;
     }
 
-    .fare-feature {
-        gap: 7px;
+}
+
+@media (max-width: 767.98px) {
+    .rv-container {
+        width: calc(100% - 24px);
     }
 
-    .fare-feature-icon {
-        width: 23px;
-        height: 23px;
-        flex-basis: 23px;
+    .rv-page-head {
+        align-items: flex-start;
     }
 
-    .fare-feature strong {
-        font-size: 9px;
+    .rv-page-head h1 {
+        font-size: 18px;
     }
 
+    .rv-journey-head {
+        align-items: flex-start;
+        padding: 12px;
+    }
+
+    .rv-journey-tags {
+        max-width: 45%;
+    }
+
+    .rv-segments {
+        padding: 0 12px 12px;
+    }
+
+    .rv-segment {
+        grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .rv-seg-airline {
+        grid-column: 1 / -1;
+    }
+
+    .rv-seg-point strong {
+        font-size: 16px;
+    }
+
+    .rv-card {
+        padding: 14px 12px;
+    }
+
+    .rv-fare-total {
+        margin: 0 -12px 14px;
+        padding: 12px;
+    }
+
+    .rv-baggage-head,
+    .rv-baggage-row {
+        grid-template-columns: 0.8fr 1.3fr 1fr;
+        padding: 8px 10px;
+    }
+
+    .rv-modal-actions {
+        flex-direction: column-reverse;
+    }
 }
 
-/* =========================================================
-   FARE ALERT
-========================================================= */
+/* ---------- Fare rules: text rules + airline rule text ---------- */
 
-.fare-alerts {
-    margin: 0 0 18px;
-
-    padding: 14px;
-
-    border: 1px solid #fed7aa;
-    border-radius: 14px;
-
-    background: #fffaf3;
+.rv-tabs {
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
-/* HEADER */
-
-.fare-alert-header {
-    display: flex;
-    align-items: center;
-
-    gap: 10px;
-
-    margin-bottom: 11px;
+.rv-tabs button {
+    white-space: nowrap;
 }
 
-.fare-alert-icon {
+.rv-rule-list {
     display: grid;
-
-    width: 30px;
-    height: 30px;
-
-    flex: 0 0 30px;
-
-    place-items: center;
-
-    border-radius: 8px;
-
-    background: #f59e0b;
-    color: #ffffff;
-
-    font-size: 15px;
-    font-weight: 900;
-}
-
-.fare-alert-heading {
-    min-width: 0;
-}
-
-.fare-alert-heading strong {
-    display: block;
-
-    color: #92400e;
-
-    font-size: 12px;
-    font-weight: 850;
-}
-
-.fare-alert-heading span {
-    display: block;
-
-    margin-top: 2px;
-
-    color: #a16207;
-
-    font-size: 9px;
-}
-
-/* GRID */
-
-.fare-alert-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-    gap: 8px;
-}
-
-/* CARD */
-
-.fare-alert-card {
-    min-width: 0;
-
-    padding: 10px 11px;
-
-    border: 1px solid #f5d38a;
-    border-radius: 10px;
-
-    background: #ffffff;
-}
-
-/* CARD HEADER */
-
-.fare-alert-card-top {
-    display: flex;
-
-    align-items: center;
-
-    gap: 7px;
-
-    margin-bottom: 8px;
-}
-
-.fare-alert-route {
-    display: inline-flex;
-
-    align-items: center;
-
-    padding: 3px 6px;
-
-    border-radius: 5px;
-
-    background: #fff7ed;
-
-    color: #c2410c;
-
-    font-size: 8px;
-    font-weight: 900;
-
-    letter-spacing: .05em;
-}
-
-.fare-alert-card-top strong {
-    color: #334155;
-
-    font-size: 10px;
-    font-weight: 800;
-}
-
-/* CHANGE */
-
-.fare-alert-change {
-    display: grid;
-
-    grid-template-columns:
-        minmax(0, 1fr)
-        auto
-        minmax(0, 1fr);
-
-    align-items: center;
-
-    gap: 7px;
-}
-
-.fare-alert-old,
-.fare-alert-new {
-    min-width: 0;
-}
-
-.fare-alert-old small,
-.fare-alert-new small {
-    display: block;
-
-    margin-bottom: 3px;
-
-    font-size: 7px;
-    font-weight: 850;
-
-    text-transform: uppercase;
-    letter-spacing: .06em;
-}
-
-.fare-alert-old small {
-    color: #94a3b8;
-}
-
-.fare-alert-new small {
-    color: #16a34a;
-}
-
-.fare-alert-old span,
-.fare-alert-new span {
-    display: -webkit-box;
-
-    overflow: hidden;
-
-    font-size: 9px;
-    line-height: 1.35;
-
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-}
-
-.fare-alert-old span {
-    color: #94a3b8;
-
-    text-decoration: line-through;
-}
-
-.fare-alert-new span {
-    color: #15803d;
-
-    font-weight: 750;
-}
-
-.fare-alert-arrow {
-    color: #cbd5e1;
-
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
     font-size: 13px;
+}
+
+.rv-rule-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 10px;
+    border-top: 1px solid var(--rv-border);
+}
+
+.rv-rule-list li:first-child {
+    border-top: 0;
+}
+
+.rv-rule-list span {
+    color: var(--rv-muted);
+}
+
+.rv-rule-text {
+    display: grid;
+    gap: 12px;
+    max-height: 340px;
+    overflow-y: auto;
+    padding: 12px;
+    border: 1px solid var(--rv-border);
+    border-radius: 8px;
+    background: #f8fafc;
+    font-size: 12.5px;
+    line-height: 1.55;
+}
+
+.rv-rule-text strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12.5px;
+}
+
+.rv-rule-text p {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.rv-small a {
+    color: var(--rv-primary);
     font-weight: 700;
-}
-
-/* =========================================================
-   TABLET
-========================================================= */
-
-@media (max-width: 900px) {
-
-    .fare-alert-grid {
-        grid-template-columns: 1fr;
-    }
-
-}
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 600px) {
-
-    .fare-alerts {
-        margin-bottom: 12px;
-
-        padding: 10px;
-
-        border-radius: 11px;
-    }
-
-    .fare-alert-header {
-        margin-bottom: 8px;
-
-        gap: 8px;
-    }
-
-    .fare-alert-icon {
-        width: 26px;
-        height: 26px;
-        flex-basis: 26px;
-
-        border-radius: 7px;
-
-        font-size: 12px;
-    }
-
-    .fare-alert-heading strong {
-        font-size: 11px;
-    }
-
-    .fare-alert-heading span {
-        font-size: 8px;
-    }
-
-    .fare-alert-grid {
-        gap: 6px;
-    }
-
-    .fare-alert-card {
-        padding: 8px 9px;
-
-        border-radius: 8px;
-    }
-
-    .fare-alert-card-top {
-        margin-bottom: 6px;
-    }
-
-    .fare-alert-card-top strong {
-        font-size: 9px;
-    }
-
-    .fare-alert-change {
-        gap: 5px;
-    }
-
-    .fare-alert-old span,
-    .fare-alert-new span {
-        font-size: 8px;
-    }
-
-    .fare-alert-arrow {
-        font-size: 11px;
-    }
-
 }

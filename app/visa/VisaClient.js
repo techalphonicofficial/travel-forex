@@ -9,7 +9,9 @@ import { getStoredAuth, getStoredToken, getMediaUrl } from '@/utils/api';
 import TrustedPartners from '@/components/TrustedPartners';
 import './visa.css';
 
-const getInputType = (fieldType) => {
+const getInputType = (fieldType, fieldKey = '') => {
+  // the CRM sends some phone fields as plain text
+  if (/phone|mobile|whatsapp|contact_number/i.test(fieldKey)) return 'tel';
   const typeMap = { phone: 'tel', mobile: 'tel', integer: 'number', decimal: 'number', datetime: 'datetime-local' };
   const supportedTypes = ['text', 'email', 'tel', 'number', 'date', 'datetime-local', 'url', 'time'];
   const normalizedType = typeMap[fieldType] || fieldType;
@@ -91,7 +93,7 @@ function VisaDynamicField({ field, defaultValue }) {
           })}
         </select>
       ) : (
-        <input {...commonProps} type={getInputType(field.fieldType)} placeholder={`Enter ${field.label.toLowerCase()}`} />
+        <input {...commonProps} type={getInputType(field.fieldType, field.fieldKey)} placeholder={`Enter ${field.label.toLowerCase()}`} />
       )}
     </div>
   );

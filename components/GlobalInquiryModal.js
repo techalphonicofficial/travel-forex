@@ -1,6 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+
+/* Never auto-open over a booking in progress (seat / payment steps) */
+const BOOKING_PATHS = /^\/(flights\/(results|review|passenger-details|seat-selection)|hotel-booking\/(details|guest-details)|profile\/)/;
 
 const getLogoUrl = (logo) => {
   if (!logo) return '';
@@ -13,6 +17,8 @@ const getLogoUrl = (logo) => {
 
 export default function GlobalInquiryModal({ brand, companyInfo }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [openedManually, setOpenedManually] = useState(false);
+  const pathname = usePathname();
   const brandLogo = getLogoUrl(companyInfo?.company_logo_url) || brand?.logo || '/logooo.png';
   const brandName = brand?.legalName || 'ITS TRAVELS AND TOURS';
   const displayPhone = companyInfo?.contact?.phone || '+91 8031274154';
@@ -40,6 +46,7 @@ export default function GlobalInquiryModal({ brand, companyInfo }) {
 
   useEffect(() => {
     const handleTrigger = () => {
+      setOpenedManually(true);
       setIsOpen(true);
     };
     if (typeof window !== 'undefined') {
@@ -48,19 +55,22 @@ export default function GlobalInquiryModal({ brand, companyInfo }) {
     }
   }, []);
 
+  const visible = isOpen && (openedManually || !BOOKING_PATHS.test(pathname || ''));
+
   useEffect(() => {
     if (typeof document === 'undefined') return;
-    if (isOpen) {
+    if (visible) {
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
       return () => {
         document.body.style.overflow = originalOverflow;
       };
     }
-  }, [isOpen]);
+  }, [visible]);
 
   const handleClose = () => {
     setIsOpen(false);
+    setOpenedManually(false);
     try {
       if (typeof window !== 'undefined' && window.sessionStorage) {
         sessionStorage.setItem('inquiryModalClosed', 'true');
@@ -70,7 +80,7 @@ export default function GlobalInquiryModal({ brand, companyInfo }) {
     }
   };
 
-  if (!isOpen) return null;
+  if (!visible) return null;
 
   return (
     <>
@@ -159,7 +169,7 @@ export default function GlobalInquiryModal({ brand, companyInfo }) {
 
           <div className="mb-4">
             <h3 style={{ fontWeight: 800, fontSize: '24px', color: '#111827', marginBottom: '8px' }}>Save your customized itinerary</h3>
-            <p style={{ color: '#6b7280', fontSize: '15px' }}>Fill in your details and we'll send it across to you.</p>
+            <p style={{ color: '#6b7280', fontSize: '15px' }}>Fill in your details and we&apos;ll send it across to you.</p>
           </div>
 
           <form onSubmit={e => { e.preventDefault(); handleClose(); }} className="d-flex flex-column gap-3">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     ArrowLeftRight,
@@ -15,6 +15,8 @@ import {
 } from 'react-bootstrap-icons';
 
 import airports from './airports.json';
+import FlightLanding, { FLIGHT_RECENT_KEY } from './FlightLanding';
+import { saveRecent } from '@/components/travel-landing/LandingSections';
 import flightService from '../services/flightBookingService';
 
 import './flights.css';
@@ -48,6 +50,49 @@ const cabinClasses = [
     },
 ];
 
+/*
+ * TripJack searchModifiers.pft (passenger fare type).
+ * Special fares are adult-only.
+ * NOTE: confirm the exact pft codes with the TripJack
+ * search API doc; edit only this list if a code differs.
+ */
+const specialFares = [
+    { value: 'REGULAR', label: 'Regular' },
+    { value: 'STUDENT', label: 'Student' },
+    { value: 'SENIOR_CITIZEN', label: 'Senior Citizen' },
+    { value: 'ARMED_FORCES', label: 'Armed Forces' },
+    { value: 'DOCTORS_NURSES', label: 'Doctors & Nurses' },
+];
+
+/*
+ * Extra TripJack search toggles (sent inside searchModifiers).
+ * NOTE: confirm the exact modifier keys with the TripJack
+ * search API doc; edit only this list if a key differs.
+ */
+const searchToggles = [
+    { key: 'directFlight', label: 'Direct flights only' },
+    { key: 'ndc', label: 'NDC fares', modifier: 'isNDC' },
+    { key: 'soto', label: 'SOTO fares', modifier: 'isSOTO' },
+];
+
+/*
+ * TripJack searchQuery.preferredAirline
+ */
+const preferredAirlines = [
+    { code: '', label: 'Any Airline' },
+    { code: '6E', label: 'IndiGo' },
+    { code: 'AI', label: 'Air India' },
+    { code: 'IX', label: 'Air India Express' },
+    { code: 'SG', label: 'SpiceJet' },
+    { code: 'QP', label: 'Akasa Air' },
+    { code: '9I', label: 'Alliance Air' },
+    { code: 'EK', label: 'Emirates' },
+    { code: 'QR', label: 'Qatar Airways' },
+    { code: 'EY', label: 'Etihad Airways' },
+    { code: 'SQ', label: 'Singapore Airlines' },
+    { code: 'TG', label: 'Thai Airways' },
+];
+
 
 /* =========================================================
    AIRPORT DATA
@@ -79,6 +124,53 @@ const toText = (value) => {
     return String(value).trim();
 };
 
+
+/*
+ * Indian airports whose city in the airport data is not the name people
+ * search for (data: "Vasco da Gama", "Mopa", "Bhuntar", ...).
+ */
+const DISPLAY_CITY = {
+    GOI: 'Goa', GOX: 'Goa', KUU: 'Kullu', DED: 'Dehradun', SAG: 'Shirdi', RJA: 'Rajahmundry',
+    KJB: 'Kurnool', JSA: 'Jaisalmer', TEZ: 'Tezpur', AYJ: 'Ayodhya', IXD: 'Prayagraj', CCJ: 'Kozhikode',
+    IXB: 'Bagdogra', AJL: 'Aizawl', DXN: 'Noida', HSR: 'Rajkot', HWR: 'Ludhiana', HGI: 'Itanagar',
+    MYQ: 'Mysuru', KQH: 'Ajmer', SDW: 'Sindhudurg', DHM: 'Dharamshala',
+    DPS: 'Bali (Denpasar)',
+};
+
+// main airport of a city with several (London, Paris, New York, ...): shown first
+const MAIN_HUBS = new Set(['LHR', 'CDG', 'JFK', 'DXB', 'NRT', 'ICN', 'PEK', 'FCO', 'MXP', 'IST', 'YYZ', 'KUL', 'BKK']);
+
+const CITY_ALIASES = {
+    DEL: ['Delhi', 'New Delhi', 'Gurgaon', 'Gurugram'],
+    GOI: ['Goa', 'Dabolim', 'Vasco da Gama', 'South Goa'],
+    GOX: ['Goa', 'Mopa', 'North Goa'],
+    KUU: ['Kullu', 'Manali', 'Bhuntar'],
+    DHM: ['Dharamshala', 'Dharamsala', 'Kangra', 'McLeod Ganj'],
+    DED: ['Dehradun', 'Rishikesh', 'Mussoorie', 'Haridwar'],
+    IXB: ['Bagdogra', 'Siliguri', 'Darjeeling'],
+    SAG: ['Shirdi'],
+    RJA: ['Rajahmundry', 'Rajamahendravaram'],
+    KJB: ['Kurnool'],
+    JSA: ['Jaisalmer'],
+    TEZ: ['Tezpur'],
+    AYJ: ['Ayodhya', 'Faizabad'],
+    IXD: ['Prayagraj', 'Allahabad'],
+    CCJ: ['Kozhikode', 'Calicut'],
+    AJL: ['Aizawl'],
+    DXN: ['Noida', 'Jewar'],
+    HSR: ['Rajkot'],
+    HWR: ['Ludhiana'],
+    HGI: ['Itanagar'],
+    MYQ: ['Mysuru', 'Mysore'],
+    KQH: ['Ajmer', 'Kishangarh'],
+    TRV: ['Trivandrum', 'Thiruvananthapuram'],
+    PGH: ['Pantnagar', 'Nainital'],
+    UDR: ['Udaipur'],
+    IXU: ['Aurangabad', 'Chhatrapati Sambhajinagar'],
+    VTZ: ['Vizag', 'Visakhapatnam'],
+    TRZ: ['Trichy', 'Tiruchirappalli'],
+    DPS: ['Bali', 'Denpasar'],
+};
 
 const airportList = Array.isArray(airports)
     ? airports
@@ -133,7 +225,30 @@ const airportList = Array.isArray(airports)
                 airport?.type
             ),
         }))
+        .map((airport) => ({
+            ...airport,
+            // the name customers know ("Goa", not "Vasco da Gama")
+            city: DISPLAY_CITY[airport.code] || airport.city,
+            aliases: (CITY_ALIASES[airport.code] || []).map((alias) => alias.toLowerCase()),
+        }))
     : [];
+
+
+/*
+ * Shown as soon as a city field is clicked
+ * (before the user types anything).
+ */
+const POPULAR_AIRPORT_CODES = [
+    'DEL', 'BOM', 'BLR', 'MAA', 'CCU', 'HYD',
+    'GOI', 'PNQ', 'AMD', 'COK', 'DXB', 'SIN',
+    'BKK', 'LHR',
+];
+
+const popularAirports = POPULAR_AIRPORT_CODES
+    .map((code) =>
+        airportList.find((airport) => airport.code === code)
+    )
+    .filter(Boolean);
 
 
 /* =========================================================
@@ -149,87 +264,51 @@ const getAirportSuggestions = (value) => {
         return [];
     }
 
+    const wordStart = (text) =>
+        text.startsWith(query) ||
+        text.includes(` ${query}`) ||
+        text.includes(`(${query}`) ||
+        text.includes(`-${query}`);
+
+    /*
+     * Lower score = better. Match tier (0 code, 1 city / alias / keyword,
+     * 2 a word starting with the text, 3 anywhere), +1.5 outside India
+     * (so "hyderabad" shows HYD before Hyderabad, Pakistan and "goa" shows
+     * Goa before Genova's code GOA), bigger airports first within a tier.
+     */
+    const SIZE = { large_airport: -0.3, medium_airport: 0 };
+
     return airportList
         .map((airport) => {
-            const code =
-                airport.code.toLowerCase();
+            const code = airport.code.toLowerCase();
+            const city = airport.city.toLowerCase();
+            const name = airport.name.toLowerCase();
+            const keywords = [
+                ...airport.keywords.toLowerCase().split(','),
+                ...airport.aliases,
+            ].map((word) => word.trim()).filter(Boolean);
 
-            const city =
-                airport.city.toLowerCase();
+            let tier = null;
+            if (code === query) tier = 0;
+            else if (city === query || keywords.includes(query)) tier = 1;
+            else if (code.startsWith(query) || wordStart(city) || wordStart(name) || keywords.some(wordStart)) tier = 2;
+            else if (city.includes(query) || name.includes(query) || keywords.some((word) => word.includes(query))) tier = 3;
 
-            const name =
-                airport.name.toLowerCase();
-
-            const keywords =
-                airport.keywords.toLowerCase();
-
-            let score = 0;
-
-            /*
-             * Exact matches
-             */
-            if (code === query) {
-                score += 200;
-            }
-
-            if (city === query) {
-                score += 180;
-            }
-
-            if (name === query) {
-                score += 160;
-            }
-
-            /*
-             * Starts with
-             */
-            if (code.startsWith(query)) {
-                score += 130;
-            }
-
-            if (city.startsWith(query)) {
-                score += 120;
-            }
-
-            if (name.startsWith(query)) {
-                score += 110;
-            }
-
-            /*
-             * Contains
-             */
-            if (city.includes(query)) {
-                score += 80;
-            }
-
-            if (name.includes(query)) {
-                score += 60;
-            }
-
-            if (keywords.includes(query)) {
-                score += 40;
-            }
+            if (tier === null) return null;
 
             return {
                 ...airport,
-                score,
+                score: tier +
+                    (airport.country === 'IN' ? 0 : 1.5) +
+                    (SIZE[airport.type] ?? 0.3) +
+                    (MAIN_HUBS.has(airport.code) ? -0.1 : 0),
             };
         })
-        .filter((airport) => airport.score > 0)
-        .sort((a, b) => {
-            if (b.score !== a.score) {
-                return b.score - a.score;
-            }
-
-            return (
-                a.city.localeCompare(
-                    b.city
-                ) ||
-                a.name.localeCompare(
-                    b.name
-                )
-            );
-        })
+        .filter(Boolean)
+        .sort((a, b) =>
+            a.score - b.score ||
+            a.city.localeCompare(b.city) ||
+            a.name.localeCompare(b.name))
         .slice(0, 8);
 };
 
@@ -304,13 +383,29 @@ function AirportAutocomplete({
 }) {
     const [open, setOpen] = useState(false);
 
-    const suggestions =
-        getAirportSuggestions(value);
+    /*
+     * Text typed by the user. Empty means
+     * "show popular cities" (TripJack style).
+     */
+    const [query, setQuery] = useState('');
+
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    const suggestions = query
+        ? getAirportSuggestions(query)
+        : popularAirports;
+
+
+    const openDropdown = (event) => {
+        setQuery('');
+        setActiveIndex(0);
+        setOpen(true);
+        event?.target?.select?.();
+    };
 
 
     const handleChange = (event) => {
-        const nextValue =
-            event.target.value;
+        const nextValue = event.target.value;
 
         /*
          * User changed the text,
@@ -321,6 +416,8 @@ function AirportAutocomplete({
             code: '',
         });
 
+        setQuery(nextValue);
+        setActiveIndex(0);
         setOpen(true);
     };
 
@@ -335,7 +432,28 @@ function AirportAutocomplete({
                 airport.code,
         });
 
+        setQuery('');
         setOpen(false);
+    };
+
+
+    const handleKeyDown = (event) => {
+        if (!open || !suggestions.length) return;
+
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            setActiveIndex((prev) =>
+                Math.min(prev + 1, suggestions.length - 1)
+            );
+        } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            setActiveIndex((prev) => Math.max(prev - 1, 0));
+        } else if (event.key === 'Enter') {
+            event.preventDefault();
+            handleSelect(suggestions[activeIndex]);
+        } else if (event.key === 'Escape') {
+            setOpen(false);
+        }
     };
 
 
@@ -352,26 +470,15 @@ function AirportAutocomplete({
 
                 <div className="flex-grow-1">
 
-                    <small>
-                        {label === 'FROM'
-                            ? 'Departure'
-                            : 'Destination'}
-                    </small>
-
                     <input
                         type="text"
                         value={value}
-                        onChange={
-                            handleChange
-                        }
-                        onFocus={() => {
-                            if (value) {
-                                setOpen(true);
-                            }
-                        }}
-                        placeholder={
-                            placeholder
-                        }
+                        onChange={handleChange}
+                        onFocus={openDropdown}
+                        onClick={() => setOpen(true)}
+                        onBlur={() => setOpen(false)}
+                        onKeyDown={handleKeyDown}
+                        placeholder={placeholder}
                         autoComplete="off"
                     />
 
@@ -386,62 +493,55 @@ function AirportAutocomplete({
             </div>
 
 
-            {open && value && (
-                <div className="tj-airport-dropdown" >
+            {open && (
+                <div className="tj-airport-dropdown">
+
+                    {!query && (
+                        <div className="tj-airport-heading">
+                            Popular Cities
+                        </div>
+                    )}
 
                     {suggestions.length > 0 ? (
-                        suggestions.map(
-                            (airport) => (
-                                <button
-                                    key={`${airport.code}-${airport.name}`}
-                                    type="button"
-                                    className="tj-airport-option"
-                                    onMouseDown={(
-                                        event
-                                    ) =>
-                                        event.preventDefault()
-                                    }
-                                    onClick={() =>
-                                        handleSelect(
-                                            airport
-                                        )
-                                    }
-                                >
+                        suggestions.map((airport, index) => (
+                            <button
+                                key={`${airport.code}-${airport.name}`}
+                                type="button"
+                                className={
+                                    index === activeIndex
+                                        ? 'tj-airport-option active'
+                                        : 'tj-airport-option'
+                                }
+                                onMouseDown={(event) =>
+                                    event.preventDefault()
+                                }
+                                onMouseEnter={() =>
+                                    setActiveIndex(index)
+                                }
+                                onClick={() =>
+                                    handleSelect(airport)
+                                }
+                            >
 
-                                    <div className="tj-airport-code">
-                                        {
-                                            airport.code
-                                        }
-                                    </div>
+                                <div className="tj-airport-code">
+                                    {airport.code}
+                                </div>
 
-                                    <div className="tj-airport-info">
+                                <div className="tj-airport-info">
 
-                                        <strong>
-                                            {
-                                                airport.city ||
-                                                airport.name
-                                            }
-                                        </strong>
-
-                                        <span>
-                                            {
-                                                airport.name
-                                            }
-                                        </span>
-
+                                    <strong>
+                                        {airport.city || airport.name}
                                         {airport.country && (
-                                            <small>
-                                                {
-                                                    airport.country
-                                                }
-                                            </small>
+                                            <small>, {airport.country}</small>
                                         )}
+                                    </strong>
 
-                                    </div>
+                                    <span>{airport.name}</span>
 
-                                </button>
-                            )
-                        )
+                                </div>
+
+                            </button>
+                        ))
                     ) : (
                         <div className="tj-airport-empty">
                             No airport found
@@ -460,7 +560,46 @@ function AirportAutocomplete({
    MAIN COMPONENT
 ========================================================= */
 
-export default function FlightsClient() {
+/*
+ * Restores a saved search (results page / back navigation).
+ * Past dates are moved to today so TripJack does not reject them.
+ */
+const restoreSearch = (saved = {}) => {
+    const next = { ...saved };
+
+    if (!next.departureDate || next.departureDate < today) {
+        next.departureDate = today;
+    }
+
+    if (next.returnDate && next.returnDate < next.departureDate) {
+        next.returnDate = '';
+    }
+
+    return next;
+};
+
+const restoreSegments = (saved) =>
+    Array.isArray(saved) && saved.length >= 2
+        ? saved.map((segment) => ({
+            ...createSegment(),
+            ...segment,
+            date:
+                segment?.date && segment.date >= today
+                    ? segment.date
+                    : today,
+        }))
+        : [createSegment(), createSegment()];
+
+
+/* =========================================================
+   SEARCH FORM (used on /flights and on results "Modify")
+========================================================= */
+
+export function FlightSearchForm({
+    initialData = null,
+    onSearched = null,
+    routePreset = null,
+} = {}) {
 
     const router = useRouter();
 
@@ -470,11 +609,11 @@ export default function FlightsClient() {
     ===================================================== */
 
     const [tripType, setTripType] =
-        useState('ONE_WAY');
+        useState(initialData?.tripType || 'ONE_WAY');
 
 
     const [search, setSearch] =
-        useState({
+        useState(() => ({
             from: '',
             fromCode: '',
 
@@ -491,18 +630,48 @@ export default function FlightsClient() {
             cabinClass: 'ECONOMY',
 
             directFlight: false,
-        });
+
+            ndc: false,
+
+            soto: false,
+
+            fareType: 'REGULAR',
+
+            preferredAirline: '',
+
+            ...restoreSearch(initialData?.search || {}),
+        }));
 
 
     const [segments, setSegments] =
-        useState([
-            createSegment(),
-            createSegment(),
-        ]);
+        useState(() =>
+            restoreSegments(initialData?.segments)
+        );
 
 
     const [passengerOpen, setPassengerOpen] =
         useState(false);
+
+    const passengerRef = useRef(null);
+
+
+    /*
+     * Close travellers popover on outside click.
+     */
+    useEffect(() => {
+        if (!passengerOpen) return undefined;
+
+        const handleOutside = (event) => {
+            if (!passengerRef.current?.contains(event.target)) {
+                setPassengerOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleOutside);
+
+        return () =>
+            document.removeEventListener('mousedown', handleOutside);
+    }, [passengerOpen]);
 
 
     const [loading, setLoading] =
@@ -661,31 +830,28 @@ const updatePassenger = (type, value) => {
 
 
     /* =====================================================
-       POPULAR ROUTE
+       POPULAR ROUTE (from parent page)
     ===================================================== */
 
-    const selectPopularRoute = (
-        route
-    ) => {
+    useEffect(() => {
+        if (!routePreset) return;
 
+        // a recent search: trip type, cities, dates (if still ahead) and travellers
+        if (routePreset.search) {
+            setTripType(routePreset.tripType || 'ONE_WAY');
+            setSearch((prev) => ({ ...prev, ...restoreSearch(routePreset.search) }));
+            return;
+        }
+
+        // a route, or only a destination (keeps the chosen departure city)
         setSearch((prev) => ({
             ...prev,
-
-            from: route.from,
-            fromCode:
-                route.fromCode,
-
-            to: route.to,
-            toCode:
-                route.toCode,
+            from: routePreset.from ?? prev.from,
+            fromCode: routePreset.fromCode ?? prev.fromCode,
+            to: routePreset.to ?? prev.to,
+            toCode: routePreset.toCode ?? prev.toCode,
         }));
-
-
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth',
-        });
-    };
+    }, [routePreset]);
 
 
     /* =====================================================
@@ -693,6 +859,22 @@ const updatePassenger = (type, value) => {
     ===================================================== */
 
     const validateSearch = () => {
+
+        /*
+         * SPECIAL FARES (adult only)
+         */
+        if (
+            search.fareType !== 'REGULAR' &&
+            (Number(search.children) > 0 ||
+                Number(search.infants) > 0)
+        ) {
+            toast.error(
+                'Special fares are available for adult travellers only.'
+            );
+
+            return false;
+        }
+
 
         /*
          * MULTI CITY
@@ -920,6 +1102,16 @@ const updatePassenger = (type, value) => {
                     search.cabinClass,
 
 
+                ...(search.preferredAirline && {
+                    preferredAirline: [
+                        {
+                            code:
+                                search.preferredAirline,
+                        },
+                    ],
+                }),
+
+
                 paxInfo: {
 
                     ADULT: String(
@@ -939,15 +1131,26 @@ const updatePassenger = (type, value) => {
                 routeInfos,
 
 
+                /*
+                 * Both true = all flights.
+                 * Direct only = connecting off.
+                 */
                 searchModifiers: {
 
-                    isDirectFlight:
-                        Boolean(
-                            search.directFlight
-                        ),
+                    isDirectFlight: true,
 
                     isConnectingFlight:
                         !search.directFlight,
+
+                    ...(search.fareType !== 'REGULAR' && {
+                        pft: search.fareType,
+                    }),
+
+                    ...Object.fromEntries(
+                        searchToggles
+                            .filter((toggle) => toggle.modifier && search[toggle.key])
+                            .map((toggle) => [toggle.modifier, true])
+                    ),
                 },
             },
         };
@@ -989,23 +1192,49 @@ const updatePassenger = (type, value) => {
              * Save complete search
              * context for result page.
              */
+            const saved = {
+                search,
+                tripType,
+                segments,
+                request: payload,
+                response,
+                searchedAt: new Date().toISOString(),
+            };
+
             sessionStorage.setItem(
                 'tripjack_flight_search',
+                JSON.stringify(saved)
+            );
 
-                JSON.stringify({
-                    search,
+            // New search => old "unavailable" marks are stale.
+            sessionStorage.removeItem('tripjack_unavailable_flights');
+
+            // "Your recent searches" on the flights page (this browser only)
+            if (tripType !== 'MULTI_CITY') {
+                saveRecent(FLIGHT_RECENT_KEY, {
+                    key: [tripType, search.fromCode, search.toCode, search.departureDate, tripType === 'ROUND_TRIP' ? search.returnDate : '', search.adults, search.children, search.infants, search.cabinClass].join('|'),
                     tripType,
-                    segments,
-                    request:
-                        payload,
-                    response,
-                })
-            );
+                    search: {
+                        from: search.from,
+                        fromCode: search.fromCode,
+                        to: search.to,
+                        toCode: search.toCode,
+                        departureDate: search.departureDate,
+                        returnDate: tripType === 'ROUND_TRIP' ? search.returnDate : '',
+                        adults: search.adults,
+                        children: search.children,
+                        infants: search.infants,
+                        cabinClass: search.cabinClass,
+                    },
+                });
+            }
 
 
-            router.push(
-                '/flights/results'
-            );
+            if (onSearched) {
+                onSearched(saved);
+            } else {
+                router.push('/flights/results');
+            }
 
         } catch (error) {
 
@@ -1028,8 +1257,596 @@ const updatePassenger = (type, value) => {
 
 
     /* =====================================================
+       TRAVELLERS FIELD (all trip types)
+    ===================================================== */
+
+    const renderTravellers = (className = '') => {
+        const cabinLabel =
+            cabinClasses.find((cabin) => cabin.value === search.cabinClass)?.label ||
+            'Economy';
+
+        return (
+            <div
+                className={`tj-field-col position-relative ${className}`}
+                ref={passengerRef}
+            >
+
+                <label className="tj-label">
+                    TRAVELLERS & CLASS
+                </label>
+
+                <button
+                    type="button"
+                    className="tj-simple-field tj-click-field w-100 text-start"
+                    onClick={() =>
+                        setPassengerOpen((prev) => !prev)
+                    }
+                >
+
+                    <People />
+
+                    <span className="tj-ellipsis">
+                        {totalPassengers} Traveller
+                        {totalPassengers !== 1 ? 's' : ''}, {cabinLabel}
+                    </span>
+
+                    <ChevronDown className="ms-auto" />
+
+                </button>
+
+
+                {passengerOpen && (
+                    <div className="tj-passenger-popover">
+
+                        {[
+                            ['adults', 'Adults', '12+ years'],
+                            ['children', 'Children', '2–11 years'],
+                            ['infants', 'Infants', 'Below 2 years'],
+                        ].map(([key, label, sub]) => (
+                            <div
+                                className="tj-pax-row"
+                                key={key}
+                            >
+
+                                <div>
+                                    <strong>{label}</strong>
+                                    <small>{sub}</small>
+                                </div>
+
+                                <div className="tj-counter">
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            updatePassenger(key, -1)
+                                        }
+                                    >
+                                        −
+                                    </button>
+
+                                    <b>{search[key]}</b>
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            updatePassenger(key, 1)
+                                        }
+                                    >
+                                        +
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        ))}
+
+                        <div className="tj-cabin-title">
+                            Class
+                        </div>
+
+                        <div className="tj-cabin-list">
+                            {cabinClasses.map((cabin) => (
+                                <button
+                                    key={cabin.value}
+                                    type="button"
+                                    className={
+                                        search.cabinClass === cabin.value
+                                            ? 'tj-chip active'
+                                            : 'tj-chip'
+                                    }
+                                    onClick={() =>
+                                        updateSearch('cabinClass', cabin.value)
+                                    }
+                                >
+                                    {cabin.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        <button
+                            type="button"
+                            className="tj-pax-done"
+                            onClick={() =>
+                                setPassengerOpen(false)
+                            }
+                        >
+                            Done
+                        </button>
+
+                    </div>
+                )}
+
+            </div>
+        );
+    };
+
+
+    /* =====================================================
        RENDER
     ===================================================== */
+
+    return (
+        <div className="tj-search-shell">
+
+            {/* TRIP TYPE */}
+
+            <div className="tj-search-tabs">
+
+                {[
+                    [
+                        'ONE_WAY',
+                        'One Way',
+                    ],
+                    [
+                        'ROUND_TRIP',
+                        'Round Trip',
+                    ],
+                    [
+                        'MULTI_CITY',
+                        'Multi City',
+                    ],
+                ].map(
+                    ([
+                        value,
+                        label,
+                    ]) => (
+                        <button
+                            key={
+                                value
+                            }
+                            type="button"
+                            className={
+                                tripType ===
+                                    value
+                                    ? 'active'
+                                    : ''
+                            }
+                            onClick={() => {
+
+                                setTripType(
+                                    value
+                                );
+
+
+                                if (
+                                    value ===
+                                    'MULTI_CITY'
+                                ) {
+
+                                    setSegments(
+                                        [
+                                            createSegment(),
+                                            createSegment(),
+                                        ]
+                                    );
+                                }
+                            }}
+                        >
+                            {
+                                label
+                            }
+                        </button>
+                    )
+                )}
+
+            </div>
+
+
+            <form
+                onSubmit={handleSearch}
+                className="tj-search-form"
+            >
+
+                {tripType !== 'MULTI_CITY' ? (
+
+                    /* =================================================
+                       ONE WAY / ROUND TRIP (single row)
+                    ================================================= */
+
+                    <div className="tj-search-grid">
+
+                        <div className="tj-route-pair">
+
+                            <AirportAutocomplete
+                                label="FROM"
+                                placeholder="Departure city"
+                                value={search.from}
+                                code={search.fromCode}
+                                onSelect={({ name, code }) =>
+                                    setSearch((prev) => ({
+                                        ...prev,
+                                        from: name,
+                                        fromCode: code,
+                                    }))
+                                }
+                            />
+
+                            <button
+                                type="button"
+                                className="tj-swap"
+                                onClick={swapAirports}
+                                aria-label="Swap airports"
+                            >
+                                <ArrowLeftRight />
+                            </button>
+
+                            <AirportAutocomplete
+                                label="TO"
+                                placeholder="Destination city"
+                                value={search.to}
+                                code={search.toCode}
+                                onSelect={({ name, code }) =>
+                                    setSearch((prev) => ({
+                                        ...prev,
+                                        to: name,
+                                        toCode: code,
+                                    }))
+                                }
+                            />
+
+                        </div>
+
+
+                        {/* DEPARTURE */}
+
+                        <div className="tj-field-col">
+
+                            <label className="tj-label">
+                                DEPARTURE
+                            </label>
+
+                            <div className="tj-simple-field">
+                                <Calendar3 />
+                                <input
+                                    type="date"
+                                    min={today}
+                                    value={search.departureDate}
+                                    onChange={(event) =>
+                                        updateSearch(
+                                            'departureDate',
+                                            event.target.value
+                                        )
+                                    }
+                                />
+                            </div>
+
+                        </div>
+
+
+                        {/* RETURN (click to switch to round trip) */}
+
+                        <div className="tj-field-col">
+
+                            <label className="tj-label">
+                                RETURN
+                            </label>
+
+                            {tripType === 'ROUND_TRIP' ? (
+                                <div className="tj-simple-field">
+                                    <Calendar3 />
+                                    <input
+                                        type="date"
+                                        min={search.departureDate || today}
+                                        value={search.returnDate}
+                                        onChange={(event) =>
+                                            updateSearch(
+                                                'returnDate',
+                                                event.target.value
+                                            )
+                                        }
+                                    />
+                                    <button
+                                        type="button"
+                                        className="tj-clear-return"
+                                        aria-label="Remove return"
+                                        onClick={() => {
+                                            setTripType('ONE_WAY');
+                                            updateSearch('returnDate', '');
+                                        }}
+                                    >
+                                        <X />
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="tj-simple-field tj-click-field tj-add-return w-100 text-start"
+                                    onClick={() =>
+                                        setTripType('ROUND_TRIP')
+                                    }
+                                >
+                                    <Plus />
+                                    <span>Add return</span>
+                                </button>
+                            )}
+
+                        </div>
+
+
+                        {renderTravellers()}
+
+                    </div>
+
+                ) : (
+
+                    /* =================================================
+                       MULTI CITY
+                    ================================================= */
+
+                    <div className="tj-multicity-list">
+
+                        {segments.map((segment, index) => (
+                            <div
+                                className="tj-multi-row"
+                                key={index}
+                            >
+
+                                <div className="tj-sector-number">
+                                    {index + 1}
+                                </div>
+
+                                <div className="tj-multi-airport">
+                                    <AirportAutocomplete
+                                        label="FROM"
+                                        placeholder="Departure city"
+                                        value={segment.from}
+                                        code={segment.fromCode}
+                                        onSelect={({ name, code }) => {
+                                            updateSegment(index, 'from', name);
+                                            updateSegment(index, 'fromCode', code);
+                                        }}
+                                    />
+                                </div>
+
+                                <div className="tj-multi-airport">
+                                    <AirportAutocomplete
+                                        label="TO"
+                                        placeholder="Destination city"
+                                        value={segment.to}
+                                        code={segment.toCode}
+                                        onSelect={({ name, code }) => {
+                                            updateSegment(index, 'to', name);
+                                            updateSegment(index, 'toCode', code);
+                                        }}
+                                    />
+                                </div>
+
+                                <div className="tj-field-col">
+                                    <label className="tj-label">
+                                        DATE
+                                    </label>
+                                    <div className="tj-simple-field">
+                                        <Calendar3 />
+                                        <input
+                                            type="date"
+                                            min={
+                                                segments[index - 1]?.date ||
+                                                today
+                                            }
+                                            value={segment.date}
+                                            onChange={(event) =>
+                                                updateSegment(
+                                                    index,
+                                                    'date',
+                                                    event.target.value
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                </div>
+
+                                {segments.length > 2 ? (
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-danger tj-delete-sector"
+                                        onClick={() =>
+                                            removeSegment(index)
+                                        }
+                                        aria-label="Remove sector"
+                                    >
+                                        <Trash3 />
+                                    </button>
+                                ) : (
+                                    <span />
+                                )}
+
+                            </div>
+                        ))}
+
+                        <div className="tj-multi-footer">
+
+                            <button
+                                type="button"
+                                className="tj-add-sector"
+                                onClick={addSegment}
+                            >
+                                <Plus />
+                                Add another city
+                            </button>
+
+                            {renderTravellers('tj-multi-travellers')}
+
+                        </div>
+
+                    </div>
+                )}
+
+
+                {/* =================================================
+                    OPTIONS: SPECIAL FARES / TOGGLES / AIRLINE
+                ================================================= */}
+
+                <div className="tj-search-options">
+
+                    <div className="tj-option-group">
+
+                        <span className="tj-label">
+                            SPECIAL FARES
+                        </span>
+
+                        <div className="tj-chip-list">
+                            {specialFares.map((fare) => (
+                                <button
+                                    key={fare.value}
+                                    type="button"
+                                    className={
+                                        search.fareType === fare.value
+                                            ? 'tj-chip active'
+                                            : 'tj-chip'
+                                    }
+                                    onClick={() =>
+                                        updateSearch('fareType', fare.value)
+                                    }
+                                >
+                                    {fare.label}
+                                </button>
+                            ))}
+                        </div>
+
+                    </div>
+
+
+                    <div className="tj-option-group">
+
+                        <span className="tj-label">
+                            MORE OPTIONS
+                        </span>
+
+                        <div className="tj-check-list">
+                            {searchToggles.map((toggle) => (
+                                <label
+                                    key={toggle.key}
+                                    className="tj-check"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={Boolean(search[toggle.key])}
+                                        onChange={(event) =>
+                                            updateSearch(
+                                                toggle.key,
+                                                event.target.checked
+                                            )
+                                        }
+                                    />
+                                    {toggle.label}
+                                </label>
+                            ))}
+                        </div>
+
+                    </div>
+
+
+                    <div className="tj-option-group tj-preferred-airline">
+
+                        <label className="tj-label">
+                            PREFERRED AIRLINE
+                        </label>
+
+                        <div className="tj-simple-field tj-small-field">
+                            <select
+                                value={search.preferredAirline}
+                                onChange={(event) =>
+                                    updateSearch(
+                                        'preferredAirline',
+                                        event.target.value
+                                    )
+                                }
+                            >
+                                {preferredAirlines.map((airline) => (
+                                    <option
+                                        key={airline.code || 'ANY'}
+                                        value={airline.code}
+                                    >
+                                        {airline.code
+                                            ? `${airline.label} (${airline.code})`
+                                            : airline.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        className="tj-search-button"
+                        disabled={loading}
+                    >
+                        <Search />
+                        {loading
+                            ? 'Searching...'
+                            : 'Search Flights'}
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    );
+}
+
+
+/* =========================================================
+   FLIGHTS PAGE
+========================================================= */
+
+export default function FlightsClient() {
+
+    /*
+     * Restore last search so going back from results
+     * does not clear the form.
+     */
+    const storedSearch = useSyncExternalStore(
+        () => () => {},
+        () => sessionStorage.getItem('tripjack_flight_search'),
+        () => null
+    );
+
+    const savedSearch = useMemo(() => {
+        if (!storedSearch) return null;
+
+        try {
+            return JSON.parse(storedSearch);
+        } catch (error) {
+            console.error('Unable to restore flight search:', error);
+            return null;
+        }
+    }, [storedSearch]);
+
+    const [routePreset, setRoutePreset] = useState(null);
+
+
+    const selectPopularRoute = (route) => {
+        setRoutePreset({ ...route });
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        });
+    };
+
 
     return (
         <main className="tj-flight-page">
@@ -1044,14 +1861,6 @@ const updatePassenger = (type, value) => {
 
                     <div className="tj-hero-copy text-center text-white">
 
-                        <span className="tj-eyebrow">
-                            Travel Forex FLIGHTS
-                        </span>
-
-                        <h1>
-                            Search. Compare. Fly.
-                        </h1>
-
                         <p>
                             Find the right flight,
                             compare fares and book
@@ -1061,710 +1870,11 @@ const updatePassenger = (type, value) => {
                     </div>
 
 
-                    {/* =================================================
-                        SEARCH CARD
-                    ================================================= */}
-
-                    <div className="tj-search-shell">
-
-                        {/* TRIP TYPE */}
-
-                        <div className="tj-search-tabs">
-
-                            {[
-                                [
-                                    'ONE_WAY',
-                                    'One Way',
-                                ],
-                                [
-                                    'ROUND_TRIP',
-                                    'Round Trip',
-                                ],
-                                [
-                                    'MULTI_CITY',
-                                    'Multi City',
-                                ],
-                            ].map(
-                                ([
-                                    value,
-                                    label,
-                                ]) => (
-                                    <button
-                                        key={
-                                            value
-                                        }
-                                        type="button"
-                                        className={
-                                            tripType ===
-                                                value
-                                                ? 'active'
-                                                : ''
-                                        }
-                                        onClick={() => {
-
-                                            setTripType(
-                                                value
-                                            );
-
-
-                                            if (
-                                                value ===
-                                                'MULTI_CITY'
-                                            ) {
-
-                                                setSegments(
-                                                    [
-                                                        createSegment(),
-                                                        createSegment(),
-                                                    ]
-                                                );
-                                            }
-                                        }}
-                                    >
-                                        {
-                                            label
-                                        }
-                                    </button>
-                                )
-                            )}
-
-                        </div>
-
-
-                        <form
-                            onSubmit={
-                                handleSearch
-                            }
-                            className="p-3 p-md-4"
-                        >
-
-                            {/* =================================================
-                                ONE WAY / ROUND TRIP
-                            ================================================= */}
-
-                            {tripType !==
-                                'MULTI_CITY' ? (
-                                <>
-
-                                    <div className="row g-2">
-
-                                        {/* FROM */}
-
-                                        <div className="col-12 col-lg-5">
-
-                                            <AirportAutocomplete
-                                                label="FROM"
-                                                placeholder="Delhi"
-                                                value={
-                                                    search.from
-                                                }
-                                                code={
-                                                    search.fromCode
-                                                }
-                                                onSelect={({
-                                                    name,
-                                                    code,
-                                                }) => {
-
-                                                    setSearch(
-                                                        (
-                                                            prev
-                                                        ) => ({
-                                                            ...prev,
-
-                                                            from:
-                                                                name,
-
-                                                            fromCode:
-                                                                code,
-                                                        })
-                                                    );
-                                                }}
-                                            />
-
-                                        </div>
-
-
-                                        {/* SWAP */}
-
-                                        <div className="col-12 col-lg-2 d-flex justify-content-center align-items-center">
-
-                                            <button
-                                                type="button"
-                                                className="tj-swap"
-                                                onClick={
-                                                    swapAirports
-                                                }
-                                                aria-label="Swap airports"
-                                            >
-                                                <ArrowLeftRight />
-                                            </button>
-
-                                        </div>
-
-
-                                        {/* TO */}
-
-                                        <div className="col-12 col-lg-5">
-
-                                            <AirportAutocomplete
-                                                label="TO"
-                                                placeholder="Mumbai"
-                                                value={
-                                                    search.to
-                                                }
-                                                code={
-                                                    search.toCode
-                                                }
-                                                onSelect={({
-                                                    name,
-                                                    code,
-                                                }) => {
-
-                                                    setSearch(
-                                                        (
-                                                            prev
-                                                        ) => ({
-                                                            ...prev,
-
-                                                            to:
-                                                                name,
-
-                                                            toCode:
-                                                                code,
-                                                        })
-                                                    );
-                                                }}
-                                            />
-
-                                        </div>
-
-                                    </div>
-
-
-                                    {/* =================================================
-                                        DETAILS
-                                    ================================================= */}
-
-                                    <div className="row g-2 mt-2">
-
-                                        {/* DEPARTURE */}
-
-                                        <div className="col-12 col-md-6 col-lg-3">
-
-                                            <label className="tj-label">
-                                                DEPARTURE
-                                            </label>
-
-                                            <div className="tj-simple-field">
-
-                                                <Calendar3 />
-
-                                                <input
-                                                    type="date"
-                                                    min={
-                                                        today
-                                                    }
-                                                    value={
-                                                        search.departureDate
-                                                    }
-                                                    onChange={(
-                                                        event
-                                                    ) =>
-                                                        updateSearch(
-                                                            'departureDate',
-                                                            event
-                                                                .target
-                                                                .value
-                                                        )
-                                                    }
-                                                />
-
-                                            </div>
-
-                                        </div>
-
-
-                                        {/* RETURN */}
-
-                                        {tripType ===
-                                            'ROUND_TRIP' && (
-                                                <div className="col-12 col-md-6 col-lg-3">
-
-                                                    <label className="tj-label">
-                                                        RETURN
-                                                    </label>
-
-                                                    <div className="tj-simple-field">
-
-                                                        <Calendar3 />
-
-                                                        <input
-                                                            type="date"
-                                                            min={
-                                                                search.departureDate ||
-                                                                today
-                                                            }
-                                                            value={
-                                                                search.returnDate
-                                                            }
-                                                            onChange={(
-                                                                event
-                                                            ) =>
-                                                                updateSearch(
-                                                                    'returnDate',
-                                                                    event
-                                                                        .target
-                                                                        .value
-                                                                )
-                                                            }
-                                                        />
-
-                                                    </div>
-
-                                                </div>
-                                            )}
-
-
-                                        {/* PASSENGERS */}
-
-                                        <div className="col-12 col-md-6 col-lg-3 position-relative">
-
-                                            <label className="tj-label">
-                                                TRAVELLERS
-                                            </label>
-
-                                            <button
-                                                type="button"
-                                                className="tj-simple-field tj-click-field w-100 text-start"
-                                                onClick={() =>
-                                                    setPassengerOpen(
-                                                        (
-                                                            prev
-                                                        ) =>
-                                                            !prev
-                                                    )
-                                                }
-                                            >
-
-                                                <People />
-
-                                                <span>
-                                                    {
-                                                        totalPassengers
-                                                    }{' '}
-                                                    Traveller
-                                                    {totalPassengers !==
-                                                        1
-                                                        ? 's'
-                                                        : ''}
-                                                </span>
-
-                                                <ChevronDown className="ms-auto" />
-
-                                            </button>
-
-
-                                            {passengerOpen && (
-                                                <div className="tj-passenger-popover">
-
-                                                    {[
-                                                        [
-                                                            'adults',
-                                                            'Adults',
-                                                            '12+ years',
-                                                        ],
-                                                        [
-                                                            'children',
-                                                            'Children',
-                                                            '2–11 years',
-                                                        ],
-                                                        [
-                                                            'infants',
-                                                            'Infants',
-                                                            'Below 2 years',
-                                                        ],
-                                                    ].map(
-                                                        ([
-                                                            key,
-                                                            label,
-                                                            sub,
-                                                        ]) => (
-                                                            <div
-                                                                className="tj-pax-row"
-                                                                key={
-                                                                    key
-                                                                }
-                                                            >
-
-                                                                <div>
-
-                                                                    <strong>
-                                                                        {
-                                                                            label
-                                                                        }
-                                                                    </strong>
-
-                                                                    <small>
-                                                                        {
-                                                                            sub
-                                                                        }
-                                                                    </small>
-
-                                                                </div>
-
-
-                                                                <div className="tj-counter">
-
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() =>
-                                                                            updatePassenger(
-                                                                                key,
-                                                                                -1
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        −
-                                                                    </button>
-
-                                                                    <b>
-                                                                        {
-                                                                            search[
-                                                                            key
-                                                                            ]
-                                                                        }
-                                                                    </b>
-
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() =>
-                                                                            updatePassenger(
-                                                                                key,
-                                                                                1
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        +
-                                                                    </button>
-
-                                                                </div>
-
-                                                            </div>
-                                                        )
-                                                    )}
-
-                                                </div>
-                                            )}
-
-                                        </div>
-
-
-                                        {/* CABIN */}
-
-                                        <div className="col-12 col-md-6 col-lg-3">
-
-                                            <label className="tj-label">
-                                                CLASS
-                                            </label>
-
-                                            <div className="tj-simple-field">
-
-                                                <select
-                                                    value={
-                                                        search.cabinClass
-                                                    }
-                                                    onChange={(
-                                                        event
-                                                    ) =>
-                                                        updateSearch(
-                                                            'cabinClass',
-                                                            event
-                                                                .target
-                                                                .value
-                                                        )
-                                                    }
-                                                >
-
-                                                    {cabinClasses.map(
-                                                        (
-                                                            cabin
-                                                        ) => (
-                                                            <option
-                                                                key={
-                                                                    cabin.value
-                                                                }
-                                                                value={
-                                                                    cabin.value
-                                                                }
-                                                            >
-                                                                {
-                                                                    cabin.label
-                                                                }
-                                                            </option>
-                                                        )
-                                                    )}
-
-                                                </select>
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                </>
-                            ) : (
-
-                                /* =================================================
-                                   MULTI CITY
-                                ================================================= */
-
-                                <div className="tj-multicity-list">
-
-                                    {segments.map(
-                                        (
-                                            segment,
-                                            index
-                                        ) => (
-                                            <div
-                                                className="tj-multi-row"
-                                                key={
-                                                    index
-                                                }
-                                            >
-
-                                                <div className="tj-sector-number">
-                                                    {index +
-                                                        1}
-                                                </div>
-
-
-                                                {/* FROM */}
-
-                                                <div className="tj-multi-airport">
-
-                                                    <AirportAutocomplete
-                                                        label="FROM"
-                                                        placeholder="Delhi"
-                                                        value={
-                                                            segment.from
-                                                        }
-                                                        code={
-                                                            segment.fromCode
-                                                        }
-                                                        onSelect={({
-                                                            name,
-                                                            code,
-                                                        }) =>
-                                                            updateSegment(
-                                                                index,
-                                                                'from',
-                                                                name
-                                                            ) ||
-                                                            updateSegment(
-                                                                index,
-                                                                'fromCode',
-                                                                code
-                                                            )
-                                                        }
-                                                    />
-
-                                                </div>
-
-
-                                                {/* TO */}
-
-                                                <div className="tj-multi-airport">
-
-                                                    <AirportAutocomplete
-                                                        label="TO"
-                                                        placeholder="Mumbai"
-                                                        value={
-                                                            segment.to
-                                                        }
-                                                        code={
-                                                            segment.toCode
-                                                        }
-                                                        onSelect={({
-                                                            name,
-                                                            code,
-                                                        }) => {
-
-                                                            updateSegment(
-                                                                index,
-                                                                'to',
-                                                                name
-                                                            );
-
-                                                            updateSegment(
-                                                                index,
-                                                                'toCode',
-                                                                code
-                                                            );
-                                                        }}
-                                                    />
-
-                                                </div>
-
-
-                                                {/* DATE */}
-
-                                                <div>
-
-                                                    <label className="tj-label">
-                                                        DATE
-                                                    </label>
-
-                                                    <div className="tj-simple-field">
-
-                                                        <Calendar3 />
-
-                                                        <input
-                                                            type="date"
-                                                            min={
-                                                                today
-                                                            }
-                                                            value={
-                                                                segment.date
-                                                            }
-                                                            onChange={(
-                                                                event
-                                                            ) =>
-                                                                updateSegment(
-                                                                    index,
-                                                                    'date',
-                                                                    event
-                                                                        .target
-                                                                        .value
-                                                                )
-                                                            }
-                                                        />
-
-                                                    </div>
-
-                                                </div>
-
-
-                                                {/* DELETE */}
-
-                                                {segments.length >
-                                                    2 && (
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-outline-danger tj-delete-sector"
-                                                            onClick={() =>
-                                                                removeSegment(
-                                                                    index
-                                                                )
-                                                            }
-                                                        >
-                                                            <Trash3 />
-                                                        </button>
-                                                    )}
-
-                                            </div>
-                                        )
-                                    )}
-
-                                    <div className="row g-2 mt-3" style={{display:"flex",justifyContent:"end"}}>
-                                        <div className="col-12 col-md-6 col-lg-3">
-                                            <label className="tj-label">
-                                                CLASS
-                                            </label>
-
-                                            <div className="tj-simple-field">
-                                                <select
-                                                    value={search.cabinClass}
-                                                    onChange={(event) =>
-                                                        updateSearch(
-                                                            'cabinClass',
-                                                            event.target.value
-                                                        )
-                                                    }
-                                                >
-                                                    {cabinClasses.map((cabin) => (
-                                                        <option
-                                                            key={cabin.value}
-                                                            value={cabin.value}
-                                                        >
-                                                            {cabin.label}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                    <button
-                                        type="button"
-                                        className="tj-add-sector"
-                                        onClick={
-                                            addSegment
-                                        }
-                                    >
-                                        <Plus />
-                                        Add another city
-                                    </button>
-
-                                </div>
-                            )}
-
-
-                            {/* =================================================
-                                BOTTOM
-                            ================================================= */}
-
-                            <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center justify-content-between gap-3 mt-4">
-
-                                <label className="tj-switch">
-
-                                    <input
-                                        type="checkbox"
-                                        checked={
-                                            search.directFlight
-                                        }
-                                        onChange={(
-                                            event
-                                        ) =>
-                                            updateSearch(
-                                                'directFlight',
-                                                event
-                                                    .target
-                                                    .checked
-                                            )
-                                        }
-                                    />
-
-                                    <span />
-
-                                    Direct flights only
-
-                                </label>
-
-
-                                <button
-                                    type="submit"
-                                    className="tj-search-button"
-                                    disabled={
-                                        loading
-                                    }
-                                >
-
-                                    <Search />
-
-                                    {loading
-                                        ? 'Searching Flights...'
-                                        : 'Search Flights'}
-
-                                </button>
-
-                            </div>
-
-                        </form>
-
-                    </div>
+                    <FlightSearchForm
+                        key={savedSearch?.searchedAt || (savedSearch ? 'restored' : 'fresh')}
+                        initialData={savedSearch}
+                        routePreset={routePreset}
+                    />
 
                 </div>
 
@@ -1956,6 +2066,13 @@ const updatePassenger = (type, value) => {
                 </div>
 
             </section>
+
+
+            {/* =================================================
+                DESTINATIONS, RECENT SEARCHES, TIPS, FAQ
+            ================================================= */}
+
+            <FlightLanding onPreset={selectPopularRoute} />
 
         </main>
     );

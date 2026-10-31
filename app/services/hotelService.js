@@ -30,10 +30,41 @@ const hotelService = {
         return response.data;
     },
 
+    /*
+     * Create hotel booking + start payment (login required).
+     * The server re-checks the room price; never trust the browser amount.
+     */
     book: async (payload) => {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('wl_token') : null;
         const response = await axios.post(
             `${API_URL}/bookings/hotel`,
-            payload
+            payload,
+            {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+                validateStatus: () => true,
+            }
+        );
+
+        if (response.status === 401 || response.status === 403) {
+            const error = new Error('Your login session has expired. Please log in again.');
+            error.code = 'LOGIN_REQUIRED';
+            throw error;
+        }
+
+        if (response.status < 200 || response.status >= 300 || response.data?.success === false) {
+            const error = new Error(response.data?.message || 'Unable to start the booking. Please try again.');
+            error.status = response.status;
+            throw error;
+        }
+
+        return response.data;
+    },
+
+    /* hotels by name for the search box */
+    hotelNameSearch: async (query) => {
+        const response = await axios.get(
+            `${API_URL}/tripjack/content/hotel-search`,
+            { params: { query, limit: 6 } }
         );
 
         return response.data;

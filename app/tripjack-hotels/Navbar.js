@@ -51,7 +51,7 @@ const packageCols = [
 
 const serviceCols = [
   [
-    { name: 'Hotels Booking', tag: 'LIVE', tagClr: '#059669', tagBg: '#ecfdf5', href: '/tripjack-hotels' },
+    { name: 'Hotels Booking', tag: 'LIVE', tagClr: '#059669', tagBg: '#ecfdf5', href: '/hotel-booking' },
     { name: 'Flight Booking', tag: 'BEST RATES', tagClr: '#026eb5', tagBg: '#e0f2fe', href: '#flight', isFlightAction: true },
   ],
   [
@@ -60,7 +60,7 @@ const serviceCols = [
   ]
 ];
 
-const HOTEL_HREF = '/tripjack-hotels';
+const HOTEL_HREF = '/hotel-booking';
 
 const currencyOptions = [
   { code: 'INR', name: 'Indian Rupee', country: 'India', symbol: 'Rs' },
@@ -648,7 +648,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
       label: 'Services',
       hasSub: true,
       subItems: [
-        { label: 'Hotels Booking', href: HOTEL_HREF || '/tripjack-hotels' },
+        { label: 'Hotels Booking', href: HOTEL_HREF || '/hotel-booking' },
         { label: 'Flight Booking', href: '/flights' },
         { label: 'Domestic Trips', href: '/packages?type=DOMESTIC' },
         { label: 'International Trips', href: '/packages?type=INTERNATIONAL' },
@@ -2626,7 +2626,7 @@ export default function Navbar({ brand, companyInfo }) {
                 </label>
                 <label>
                   Phone
-                  <input value={forexDraft.phone ?? ''} onChange={(event) => updateForexDraft('phone', event.target.value)} placeholder="+91 98765 43210" />
+                  <input type="tel" value={forexDraft.phone ?? ''} onChange={(event) => updateForexDraft('phone', event.target.value)} placeholder="+91 98765 43210" />
                 </label>
                 <label>
                   Email

@@ -1,119 +1,50 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useMemo, useSyncExternalStore } from 'react';
+import { useRouter } from 'next/navigation';
 
+import '../hotels-booking.css';
 import HotelDetails from '../HotelDetails';
+import { SELECTED_HOTEL_KEY } from '../hotelUtils';
 
 export default function HotelDetailsPage() {
-    const searchParams = useSearchParams();
+    const router = useRouter();
 
-    const hotelId = searchParams.get('hotelId');
-    const checkIn = searchParams.get('checkIn');
-    const checkOut = searchParams.get('checkOut');
-    const currency = searchParams.get('currency') || 'INR';
-    const nationality = searchParams.get('nationality') || '106';
-    const correlationId=searchParams.get('correlationId') || null
+    /* null => not hydrated yet, '' => no hotel selected in this tab */
+    const stored = useSyncExternalStore(
+        () => () => {},
+        () => sessionStorage.getItem(SELECTED_HOTEL_KEY) || '',
+        () => null
+    );
 
-    console.log(correlationId,searchParams)
-
-    const [hotel, setHotel] = useState(null);
-    const [rooms, setRooms] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-
-    useEffect(() => {
+    const hotel = useMemo(() => {
+        if (!stored) return null;
         try {
-            const savedHotel = sessionStorage.getItem(
-                'tripjack_selected_hotel'
-            );
-
-            const savedSearch = sessionStorage.getItem(
-                'tripjack_hotel_search'
-            );
-
-            if (!savedHotel) {
-                setError('Hotel details session not found.');
-                return;
-            }
-
-            const parsedHotel = JSON.parse(savedHotel);
-
-            setHotel(parsedHotel);
-
-            if (savedSearch) {
-                const parsedSearch = JSON.parse(savedSearch);
-
-                console.log("Parsed search ",parsedSearch)
-
-                setRooms(parsedSearch.rooms || []);
-
-            
-            }
-        } catch (err) {
-            console.error(
-                'Unable to restore TripJack hotel details:',
-                err
-            );
-
-            setError(
-                'Unable to load hotel details. Please try again.'
-            );
-        } finally {
-            setLoading(false);
+            return JSON.parse(stored);
+        } catch {
+            return null;
         }
-    }, []);
-
-    if (loading) {
-        return (
-            <div className="container py-5">
-                <div className="text-center">
-                    <div
-                        className="spinner-border text-success"
-                        role="status"
-                    >
-                        <span className="visually-hidden">
-                            Loading...
-                        </span>
-                    </div>
-
-                    <div className="mt-3">
-                        Loading hotel details...
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="container py-5">
-                <div className="alert alert-danger">
-                    {error}
-                </div>
-            </div>
-        );
-    }
-
-    if (!hotel) {
-        return (
-            <div className="container py-5">
-                <div className="alert alert-warning">
-                    Hotel not found.
-                </div>
-            </div>
-        );
-    }
+    }, [stored]);
 
     return (
-        <HotelDetails
-            hotel={hotel}
-            checkIn={checkIn}
-            checkOut={checkOut}
-            rooms={rooms}
-            currency={currency}
-            nationality={nationality}
-            correlationId={correlationId}
-        />
+        <main className="hb-page">
+            {hotel?.hotelId && hotel?.search ? (
+                <HotelDetails key={hotel.hotelId} hotel={hotel} />
+            ) : (
+                <div className="hb-container" style={{ paddingTop: 40 }}>
+                    <div className="hb-empty">
+                        {stored === null ? (
+                            <span>Loading hotel…</span>
+                        ) : (
+                            <>
+                                <strong>Hotel not found</strong>
+                                <span>Please search again to see the latest prices.</span>
+                                <button type="button" className="hb-btn" onClick={() => router.push('/hotel-booking')}>Search hotels</button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+        </main>
     );
 }

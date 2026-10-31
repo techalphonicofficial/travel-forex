@@ -1,7 +1,7 @@
 const PROJECTS = {
   Travel_Holiday: {
     key: 'Travel_Holiday',
-    displayName: 'TRAVELS HOLIDAY',
+    displayName: 'TRAVEL FOREX',
     legalName: 'ITS TRAVELS AND TOURS',
     logo: '/logooo.png',
     primary: '#026eb5',

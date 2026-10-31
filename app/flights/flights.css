@@ -1146,3 +1146,295 @@
     cursor: not-allowed !important;
 }
 }
+
+/* =========================================================
+   COMPACT SEARCH FORM (TripJack style)
+   ========================================================= */
+
+.tj-search-form {
+    padding: 18px 20px 16px;
+}
+
+.tj-search-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.3fr);
+    gap: 10px;
+    align-items: end;
+}
+
+.tj-route-pair {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+}
+
+.tj-route-pair .tj-swap {
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    z-index: 1001;
+    width: 32px;
+    height: 32px;
+    transform: translateX(-50%);
+}
+
+.tj-route-pair .tj-swap:hover {
+    transform: translateX(-50%) rotate(180deg);
+}
+
+.tj-field-col {
+    min-width: 0;
+}
+
+/* smaller city field (no inner caption) */
+.tj-location-field {
+    min-height: 52px;
+    padding: 6px 12px;
+    border-radius: 10px;
+}
+
+.tj-location-field input {
+    padding-right: 34px;
+    font-size: 15px;
+}
+
+.tj-location-field > svg {
+    margin-right: 8px;
+    font-size: 17px;
+}
+
+.tj-selected-airport-code {
+    transform: translateY(-50%);
+}
+
+.tj-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Return: "Add return" placeholder + clear */
+.tj-add-return span {
+    color: #1765c1 !important;
+    font-weight: 600 !important;
+}
+
+.tj-clear-return {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    margin-left: 6px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #eef2f7;
+    color: #556274;
+}
+
+/* Popular cities heading + keyboard highlight */
+.tj-airport-heading {
+    padding: 6px 10px 4px;
+    color: #8a94a3;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.tj-airport-option {
+    min-height: 50px;
+}
+
+.tj-airport-option.active {
+    background: #f3f7fc;
+}
+
+.tj-airport-info strong small {
+    color: #8a94a3;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* Travellers & class popover */
+.tj-passenger-popover {
+    right: 0;
+    left: auto;
+}
+
+.tj-cabin-title {
+    margin: 10px 0 6px;
+    color: #697586;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.tj-cabin-list,
+.tj-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tj-chip {
+    padding: 5px 12px;
+    border: 1px solid #dce2ea;
+    border-radius: 999px;
+    background: #fff;
+    color: #3a4757;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.tj-chip:hover {
+    border-color: #1765c1;
+}
+
+.tj-chip.active {
+    border-color: #1765c1;
+    background: #1765c1;
+    color: #fff;
+}
+
+.tj-pax-done {
+    width: 100%;
+    margin-top: 12px;
+    padding: 8px;
+    border: 0;
+    border-radius: 8px;
+    background: #1765c1;
+    color: #fff;
+    font-weight: 700;
+}
+
+/* Multi city */
+.tj-multi-row {
+    grid-template-columns: 28px minmax(0, 1fr) minmax(0, 1fr) 170px 40px;
+    align-items: end;
+}
+
+.tj-multi-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.tj-multi-travellers {
+    width: 260px;
+}
+
+/* Options row */
+.tj-search-options {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 14px 22px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #eef1f5;
+}
+
+.tj-option-group {
+    min-width: 0;
+}
+
+.tj-check-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    min-height: 30px;
+    align-items: center;
+}
+
+.tj-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: #3a4757;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.tj-check input {
+    width: 15px;
+    height: 15px;
+    accent-color: #1765c1;
+    cursor: pointer;
+}
+
+.tj-preferred-airline {
+    width: 220px;
+}
+
+.tj-small-field {
+    height: 36px;
+}
+
+.tj-search-options .tj-search-button {
+    min-width: 170px;
+    height: 46px;
+    margin-left: auto;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+    .tj-multi-row {
+        grid-template-columns: 28px minmax(0, 1fr) minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 1199.98px) {
+    .tj-search-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .tj-route-pair {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .tj-search-form {
+        padding: 14px;
+    }
+
+    .tj-search-grid,
+    .tj-route-pair {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tj-route-pair .tj-swap {
+        left: auto;
+        right: 14px;
+        bottom: auto;
+        top: 50%;
+        transform: rotate(90deg);
+    }
+
+    .tj-multi-row {
+        grid-template-columns: 28px minmax(0, 1fr);
+    }
+
+    .tj-multi-travellers,
+    .tj-preferred-airline {
+        width: 100%;
+    }
+
+    .tj-search-options .tj-search-button {
+        width: 100%;
+        margin-left: 0;
+    }
+}

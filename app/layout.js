@@ -4,6 +4,7 @@ import { Inter, Poppins } from 'next/font/google';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BootstrapClient from '@/components/BootstrapClient';
+import PhoneInputGuard from '@/components/PhoneInputGuard';
 import GlobalInquiryModal from '@/components/GlobalInquiryModal';
 import FloatingContactWidget from '@/components/FloatingContactWidget';
 import ThemeColoursClient from '@/components/ThemeColoursClient';
@@ -156,6 +157,7 @@ export default async function RootLayout({ children }) {
     <html lang="en" data-theme="light" data-project={projectConfig.key} data-scroll-behavior="smooth">
       <body className={`${inter.variable} ${poppins.variable} bg-light min-h-screen flex flex-col font-sans`} style={activeTheme} suppressHydrationWarning>
         <BootstrapClient />
+        <PhoneInputGuard />
         <ThemeColoursClient initialVariables={activeTheme} />
         <WishlistProvider>
           <Navbar brand={projectConfig} companyInfo={companyInfo} roundTripConfig={roundTripConfig} oneWayConfig={oneWayConfig} />

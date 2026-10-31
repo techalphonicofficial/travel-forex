@@ -18,6 +18,54 @@ const NAV_ITEMS = [
   { id: 'profile', label: 'My Profile', icon: '👤' },
 ];
 
+/* My bookings status tabs (filtered on the server) */
+const TRIP_FILTERS = [
+  { value: 'ALL', label: 'All', countKey: 'all', hint: 'Every booking', empty: 'Your bookings will appear here.' },
+  { value: 'UPCOMING', label: 'Upcoming', countKey: 'upcoming', hint: 'Confirmed trips that have not ended yet', empty: 'You have no upcoming trips. Confirmed bookings appear here until the trip ends.' },
+  { value: 'COMPLETED', label: 'Completed', countKey: 'completed', hint: 'Confirmed trips that have ended', empty: 'Trips appear here once the travel or stay dates have passed.' },
+  { value: 'PENDING', label: 'Pending', countKey: 'pending', hint: 'Waiting for payment or confirmation', empty: 'You have no bookings waiting for payment or confirmation.' },
+  { value: 'CANCELLED', label: 'Cancelled / Failed', countKey: 'cancelled', hint: 'Cancelled, refunded or not completed', empty: 'You have no cancelled, refunded or failed bookings.' },
+];
+
+const emptyBookingsTitle = (trip, type) => {
+  const kind = type === 'ALL' ? '' : `${type.toLowerCase()} `;
+  switch (trip) {
+    case 'UPCOMING': return `No upcoming ${kind}trips`;
+    case 'COMPLETED': return `No completed ${kind}trips`;
+    case 'PENDING': return `No pending ${kind}bookings`;
+    case 'CANCELLED': return `No cancelled or failed ${kind}bookings`;
+    default: return kind ? `No ${kind}bookings yet` : 'No bookings yet';
+  }
+};
+
+/* first / last travel date of a flight or hotel booking ("YYYY-MM-DD...") */
+const tripDates = (booking) => {
+  const data = booking?.booking_data || {};
+  const search = data.search || {};
+  const firstSegment = data.review?.tripInfos?.[0]?.sI?.[0];
+  const start = search.checkIn || search.departureDate || firstSegment?.dt || '';
+  const end = search.checkOut || search.returnDate || start;
+  return { start: String(start), end: String(end) };
+};
+
+const todayISO = () => new Date(Date.now() + 330 * 60000).toISOString().slice(0, 10);
+
+const isUpcomingTrip = (booking) =>
+  String(booking?.status || '').toUpperCase() === 'BOOKED' &&
+  (!tripDates(booking).end || tripDates(booking).end.slice(0, 10) >= todayISO());
+
+const tripTitle = (booking) => {
+  const data = booking?.booking_data || {};
+  if (String(booking?.booking_type || '').toUpperCase() === 'HOTEL') {
+    return data.hotel?.hotelName || data.stay?.summary?.hotel?.name || 'Hotel stay';
+  }
+  const segments = (data.review?.tripInfos || []).flatMap((trip) => trip?.sI || []);
+  if (segments.length) {
+    return `${segments[0].da?.city || segments[0].da?.code} → ${segments[segments.length - 1].aa?.city || segments[segments.length - 1].aa?.code}`;
+  }
+  return booking?.package_name || booking?.package?.name || booking?.tourTitle || 'Trip';
+};
+
 function Countdown({ dateStr }) {
   const [timeLeft, setTimeLeft] = useState({});
 
@@ -314,7 +362,7 @@ function PackageReviewForm({ booking, user, onSubmitted }) {
         </label>
         <label>
           <span>Phone</span>
-          <input name="reviewer_phone" value={form.reviewer_phone} onChange={updateField} placeholder="Phone number" />
+          <input type="tel" name="reviewer_phone" value={form.reviewer_phone} onChange={updateField} placeholder="Phone number" />
         </label>
         <label>
           <span>Title</span>
@@ -479,6 +527,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState(defaultDashboardUser);
   const [customerBookings, setCustomerBookings] = useState([]);
   const [bookingSummary, setBookingSummary] = useState({ total: 0, page: 1, totalPages: 1 });
+  const [tripSummary, setTripSummary] = useState(null);
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [bookingsError, setBookingsError] = useState('');
   // Retained state for the profile dashboard's existing summary and request panels.
@@ -500,6 +549,8 @@ export default function ProfilePage() {
   const cancellationReasonRef = useRef(null);
   const { items: wishlist, removeFromWishlist } = useWishlist();
   const [bookingTypeFilter, setBookingTypeFilter] = useState("ALL");
+  const [tripFilter, setTripFilter] = useState("ALL");
+  const [filterCounts, setFilterCounts] = useState(null);
   const [selectedBooking, setSelectedBooking] = useState(null);
 
   const loadCustomerBookings = useCallback(async (page = 1, { silent = false } = {}) => {
@@ -516,7 +567,9 @@ export default function ProfilePage() {
     if (!silent) setBookingsLoading(true);
     setBookingsError('');
     try {
-      const result = await getCustomerBookings({ customerId, page, limit: bookingLimit, type: bookingTypeFilter });
+      const result = await getCustomerBookings({ customerId, page, limit: bookingLimit, type: bookingTypeFilter, trip: tripFilter });
+      if (result?.summary) setTripSummary(result.summary);
+      setFilterCounts(result?.filterCounts || null);
       const payload = result?.data || {};
       const rows = Array.isArray(payload) ? payload : (Array.isArray(payload.rows) ? payload.rows : []);
       if (result?.success) {
@@ -538,7 +591,7 @@ export default function ProfilePage() {
     } finally {
       setBookingsLoading(false);
     }
-  }, [bookingLimit]);
+  }, [bookingLimit, bookingTypeFilter, tripFilter]);
 
   const loadCustomBookings = useCallback(async () => {
     const auth = getStoredAuth() || {};
@@ -641,12 +694,12 @@ export default function ProfilePage() {
         name: auth.name || auth.full_name || auth.firstName || auth.email || defaultDashboardUser.name,
         email: auth.email || '',
       });
-      loadCustomerBookings(bookingTypeFilter);
+      loadCustomerBookings(1);
 
     }, 0);
 
     return () => window.clearTimeout(loadTimer);
-  }, [loadCancellationRules, loadCustomerBookings, loadCustomBookings, loadReturnRequests,bookingTypeFilter]);
+  }, [loadCancellationRules, loadCustomerBookings, loadCustomBookings, loadReturnRequests, bookingTypeFilter, tripFilter]);
 
   useEffect(() => () => {
     if (cancellationCloseTimerRef.current) {
@@ -655,16 +708,15 @@ export default function ProfilePage() {
   }, []);
 
   const dashboardBookings = customerBookings;
-  const isVerifiedBooking = (booking) => {
-    const statusText = `${booking.payment_status || ''} ${booking.status || ''}`.toLowerCase();
-    return statusText.includes('verified') || statusText.includes('completed') || statusText.includes('confirmed');
-  };
   const packageBookingCount = Number(bookingSummary.total) || dashboardBookings.length;
   const customBookingCount = Number(customBookingSummary.total) || customBookings.length;
-  const completedBookingCount = dashboardBookings.filter(isVerifiedBooking).length;
-  const upcomingBookings = dashboardBookings.filter((booking) => !isVerifiedBooking(booking));
-  const totalTripCount = packageBookingCount + customBookingCount;
-  const completedBookings = bookingsData.filter((b) => b.status === 'Completed');
+  // confirmed trips only: upcoming until the trip ends, completed after
+  const upcomingBookings = dashboardBookings.filter(isUpcomingTrip);
+  const completedBookingCount = tripSummary
+    ? tripSummary.completed
+    : dashboardBookings.filter((booking) => String(booking.status || '').toUpperCase() === 'BOOKED' && !isUpcomingTrip(booking)).length;
+  const upcomingCount = tripSummary ? tripSummary.upcoming : upcomingBookings.length;
+  const totalTripCount = tripSummary ? tripSummary.total + customBookingCount : packageBookingCount + customBookingCount;
 
   const startRemainingPayment = async (booking) => {
     const amounts = booking.amounts || {};
@@ -711,7 +763,7 @@ export default function ProfilePage() {
         key: keyId,
         amount: order.amount,
         currency: order.currency || 'INR',
-        name: 'Travel Holiday',
+        name: 'Travel Forex',
         description: `${booking.package_name || booking.package?.name || 'Package'} balance payment`,
         order_id: order.id,
         prefill: {
@@ -883,8 +935,8 @@ export default function ProfilePage() {
     const err =
       bd.bookingError ||
       bd.error ||
-      bd.tripjack?.bookError ||
-      bd.tripjack?.book?.errors?.[0] ||
+      (bd.stay ?? bd.tripjack)?.bookError ||
+      (bd.stay ?? bd.tripjack)?.book?.errors?.[0] ||
       null;
 
     const message =
@@ -936,7 +988,7 @@ export default function ProfilePage() {
     const amount = Number(
       booking.amount ??
       (isHotel
-        ? bd.tripjack?.summary?.amount
+        ? (bd.stay ?? bd.tripjack)?.summary?.amount
         : bd.review?.totalPriceInfo?.totalFareDetail?.fC?.TF) ??
       0
     );
@@ -955,7 +1007,7 @@ export default function ProfilePage() {
       .filter(Boolean);
 
     // ----- HOTEL data -----
-    const hotelSummary = bd.tripjack?.summary;
+    const hotelSummary = (bd.stay ?? bd.tripjack)?.summary;
     const hotelName = bd.hotel?.hotelName || hotelSummary?.hotel?.name || "Hotel booking";
     const hotelCity = hotelSummary?.hotel?.city;
     const hotelAddress = hotelSummary?.hotel?.address;
@@ -967,7 +1019,7 @@ export default function ProfilePage() {
     const roomCount = bd.search?.rooms?.length || hotelSummary?.rooms?.length || 0;
     const refundable =
       hotelSummary?.cancellation?.refundable ??
-      bd.tripjack?.review?.option?.cancellation?.isRefundable;
+      (bd.stay ?? bd.tripjack)?.review?.option?.cancellation?.isRefundable;
 
     // ----- passengers / guests -----
     const people = isHotel
@@ -996,7 +1048,7 @@ export default function ProfilePage() {
         <div className="flight-booking-head">
           <div className="flight-booking-title">
             <span className="flight-booking-eyebrow">
-              {isHotel ? "🏨 HOTEL" : "✈ FLIGHT"} · {booking.provider || "TRAVEL"}
+              {isHotel ? "🏨 HOTEL" : "✈ FLIGHT"}
             </span>
 
             <h3>{title}</h3>
@@ -1054,7 +1106,7 @@ export default function ProfilePage() {
               {failure?.message ? (
                 <strong>{failure.message}</strong>
               ) : (
-                "Provider ne reason share nahi kiya."
+                "We could not confirm your booking with the airline."
               )}
             </div>
 
@@ -1212,10 +1264,12 @@ export default function ProfilePage() {
               <Fact label={isHotel ? "Primary guest" : "Lead passenger"} value={primaryName} />
             )}
 
-            <Fact
-              label="Provider booking ID"
-              value={booking.provider_booking_id || "—"}
-            />
+            {!isHotel && (
+              <Fact
+                label="PNR"
+                value={booking.pnr || booking.booking_data?.pnr || "Awaiting confirmation"}
+              />
+            )}
           </div>
 
           <div className="flight-booking-total">
@@ -1274,15 +1328,8 @@ export default function ProfilePage() {
 
 
 
-  const filteredCustomerBookings = customerBookings.filter((booking) => {
-    if (bookingTypeFilter === "ALL") return true;
-
-    const type = String(
-      booking.booking_type || booking.bookingType || booking.type || ""
-    ).toUpperCase();
-
-    return type === bookingTypeFilter;
-  });
+  // type and status filters are applied by the server
+  const filteredCustomerBookings = customerBookings;
 
   return (
     <div style={{ paddingBottom: 80 }}>
@@ -1477,7 +1524,7 @@ export default function ProfilePage() {
         <div className="row g-3 mb-5">
           {[
             { icon: '✈️', label: 'Total Trips', value: totalTripCount, color: 'var(--color-primary)' },
-            { icon: '📅', label: 'Upcoming', value: upcomingBookings.length, color: '#f59e0b' },
+            { icon: '📅', label: 'Upcoming', value: upcomingCount, color: '#f59e0b' },
             { icon: '✅', label: 'Completed', value: completedBookingCount, color: 'var(--color-accent)' },
             { icon: '❤️', label: 'Wishlist', value: wishlist.length, color: '#e53935' },
           ].map(({ icon, label, value, color }) => (
@@ -1571,6 +1618,25 @@ export default function ProfilePage() {
                   ))}
                 </div>
 
+                <div className="booking-type-filters booking-trip-filters" role="group" aria-label="Filter by booking status">
+                  {TRIP_FILTERS.map((filter) => {
+                    const count = filterCounts?.[filter.countKey];
+                    return (
+                      <button
+                        key={filter.value}
+                        type="button"
+                        className={`booking-filter-btn ${tripFilter === filter.value ? 'active' : ''}`}
+                        onClick={() => setTripFilter(filter.value)}
+                        aria-pressed={tripFilter === filter.value}
+                        title={filter.hint}
+                      >
+                        {filter.label}
+                        {count !== undefined && <span className="booking-filter-count">{count}</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+
                 {bookingsError ? (
                   <div className="dashboard-booking-state" role="alert">
                     <p>{bookingsError}</p>
@@ -1588,11 +1654,11 @@ export default function ProfilePage() {
                     <span />
                     <span />
                   </div>
-                ) : filteredCustomerBookings.length ? (
+                ) : customerBookings.length ? (
                   <>
                     <div className="flight-booking-count">
-                      {filteredCustomerBookings.length} booking
-                      {filteredCustomerBookings.length === 1 ? '' : 's'} found
+                      {bookingSummary.total || filteredCustomerBookings.length} booking
+                      {(bookingSummary.total || filteredCustomerBookings.length) === 1 ? '' : 's'} found
                     </div>
 
                     <div className="flight-booking-list">
@@ -1640,16 +1706,8 @@ export default function ProfilePage() {
                 ) : (
                   <div className="flight-booking-empty">
                     <div>✈</div>
-                    <h3>
-                      {bookingTypeFilter === 'ALL'
-                        ? 'No bookings yet'
-                        : `No ${bookingTypeFilter.toLowerCase()} bookings found`}
-                    </h3>
-                    <p>
-                      {bookingTypeFilter === 'ALL'
-                        ? 'Your confirmed bookings will appear here.'
-                        : `You don't have any ${bookingTypeFilter.toLowerCase()} bookings yet.`}
-                    </p>
+                    <h3>{emptyBookingsTitle(tripFilter, bookingTypeFilter)}</h3>
+                    <p>{TRIP_FILTERS.find((f) => f.value === tripFilter)?.empty}</p>
                     <Link href="/tours" className="btn-primary btn-sm">
                       Explore trips
                     </Link>
@@ -1684,10 +1742,12 @@ export default function ProfilePage() {
                       >
                         <div className="d-flex align-items-start justify-content-between flex-wrap gap-3">
                           <div>
-                            <h3 style={{ fontWeight: 700, fontSize: 16, marginBottom: 6 }}>{booking.package_name || booking.package?.name || booking.tourTitle}</h3>
-                            <p style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>📅 {booking.date}</p>
+                            <h3 style={{ fontWeight: 700, fontSize: 16, marginBottom: 6 }}>{tripTitle(booking)}</h3>
+                            <p style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>
+                              📅 {tripDates(booking).start.slice(0, 10) || booking.date} · {booking.booking_reference}
+                            </p>
                           </div>
-                          <Countdown dateStr={booking.date} />
+                          <Countdown dateStr={tripDates(booking).start || booking.date} />
                         </div>
                       </div>
                     ))}

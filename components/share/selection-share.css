@@ -1,0 +1,146 @@
+/* Selected flights / hotels: compare + share bar (ssb-) */
+
+.ssb {
+    position: fixed;
+    z-index: 1100;
+    bottom: 18px;
+    left: 50%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    align-items: center;
+    justify-content: space-between;
+    width: min(920px, calc(100vw - 24px));
+    padding: 12px 16px;
+    border: 1px solid #dbe3ee;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
+    transform: translateX(-50%);
+    box-sizing: border-box;
+}
+
+.ssb-text {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.ssb-text strong {
+    color: #0f172a;
+    font-size: 14px;
+}
+
+.ssb-text small {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.ssb-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.ssb-btn {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 13px;
+    border: 1px solid #d5deea;
+    border-radius: 9px;
+    background: #fff;
+    color: #1e293b;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.ssb-btn:hover {
+    border-color: #1765c1;
+    color: #1765c1;
+}
+
+.ssb-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ssb-primary {
+    border-color: #1765c1;
+    background: #1765c1;
+    color: #fff;
+}
+
+.ssb-primary:hover {
+    background: #0f55a6;
+    color: #fff;
+}
+
+.ssb-whatsapp {
+    border-color: #1fa855;
+    background: #1fa855;
+    color: #fff;
+}
+
+.ssb-whatsapp:hover {
+    border-color: #178c46;
+    background: #178c46;
+    color: #fff;
+}
+
+.ssb-link {
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* "Compare & share" toggle on a result card */
+.ssb-toggle {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    padding: 5px 10px;
+    border: 1px solid #d5deea;
+    border-radius: 999px;
+    background: #fff;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.ssb-toggle:hover {
+    border-color: #1765c1;
+    color: #1765c1;
+}
+
+.ssb-toggle.active {
+    border-color: #1765c1;
+    background: #eef4fc;
+    color: #1765c1;
+}
+
+@media (max-width: 640px) {
+    .ssb {
+        bottom: 10px;
+        padding: 10px 12px;
+    }
+
+    .ssb-actions {
+        width: 100%;
+    }
+
+    .ssb-btn {
+        flex: 1 1 auto;
+        justify-content: center;
+        padding: 0 10px;
+    }
+}

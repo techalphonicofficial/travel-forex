@@ -36,7 +36,9 @@ const fallbackFormFields = [
   { id: 'message', label: 'Message', fieldKey: 'message', fieldType: 'textarea', options: [], isRequired: false, order: 2 },
 ];
 
-const getInputType = (fieldType) => {
+const getInputType = (fieldType, fieldKey = '') => {
+  // the CRM sends some phone fields as plain text
+  if (/phone|mobile|whatsapp|contact_number/i.test(fieldKey)) return 'tel';
   const typeMap = {
     phone: 'tel',
     mobile: 'tel',
@@ -457,7 +459,7 @@ function DynamicField({ field }) {
       ) : (
         <input
           {...commonProps}
-          type={getInputType(field.fieldType)}
+          type={getInputType(field.fieldType, field.fieldKey)}
           placeholder={`Enter ${field.label.toLowerCase()}`}
         />
       )}

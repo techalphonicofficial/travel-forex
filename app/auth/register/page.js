@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import { PHONE_ERROR, isValidPhone } from '@/utils/phone';
 import toast from 'react-hot-toast';
 import { registerCustomer, getMediaUrl } from '@/utils/api';
 
@@ -184,7 +185,7 @@ export default function RegisterPage() {
                 onBlur={e => { e.currentTarget.style.borderColor = errors.phone ? '#ef4444' : '#d1d5db'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; e.currentTarget.style.background = '#f9fafb' }}
                 {...register('phone', {
                   required: 'Phone is required',
-                  pattern: { value: /^[0-9+\-\s()]{7,20}$/, message: 'Invalid phone number' },
+                  validate: (value) => isValidPhone(value) || PHONE_ERROR,
                 })}
               />
               {errors.phone && <span style={{ color: '#ef4444', fontSize: 12, marginTop: 4, display: 'block' }}>{errors.phone.message}</span>}

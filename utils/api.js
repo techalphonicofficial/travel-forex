@@ -852,6 +852,8 @@ export const getCustomerBookings = async ({
   page = 1,
   limit = 20,
   status = '',
+  type = '',
+  trip = '',
 } = {}) => {
   if (!customerId) {
     return {
@@ -871,6 +873,10 @@ export const getCustomerBookings = async ({
           page,
           limit,
           ...(status ? { status } : {}),
+          // HOTEL / FLIGHT tab: filtered on the server so paging stays right
+          ...(type && type !== 'ALL' ? { bookingType: type } : {}),
+          // UPCOMING / COMPLETED / PENDING / CANCELLED tab
+          ...(trip && trip !== 'ALL' ? { trip } : {}),
         },
         headers: {
           accept: 'application/json',
@@ -1171,13 +1177,33 @@ export const getPipelineForm = async (pipelineId) => {
   }
 };
 
+/* Owner-only: needs the logged-in customer's token */
 export const getBookingDetailsByBookingReference = async (bookingReference) => {
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/bookings/booking-details/${encodeURIComponent(bookingReference)}`);
-    return response.data;
+    const token = getStoredToken();
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/bookings/booking-details/${encodeURIComponent(bookingReference)}`,
+      {
+        headers: {
+          accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        validateStatus: () => true,
+      }
+    );
+
+    if (response.status >= 200 && response.status < 300) {
+      return response.data;
+    }
+
+    return {
+      success: false,
+      status: response.status,
+      message: response.data?.message || 'Unable to load booking',
+    };
   } catch (error) {
     console.error(`Error fetching booking details for ${bookingReference}:`, error);
-    return null;
+    return { success: false, status: 0, message: 'Network error. Retrying…' };
   }
 };
 

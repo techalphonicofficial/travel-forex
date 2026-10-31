@@ -583,7 +583,7 @@ export default function TripInquiryDetailClient({ id, formConfig }) {
 
   const durationCopy = getDurationCopy(trip.duration);
   const priceLabel = getPriceLabel(trip);
-  const companyName = company?.companyName || company?.legalName || company?.brandName || company?.displayName || 'Travel Holiday';
+  const companyName = company?.companyName || company?.legalName || company?.brandName || company?.displayName || 'Travel Forex';
   const routeStart = titleCase(trip.departure_city || destinationNames[0] || trip.destination || 'Your city');
   const routeEnd = destinationNames[destinationNames.length - 1] || titleCase(trip.destination || 'Destination');
   const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
@@ -694,7 +694,9 @@ export default function TripInquiryDetailClient({ id, formConfig }) {
       );
     }
 
-    const inputType = field.fieldType === 'email' ? 'email' : field.fieldType === 'number' ? 'number' : 'text';
+    const inputType = /phone|mobile|whatsapp|contact_number/i.test(field.fieldKey || '') || ['phone', 'mobile'].includes(field.fieldType)
+      ? 'tel'
+      : field.fieldType === 'email' ? 'email' : field.fieldType === 'number' ? 'number' : 'text';
 
     return (
       <label key={field.id || field.fieldKey}>
@@ -890,7 +892,7 @@ export default function TripInquiryDetailClient({ id, formConfig }) {
         <div className="bi-layout" id="trip">
           <div>
             <section className="bi-section" id="inclusions">
-              <h2>Why choose Travel Holiday?</h2>
+              <h2>Why choose Travel Forex?</h2>
               <div className="bi-proof-grid">
                 {[
                   ['Customizable package', (trip.destination_info?.is_customizable === true || trip.destination_info?.is_customizable === 1 || String(trip.destination_info?.is_customizable) === '1' || String(trip.destination_info?.is_customizable).toLowerCase() === 'true') ? 'This itinerary can be adjusted to your travel style.' : 'Our team can help you plan details.'],
@@ -930,7 +932,7 @@ export default function TripInquiryDetailClient({ id, formConfig }) {
             </section>
 
             <section className="bi-section bi-reviews" id="reviews">
-              <h2>Travel Holiday Original Reviews</h2>
+              <h2>Travel Forex Original Reviews</h2>
               {canAddReview ? (
                 <form className="bi-review-form" onSubmit={submitItineraryReview}>
                   <div className="bi-review-form-head">
@@ -973,7 +975,7 @@ export default function TripInquiryDetailClient({ id, formConfig }) {
               ) : null}
               {reviewsLoading ? <div className="bi-review-empty">Loading posted reviews...</div> : null}
               {dynamicReviews.map((review) => {
-                const name = review.reviewer_name || review.name || review.customer?.name || 'Travel Holiday guest';
+                const name = review.reviewer_name || review.name || review.customer?.name || 'Travel Forex guest';
                 const rating = Number(review.rating) || 5;
                 const reviewDate = review.created_at || review.updated_at || review.date;
                 const dateLabel = reviewDate
