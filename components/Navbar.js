@@ -635,6 +635,13 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
     setExpanded(expanded === label ? null : label);
   };
 
+  // TEMP: only Flights & Hotels shown for now — restore the commented list below (and the sidenavbar fetch) later
+  const defaultNavGroups = [
+    { label: 'Flight Booking', href: '/flights' },
+    { label: 'Hotels Booking', href: HOTEL_HREF || '/hotel-booking' },
+  ];
+
+  /* TEMP-HIDDEN: full drawer nav — uncomment to restore
   const defaultNavGroups = [
     {
       label: 'Tour Categories',
@@ -677,6 +684,7 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
     { label: 'Blog', href: '/blog' },
     { label: 'About us', href: '/about' }
   ];
+  */
 
   const [navGroups, setNavGroups] = useState(defaultNavGroups);
 
@@ -729,7 +737,8 @@ function SideDrawer({ isOpen, onClose, allCategories, isLoggedIn, currentUser, o
         console.warn("Could not fetch sidenavbar:", e.message);
       }
     };
-    fetchSideNav();
+    // TEMP-HIDDEN: CMS sidenav would re-add hidden items — uncomment to restore
+    // fetchSideNav();
   }, []);
 
   return (
@@ -2411,6 +2420,7 @@ export default function Navbar({ brand, companyInfo }) {
                   <svg style={{ color: '#FFD700' }} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9" /></svg>
                   Hotels
                 </Link>
+                {/* TEMP-HIDDEN: only Flights & Hotels shown for now — uncomment to restore Holidays / Visa / Forex / More
                 <span style={{ color: '#FFD700', fontSize: '1.5rem', lineHeight: 0, userSelect: 'none', marginTop: -2 }}>•</span>
 
                 <MegaDropdown
@@ -2480,6 +2490,7 @@ export default function Navbar({ brand, companyInfo }) {
                   ]}
                   isTransparent={false}
                 />
+                */}
               </ul>
 
               {/* Right side controls */}
