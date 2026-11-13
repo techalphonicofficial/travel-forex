@@ -12,6 +12,7 @@ import { useStickyHeaderOffset } from '../flights/BookingTopBar';
 import SelectionShareBar from '@/components/share/SelectionShareBar';
 import {
     RESULTS_KEY,
+    memorySearchResults,
     SELECTED_HOTEL_KEY,
     formatDate,
     freeCancellationUntil,
@@ -101,6 +102,10 @@ export default function TripJackHotelsClient() {
 
     const results = useMemo(() => {
         if (override) return override;
+        if (stored === null) return null; // server render
+        // full results kept in memory (the stored copy may be trimmed for big cities)
+        const memory = memorySearchResults();
+        if (memory) return memory;
         if (!stored) return null;
         try {
             return JSON.parse(stored);
@@ -250,7 +255,14 @@ export default function TripJackHotelsClient() {
         try {
             sessionStorage.setItem(SELECTED_HOTEL_KEY, JSON.stringify({ ...original, search: fromSearch }));
         } catch {
-            sessionStorage.setItem(SELECTED_HOTEL_KEY, JSON.stringify({ ...original, images: original.images.slice(0, 10), search: fromSearch }));
+            // storage full: free the stored results copy (the list stays in memory)
+            try {
+                sessionStorage.removeItem(RESULTS_KEY);
+                sessionStorage.setItem(SELECTED_HOTEL_KEY, JSON.stringify({ ...original, images: (original.images || []).slice(0, 10), search: fromSearch }));
+            } catch {
+                window.alert('Unable to open this hotel. Please close some browser tabs and try again.');
+                return;
+            }
         }
         const params = new URLSearchParams({
             hotelId: String(original.hotelId),

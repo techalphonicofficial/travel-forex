@@ -6,7 +6,7 @@ import hotelService from '../services/hotelService';
 import { saveRecent } from '@/components/travel-landing/LandingSections';
 import {
     INDIA_NATIONALITY,
-    RESULTS_KEY,
+    saveSearchResults,
     SEARCH_KEY,
     addDays,
     formatDate,
@@ -326,14 +326,11 @@ export default function HotelSearchForm({ initialData, onSearched, preset = null
 
             try {
                 sessionStorage.setItem(SEARCH_KEY, JSON.stringify(search));
-                sessionStorage.setItem(RESULTS_KEY, JSON.stringify(saved));
             } catch {
-                // big cities: keep fewer photos per hotel
-                sessionStorage.setItem(
-                    RESULTS_KEY,
-                    JSON.stringify({ ...saved, hotels: hotels.map((hotel) => ({ ...hotel, images: hotel.images.slice(0, 6) })) })
-                );
+                // storage blocked / full: the results still open from memory
             }
+            // big cities do not fit in storage: kept in memory, stored copy trimmed
+            saveSearchResults(saved);
 
             // "Your recent searches" on the landing page (this browser only)
             saveRecent(HOTEL_RECENT_KEY, {
@@ -391,7 +388,7 @@ export default function HotelSearchForm({ initialData, onSearched, preset = null
                                 >
                                     <i aria-hidden="true">{item.kind === 'HOTEL' ? '🏨' : '📍'}</i>
                                     <span>
-                                        <strong>{item.kind === 'HOTEL' ? item.name : item.cityName}</strong>
+                                        <strong>{item.kind === 'HOTEL' ? item.name : item.displayName || item.cityName}</strong>
                                         <small>
                                             {item.kind === 'HOTEL'
                                                 // "(Greater Noida)", country only outside India: "(Swat, Pakistan)"

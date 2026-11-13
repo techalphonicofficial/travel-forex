@@ -34,7 +34,23 @@ const GENERAL_RULES = [
     'Extra charges at the hotel (food, minibar, laundry, early check-in) are payable directly to the hotel.',
 ];
 
+const CANCELLATION_RULES = [
+    'The cancellation policy depends on the room you choose. It is confirmed again before payment and shown on your booking and voucher.',
+    'Cancelling within the free cancellation period costs nothing; after it, the charge shown for that period applies.',
+    'If you do not check in (no-show), the full booking amount is charged.',
+    'Refunds are made to your original payment method within 5–7 working days of cancellation.',
+    'To cancel, contact our support team with your Booking ID.',
+];
+
 const apiError = (error, fallback) => error?.response?.data?.message || error?.message || fallback;
+
+// one-line policy for a room option: free till X / charges apply / non-refundable
+const cancellationSummary = (option) => {
+    if (option?.cancellation?.isRefundable === false) return { tone: 'danger', text: 'Non-refundable' };
+    const until = freeCancellationUntil(option);
+    if (until) return { tone: 'success', text: `Free cancellation till ${formatDateTime(until)}` };
+    return { tone: 'warning', text: 'Cancellation charges apply' };
+};
 
 /* --------------------------------------------------------- */
 
@@ -386,6 +402,40 @@ export default function HotelDetails({ hotel }) {
                                 {checkTimes.checkin_min_age && <div><small>Minimum check-in age</small><strong>{checkTimes.checkin_min_age} years</strong></div>}
                             </div>
                             <div style={{ marginTop: 12 }}>
+                                <Collapse
+                                    title="Cancellation policy"
+                                    hint={options.length ? `${options.filter((o) => freeCancellationUntil(o)).length} of ${options.length} rooms with free cancellation` : ''}
+                                    defaultOpen
+                                >
+                                    {pricing.loading ? (
+                                        <p className="hb-muted hb-small" style={{ margin: 0 }}>Loading the cancellation policy of each room…</p>
+                                    ) : options.length ? (
+                                        <div className="hb-cancel-list">
+                                            {options.map((option) => {
+                                                const sameRoom = new Set((option.roomInfo || []).map((r) => r.name)).size === 1;
+                                                const summary = cancellationSummary(option);
+                                                return (
+                                                    <details className="hb-cancel-item" key={option.optionId}>
+                                                        <summary>
+                                                            <span className="hb-cancel-room">
+                                                                <b>{sameRoom ? option.roomInfo?.[0]?.name : 'Room combination'}</b>
+                                                                <small>{mealLabel(option.mealBasis)} · {money(option.pricing?.totalPrice)}</small>
+                                                            </span>
+                                                            <span className={`hb-tag ${summary.tone}`}>{summary.text}</span>
+                                                            <i aria-hidden="true" />
+                                                        </summary>
+                                                        <CancellationTable option={option} />
+                                                    </details>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <p className="hb-muted hb-small" style={{ margin: 0 }}>No rooms are available for your dates, so there is no cancellation policy to show.</p>
+                                    )}
+                                    <div style={{ marginTop: 10 }}>
+                                        <Points points={CANCELLATION_RULES} />
+                                    </div>
+                                </Collapse>
                                 <PolicySections hotel={hotel} />
                                 <Collapse title="General rules">
                                     <Points points={GENERAL_RULES} />

@@ -1978,3 +1978,74 @@
         padding-bottom: 150px;
     }
 }
+
+/* Cancellation policy per room (hotel details > policies) */
+.hb-cancel-list {
+    display: grid;
+    gap: 8px;
+}
+
+.hb-cancel-item {
+    border: 1px solid var(--hb-border);
+    border-radius: 10px;
+    background: #fff;
+}
+
+.hb-collapse .hb-cancel-item summary {
+    padding: 10px 12px;
+    font-size: 13px;
+}
+
+.hb-collapse .hb-cancel-item summary .hb-cancel-room {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.hb-cancel-room b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hb-collapse .hb-cancel-item summary .hb-tag {
+    flex: none;
+}
+
+.hb-collapse[open] .hb-cancel-item summary i {
+    transform: rotate(45deg);
+}
+
+.hb-collapse .hb-cancel-item[open] summary i {
+    transform: rotate(-135deg);
+}
+
+.hb-cancel-item[open] summary {
+    border-bottom: 1px solid var(--hb-border);
+}
+
+.hb-cancel-item > p {
+    margin: 0;
+    padding: 8px 12px 10px;
+}
+
+.hb-cancel-item .hb-penalties th:first-child,
+.hb-cancel-item .hb-penalties td:first-child {
+    padding-left: 12px;
+}
+
+.hb-cancel-item .hb-penalties th:last-child,
+.hb-cancel-item .hb-penalties td:last-child {
+    padding-right: 12px;
+    text-align: right;
+}
+
+@media (max-width: 600px) {
+    .hb-collapse .hb-cancel-item summary {
+        flex-wrap: wrap;
+    }
+
+    .hb-collapse .hb-cancel-item summary .hb-cancel-room {
+        flex-basis: calc(100% - 24px);
+    }
+}

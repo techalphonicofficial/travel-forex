@@ -76,6 +76,8 @@ const hotelService = {
             {
                 params: {
                     query,
+                    // a few extra: the search box drops repeats of the same place
+                    limit: 15,
                 },
             }
         );

@@ -146,6 +146,52 @@ export const slimHotel = (raw, correlationId) => {
 export const sortOptions = (options = []) =>
     [...options].sort((a, b) => Number(a?.pricing?.totalPrice || 0) - Number(b?.pricing?.totalPrice || 0));
 
+/*
+ * Last search results. Big cities (Mumbai, New Delhi: up to 2000 hotels with
+ * all room options) do not fit in sessionStorage (~5 MB), so the full results
+ * stay in memory for this tab and the stored copy is trimmed step by step
+ * until it fits (it is only needed after a page reload).
+ */
+let memoryResults = null;
+const STORED_RESULTS_BUDGET = 2000000; // characters
+
+const RESULT_TRIMS = [
+    (hotel) => hotel,
+    (hotel) => ({ ...hotel, images: (hotel.images || []).slice(0, 6) }),
+    (hotel) => ({ ...hotel, images: (hotel.images || []).slice(0, 3), descriptions: {}, policies: {}, options: sortOptions(hotel.options).slice(0, 10) }),
+    (hotel) => ({ ...hotel, images: (hotel.images || []).slice(0, 1), descriptions: {}, policies: {}, amenities: (hotel.amenities || []).slice(0, 12), options: sortOptions(hotel.options).slice(0, 3) }),
+];
+
+export const saveSearchResults = (saved) => {
+    memoryResults = saved;
+    try {
+        sessionStorage.removeItem(RESULTS_KEY); // the old copy counts against the quota
+    } catch {
+        return false;
+    }
+    const hotels = saved.hotels || [];
+    const copies = [
+        ...RESULT_TRIMS.map((trim) => () => hotels.map(trim)),
+        // still too big: the first hotels only (after a reload)
+        () => hotels.slice(0, 400).map(RESULT_TRIMS[RESULT_TRIMS.length - 1]),
+    ];
+    for (const copy of copies) {
+        const text = JSON.stringify({ ...saved, hotels: copy() });
+        // leave room for the selected hotel and booking steps (same quota)
+        if (text.length > STORED_RESULTS_BUDGET) continue;
+        try {
+            sessionStorage.setItem(RESULTS_KEY, text);
+            return true;
+        } catch {
+            // quota reached: try a smaller copy
+        }
+    }
+    return false;
+};
+
+/* full results of the last search in this tab (null after a reload) */
+export const memorySearchResults = () => memoryResults;
+
 export const cheapestOption = (hotel) => sortOptions(hotel?.options || [])[0] || null;
 
 export const isFreeCancellation = (option) => {
@@ -321,27 +367,24 @@ const score = (item) => (Number.isFinite(Number(item?.matchRank)) ? Number(item.
 
 /*
  * Merge city and hotel suggestions like the supplier's search box.
- * matchRank (from the API): 0 exact, 1 starts with, 2 word starts with,
- * 3 anywhere; +1.5 outside India.
- *  - Indian places always stay.
- *  - A foreign place stays only when no Indian place matched strongly, and
- *    (when hotels matched too) it is the exact name of a big destination,
- *    i.e. one that also has a vicinity / state entry ("dubai", "paris" keep
- *    theirs; "noida" drops Noidan, France; "radisson" drops Radisson, Canada;
- *    "hyatt" drops Hyattsville, USA).
- *  - At most 3 places when hotels matched.
+ * matchRank (from the API, already in the supplier's order):
+ *   India: 0 exact, 1 starts with, 2 word starts with, 3 anywhere,
+ *          3.5 an area of a matching place ("Vasant Vihar" for "delhi")
+ *   abroad: the same + 5, except the exact name of a big destination
+ *          (vicinity / state: "Bali", "Paris and vicinity") = 0.5
+ *  - Indian places always stay; big foreign destinations always stay.
+ *  - Other foreign places stay only when no Indian place matched strongly
+ *    and no hotel matched ("delhi" drops Delhi, USA; "noida" drops Noidan,
+ *    France; "radisson" drops Radisson, Canada).
+ *  - Places first (up to 6 when hotels matched too), then hotels, then weak
+ *    foreign places.
  */
 export const mergeDestinationSuggestions = (cities = [], hotels = [], limit = 10) => {
     const hotelItems = hotels.map((item, order) => ({ ...item, kind: 'HOTEL', order }));
     const strongIndianPlace = cities.some((item) => isIndia(item) && score(item) <= 1);
-    const bigPlaces = new Set(cities
-        .filter((item) => ['MULTI_CITY_VICINITY', 'PROVINCE_STATE'].includes(String(item.regionType || '').toUpperCase()))
-        .map((item) => String(item.cityName || '').toUpperCase()));
-    const keepForeign = (item) =>
-        !strongIndianPlace &&
-        (!hotelItems.length || (score(item) <= 1.5 && bigPlaces.has(String(item.cityName || '').toUpperCase())));
+    const keepForeign = (item) => score(item) <= 0.5 || (!strongIndianPlace && !hotelItems.length);
 
-    // one row per place name + country (Dubai comes as city, vicinity and state)
+    // one row per place (the same place can come as city and vicinity)
     const seen = new Set();
     const cityItems = cities
         .filter((item) => isIndia(item) || keepForeign(item))
@@ -351,14 +394,12 @@ export const mergeDestinationSuggestions = (cities = [], hotels = [], limit = 10
             seen.add(key);
             return true;
         })
-        .slice(0, hotelItems.length ? 3 : 8)
+        .slice(0, hotelItems.length ? 6 : limit)
         .map((item, order) => ({ ...item, kind: 'CITY', order }));
 
-    // good place matches first (like the supplier: "noida" -> Noida, Greater
-    // Noida, then hotels), then hotels, then weak place matches
-    const group = (item) => (item.kind === 'HOTEL' ? 1 : score(item) <= 2 ? 0 : 2);
+    const group = (item) => (item.kind === 'HOTEL' ? 1 : score(item) < 5 ? 0 : 2);
     return [...cityItems, ...hotelItems]
-        .sort((a, b) => group(a) - group(b) || score(a) - score(b) || a.order - b.order)
+        .sort((a, b) => group(a) - group(b) || a.order - b.order)
         .slice(0, limit);
 };
 
